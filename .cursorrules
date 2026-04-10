@@ -1,0 +1,43 @@
+# DeutschTest.pro — Cursor Rules
+
+## Project
+AI simulator for Goethe-Zertifikat exams (A1, A2, B1).
+Stack: Next.js 14 App Router, TypeScript strict, Tailwind CSS, shadcn/ui, Zustand, Zod, Supabase, Anthropic Claude.
+
+## Security — NEVER violate
+- API keys ONLY in .env.local, NEVER in client code
+- All Anthropic/ElevenLabs calls — ONLY through /app/api/ server routes
+- process.env.SECRET_KEY only in server components and API routes
+- Correct answers stored server-side only, NEVER sent to client
+- Zod validation on every Claude response
+- Never log API keys
+
+## Architecture
+- /app — pages and API routes (App Router)
+- /components — React components (client-side)
+- /lib — server utilities (claude.ts, elevenlabs.ts, supabase.ts)
+- /prompts — Claude prompt templates
+- /store — Zustand state management
+- /types — TypeScript type definitions
+
+## Code Style
+- TypeScript strict mode, no `any`
+- Functional components with named exports
+- Zustand for client state
+- Zod schemas for API validation
+- Server components by default, 'use client' only when needed
+- Tailwind for styling, no inline styles
+- German exam terminology: Lesen, Hören, Schreiben, Sprechen
+
+## Design System
+- Light German premium aesthetic (Miele/Braun inspired)
+- Background: #FAFAF7, Cards: #F2EFE8, Text: #1A1A1A
+- Gold accent (#C8A84B) only on CTAs and icons
+- Soft shadows, rounded-lg/xl borders
+- Font: Geist Sans
+
+## Exam Rules
+- AudioPlayer: play/pause ONLY, no seeking (real exam behavior)
+- Timer auto-submits at 0, no going back
+- Correct answers never in component props
+- Each Hören track plays max 1-2 times as specified

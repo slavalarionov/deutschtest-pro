@@ -1,0 +1,39 @@
+import { HeroSection } from '@/components/landing/HeroSection'
+import { FeaturesSection } from '@/components/landing/FeaturesSection'
+import { PricingSection } from '@/components/landing/PricingSection'
+import { FaqSection } from '@/components/landing/FaqSection'
+import { AuthNav } from '@/components/auth/AuthNav'
+import { createClient } from '@/lib/supabase/server'
+import { checkUserCanTakeTest } from '@/lib/exam/limits'
+
+export default async function HomePage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  let freeTestAvailable = true
+  let paidTestsCount = 0
+
+  if (user) {
+    const availability = await checkUserCanTakeTest(user.id, user.email)
+    freeTestAvailable = availability.freeTestAvailable
+    paidTestsCount = availability.paidTestsCount
+  }
+
+  return (
+    <main className="min-h-screen">
+      <header className="absolute right-4 top-4 z-50 sm:right-8 sm:top-6">
+        <AuthNav userEmail={user?.email ?? null} />
+      </header>
+      <HeroSection
+        isLoggedIn={!!user}
+        freeTestAvailable={freeTestAvailable}
+        paidTestsCount={paidTestsCount}
+      />
+      <FeaturesSection />
+      <PricingSection />
+      <FaqSection />
+    </main>
+  )
+}
