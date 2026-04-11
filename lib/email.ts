@@ -1,3 +1,4 @@
+import '@/lib/ensure-resend-user-agent'
 import { Resend } from 'resend'
 
 const DEFAULT_FROM = 'DeutschTest.pro <onboarding@resend.dev>'
@@ -27,7 +28,7 @@ export async function sendPasswordEmail({
   password: string
   subject?: string
 }): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY
+  const apiKey = process.env.RESEND_API_KEY?.trim()
   if (!apiKey) {
     throw new Error('RESEND_API_KEY is not configured')
   }
@@ -60,8 +61,11 @@ export async function sendPasswordEmail({
   })
 
   if (error) {
+    const err = error as { name?: string; message?: string }
+    const name = err.name ?? 'unknown'
+    const msg = err.message ?? 'Unknown Resend error'
     console.error('[email] Resend send failed:', JSON.stringify(error))
     console.error('[email] from used:', from.replace(/<[^>]+>/, '<…>'))
-    throw new Error(error.message)
+    throw new Error(`[resend:${name}] ${msg}`)
   }
 }

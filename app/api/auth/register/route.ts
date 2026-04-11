@@ -31,8 +31,20 @@ function resendHintDe(message: string): string {
   if (m.includes('resend_api_key') || m.includes('not configured')) {
     return 'E-Mail-Dienst ist auf dem Server nicht konfiguriert (RESEND_API_KEY).'
   }
+  if (m.includes('[resend:invalid_api_key]') || m.includes('api key is invalid')) {
+    return 'Resend: API-Key ungültig. In Vercel einen neuen Key unter resend.com/api-keys erstellen, als Secret eintragen (ohne Leerzeichen/Zeilenumbruch), redeploy. Key muss zum gleichen Resend-Konto gehören wie die Domain deutschtest.pro.'
+  }
+  if (
+    m.includes('domain is not verified') ||
+    m.includes('not verified. please, add and verify')
+  ) {
+    return 'Resend: Domain in EMAIL_FROM gehört nicht zu diesem API-Key (anderes Resend-Konto?) oder Absender-Domain weicht ab. Domain und Key müssen im selben Resend-Projekt sein.'
+  }
   if (m.includes('only send testing emails') || m.includes('verify a domain')) {
-    return 'Resend: Bitte eine verifizierte Absender-Domain einrichten (EMAIL_FROM). Mit onboarding@resend.dev sind oft nur Test-E-Mails an Ihre eigene Adresse möglich.'
+    return 'Resend: Mit Test-Absendern nur an die eigene Adresse — EMAIL_FROM auf @deutschtest.pro setzen und Domain verifizieren.'
+  }
+  if (m.includes('access denied') || m.includes('1010')) {
+    return 'Resend blockierte die Anfrage (z. B. User-Agent). Nach Deploy erneut testen; optional in Vercel RESEND_USER_AGENT=DeutschTest.pro/1.0 setzen.'
   }
   if (m.includes('email_from is not set for production')) {
     return 'In Vercel → Settings → Environment Variables (Production): EMAIL_FROM = "DeutschTest.pro <noreply@deutschtest.pro>" — dieselbe Domain muss in Resend unter Domains als "Verified" stehen.'
