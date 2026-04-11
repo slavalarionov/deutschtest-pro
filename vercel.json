@@ -1,10 +1,5 @@
 {
   "buildCommand": "next build",
   "devCommand": "next dev",
-  "installCommand": "npm install",
-  "functions": {
-    "app/api/audio/generate/route.ts": {
-      "maxDuration": 120
-    }
-  }
+  "installCommand": "npm install"
 }

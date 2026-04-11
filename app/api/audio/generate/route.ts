@@ -55,7 +55,8 @@ function getAudioMemoryCache(): Map<string, ArrayBuffer> {
   return g.__audio_cache__ as Map<string, ArrayBuffer>
 }
 
-export const maxDuration = 300
+/** Vercel Hobby: max 60s. Pro: можно поднять до 120–300 в коде и в Project Settings. */
+export const maxDuration = 60
 
 export async function POST(req: NextRequest) {
   try {
