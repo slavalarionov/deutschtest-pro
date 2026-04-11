@@ -14,9 +14,17 @@ export async function sendPasswordEmail({
     throw new Error('RESEND_API_KEY is not configured')
   }
 
-  const from =
-    process.env.EMAIL_FROM || 'DeutschTest.pro <onboarding@resend.dev>'
+  const defaultFrom = 'DeutschTest.pro <onboarding@resend.dev>'
+  const from = process.env.EMAIL_FROM?.trim() || defaultFrom
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://deutschtest.pro'
+
+  // onboarding@resend.dev only allows sending to your own Resend-account email — useless on production.
+  const isProd = process.env.VERCEL_ENV === 'production'
+  if (isProd && (from.includes('@resend.dev') || !process.env.EMAIL_FROM?.trim())) {
+    throw new Error(
+      'EMAIL_FROM is not set for production. In Vercel add EMAIL_FROM = "DeutschTest.pro <noreply@yourdomain.com>" using an address on a domain you verified in Resend.'
+    )
+  }
 
   const resend = new Resend(apiKey)
   const { error } = await resend.emails.send({

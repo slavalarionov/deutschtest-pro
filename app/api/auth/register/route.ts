@@ -34,6 +34,9 @@ function resendHintDe(message: string): string {
   if (m.includes('only send testing emails') || m.includes('verify a domain')) {
     return 'Resend: Bitte eine verifizierte Absender-Domain einrichten (EMAIL_FROM). Mit onboarding@resend.dev sind oft nur Test-E-Mails an Ihre eigene Adresse möglich.'
   }
+  if (m.includes('email_from is not set for production')) {
+    return 'In Vercel → Settings → Environment Variables (Production): EMAIL_FROM = "DeutschTest.pro <noreply@deutschtest.pro>" — dieselbe Domain muss in Resend unter Domains als "Verified" stehen.'
+  }
   if (m.includes('invalid') && m.includes('from')) {
     return 'Ungültiger Absender (EMAIL_FROM). Domain muss bei Resend verifiziert sein.'
   }
