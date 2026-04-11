@@ -74,19 +74,26 @@ export async function generateSpeech(
   return synthesizeToBuffer(text, voiceId)
 }
 
-/** Mehrere Sprecher: parallele TTS, dann MP3-Zusammenfügung. */
+const DIALOGUE_TTS_CONCURRENCY = 4
+
+/** Mehrere Sprecher: TTS in kleinen Batches (Rate-Limits / Vercel-Zeit), dann MP3-Zusammenfügung. */
 export async function generateDialogue(
   lines: DialogueTtsLine[]
 ): Promise<Buffer> {
-  const buffers = await Promise.all(
-    lines.map((line) =>
-      synthesizeToBuffer(
-        line.text,
-        resolveVoiceId(line.role),
-        line.emotion
+  const buffers: Buffer[] = []
+  for (let i = 0; i < lines.length; i += DIALOGUE_TTS_CONCURRENCY) {
+    const chunk = lines.slice(i, i + DIALOGUE_TTS_CONCURRENCY)
+    const parts = await Promise.all(
+      chunk.map((line) =>
+        synthesizeToBuffer(
+          line.text,
+          resolveVoiceId(line.role),
+          line.emotion
+        )
       )
     )
-  )
+    buffers.push(...parts)
+  }
   return concatenateMp3Buffers(buffers)
 }
 

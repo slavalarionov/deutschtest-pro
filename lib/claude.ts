@@ -16,6 +16,7 @@ import { getSchreibenPrompt } from '@/prompts/generation/schreiben'
 import { getSprechenPrompt } from '@/prompts/generation/sprechen'
 import { getSchreibenScorePrompt } from '@/prompts/scoring/schreiben-score'
 import { getSprechenScorePrompt } from '@/prompts/scoring/sprechen-score'
+import { horenDialogueEmotionSchema } from '@/lib/horen-emotion'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
@@ -413,9 +414,7 @@ const horenDialogueLineSchema = z.object({
   speaker: z.string().min(1),
   role: horenVoiceRoleSchema,
   text: z.string().min(1),
-  emotion: z
-    .enum(['neutral', 'happy', 'worried', 'angry', 'sad', 'polite'])
-    .optional(),
+  emotion: horenDialogueEmotionSchema,
 })
 
 const horenScriptSchema = z

@@ -7,6 +7,7 @@ import {
   monologueCachePath,
   uploadCachedMp3,
 } from '@/lib/supabase-audio-cache'
+import { horenDialogueEmotionSchema } from '@/lib/horen-emotion'
 
 const horenVoiceRoleRequest = z.enum([
   'casual_female',
@@ -22,9 +23,7 @@ const dialogueLineRequest = z.object({
   speaker: z.string().optional(),
   role: horenVoiceRoleRequest,
   text: z.string().min(1).max(4000),
-  emotion: z
-    .enum(['neutral', 'happy', 'worried', 'angry', 'sad', 'polite'])
-    .optional(),
+  emotion: horenDialogueEmotionSchema,
 })
 
 const requestSchema = z
@@ -65,7 +64,11 @@ export async function POST(req: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: 'Invalid request' },
+        {
+          success: false,
+          error: 'invalid_request',
+          details: parsed.error.flatten(),
+        },
         { status: 400 }
       )
     }

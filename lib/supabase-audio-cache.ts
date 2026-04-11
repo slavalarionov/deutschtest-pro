@@ -2,16 +2,22 @@
 
 import { createHash } from 'crypto'
 import { createServerClient } from '@/lib/supabase-server'
-import type { VoiceRole } from '@/lib/voices'
+import { VOICES, type VoiceRole } from '@/lib/voices'
 
 const DEFAULT_BUCKET = 'audio-cache'
+
+/** Änderung der Voice-IDs invalidiert alte gecachte MP3s. */
+function voiceTableFingerprint(): string {
+  return createHash('md5').update(JSON.stringify(VOICES)).digest('hex').slice(0, 12)
+}
 
 export function getAudioCacheBucket(): string {
   return process.env.SUPABASE_AUDIO_BUCKET ?? DEFAULT_BUCKET
 }
 
 export function monologueCachePath(voiceType: string, text: string): { hash: string; path: string } {
-  const hash = createHash('md5').update(`${voiceType}|${text}`).digest('hex')
+  const fp = voiceTableFingerprint()
+  const hash = createHash('md5').update(`${fp}|${voiceType}|${text}`).digest('hex')
   return { hash, path: `monologue/${hash}.mp3` }
 }
 
@@ -22,7 +28,8 @@ export interface DialogueLineInput {
 }
 
 export function dialogueCachePath(lines: DialogueLineInput[]): { hash: string; path: string } {
-  const hash = createHash('md5').update(JSON.stringify(lines)).digest('hex')
+  const fp = voiceTableFingerprint()
+  const hash = createHash('md5').update(`${fp}|${JSON.stringify(lines)}`).digest('hex')
   return { hash, path: `dialogues/${hash}.mp3` }
 }
 

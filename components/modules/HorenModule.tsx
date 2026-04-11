@@ -288,8 +288,16 @@ function HorenAudioPlayer({ script }: { script: HorenScript }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      if (!res.ok) throw new Error('Audio generation failed')
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '')
+        console.warn('[Horen audio]', res.status, errText.slice(0, 500))
+        throw new Error('Audio generation failed')
+      }
       const blob = await res.blob()
+      if (!blob.size || blob.type.includes('json')) {
+        console.warn('[Horen audio] unexpected body', blob.type, blob.size)
+        throw new Error('Invalid audio response')
+      }
       const url = URL.createObjectURL(blob)
       shouldAutoPlay.current = true
       setAudioUrl(url)
@@ -350,6 +358,11 @@ function HorenAudioPlayer({ script }: { script: HorenScript }) {
         onCanPlayThrough={handleCanPlayThrough}
         onTimeUpdate={handleTimeUpdate}
         onEnded={handleEnded}
+        onError={() => {
+          console.warn('[Horen audio] <audio> decode/error')
+          setError(true)
+          setIsPlaying(false)
+        }}
         preload="auto"
       />
 

@@ -25,6 +25,11 @@ export async function concatenateMp3Buffers(buffers: Buffer[]): Promise<Buffer> 
   if (buffers.length === 0) throw new Error('No audio buffers')
   if (buffers.length === 1) return buffers[0]
 
+  // Auf Vercel ist spawn/ffmpeg oft langsam/fehleranfällig; naive Concat reicht für ElevenLabs-MP3 in den meisten Playern.
+  if (process.env.VERCEL === '1' || process.env.SKIP_FFMPEG === '1') {
+    return Buffer.concat(buffers)
+  }
+
   const ffmpegPath = await getFfmpegPath()
   if (!ffmpegPath) {
     return Buffer.concat(buffers)
