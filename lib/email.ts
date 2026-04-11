@@ -1,5 +1,23 @@
 import { Resend } from 'resend'
 
+const DEFAULT_FROM = 'DeutschTest.pro <onboarding@resend.dev>'
+
+/** Vercel UI sometimes stores extra quotes; strip them. */
+function parseEmailFromEnv(): { from: string; explicitlySet: boolean } {
+  const raw = process.env.EMAIL_FROM
+  if (raw == null || raw.trim() === '') {
+    return { from: DEFAULT_FROM, explicitlySet: false }
+  }
+  let v = raw.trim()
+  if (
+    (v.startsWith('"') && v.endsWith('"')) ||
+    (v.startsWith("'") && v.endsWith("'"))
+  ) {
+    v = v.slice(1, -1).trim()
+  }
+  return { from: v || DEFAULT_FROM, explicitlySet: true }
+}
+
 export async function sendPasswordEmail({
   to,
   password,
@@ -14,13 +32,12 @@ export async function sendPasswordEmail({
     throw new Error('RESEND_API_KEY is not configured')
   }
 
-  const defaultFrom = 'DeutschTest.pro <onboarding@resend.dev>'
-  const from = process.env.EMAIL_FROM?.trim() || defaultFrom
+  const { from, explicitlySet } = parseEmailFromEnv()
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://deutschtest.pro'
 
   // onboarding@resend.dev only allows sending to your own Resend-account email — useless on production.
   const isProd = process.env.VERCEL_ENV === 'production'
-  if (isProd && (from.includes('@resend.dev') || !process.env.EMAIL_FROM?.trim())) {
+  if (isProd && (!explicitlySet || from.includes('@resend.dev'))) {
     throw new Error(
       'EMAIL_FROM is not set for production. In Vercel add EMAIL_FROM = "DeutschTest.pro <noreply@yourdomain.com>" using an address on a domain you verified in Resend.'
     )
@@ -43,6 +60,8 @@ export async function sendPasswordEmail({
   })
 
   if (error) {
+    console.error('[email] Resend send failed:', JSON.stringify(error))
+    console.error('[email] from used:', from.replace(/<[^>]+>/, '<…>'))
     throw new Error(error.message)
   }
 }
