@@ -4,19 +4,19 @@
  */
 export const VOICES = {
   /** Alltag, jüngere Sprecherin */
-  casual_female: 'MF3mGyEYCl7XYWbV9V6O',
+  casual_female: 'NE7AIW5DoJ7lUosXV2KR',
   /** Alltag, jüngerer Sprecher */
-  casual_male: 'VR6AewLTigWG4xSOukaG',
+  casual_male: 'sbJf8opzqSGRyRJzCVjD',
   /** Radio, formelle Ansage, Interview-Moderation */
-  professional_female: 'EXAVITQu4vr4xnSDxMaL',
+  professional_female: 'hIu9oVaWQOAlZ60h6mYh',
   /** Radio, formelle Ansage, Interview-Moderation */
-  professional_male: 'pNInz6obpgDQGcFmaJgB',
+  professional_male: 'hdH6PoUhxxcZgDRKifb9',
   /** Bahnhof, Flughafen, klare Durchsage */
-  announcer: 'ThT5KcBeYPX3keUQqHPh',
+  announcer: 'iQ5dS7juUUF7zgIVf8ET',
   /** ältere Sprecherin */
-  elderly_female: 'XB0fDUnXU5powFXDhCwa',
-  /** jüngerer / kindlicher Klang (in Library prüfen) */
-  child: 'XrExE9yKIg1WjnnlVkGX',
+  elderly_female: 'p2Wol3C7j3rHbfOrbL18',
+  /** Kind / jüngerer Klang */
+  child: '7Nj1UduP6iY6hWpEDibS',
 } as const
 
 export type VoiceRole = keyof typeof VOICES
