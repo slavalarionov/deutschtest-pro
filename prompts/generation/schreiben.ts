@@ -1,34 +1,34 @@
 import type { ExamLevel } from '@/types/exam'
 
 export function getSchreibenPrompt(level: ExamLevel): string {
-  const wordCounts: Record<ExamLevel, number> = {
-    A1: 30,
-    A2: 40,
-    B1: 80,
-  }
+  const wordCounts: Record<ExamLevel, number> = { A1: 30, A2: 50, B1: 80 }
+  const wc = wordCounts[level]
 
-  return `Du bist ein Experte für Goethe-Zertifikat ${level} Prüfungen.
+  return `Erstelle das Modul Schreiben für das Goethe-Zertifikat ${level}.
 
-Erstelle das Modul Schreiben für das Goethe-Zertifikat ${level}.
+ANFORDERUNGEN:
+- Erstelle genau 1 Schreibaufgabe
+- Type: "email" oder "forum" (je nach Niveau)
+- Situation: Beschreibe den Kontext (wem schreibt man, warum)
+- Prompt: Die eigentliche Aufgabe
+- requiredPoints: 3–4 inhaltliche Punkte, die der Text behandeln muss
+- wordCount: ca. ${wc} Wörter
+- samplePost: Bei Forumaufgaben — der Originalbeitrag, auf den geantwortet wird (optional)
 
-Format für ${level}:
-- 1 Schreibaufgabe
-- Kontext: Forum-Post, E-Mail oder Brief
-- 3-4 inhaltliche Punkte, die behandelt werden müssen
-- Ziel-Wörteranzahl: ca. ${wordCounts[level]} Wörter
+Themen: Alltag, Freizeit, Arbeit, Wohnung, Reise, Kurs, Veranstaltung.
+Niveau: ${level}
 
-Antworte NUR mit validem JSON:
+ANTWORTE NUR MIT VALIDEM JSON:
 {
   "tasks": [
     {
       "id": 1,
-      "prompt": "Beschreibung der Aufgabe...",
-      "context": "Forumsbeitrag oder Situation...",
-      "requiredPoints": ["Punkt 1", "Punkt 2", "Punkt 3"],
-      "wordCount": ${wordCounts[level]}
+      "type": "email",
+      "situation": "Sie haben eine Anzeige für eine Wohnung gelesen und möchten...",
+      "prompt": "Schreiben Sie eine E-Mail an den Vermieter.",
+      "requiredPoints": ["sich vorstellen", "Fragen zur Wohnung stellen", "Besichtigungstermin vorschlagen"],
+      "wordCount": ${wc}
     }
   ]
-}
-
-Niveau: ${level}. Die Aufgabe muss realistisch und dem Prüfungsformat entsprechen.`
+}`
 }

@@ -34,6 +34,20 @@ const config: Config = {
         xl: '12px',
         '2xl': '16px',
       },
+      keyframes: {
+        'timer-pulse': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.6' },
+        },
+        progress: {
+          '0%': { width: '0%' },
+          '100%': { width: '100%' },
+        },
+      },
+      animation: {
+        'timer-pulse': 'timer-pulse 1s ease-in-out infinite',
+        progress: 'progress 3s linear forwards',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

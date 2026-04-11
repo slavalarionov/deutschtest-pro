@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useExamStore } from '@/store/examStore'
+import { ExamTimerDisplay, TimerWarningBanner } from '@/components/exam/ExamTimerDisplay'
+import { TimeUpOverlay } from '@/components/exam/TimeUpOverlay'
 import type {
   LesenContent,
   LesenTeil1,
@@ -24,6 +26,7 @@ export function LesenModule() {
   const [timeLeft, setTimeLeft] = useState(TOTAL_TIME)
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [timeUp, setTimeUp] = useState(false)
   const [results, setResults] = useState<{
     score: number
     details: Record<string, { userAnswer: string; correctAnswer: string; isCorrect: boolean }>
@@ -53,7 +56,10 @@ export function LesenModule() {
 
   useEffect(() => {
     if (submitted || timeLeft <= 0) {
-      if (timeLeft <= 0 && !submitted) handleSubmit()
+      if (timeLeft <= 0 && !submitted) {
+        setTimeUp(true)
+        handleSubmit()
+      }
       return
     }
     const t = setInterval(() => setTimeLeft((p) => p - 1), 1000)
@@ -68,22 +74,20 @@ export function LesenModule() {
     )
   }
 
-  const mins = Math.floor(timeLeft / 60)
-  const secs = timeLeft % 60
-  const isLow = timeLeft < 5 * 60
-
   return (
     <div className="mx-auto max-w-4xl space-y-5">
+      {timeUp && session && <TimeUpOverlay sessionId={session.id} />}
+
       {/* Header with timer */}
       <div className="flex items-center justify-between rounded-xl bg-brand-white p-4 shadow-soft">
         <div>
           <h2 className="text-lg font-semibold text-brand-text">Modul Lesen</h2>
           <p className="text-xs text-brand-muted">65 Minuten — 5 Teile — 30 Aufgaben</p>
         </div>
-        <div className={`rounded-lg px-4 py-2 font-mono text-lg font-semibold tabular-nums ${isLow ? 'bg-red-50 text-brand-red' : 'bg-brand-surface text-brand-text'}`}>
-          {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
-        </div>
+        <ExamTimerDisplay timeLeft={timeLeft} />
       </div>
+
+      {!submitted && <TimerWarningBanner timeLeft={timeLeft} />}
 
       {/* Teil navigation */}
       <div className="flex gap-1.5 rounded-xl bg-brand-white p-1.5 shadow-soft">

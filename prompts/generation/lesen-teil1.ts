@@ -1,25 +1,24 @@
 import type { ExamLevel } from '@/types/exam'
 
 export function getLesenTeil1Prompt(level: ExamLevel): string {
-  return `Du bist ein Experte für Goethe-Zertifikat ${level} Prüfungen.
+  return `Erstelle Teil 1 des Moduls Lesen für das Goethe-Zertifikat ${level}.
 
-Erstelle Teil 1 des Moduls Lesen für das Goethe-Zertifikat ${level}.
+ANFORDERUNGEN:
+- Schreibe einen Blogbeitrag auf Deutsch (350–450 Wörter), Niveau ${level}
+- Thema: ein alltägliches Thema (Umzug, Arbeit, Urlaub, Hobby, Nachbarschaft, Kochen, Sport)
+- Erstelle genau 7 Aufgaben:
+  - Aufgabe 0 ist ein Beispiel (isExample: true) mit Antwort "richtig"
+  - Aufgaben 1–6: genau 3 "richtig" und 3 "falsch"
+- Jede Aufgabe ist eine Aussage über den Text
 
-Format:
-- Ein kurzer Text (Blog, E-Mail, Anzeige — je nach Niveau)
-- 6 Aussagen zum Text
-- Aufgabentyp: Richtig oder Falsch
-- Eine Aussage als Beispiel (isExample: true)
-
-Antworte NUR mit validem JSON im folgenden Format:
+ANTWORTE NUR MIT VALIDEM JSON:
 {
-  "text": "...",
+  "text": "Der vollständige Blogbeitrag...",
   "tasks": [
-    { "id": 0, "statement": "...", "answer": "richtig", "isExample": true },
-    { "id": 1, "statement": "...", "answer": "falsch" },
+    { "id": 0, "statement": "Beispiel...", "answer": "richtig", "isExample": true },
+    { "id": 1, "statement": "...", "answer": "richtig" },
+    { "id": 2, "statement": "...", "answer": "falsch" },
     ...
   ]
-}
-
-Der Text muss dem Niveau ${level} entsprechen (Wortschatz, Grammatik, Länge).`
+}`
 }

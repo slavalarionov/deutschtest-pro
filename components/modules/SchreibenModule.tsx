@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useExamStore } from '@/store/examStore'
+import { ExamTimerDisplay, TimerWarningBanner } from '@/components/exam/ExamTimerDisplay'
+import { TimeUpOverlay } from '@/components/exam/TimeUpOverlay'
 import type { SchreibenContent, SchreibenFeedback } from '@/types/exam'
 
 const SCHREIBEN_TIME = 60 * 60
@@ -12,6 +14,7 @@ export function SchreibenModule() {
   const [timeLeft, setTimeLeft] = useState(SCHREIBEN_TIME)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [timeUp, setTimeUp] = useState(false)
   const [feedback, setFeedback] = useState<SchreibenFeedback | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -56,7 +59,10 @@ export function SchreibenModule() {
 
   useEffect(() => {
     if (submitted || timeLeft <= 0) {
-      if (timeLeft <= 0 && !submitted) handleSubmit()
+      if (timeLeft <= 0 && !submitted) {
+        setTimeUp(true)
+        handleSubmit()
+      }
       return
     }
     const t = setInterval(() => setTimeLeft((p) => p - 1), 1000)
@@ -71,23 +77,22 @@ export function SchreibenModule() {
     )
   }
 
-  const mins = Math.floor(timeLeft / 60)
-  const secs = timeLeft % 60
-  const isLow = timeLeft < 5 * 60
   const targetWords = task.wordCount || 80
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
+      {timeUp && session && <TimeUpOverlay sessionId={session.id} />}
+
       {/* Header */}
       <div className="flex items-center justify-between rounded-xl bg-brand-white p-4 shadow-soft">
         <div>
           <h2 className="text-lg font-semibold text-brand-text">Modul Schreiben</h2>
           <p className="text-xs text-brand-muted">60 Minuten — Schriftlicher Ausdruck</p>
         </div>
-        <div className={`rounded-lg px-4 py-2 font-mono text-lg font-semibold tabular-nums ${isLow ? 'bg-red-50 text-brand-red' : 'bg-brand-surface text-brand-text'}`}>
-          {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
-        </div>
+        <ExamTimerDisplay timeLeft={timeLeft} />
       </div>
+
+      {!submitted && <TimerWarningBanner timeLeft={timeLeft} />}
 
       {/* Task card */}
       <div className="rounded-xl bg-brand-white p-6 shadow-soft">

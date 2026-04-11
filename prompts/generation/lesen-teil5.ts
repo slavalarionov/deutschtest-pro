@@ -1,24 +1,23 @@
 import type { ExamLevel } from '@/types/exam'
 
 export function getLesenTeil5Prompt(level: ExamLevel): string {
-  return `Du bist ein Experte für Goethe-Zertifikat ${level} Prüfungen.
+  return `Erstelle Teil 5 des Moduls Lesen für das Goethe-Zertifikat ${level}.
 
-Erstelle Teil 5 des Moduls Lesen für das Goethe-Zertifikat ${level}.
+ANFORDERUNGEN:
+- Schreibe einen kurzen Text (150–200 Wörter) mit 7 Lücken, Niveau ${level}
+- Markiere Lücken im Text als ___(26)___, ___(27)___ usw.
+- Erstelle genau 7 Lückenaufgaben:
+  - Lücke 0 ist ein Beispiel (isExample: true)
+  - Lücken 26–31 sind die echten Aufgaben
+  - Jede Lücke hat 3 Optionen (a, b, c), nur eine passt grammatisch und semantisch
 
-Format:
-- Ein kurzer Text mit Lücken (Lückentext / Cloze)
-- 6 Aufgaben: Wähle das richtige Wort (a, b oder c)
-- Eine Aufgabe als Beispiel (isExample: true)
-
-Antworte NUR mit validem JSON:
+ANTWORTE NUR MIT VALIDEM JSON:
 {
-  "text": "Text mit ___(27)___ Lücken ___(28)___ ...",
-  "tasks": [
-    { "id": 0, "statement": "(0) a) haben b) sein c) werden", "answer": "a", "isExample": true },
-    { "id": 27, "statement": "(27) a) ... b) ... c) ...", "answer": "b" },
+  "text": "Liebe Freunde, ich ___(0)___ euch von meinem Urlaub ___(26)___. Wir sind ___(27)___ ...",
+  "gaps": [
+    { "id": 0, "options": { "a": "möchte", "b": "möchten", "c": "möchtest" }, "answer": "a", "isExample": true },
+    { "id": 26, "options": { "a": "erzählen", "b": "erzählt", "c": "erzähle" }, "answer": "a" },
     ...
   ]
-}
-
-Niveau: ${level}.`
+}`
 }

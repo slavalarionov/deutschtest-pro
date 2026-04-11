@@ -167,13 +167,46 @@ export type HorenTaskMC = {
 
 export type HorenTask = HorenTaskRF | HorenTaskMC
 
+/** Rollen für Mehrsprecher-Hörtexte (ElevenLabs) — siehe lib/voices.ts */
+export type HorenVoiceRole =
+  | 'casual_female'
+  | 'casual_male'
+  | 'professional_female'
+  | 'professional_male'
+  | 'announcer'
+  | 'elderly_female'
+  | 'child'
+
+export type HorenDialogueEmotion =
+  | 'neutral'
+  | 'happy'
+  | 'worried'
+  | 'angry'
+  | 'sad'
+  | 'polite'
+
+export interface HorenDialogueLine {
+  speaker: string
+  role: HorenVoiceRole
+  text: string
+  emotion?: HorenDialogueEmotion
+}
+
+export type HorenLegacyVoiceType =
+  | 'male_professional'
+  | 'female_professional'
+  | 'male_casual'
+  | 'female_casual'
+
+/** Ein Script: entweder ein Sprecher (script) oder Dialog (dialogue). */
 export interface HorenScript {
   id: number
-  script: string
-  voiceType: 'male_professional' | 'female_professional' | 'male_casual' | 'female_casual'
-  audioUrl?: string
-  tasks: HorenTask[]
   playCount: number
+  tasks: HorenTask[]
+  script?: string
+  voiceType?: HorenLegacyVoiceType
+  dialogue?: HorenDialogueLine[]
+  audioUrl?: string
 }
 
 // --- Schreiben ---

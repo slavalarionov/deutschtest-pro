@@ -1,20 +1,39 @@
 // server-only — this file must NEVER be imported in client components
 
+import { resolveVoiceId, type VoiceRole } from '@/lib/voices'
+import { concatenateMp3Buffers } from '@/lib/concat-mp3'
+
 const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1'
 
-const VOICE_MAP: Record<string, string> = {
-  male_professional: 'pNInz6obpgDQGcFmaJgB',
-  female_professional: 'EXAVITQu4vr4xnSDxMaL',
-  male_casual: 'VR6AewLTigWG4xSOukaG',
-  female_casual: 'MF3mGyEYCl7XYWbV9V6O',
+export interface DialogueTtsLine {
+  role: VoiceRole
+  text: string
+  emotion?: string
 }
 
-export async function generateSpeech(
-  text: string,
-  voiceType: string
-): Promise<Buffer> {
-  const voiceId = VOICE_MAP[voiceType] || VOICE_MAP.male_professional
+function voiceSettings(emotion?: string) {
+  const styleMap: Record<string, number> = {
+    neutral: 0.2,
+    happy: 0.45,
+    worried: 0.15,
+    angry: 0.4,
+    sad: 0.1,
+    polite: 0.28,
+  }
+  const style =
+    emotion && styleMap[emotion] !== undefined ? styleMap[emotion] : 0.2
+  return {
+    stability: 0.75,
+    similarity_boost: 0.75,
+    style,
+  }
+}
 
+async function synthesizeToBuffer(
+  text: string,
+  voiceId: string,
+  emotion?: string
+): Promise<Buffer> {
   const response = await fetch(
     `${ELEVENLABS_API_URL}/text-to-speech/${voiceId}`,
     {
@@ -26,11 +45,7 @@ export async function generateSpeech(
       body: JSON.stringify({
         text,
         model_id: 'eleven_multilingual_v2',
-        voice_settings: {
-          stability: 0.75,
-          similarity_boost: 0.75,
-          style: 0.2,
-        },
+        voice_settings: voiceSettings(emotion),
       }),
     }
   )
@@ -40,12 +55,39 @@ export async function generateSpeech(
     const keyPreview = process.env.ELEVENLABS_API_KEY
       ? `${process.env.ELEVENLABS_API_KEY.slice(0, 8)}...`
       : 'MISSING'
-    console.error(`ElevenLabs ${response.status} | key: ${keyPreview} | body: ${errorBody.slice(0, 200)}`)
+    console.error(
+      `ElevenLabs ${response.status} | key: ${keyPreview} | body: ${errorBody.slice(0, 200)}`
+    )
     throw new Error(`ElevenLabs API error: ${response.status}`)
   }
 
   const arrayBuffer = await response.arrayBuffer()
   return Buffer.from(arrayBuffer)
+}
+
+/** Ein Sprecher: Legacy voiceType (male_casual, …) oder VoiceRole (casual_male, …). */
+export async function generateSpeech(
+  text: string,
+  voiceType: string
+): Promise<Buffer> {
+  const voiceId = resolveVoiceId(voiceType)
+  return synthesizeToBuffer(text, voiceId)
+}
+
+/** Mehrere Sprecher: parallele TTS, dann MP3-Zusammenfügung. */
+export async function generateDialogue(
+  lines: DialogueTtsLine[]
+): Promise<Buffer> {
+  const buffers = await Promise.all(
+    lines.map((line) =>
+      synthesizeToBuffer(
+        line.text,
+        resolveVoiceId(line.role),
+        line.emotion
+      )
+    )
+  )
+  return concatenateMp3Buffers(buffers)
 }
 
 export async function transcribeSpeech(
@@ -60,16 +102,13 @@ export async function transcribeSpeech(
   formData.append('model_id', 'scribe_v1')
   formData.append('language_code', 'deu')
 
-  const response = await fetch(
-    `${ELEVENLABS_API_URL}/speech-to-text`,
-    {
-      method: 'POST',
-      headers: {
-        'xi-api-key': process.env.ELEVENLABS_API_KEY!,
-      },
-      body: formData,
-    }
-  )
+  const response = await fetch(`${ELEVENLABS_API_URL}/speech-to-text`, {
+    method: 'POST',
+    headers: {
+      'xi-api-key': process.env.ELEVENLABS_API_KEY!,
+    },
+    body: formData,
+  })
 
   if (!response.ok) {
     throw new Error(`ElevenLabs STT error: ${response.status}`)

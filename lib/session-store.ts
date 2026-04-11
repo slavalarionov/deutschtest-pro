@@ -4,6 +4,7 @@ import type { Json } from '@/types/supabase'
 
 export interface StoredSession {
   id: string
+  userId: string
   level: string
   mode: string
   content: Record<string, unknown>
@@ -18,7 +19,7 @@ export async function saveSession(session: StoredSession): Promise<void> {
 
   const { error } = await supabase.from('exam_sessions').insert({
     id: session.id,
-    user_id: 'anonymous',
+    user_id: session.userId,
     level: session.level,
     mode: session.mode,
     content: session.content as unknown as Json,
@@ -46,6 +47,7 @@ export async function getSession(id: string): Promise<StoredSession | null> {
 
   return {
     id: data.id,
+    userId: data.user_id,
     level: data.level,
     mode: data.mode,
     content: data.content as Record<string, unknown>,

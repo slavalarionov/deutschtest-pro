@@ -320,7 +320,8 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
 
   const mins = Math.floor(timeLeft / 60)
   const secs = timeLeft % 60
-  const isLow = timeLeft < 30
+  const isCritical = timeLeft <= 15 && timeLeft > 0
+  const isWarning = timeLeft <= 30 && timeLeft > 15
 
   return (
     <div className="space-y-4">
@@ -383,8 +384,12 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
         {phase === 'recording' && (
           <div className="text-center">
             {/* Timer */}
-            <div className={`mb-4 inline-block rounded-lg px-5 py-2 font-mono text-2xl font-bold tabular-nums ${
-              isLow ? 'bg-red-50 text-brand-red' : 'bg-brand-surface text-brand-text'
+            <div className={`mb-4 inline-block rounded-lg px-5 py-2 font-mono text-2xl font-bold tabular-nums transition-colors ${
+              isCritical
+                ? 'animate-timer-pulse bg-red-100 text-brand-red'
+                : isWarning
+                  ? 'bg-orange-50 text-orange-600'
+                  : 'bg-brand-surface text-brand-text'
             }`}>
               {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
             </div>

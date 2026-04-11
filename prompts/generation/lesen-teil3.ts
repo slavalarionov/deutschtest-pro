@@ -1,24 +1,22 @@
 import type { ExamLevel } from '@/types/exam'
 
 export function getLesenTeil3Prompt(level: ExamLevel): string {
-  return `Du bist ein Experte für Goethe-Zertifikat ${level} Prüfungen.
+  return `Erstelle Teil 3 des Moduls Lesen für das Goethe-Zertifikat ${level}.
 
-Erstelle Teil 3 des Moduls Lesen für das Goethe-Zertifikat ${level}.
+ANFORDERUNGEN:
+- Schreibe einen Regeltext (Hausordnung, Bibliotheksregeln, Kursregeln, Vereinsregeln) (250–350 Wörter), Niveau ${level}
+- Erstelle genau 8 Aufgaben:
+  - Aufgabe 0 ist ein Beispiel (isExample: true) mit Antwort "ja"
+  - Aufgaben 12–18: Aussagen mit "ja" oder "nein"
+  - Mischung: ca. Hälfte "ja", Hälfte "nein"
 
-Format:
-- Ein Text (Anleitung, Hausordnung, Regeln)
-- 7 Aussagen: Ja oder Nein
-- Eine Aussage als Beispiel (isExample: true)
-
-Antworte NUR mit validem JSON:
+ANTWORTE NUR MIT VALIDEM JSON:
 {
-  "text": "...",
+  "text": "Der vollständige Regeltext...",
   "tasks": [
-    { "id": 0, "statement": "...", "answer": "ja", "isExample": true },
-    { "id": 13, "statement": "...", "answer": "nein" },
+    { "id": 0, "statement": "Beispiel...", "answer": "ja", "isExample": true },
+    { "id": 12, "statement": "...", "answer": "nein" },
     ...
   ]
-}
-
-Niveau: ${level}.`
+}`
 }

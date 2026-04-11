@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useExamStore } from '@/store/examStore'
+import { ExamTimerDisplay, TimerWarningBanner } from '@/components/exam/ExamTimerDisplay'
+import { TimeUpOverlay } from '@/components/exam/TimeUpOverlay'
 import type {
   HorenContent,
   HorenTeil,
@@ -26,6 +28,7 @@ export function HorenModule() {
   const [timeLeft, setTimeLeft] = useState(TOTAL_TIME)
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [timeUp, setTimeUp] = useState(false)
   const [results, setResults] = useState<{
     score: number
     details: Record<string, { userAnswer: string; correctAnswer: string; isCorrect: boolean }>
@@ -55,7 +58,10 @@ export function HorenModule() {
 
   useEffect(() => {
     if (submitted || timeLeft <= 0) {
-      if (timeLeft <= 0 && !submitted) handleSubmit()
+      if (timeLeft <= 0 && !submitted) {
+        setTimeUp(true)
+        handleSubmit()
+      }
       return
     }
     const t = setInterval(() => setTimeLeft((p) => p - 1), 1000)
@@ -70,22 +76,21 @@ export function HorenModule() {
     )
   }
 
-  const mins = Math.floor(timeLeft / 60)
-  const secs = timeLeft % 60
-  const isLow = timeLeft < 5 * 60
   const teile = [horen.teil1, horen.teil2, horen.teil3, horen.teil4]
 
   return (
     <div className="mx-auto max-w-4xl space-y-5">
+      {timeUp && session && <TimeUpOverlay sessionId={session.id} />}
+
       <div className="flex items-center justify-between rounded-xl bg-brand-white p-4 shadow-soft">
         <div>
           <h2 className="text-lg font-semibold text-brand-text">Modul Hören</h2>
           <p className="text-xs text-brand-muted">40 Minuten — 4 Teile — 20 Aufgaben</p>
         </div>
-        <div className={`rounded-lg px-4 py-2 font-mono text-lg font-semibold tabular-nums ${isLow ? 'bg-red-50 text-brand-red' : 'bg-brand-surface text-brand-text'}`}>
-          {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
-        </div>
+        <ExamTimerDisplay timeLeft={timeLeft} />
       </div>
+
+      {!submitted && <TimerWarningBanner timeLeft={timeLeft} />}
 
       <div className="flex gap-1.5 rounded-xl bg-brand-white p-1.5 shadow-soft">
         {TEIL_LABELS.map((label, i) => (
@@ -266,14 +271,22 @@ function HorenAudioPlayer({ script }: { script: HorenScript }) {
     setLoading(true)
     setError(false)
     try {
+      const hasDialogue = Boolean(script.dialogue && script.dialogue.length >= 2)
+      const payload = hasDialogue
+        ? { dialogue: script.dialogue }
+        : {
+            text: script.script,
+            voiceType: script.voiceType,
+          }
+
+      if (!hasDialogue && (!script.script || !script.voiceType)) {
+        throw new Error('Missing script or dialogue')
+      }
+
       const res = await fetch('/api/audio/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: script.script,
-          voiceType: script.voiceType,
-          cacheKey: `horen_${script.id}`,
-        }),
+        body: JSON.stringify(payload),
       })
       if (!res.ok) throw new Error('Audio generation failed')
       const blob = await res.blob()
@@ -285,7 +298,7 @@ function HorenAudioPlayer({ script }: { script: HorenScript }) {
     } finally {
       setLoading(false)
     }
-  }, [script.script, script.voiceType, script.id])
+  }, [script.dialogue, script.script, script.voiceType])
 
   const togglePlay = useCallback(() => {
     if (loading) return

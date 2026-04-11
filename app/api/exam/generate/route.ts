@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
 
     await saveSession({
       id: sessionId,
+      userId: user.id,
       level,
       mode: module,
       content,

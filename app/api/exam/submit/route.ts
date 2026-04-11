@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSession, type StoredSession } from '@/lib/session-store'
+import { createServerClient } from '@/lib/supabase-server'
 import { scoreSchreiben } from '@/lib/claude'
 import type { ExamLevel, SchreibenContent } from '@/types/exam'
+import type { Json } from '@/types/supabase'
 
 const submitLesenSchema = z.object({
   sessionId: z.string().min(1),
@@ -50,11 +52,11 @@ export async function POST(req: NextRequest) {
     }
 
     if (data.type === 'lesen') {
-      return handleLesenSubmit(stored, data.answers)
+      return await handleLesenSubmit(stored, data.answers)
     }
 
     if (data.type === 'horen') {
-      return handleHorenSubmit(stored, data.answers)
+      return await handleHorenSubmit(stored, data.answers)
     }
 
     if (data.type === 'schreiben') {
@@ -71,7 +73,27 @@ export async function POST(req: NextRequest) {
   }
 }
 
-function handleLesenSubmit(
+async function persistScores(
+  sessionId: string,
+  scores: Record<string, number>,
+  aiFeedback?: Record<string, unknown>
+) {
+  const supabase = createServerClient()
+  const { error } = await supabase
+    .from('user_attempts')
+    .update({
+      submitted_at: new Date().toISOString(),
+      scores,
+      ai_feedback: (aiFeedback ?? null) as Json,
+    })
+    .eq('session_id', sessionId)
+
+  if (error) {
+    console.error('[submit] Failed to persist scores:', error.message)
+  }
+}
+
+async function handleLesenSubmit(
   stored: StoredSession,
   userAnswers: Record<string, string>
 ) {
@@ -90,6 +112,8 @@ function handleLesenSubmit(
 
   const score = total > 0 ? Math.round((correct / total) * 100) : 0
 
+  await persistScores(stored.id, { lesen: score }, { lesen: { details, summary: { correct, total, score } } })
+
   return NextResponse.json({
     success: true,
     scores: { lesen: score },
@@ -98,7 +122,7 @@ function handleLesenSubmit(
   })
 }
 
-function handleHorenSubmit(
+async function handleHorenSubmit(
   stored: StoredSession,
   userAnswers: Record<string, string>
 ) {
@@ -117,6 +141,8 @@ function handleHorenSubmit(
   }
 
   const score = total > 0 ? Math.round((correct / total) * 100) : 0
+
+  await persistScores(stored.id, { horen: score }, { horen: { details, summary: { correct, total, score } } })
 
   return NextResponse.json({
     success: true,
@@ -147,6 +173,8 @@ async function handleSchreibenSubmit(
     task.requiredPoints || [],
     userText
   )
+
+  await persistScores(stored.id, { schreiben: feedback.score }, { schreiben: feedback })
 
   return NextResponse.json({
     success: true,
