@@ -7,8 +7,9 @@ export interface StoredSession {
   userId: string
   level: string
   mode: string
-  sessionFlow: 'single' | 'full_test'
+  sessionFlow: 'single' | 'multi' | 'full_test'
   currentModule: string | null
+  completedModules: string
   content: Record<string, unknown>
   answers: Record<string, unknown>
   audioUrls?: Record<string, unknown> | null
@@ -26,6 +27,7 @@ export async function saveSession(session: StoredSession): Promise<void> {
     mode: session.mode,
     session_flow: session.sessionFlow,
     current_module: session.currentModule,
+    completed_modules: session.completedModules,
     content: session.content as unknown as Json,
     answers: session.answers as unknown as Json,
     audio_urls: (session.audioUrls ?? null) as unknown as Json,
@@ -49,7 +51,9 @@ export async function getSession(id: string): Promise<StoredSession | null> {
 
   if (error || !data) return null
 
-  const flow = data.session_flow === 'full_test' ? 'full_test' : 'single'
+  let flow: StoredSession['sessionFlow'] = 'single'
+  if (data.session_flow === 'full_test') flow = 'full_test'
+  else if (data.session_flow === 'multi') flow = 'multi'
 
   return {
     id: data.id,
@@ -58,6 +62,7 @@ export async function getSession(id: string): Promise<StoredSession | null> {
     mode: data.mode,
     sessionFlow: flow,
     currentModule: data.current_module ?? null,
+    completedModules: data.completed_modules ?? '',
     content: data.content as Record<string, unknown>,
     answers: (data.answers ?? {}) as Record<string, unknown>,
     audioUrls: data.audio_urls as Record<string, unknown> | null,

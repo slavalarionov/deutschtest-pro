@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 
   const { data: session, error: sessionError } = await supabase
     .from('exam_sessions')
-    .select('level, mode, session_flow')
+    .select('level, mode, session_flow, completed_modules')
     .eq('id', sessionId)
     .single()
 
@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
     level: session.level,
     mode: session.mode,
     sessionFlow: session.session_flow,
+    completedModules: session.completed_modules ?? '',
     scores: attempt.scores,
     aiFeedback: attempt.ai_feedback,
     submittedAt: attempt.submitted_at,

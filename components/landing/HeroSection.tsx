@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import type { ExamLevel, ExamModule } from '@/types/exam'
+import { FULL_TEST_MODULE_ORDER } from '@/lib/exam/full-test-constants'
 
 const LEVELS: { value: ExamLevel; label: string; desc: string }[] = [
   { value: 'A1', label: 'A1', desc: 'Start Deutsch 1' },
@@ -12,12 +13,37 @@ const LEVELS: { value: ExamLevel; label: string; desc: string }[] = [
   { value: 'B1', label: 'B1', desc: 'Goethe-Zertifikat B1' },
 ]
 
-const MODULES: { value: ExamModule; label: string; icon: string; ready: boolean }[] = [
-  { value: 'lesen', label: 'Lesen', icon: '📖', ready: true },
-  { value: 'schreiben', label: 'Schreiben', icon: '✍️', ready: true },
-  { value: 'horen', label: 'Hören', icon: '🎧', ready: true },
-  { value: 'sprechen', label: 'Sprechen', icon: '🗣', ready: true },
+const MODULE_OPTIONS: {
+  id: ExamModule
+  name: string
+  duration: string
+  icon: string
+}[] = [
+  { id: 'lesen', name: 'Lesen', duration: '65 Min', icon: '📖' },
+  { id: 'horen', name: 'Hören', duration: '40 Min', icon: '🎧' },
+  { id: 'schreiben', name: 'Schreiben', duration: '60 Min', icon: '✍️' },
+  { id: 'sprechen', name: 'Sprechen', duration: '15 Min', icon: '🗣' },
 ]
+
+const MINUTES: Record<string, number> = {
+  lesen: 65,
+  horen: 40,
+  schreiben: 60,
+  sprechen: 15,
+}
+
+function calculateTotalTimeLabel(moduleIds: string[]): string {
+  const totalMinutes = moduleIds.reduce((sum, m) => sum + (MINUTES[m] ?? 0), 0)
+  if (totalMinutes <= 0) return '—'
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+  if (hours > 0) return `${hours}h ${minutes}min`
+  return `${minutes}min`
+}
+
+function sortSelectedModules(ids: string[]): ExamModule[] {
+  return FULL_TEST_MODULE_ORDER.filter((m) => ids.includes(m))
+}
 
 interface HeroSectionProps {
   isLoggedIn: boolean
@@ -28,16 +54,25 @@ interface HeroSectionProps {
 export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: HeroSectionProps) {
   const router = useRouter()
   const [selectedLevel, setSelectedLevel] = useState<ExamLevel>('B1')
-  const [selectedModule, setSelectedModule] = useState<ExamModule>('lesen')
+  const [selectedModules, setSelectedModules] = useState<ExamModule[]>([])
   const [loading, setLoading] = useState(false)
-  const [fullTestLoading, setFullTestLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const orderedSelection = useMemo(() => sortSelectedModules(selectedModules), [selectedModules])
+
+  function toggleModule(id: ExamModule) {
+    setSelectedModules((prev) =>
+      prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]
+    )
+  }
 
   async function handleStartExam() {
     if (!isLoggedIn) {
       router.push('/register')
       return
     }
+
+    if (orderedSelection.length === 0) return
 
     setLoading(true)
     setError(null)
@@ -46,7 +81,7 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
       const res = await fetch('/api/exam/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ level: selectedLevel, module: selectedModule }),
+        body: JSON.stringify({ level: selectedLevel, modules: orderedSelection }),
       })
 
       const data = await res.json()
@@ -65,55 +100,29 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
         throw new Error(data.error || 'Generation failed')
       }
 
-      router.push(`/exam/${data.sessionId}`)
+      const first = data.firstModule as string
+      const multi = orderedSelection.length > 1
+      if (multi) {
+        router.push(`/exam/${data.sessionId}?module=${first}&fresh=1`)
+      } else {
+        router.push(`/exam/${data.sessionId}`)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
       setLoading(false)
     }
   }
 
-  async function handleFullTest() {
-    if (!isLoggedIn) {
-      router.push('/register')
-      return
-    }
-
-    setFullTestLoading(true)
-    setError(null)
-
-    try {
-      const res = await fetch('/api/exam/generate-full', { method: 'POST' })
-      const data = await res.json()
-
-      if (res.status === 401) {
-        router.push('/login')
-        return
-      }
-
-      if (res.status === 403) {
-        router.push('/pricing')
-        return
-      }
-
-      if (!data.success || !data.sessionId) {
-        throw new Error(data.error || 'Generation failed')
-      }
-
-      router.push(`/exam/${data.sessionId}?module=lesen&fresh=1`)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
-    } finally {
-      setFullTestLoading(false)
-    }
-  }
-
-  const activeModule = MODULES.find((m) => m.value === selectedModule)
-
   function getCtaLabel(): string {
     if (loading) return ''
     if (!isLoggedIn) return 'Kostenlos registrieren & testen'
-    if (freeTestAvailable) return `Ihr kostenloser Test — ${selectedLevel} ${activeModule?.label}`
-    if (paidTestsCount > 0) return `${selectedLevel} ${activeModule?.label} — Test starten`
+    if (orderedSelection.length === 0) return 'Mind. ein Modul wählen'
+    if (freeTestAvailable) {
+      return `Test starten — ${selectedLevel} (${orderedSelection.length} ${orderedSelection.length === 1 ? 'Modul' : 'Module'})`
+    }
+    if (paidTestsCount > 0) {
+      return `Test starten — ${selectedLevel} (${orderedSelection.length} ${orderedSelection.length === 1 ? 'Modul' : 'Module'})`
+    }
     return 'Tests kaufen'
   }
 
@@ -126,6 +135,15 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
 
   const showExamSelector = isLoggedIn && (freeTestAvailable || paidTestsCount > 0)
   const showBuyButton = isLoggedIn && !freeTestAvailable && paidTestsCount === 0
+
+  const loadingHint =
+    loading && orderedSelection.includes('lesen')
+      ? 'Lesen: mehrere Teile parallel — ca. 60 Sekunden…'
+      : loading && orderedSelection.includes('horen')
+        ? 'Hören: mehrere Teile parallel — ca. 45 Sekunden…'
+        : loading && orderedSelection.length >= 3
+          ? 'Mehrere Module — kann etwas länger dauern…'
+          : null
 
   return (
     <section className="relative overflow-hidden bg-brand-bg px-4 py-24 sm:py-32">
@@ -158,11 +176,11 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
 
           {showExamSelector && (
             <>
-              {/* Level selector */}
               <div className="mx-auto mb-4 flex max-w-sm justify-center gap-3">
                 {LEVELS.map((lvl) => (
                   <button
                     key={lvl.value}
+                    type="button"
                     onClick={() => setSelectedLevel(lvl.value)}
                     disabled={loading}
                     className={`flex-1 rounded-xl border-2 px-4 py-3 transition ${
@@ -171,7 +189,9 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
                         : 'border-brand-border bg-brand-white hover:border-brand-gold/40'
                     }`}
                   >
-                    <span className={`block text-lg font-bold ${selectedLevel === lvl.value ? 'text-brand-gold-dark' : 'text-brand-text'}`}>
+                    <span
+                      className={`block text-lg font-bold ${selectedLevel === lvl.value ? 'text-brand-gold-dark' : 'text-brand-text'}`}
+                    >
                       {lvl.label}
                     </span>
                     <span className="block text-[11px] text-brand-muted">{lvl.desc}</span>
@@ -179,61 +199,50 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
                 ))}
               </div>
 
-              {/* Module selector */}
-              <div className="mx-auto mb-6 flex max-w-md justify-center gap-2">
-                {MODULES.map((mod) => (
-                  <button
-                    key={mod.value}
-                    onClick={() => mod.ready && setSelectedModule(mod.value)}
-                    disabled={loading || !mod.ready}
-                    className={`flex-1 rounded-lg border px-3 py-2.5 transition ${
-                      selectedModule === mod.value
-                        ? 'border-brand-gold bg-brand-gold/5'
-                        : mod.ready
-                          ? 'border-brand-border bg-brand-white hover:border-brand-gold/40'
-                          : 'cursor-not-allowed border-brand-border bg-brand-surface/50 opacity-50'
-                    }`}
-                  >
-                    <span className="block text-base">{mod.icon}</span>
-                    <span className={`block text-xs font-semibold ${selectedModule === mod.value ? 'text-brand-gold-dark' : 'text-brand-text'}`}>
-                      {mod.label}
-                    </span>
-                    {!mod.ready && <span className="block text-[9px] text-brand-muted">bald</span>}
-                  </button>
-                ))}
+              <div className="mx-auto mb-4 grid max-w-lg grid-cols-1 gap-2 sm:grid-cols-2">
+                {MODULE_OPTIONS.map((mod) => {
+                  const checked = selectedModules.includes(mod.id)
+                  return (
+                    <label
+                      key={mod.id}
+                      className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition ${
+                        checked
+                          ? 'border-brand-gold bg-brand-gold/5 shadow-soft'
+                          : 'border-brand-border bg-brand-white hover:border-brand-gold/40'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleModule(mod.id)}
+                        disabled={loading}
+                        className="h-4 w-4 rounded border-brand-border text-brand-gold focus:ring-brand-gold"
+                      />
+                      <div className="flex-1">
+                        <span className="text-lg">{mod.icon}</span>{' '}
+                        <span className="font-semibold text-brand-text">{mod.name}</span>
+                        <span className="mt-0.5 block text-xs text-brand-muted">{mod.duration}</span>
+                      </div>
+                    </label>
+                  )
+                })}
               </div>
 
-              {/* Full exam (B1) */}
-              <div className="mx-auto mb-8 mt-2 max-w-lg">
-                <button
-                  type="button"
-                  onClick={handleFullTest}
-                  disabled={loading || fullTestLoading}
-                  className="group relative w-full overflow-hidden rounded-2xl border-2 border-brand-gold bg-gradient-to-br from-brand-gold/15 via-amber-50/80 to-brand-gold/10 px-6 py-5 text-left shadow-soft transition hover:border-brand-gold-dark hover:shadow-md disabled:opacity-60"
-                >
-                  <div className="flex items-start gap-4">
-                    <span className="text-3xl" aria-hidden>✅</span>
-                    <div className="flex-1">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-brand-gold-dark">
-                        Vollständiger Test B1
-                      </p>
-                      <p className="mt-1 text-lg font-bold text-brand-text">
-                        Vollständiger Test — Alle 4 Module
-                      </p>
-                      <p className="mt-1 text-sm text-brand-muted">~2h 30min</p>
-                    </div>
-                  </div>
-                  {fullTestLoading && (
-                    <span className="mt-3 flex items-center gap-2 text-xs font-medium text-brand-gold-dark">
-                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-brand-gold border-t-transparent" />
-                      Alle Module werden generiert…
-                    </span>
-                  )}
-                </button>
-                <p className="mt-2 text-center text-[11px] text-brand-muted">
-                  Lesen → Hören → Schreiben → Sprechen nacheinander
-                </p>
-              </div>
+              <p className="mx-auto mb-4 max-w-xl text-sm text-brand-muted">
+                💡 Das vollständige Goethe-Zertifikat umfasst alle 4 Module. Sie können 1–4 Module
+                für gezieltes Training auswählen.
+              </p>
+
+              {orderedSelection.length > 0 && (
+                <div className="mx-auto mb-6 max-w-md rounded-xl bg-brand-surface/80 px-4 py-3 text-sm text-brand-text">
+                  <p>
+                    Gewählt: <strong>{orderedSelection.length}</strong> von 4 Modulen
+                  </p>
+                  <p className="text-brand-muted">
+                    Ungefähre Dauer: <strong>~{calculateTotalTimeLabel(orderedSelection)}</strong>
+                  </p>
+                </div>
+              )}
             </>
           )}
 
@@ -252,9 +261,10 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
               </div>
             ) : (
               <button
+                type="button"
                 onClick={handleStartExam}
-                disabled={loading}
-                className="rounded-lg bg-brand-gold px-8 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark disabled:opacity-70"
+                disabled={loading || (isLoggedIn && orderedSelection.length === 0)}
+                className="rounded-lg bg-brand-gold px-8 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -268,20 +278,9 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
             )}
           </div>
 
-          {error && (
-            <p className="mt-4 text-sm text-brand-red">{error}</p>
-          )}
+          {error && <p className="mt-4 text-sm text-brand-red">{error}</p>}
 
-          {loading && selectedModule === 'lesen' && (
-            <p className="mt-3 text-xs text-brand-muted">
-              5 Teile werden parallel generiert — ca. 60 Sekunden…
-            </p>
-          )}
-          {loading && selectedModule === 'horen' && (
-            <p className="mt-3 text-xs text-brand-muted">
-              4 Teile werden parallel generiert — ca. 45 Sekunden…
-            </p>
-          )}
+          {loadingHint && <p className="mt-3 text-xs text-brand-muted">{loadingHint}</p>}
         </motion.div>
 
         <motion.div

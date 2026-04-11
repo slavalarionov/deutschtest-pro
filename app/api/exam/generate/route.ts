@@ -5,14 +5,17 @@ import { saveSession } from '@/lib/session-store'
 import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@/lib/supabase-server'
 import { checkUserCanTakeTest } from '@/lib/exam/limits'
+import { sortModulesByExamOrder } from '@/lib/exam/module-order'
 import { randomUUID } from 'crypto'
+
+const moduleEnum = z.enum(['lesen', 'horen', 'schreiben', 'sprechen'])
 
 const requestSchema = z.object({
   level: z.enum(['A1', 'A2', 'B1']),
-  module: z.enum(['lesen', 'horen', 'schreiben', 'sprechen']),
+  modules: z.array(moduleEnum).min(1).max(4),
 })
 
-export const maxDuration = 120
+export const maxDuration = 300
 
 export async function POST(req: NextRequest) {
   try {
@@ -49,45 +52,53 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { level, module } = parsed.data
+    const { level, modules: rawModules } = parsed.data
+    const modules = sortModulesByExamOrder(rawModules)
+
+    if (modules.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'No valid modules selected' },
+        { status: 400 }
+      )
+    }
 
     let content: Record<string, unknown> = {}
     let answers: Record<string, unknown> = {}
 
-    if (module === 'lesen') {
-      const result = await generateLesenFull(level)
-      content = { lesen: result.content }
-      answers = result.answers
-    } else if (module === 'horen') {
-      const result = await generateHorenFull(level)
-      content = { horen: result.content }
-      answers = result.answers
-    } else if (module === 'schreiben') {
-      const result = await generateSchreiben(level)
-      content = { schreiben: result.content }
-      answers = {}
-    } else if (module === 'sprechen') {
-      const result = await generateSprechen(level)
-      content = { sprechen: result.content }
-      answers = {}
-    } else {
-      return NextResponse.json(
-        { success: false, error: `Module "${module}" not implemented yet` },
-        { status: 501 }
-      )
+    for (const mod of modules) {
+      if (mod === 'lesen') {
+        const result = await generateLesenFull(level)
+        content = { ...content, lesen: result.content }
+        answers = { ...answers, ...(result.answers as Record<string, unknown>) }
+      } else if (mod === 'horen') {
+        const result = await generateHorenFull(level)
+        content = { ...content, horen: result.content }
+        answers = { ...answers, ...(result.answers as Record<string, unknown>) }
+      } else if (mod === 'schreiben') {
+        const result = await generateSchreiben(level)
+        content = { ...content, schreiben: result.content }
+      } else if (mod === 'sprechen') {
+        const result = await generateSprechen(level)
+        content = { ...content, sprechen: result.content }
+      }
     }
 
     const sessionId = randomUUID()
     const now = new Date()
     const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
 
+    const mode = modules.join(',')
+    const sessionFlow = modules.length > 1 ? 'multi' : 'single'
+    const currentModule = modules.length > 1 ? modules[0]! : null
+
     await saveSession({
       id: sessionId,
       userId: user.id,
       level,
-      mode: module,
-      sessionFlow: 'single',
-      currentModule: null,
+      mode,
+      sessionFlow,
+      currentModule,
+      completedModules: '',
       content,
       answers,
       createdAt: now.toISOString(),
@@ -111,15 +122,19 @@ export async function POST(req: NextRequest) {
       console.log('[generate] user_attempt saved — user:', user.id, 'is_free_test:', isFreeTest)
     }
 
+    const firstModule = modules[0]!
+
     return NextResponse.json({
       success: true,
       sessionId,
+      firstModule,
       session: {
         id: sessionId,
         level,
-        mode: module,
-        sessionFlow: 'single' as const,
-        currentModule: null,
+        mode,
+        sessionFlow,
+        currentModule,
+        completedModules: '',
         content,
         createdAt: now.toISOString(),
         expiresAt: expiresAt.toISOString(),

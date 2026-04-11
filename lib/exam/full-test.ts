@@ -1,36 +1,5 @@
 import { createServerClient } from '@/lib/supabase-server'
 import type { Json } from '@/types/supabase'
-import { FULL_TEST_MODULE_ORDER, type FullTestModule } from '@/lib/exam/full-test-constants'
-
-export { FULL_TEST_MODULE_ORDER, type FullTestModule } from '@/lib/exam/full-test-constants'
-
-export function getNextFullTestModule(
-  completed: FullTestModule
-): FullTestModule | 'completed' {
-  const i = FULL_TEST_MODULE_ORDER.indexOf(completed)
-  if (i < 0 || i >= FULL_TEST_MODULE_ORDER.length - 1) {
-    return 'completed'
-  }
-  return FULL_TEST_MODULE_ORDER[i + 1]
-}
-
-export async function advanceFullTestSession(
-  sessionId: string,
-  completedModule: FullTestModule
-): Promise<{ next: FullTestModule | 'completed' }> {
-  const next = getNextFullTestModule(completedModule)
-  const supabase = createServerClient()
-  const nextModule = next === 'completed' ? 'completed' : next
-  const { error } = await supabase
-    .from('exam_sessions')
-    .update({ current_module: nextModule })
-    .eq('id', sessionId)
-
-  if (error) {
-    console.error('[full-test] advance failed:', error.message)
-  }
-  return { next }
-}
 
 export async function mergeAttemptScores(
   sessionId: string,

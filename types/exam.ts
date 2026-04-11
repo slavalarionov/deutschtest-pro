@@ -1,15 +1,18 @@
 export type ExamLevel = 'A1' | 'A2' | 'B1'
 export type ExamModule = 'lesen' | 'horen' | 'schreiben' | 'sprechen'
-export type ExamMode = 'full' | ExamModule
+/** Single module id, comma-separated list, or legacy `full` */
+export type ExamMode = string
 
 export interface ExamSession {
   id: string
   level: ExamLevel
   mode: ExamMode
-  /** single = one module; full_test = all four (mode is then 'full') */
-  sessionFlow: 'single' | 'full_test'
-  /** Progress in full_test; null for single-module sessions */
+  /** single = one module; multi = custom subset; full_test = legacy four-in-one (mode `full`) */
+  sessionFlow: 'single' | 'multi' | 'full_test'
+  /** First / active module in multi flow; null for single-module sessions */
   currentModule: string | null
+  /** Comma-separated completed modules (exam order) */
+  completedModules: string
   content: ExamContent
   audioUrls?: AudioUrls
   createdAt: string

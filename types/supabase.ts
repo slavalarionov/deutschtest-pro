@@ -17,6 +17,7 @@ export interface Database {
           mode: string
           session_flow: string
           current_module: string | null
+          completed_modules: string
           content: Json
           answers: Json | null
           audio_urls: Json | null
@@ -30,6 +31,7 @@ export interface Database {
           mode: string
           session_flow?: string
           current_module?: string | null
+          completed_modules?: string
           content: Json
           answers?: Json | null
           audio_urls?: Json | null
@@ -44,6 +46,7 @@ export interface Database {
           content?: Json
           session_flow?: string
           current_module?: string | null
+          completed_modules?: string
           answers?: Json | null
           audio_urls?: Json | null
           created_at?: string

@@ -50,7 +50,7 @@ export function SchreibenModule() {
       const data = await res.json()
       if (data.success && data.feedback) {
         setFeedback(data.feedback)
-        if (data.sessionFlow === 'full_test' && data.nextModule && data.nextModule !== 'completed') {
+        if (data.nextModule) {
           const nm = data.nextModule as FullTestModule
           setPostSubmit({
             href: `/exam/${session.id}?module=${nm}`,

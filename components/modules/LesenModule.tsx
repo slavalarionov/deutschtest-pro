@@ -51,7 +51,7 @@ export function LesenModule() {
       const data = await res.json()
       if (data.success) {
         setResults({ score: data.scores.lesen, details: data.details, summary: data.summary })
-        if (data.sessionFlow === 'full_test' && data.nextModule && data.nextModule !== 'completed') {
+        if (data.nextModule) {
           const nm = data.nextModule as FullTestModule
           setPostSubmit({
             href: `/exam/${session.id}?module=${nm}`,

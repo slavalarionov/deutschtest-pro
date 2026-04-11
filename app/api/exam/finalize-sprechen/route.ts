@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSession } from '@/lib/session-store'
-import { advanceFullTestSession, mergeAttemptScores } from '@/lib/exam/full-test'
+import { mergeAttemptScores } from '@/lib/exam/full-test'
+import { advanceSessionAfterModule, parseModuleOrder } from '@/lib/exam/session-modules'
 import { createClient } from '@/lib/supabase/server'
 
 const criteriaSchema = z.object({
@@ -52,27 +53,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
 
-    if (stored.mode !== 'full' && stored.mode !== 'sprechen') {
+    const order = parseModuleOrder(stored.mode, stored.sessionFlow)
+    if (!order.includes('sprechen')) {
       return NextResponse.json({ success: false, error: 'Invalid session mode' }, { status: 400 })
     }
+
+    const idx = order.indexOf('sprechen')
+    const hasNext = idx >= 0 && idx < order.length - 1
 
     await mergeAttemptScores(
       sessionId,
       { sprechen: feedback.score },
       { sprechen: feedback },
-      { setSubmittedAt: true }
+      { setSubmittedAt: !hasNext }
     )
 
-    let fullTestCompleted = false
-    if (stored.sessionFlow === 'full_test') {
-      const { next } = await advanceFullTestSession(sessionId, 'sprechen')
-      fullTestCompleted = next === 'completed'
+    let sessionComplete = false
+    if (order.length > 1) {
+      const { next } = await advanceSessionAfterModule(sessionId, 'sprechen', {
+        mode: stored.mode,
+        sessionFlow: stored.sessionFlow,
+        completedModules: stored.completedModules,
+      })
+      sessionComplete = next === 'completed'
+    } else {
+      sessionComplete = true
     }
 
     return NextResponse.json({
       success: true,
       scores: { sprechen: feedback.score },
-      fullTestCompleted,
+      sessionComplete,
       sessionFlow: stored.sessionFlow,
     })
   } catch (e) {

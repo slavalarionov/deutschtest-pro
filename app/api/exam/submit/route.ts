@@ -3,11 +3,8 @@ import { z } from 'zod'
 import { getSession, type StoredSession } from '@/lib/session-store'
 import { scoreSchreiben } from '@/lib/claude'
 import type { ExamLevel, SchreibenContent } from '@/types/exam'
-import {
-  advanceFullTestSession,
-  mergeAttemptScores,
-  type FullTestModule,
-} from '@/lib/exam/full-test'
+import { mergeAttemptScores } from '@/lib/exam/full-test'
+import { advanceSessionAfterModule, parseModuleOrder } from '@/lib/exam/session-modules'
 
 const submitLesenSchema = z.object({
   sessionId: z.string().min(1),
@@ -78,22 +75,25 @@ export async function POST(req: NextRequest) {
 
 async function afterModuleSubmit(
   stored: StoredSession,
-  module: FullTestModule,
+  module: string,
   scores: Record<string, number>,
   aiFeedback?: Record<string, unknown>
 ) {
-  const isFull = stored.sessionFlow === 'full_test'
-  await mergeAttemptScores(
-    stored.id,
-    scores,
-    aiFeedback,
-    { setSubmittedAt: !isFull }
-  )
+  const order = parseModuleOrder(stored.mode, stored.sessionFlow)
+  const isMulti = order.length > 1
+  const idx = order.indexOf(module)
+  const hasNext = idx >= 0 && idx < order.length - 1
 
-  let nextModule: FullTestModule | 'completed' | null = null
-  if (isFull) {
-    const { next } = await advanceFullTestSession(stored.id, module)
-    nextModule = next
+  await mergeAttemptScores(stored.id, scores, aiFeedback, { setSubmittedAt: !hasNext })
+
+  let nextModule: string | null = null
+  if (isMulti) {
+    const { next } = await advanceSessionAfterModule(stored.id, module, {
+      mode: stored.mode,
+      sessionFlow: stored.sessionFlow,
+      completedModules: stored.completedModules,
+    })
+    nextModule = next === 'completed' ? null : next
   }
 
   return { nextModule, sessionFlow: stored.sessionFlow }

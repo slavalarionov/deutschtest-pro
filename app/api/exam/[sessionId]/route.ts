@@ -39,6 +39,7 @@ export async function GET(
         mode: stored.mode,
         sessionFlow: stored.sessionFlow,
         currentModule: stored.currentModule,
+        completedModules: stored.completedModules,
         content: stored.content,
         createdAt: stored.createdAt,
         expiresAt: stored.expiresAt,
