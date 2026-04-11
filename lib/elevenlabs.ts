@@ -5,6 +5,21 @@ import { concatenateMp3Buffers } from '@/lib/concat-mp3'
 
 const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1'
 
+const TTS_MAX_RETRIES = 6
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/** Free/Creator: oft nur 1 gleichzeitiger TTS-Request — siehe concurrent_limit_exceeded. */
+function getDialogueTtsConcurrency(): number {
+  const raw = process.env.ELEVENLABS_TTS_CONCURRENCY
+  if (raw === undefined || raw === '') return 1
+  const n = parseInt(raw, 10)
+  if (!Number.isFinite(n) || n < 1) return 1
+  return Math.min(n, 4)
+}
+
 export interface DialogueTtsLine {
   role: VoiceRole
   text: string
@@ -34,35 +49,59 @@ async function synthesizeToBuffer(
   voiceId: string,
   emotion?: string
 ): Promise<Buffer> {
-  const response = await fetch(
-    `${ELEVENLABS_API_URL}/text-to-speech/${voiceId}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'xi-api-key': process.env.ELEVENLABS_API_KEY!,
-      },
-      body: JSON.stringify({
-        text,
-        model_id: 'eleven_multilingual_v2',
-        voice_settings: voiceSettings(emotion),
-      }),
-    }
-  )
+  let last429 = false
 
-  if (!response.ok) {
-    const errorBody = await response.text().catch(() => '')
-    const keyPreview = process.env.ELEVENLABS_API_KEY
-      ? `${process.env.ELEVENLABS_API_KEY.slice(0, 8)}...`
-      : 'MISSING'
-    console.error(
-      `ElevenLabs ${response.status} | key: ${keyPreview} | body: ${errorBody.slice(0, 200)}`
+  for (let attempt = 0; attempt < TTS_MAX_RETRIES; attempt++) {
+    if (attempt > 0) {
+      const base = Math.min(12_000, 800 * 2 ** attempt)
+      const jitter = Math.random() * 500
+      await sleep(base + jitter)
+    }
+
+    const response = await fetch(
+      `${ELEVENLABS_API_URL}/text-to-speech/${voiceId}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'xi-api-key': process.env.ELEVENLABS_API_KEY!,
+        },
+        body: JSON.stringify({
+          text,
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: voiceSettings(emotion),
+        }),
+      }
     )
-    throw new Error(`ElevenLabs API error: ${response.status}`)
+
+    if (response.status === 429) {
+      last429 = true
+      const errorBody = await response.text().catch(() => '')
+      console.warn(
+        `ElevenLabs 429 (attempt ${attempt + 1}/${TTS_MAX_RETRIES}) voice=${voiceId.slice(0, 8)}… ${errorBody.slice(0, 120)}`
+      )
+      continue
+    }
+
+    if (!response.ok) {
+      const errorBody = await response.text().catch(() => '')
+      const keyPreview = process.env.ELEVENLABS_API_KEY
+        ? `${process.env.ELEVENLABS_API_KEY.slice(0, 8)}...`
+        : 'MISSING'
+      console.error(
+        `ElevenLabs ${response.status} | key: ${keyPreview} | body: ${errorBody.slice(0, 200)}`
+      )
+      throw new Error(`ElevenLabs API error: ${response.status}`)
+    }
+
+    const arrayBuffer = await response.arrayBuffer()
+    return Buffer.from(arrayBuffer)
   }
 
-  const arrayBuffer = await response.arrayBuffer()
-  return Buffer.from(arrayBuffer)
+  if (last429) {
+    throw new Error('ElevenLabs API error: 429 (rate limit after retries)')
+  }
+  throw new Error('ElevenLabs TTS failed')
 }
 
 /** Ein Sprecher: Legacy voiceType (male_casual, …) oder VoiceRole (casual_male, …). */
@@ -74,15 +113,14 @@ export async function generateSpeech(
   return synthesizeToBuffer(text, voiceId)
 }
 
-const DIALOGUE_TTS_CONCURRENCY = 4
-
-/** Mehrere Sprecher: TTS in kleinen Batches (Rate-Limits / Vercel-Zeit), dann MP3-Zusammenfügung. */
+/** Mehrere Sprecher: standardmäßig strikt nacheinander (vermeidet concurrent_limit_exceeded). */
 export async function generateDialogue(
   lines: DialogueTtsLine[]
 ): Promise<Buffer> {
   const buffers: Buffer[] = []
-  for (let i = 0; i < lines.length; i += DIALOGUE_TTS_CONCURRENCY) {
-    const chunk = lines.slice(i, i + DIALOGUE_TTS_CONCURRENCY)
+  const concurrent = getDialogueTtsConcurrency()
+  for (let i = 0; i < lines.length; i += concurrent) {
+    const chunk = lines.slice(i, i + concurrent)
     const parts = await Promise.all(
       chunk.map((line) =>
         synthesizeToBuffer(
