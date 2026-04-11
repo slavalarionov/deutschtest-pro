@@ -8,7 +8,7 @@ export const VOICES = {
   /** Alltag, jüngerer Sprecher */
   casual_male: 'sbJf8opzqSGRyRJzCVjD',
   /** Radio, formelle Ansage, Interview-Moderation */
-  professional_female: 'hIu9oVaWQOAlZ60h6mYh',
+  professional_female: 'zKHQdbB8oaQ7roNTiDTK',
   /** Radio, formelle Ansage, Interview-Moderation */
   professional_male: 'hdH6PoUhxxcZgDRKifb9',
   /** Bahnhof, Flughafen, klare Durchsage */
