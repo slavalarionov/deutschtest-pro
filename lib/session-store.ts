@@ -83,3 +83,31 @@ export async function deleteSession(id: string): Promise<void> {
     throw new Error(`Failed to delete session: ${error.message}`)
   }
 }
+
+/** Merge generated module payload into an existing session (on-demand generation). */
+export async function mergeSessionContentAndAnswers(
+  id: string,
+  partialContent: Record<string, unknown>,
+  partialAnswers: Record<string, unknown>
+): Promise<void> {
+  const existing = await getSession(id)
+  if (!existing) {
+    throw new Error('Session not found')
+  }
+
+  const content = { ...existing.content, ...partialContent }
+  const answers = { ...existing.answers, ...partialAnswers }
+
+  const supabase = createServerClient()
+  const { error } = await supabase
+    .from('exam_sessions')
+    .update({
+      content: content as unknown as Json,
+      answers: answers as unknown as Json,
+    })
+    .eq('id', id)
+
+  if (error) {
+    throw new Error(`Failed to merge session content: ${error.message}`)
+  }
+}

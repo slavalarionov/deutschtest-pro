@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getSession } from '@/lib/session-store'
 import { mergeAttemptScores } from '@/lib/exam/full-test'
 import { advanceSessionAfterModule, parseModuleOrder } from '@/lib/exam/session-modules'
+import { deductModuleBalanceIfNeeded } from '@/lib/billing'
 import { createClient } from '@/lib/supabase/server'
 
 const criteriaSchema = z.object({
@@ -79,6 +80,8 @@ export async function POST(req: NextRequest) {
     } else {
       sessionComplete = true
     }
+
+    await deductModuleBalanceIfNeeded(user.id, sessionId)
 
     return NextResponse.json({
       success: true,

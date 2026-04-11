@@ -5,6 +5,7 @@ import { scoreSchreiben } from '@/lib/claude'
 import type { ExamLevel, SchreibenContent } from '@/types/exam'
 import { mergeAttemptScores } from '@/lib/exam/full-test'
 import { advanceSessionAfterModule, parseModuleOrder } from '@/lib/exam/session-modules'
+import { deductModuleBalanceIfNeeded } from '@/lib/billing'
 
 const submitLesenSchema = z.object({
   sessionId: z.string().min(1),
@@ -95,6 +96,8 @@ async function afterModuleSubmit(
     })
     nextModule = next === 'completed' ? null : next
   }
+
+  await deductModuleBalanceIfNeeded(stored.userId, stored.id)
 
   return { nextModule, sessionFlow: stored.sessionFlow }
 }

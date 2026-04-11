@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { generateLesenFull, generateSchreiben, generateHorenFull, generateSprechen } from '@/lib/claude'
 import { saveSession } from '@/lib/session-store'
+import { generateExamModule, type ExamModuleKey } from '@/lib/exam/generate-one-module'
 import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@/lib/supabase-server'
 import { checkUserCanTakeTest } from '@/lib/exam/limits'
@@ -62,26 +62,27 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    let content: Record<string, unknown> = {}
-    let answers: Record<string, unknown> = {}
+    const needsPrepaidSlots =
+      !availability.isAdmin &&
+      !availability.freeTestAvailable &&
+      availability.paidTestsCount === 0
 
-    for (const mod of modules) {
-      if (mod === 'lesen') {
-        const result = await generateLesenFull(level)
-        content = { ...content, lesen: result.content }
-        answers = { ...answers, ...(result.answers as Record<string, unknown>) }
-      } else if (mod === 'horen') {
-        const result = await generateHorenFull(level)
-        content = { ...content, horen: result.content }
-        answers = { ...answers, ...(result.answers as Record<string, unknown>) }
-      } else if (mod === 'schreiben') {
-        const result = await generateSchreiben(level)
-        content = { ...content, schreiben: result.content }
-      } else if (mod === 'sprechen') {
-        const result = await generateSprechen(level)
-        content = { ...content, sprechen: result.content }
-      }
+    if (needsPrepaidSlots && (availability.modulesBalance ?? 0) < modules.length) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Nicht genug Modul-Credits (${availability.modulesBalance ?? 0} verfügbar, ${modules.length} benötigt). Bitte kaufen Sie weitere Module.`,
+          code: 'insufficient_balance',
+          redirect: '/pricing',
+        },
+        { status: 403 }
+      )
     }
+
+    const firstModule = modules[0]! as ExamModuleKey
+    const { content: genContent, answers: genAnswers } = await generateExamModule(level, firstModule)
+    const content: Record<string, unknown> = { ...genContent }
+    const answers: Record<string, unknown> = { ...genAnswers }
 
     const sessionId = randomUUID()
     const now = new Date()
@@ -122,8 +123,6 @@ export async function POST(req: NextRequest) {
       console.log('[generate] user_attempt saved — user:', user.id, 'is_free_test:', isFreeTest)
     }
 
-    const firstModule = modules[0]!
-
     return NextResponse.json({
       success: true,
       sessionId,
@@ -141,9 +140,36 @@ export async function POST(req: NextRequest) {
       },
     })
   } catch (err) {
-    console.error('Exam generation error:', err instanceof Error ? err.message : err)
+    const raw = err instanceof Error ? err.message : String(err)
+    console.error('Exam generation error:', raw, err)
+
+    const lower = raw.toLowerCase()
+    let error =
+      'Die Prüfung konnte nicht generiert werden. Bitte versuchen Sie es etwas später erneut.'
+
+    if (
+      lower.includes('timeout') ||
+      lower.includes('timed out') ||
+      lower.includes('504') ||
+      lower.includes('task timed out') ||
+      lower.includes('max duration')
+    ) {
+      error =
+        'Zeitüberschreitung bei der Generierung. Wählen Sie weniger Module auf einmal oder versuchen Sie es später erneut. (Auf Vercel Free/Hobby gilt oft ein Limit von ca. 60 s.)'
+    } else if (lower.includes('completed_modules') || lower.includes('session_flow')) {
+      error =
+        'Datenbank-Schema veraltet: bitte Migrationen 003 und 004 in Supabase ausführen (completed_modules, session_flow multi).'
+    } else if (lower.includes('rate limit') || lower.includes('429') || lower.includes('overloaded')) {
+      error =
+        'Der KI-Dienst ist vorübergehend überlastet. Bitte in 1–2 Minuten erneut versuchen oder weniger Module wählen.'
+    }
+
     return NextResponse.json(
-      { success: false, error: 'Die Prüfung konnte nicht generiert werden. Bitte versuchen Sie es etwas später erneut.' },
+      {
+        success: false,
+        error,
+        ...(process.env.NODE_ENV === 'development' ? { debug: raw } : {}),
+      },
       { status: 500 }
     )
   }

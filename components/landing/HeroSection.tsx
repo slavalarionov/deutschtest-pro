@@ -49,9 +49,17 @@ interface HeroSectionProps {
   isLoggedIn: boolean
   freeTestAvailable: boolean
   paidTestsCount: number
+  modulesBalance: number
+  isAdmin: boolean
 }
 
-export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: HeroSectionProps) {
+export function HeroSection({
+  isLoggedIn,
+  freeTestAvailable,
+  paidTestsCount,
+  modulesBalance,
+  isAdmin,
+}: HeroSectionProps) {
   const router = useRouter()
   const [selectedLevel, setSelectedLevel] = useState<ExamLevel>('B1')
   const [selectedModules, setSelectedModules] = useState<ExamModule[]>([])
@@ -74,6 +82,16 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
 
     if (orderedSelection.length === 0) return
 
+    const mustPrepayModules =
+      !isAdmin && !freeTestAvailable && paidTestsCount === 0
+
+    if (mustPrepayModules && modulesBalance < orderedSelection.length) {
+      setError(
+        `Sie haben nur ${modulesBalance} Modul-Credit${modulesBalance === 1 ? '' : 's'} — für diese Auswahl benötigen Sie ${orderedSelection.length}. Bitte kaufen Sie weitere Credits.`
+      )
+      return
+    }
+
     setLoading(true)
     setError(null)
 
@@ -87,12 +105,18 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
       const data = await res.json()
 
       if (res.status === 401) {
+        setLoading(false)
         router.push('/login')
         return
       }
 
       if (res.status === 403) {
-        router.push('/pricing')
+        setLoading(false)
+        if (data.code === 'insufficient_balance') {
+          setError(data.error || 'Nicht genug Modul-Credits.')
+        } else {
+          router.push(data.redirect || '/pricing')
+        }
         return
       }
 
@@ -107,6 +131,7 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
       } else {
         router.push(`/exam/${data.sessionId}`)
       }
+      setLoading(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
       setLoading(false)
@@ -123,6 +148,9 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
     if (paidTestsCount > 0) {
       return `Test starten — ${selectedLevel} (${orderedSelection.length} ${orderedSelection.length === 1 ? 'Modul' : 'Module'})`
     }
+    if (modulesBalance > 0) {
+      return `Test starten — ${selectedLevel} (${orderedSelection.length} ${orderedSelection.length === 1 ? 'Modul' : 'Module'})`
+    }
     return 'Tests kaufen'
   }
 
@@ -130,20 +158,19 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
     if (!isLoggedIn) return 'Registrieren Sie sich und erhalten Sie einen kostenlosen Test.'
     if (freeTestAvailable) return 'Ihr kostenloser Probetest wartet auf Sie.'
     if (paidTestsCount > 0) return `Sie haben ${paidTestsCount} ${paidTestsCount === 1 ? 'Test' : 'Tests'} verfügbar.`
+    if (modulesBalance > 0) {
+      return `Modul-Credits: ${modulesBalance} (je Modul 1 Credit beim Abschluss)`
+    }
     return ''
   }
 
-  const showExamSelector = isLoggedIn && (freeTestAvailable || paidTestsCount > 0)
-  const showBuyButton = isLoggedIn && !freeTestAvailable && paidTestsCount === 0
+  const showExamSelector =
+    isLoggedIn && (freeTestAvailable || paidTestsCount > 0 || modulesBalance > 0 || isAdmin)
+  const showBuyButton =
+    isLoggedIn && !isAdmin && !freeTestAvailable && paidTestsCount === 0 && modulesBalance === 0
 
   const loadingHint =
-    loading && orderedSelection.includes('lesen')
-      ? 'Lesen: mehrere Teile parallel — ca. 60 Sekunden…'
-      : loading && orderedSelection.includes('horen')
-        ? 'Hören: mehrere Teile parallel — ca. 45 Sekunden…'
-        : loading && orderedSelection.length >= 3
-          ? 'Mehrere Module — kann etwas länger dauern…'
-          : null
+    loading ? 'Erstes Modul wird generiert — bitte einen Moment warten…' : null
 
   return (
     <section className="relative overflow-hidden bg-brand-bg px-4 py-24 sm:py-32">

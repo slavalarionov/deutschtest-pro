@@ -14,11 +14,15 @@ export default async function HomePage() {
 
   let freeTestAvailable = true
   let paidTestsCount = 0
+  let modulesBalance = 0
+  let isAdmin = false
 
   if (user) {
     const availability = await checkUserCanTakeTest(user.id, user.email)
     freeTestAvailable = availability.freeTestAvailable
     paidTestsCount = availability.paidTestsCount
+    modulesBalance = availability.modulesBalance
+    isAdmin = !!availability.isAdmin
   }
 
   return (
@@ -30,6 +34,8 @@ export default async function HomePage() {
         isLoggedIn={!!user}
         freeTestAvailable={freeTestAvailable}
         paidTestsCount={paidTestsCount}
+        modulesBalance={modulesBalance}
+        isAdmin={isAdmin}
       />
       <FeaturesSection />
       <PricingSection />

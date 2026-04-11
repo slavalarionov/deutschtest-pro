@@ -102,6 +102,7 @@ export interface Database {
           created_at: string
           exams_taken: number
           is_admin: boolean
+          modules_balance: number
         }
         Insert: {
           id: string
@@ -111,6 +112,7 @@ export interface Database {
           created_at?: string
           exams_taken?: number
           is_admin?: boolean
+          modules_balance?: number
         }
         Update: {
           id?: string
@@ -120,6 +122,7 @@ export interface Database {
           created_at?: string
           exams_taken?: number
           is_admin?: boolean
+          modules_balance?: number
         }
         Relationships: []
       }

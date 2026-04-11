@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useExamStore } from '@/store/examStore'
 import { LesenModule } from '@/components/modules/LesenModule'
@@ -57,6 +57,21 @@ export function ExamShell({ sessionId }: ExamShellProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [resumeOpen, setResumeOpen] = useState(false)
+  const [generatingModule, setGeneratingModule] = useState(false)
+  const [generateError, setGenerateError] = useState<string | null>(null)
+  const [retryGen, setRetryGen] = useState(0)
+
+  const activeModuleComputed = useMemo((): string | null => {
+    if (!session) return null
+    const moduleOrder = parseModuleOrder(session.mode, session.sessionFlow)
+    const isMulti = isMultiModuleSession(session.mode, session.sessionFlow)
+    const qModule = searchParams.get('module')
+    if (isMulti && qModule) return qModule
+    if (session.mode === 'full') {
+      return session.currentModule ?? moduleOrder[0] ?? 'lesen'
+    }
+    return moduleOrder[0] ?? session.mode
+  }, [session, searchParams])
 
   useEffect(() => {
     async function loadSession() {
@@ -126,6 +141,47 @@ export function ExamShell({ sessionId }: ExamShellProps) {
     router.replace(`/exam/${sessionId}?module=${m}`)
   }, [session, searchParams, sessionId, router])
 
+  useEffect(() => {
+    if (loading || !session || !activeModuleComputed) return
+    if (!isMultiModuleSession(session.mode, session.sessionFlow)) return
+    if (session.currentModule === 'completed') return
+    if (session.currentModule && activeModuleComputed !== session.currentModule) return
+
+    const c = session.content as Record<string, unknown>
+    if (c[activeModuleComputed] != null) {
+      setGenerateError(null)
+      return
+    }
+
+    const ac = new AbortController()
+    setGeneratingModule(true)
+    setGenerateError(null)
+
+    ;(async () => {
+      try {
+        const res = await fetch('/api/exam/generate-module', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, module: activeModuleComputed }),
+          signal: ac.signal,
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error || 'Generierung fehlgeschlagen')
+        const sres = await fetch(`/api/exam/${sessionId}`, { signal: ac.signal })
+        const sdata = await sres.json()
+        if (!sdata.success) return
+        setSession(sdata.session)
+      } catch (e) {
+        if (ac.signal.aborted) return
+        setGenerateError(e instanceof Error ? e.message : 'Fehler')
+      } finally {
+        if (!ac.signal.aborted) setGeneratingModule(false)
+      }
+    })()
+
+    return () => ac.abort()
+  }, [loading, session, activeModuleComputed, sessionId, setSession, retryGen])
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-brand-bg">
@@ -152,13 +208,9 @@ export function ExamShell({ sessionId }: ExamShellProps) {
 
   const moduleOrder = parseModuleOrder(session.mode, session.sessionFlow)
   const isMulti = isMultiModuleSession(session.mode, session.sessionFlow)
-  const qModule = searchParams.get('module')
 
-  const activeModule: string = isMulti && qModule
-    ? qModule
-    : session.mode === 'full'
-      ? (session.currentModule ?? moduleOrder[0] ?? 'lesen')
-      : moduleOrder[0] ?? session.mode
+  const activeModule: string =
+    activeModuleComputed ?? moduleOrder[0] ?? session.mode
 
   if (isMulti && session.currentModule === 'completed') {
     router.replace(`/exam/${sessionId}/results`)
@@ -208,6 +260,31 @@ export function ExamShell({ sessionId }: ExamShellProps) {
 
   return (
     <div className="min-h-screen bg-brand-bg">
+      {generatingModule && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
+          <div className="max-w-md rounded-2xl bg-brand-white p-8 text-center shadow-xl">
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-brand-gold border-t-transparent" />
+            <h2 className="text-lg font-semibold text-brand-text">Nächstes Modul wird generiert…</h2>
+            <p className="mt-2 text-sm text-brand-muted">Dies kann bis zu einer Minute dauern.</p>
+          </div>
+        </div>
+      )}
+
+      {generateError && !generatingModule && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
+          <div className="max-w-md rounded-2xl bg-brand-white p-6 text-center shadow-xl">
+            <p className="text-sm text-brand-red">{generateError}</p>
+            <button
+              type="button"
+              className="mt-4 rounded-lg bg-brand-gold px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-gold-dark"
+              onClick={() => setRetryGen((n) => n + 1)}
+            >
+              Erneut versuchen
+            </button>
+          </div>
+        </div>
+      )}
+
       {resumeOpen && isMulti && session.currentModule && session.currentModule !== 'completed' && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
           <div className="max-w-md rounded-2xl bg-brand-white p-6 shadow-xl">

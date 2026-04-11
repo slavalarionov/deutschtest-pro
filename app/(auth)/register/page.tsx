@@ -80,8 +80,8 @@ export default function RegisterPage() {
             Sie auch den Spam-Ordner.
           </p>
           <p className="mt-3 text-sm text-brand-muted">
-            Sofern aktiviert, erhalten Sie zusätzlich eine E-Mail zur Bestätigung Ihrer Adresse —
-            bitte klicken Sie auf den Link, bevor Sie sich anmelden.
+            Sie können sich direkt mit E-Mail und Passwort anmelden — es ist keine separate
+            Bestätigungs-Mail nötig.
           </p>
           <Link
             href="/login"

@@ -28,25 +28,39 @@ export interface TestAvailability {
   isAdmin?: boolean
   freeTestAvailable: boolean
   paidTestsCount: number
+  /** Prepaid module credits (migration 005); 0 if column missing in old DB. */
+  modulesBalance: number
 }
 
 export async function checkUserCanTakeTest(userId: string, email?: string): Promise<TestAvailability> {
   const supabase = createServerClient()
 
-  if (email) {
-    const { data: userData } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('email', email)
-      .single()
+  let profile: { is_admin?: boolean | null; modules_balance?: number | null } | null = null
+  let modulesBalance = 0
 
-    if (userData?.is_admin === true) {
-      return {
-        canTake: true,
-        isAdmin: true,
-        freeTestAvailable: true,
-        paidTestsCount: 999,
-      }
+  const profRes = await supabase
+    .from('profiles')
+    .select('is_admin, modules_balance')
+    .eq('id', userId)
+    .maybeSingle()
+
+  if (profRes.error) {
+    console.warn('[limits] profile select (run migration 005 if modules_balance missing):', profRes.error.message)
+    const fallback = await supabase.from('profiles').select('is_admin').eq('id', userId).maybeSingle()
+    profile = fallback.data
+  } else {
+    profile = profRes.data
+    modulesBalance =
+      profile && typeof profile.modules_balance === 'number' ? profile.modules_balance : 0
+  }
+
+  if (profile?.is_admin === true) {
+    return {
+      canTake: true,
+      isAdmin: true,
+      freeTestAvailable: true,
+      paidTestsCount: 999,
+      modulesBalance: 999_999,
     }
   }
 
@@ -60,11 +74,12 @@ export async function checkUserCanTakeTest(userId: string, email?: string): Prom
 
   const paidTestsCount = paidCount ?? 0
 
-  if (freeTestAvailable || paidTestsCount > 0) {
+  if (freeTestAvailable || paidTestsCount > 0 || modulesBalance > 0) {
     return {
       canTake: true,
       freeTestAvailable,
       paidTestsCount,
+      modulesBalance,
     }
   }
 
@@ -73,5 +88,6 @@ export async function checkUserCanTakeTest(userId: string, email?: string): Prom
     reason: 'no_free_tests',
     freeTestAvailable: false,
     paidTestsCount: 0,
+    modulesBalance,
   }
 }
