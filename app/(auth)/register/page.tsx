@@ -7,7 +7,6 @@ import Link from 'next/link'
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -28,23 +27,26 @@ export default function RegisterPage() {
     setLoading(true)
     setError(null)
 
-    const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const data = await res.json()
 
-    if (error) {
-      setError(error.message)
+      if (!res.ok) {
+        setError(data.error || 'Registrierung fehlgeschlagen')
+        setLoading(false)
+        return
+      }
+
+      setSuccess(true)
+    } catch {
+      setError('Netzwerkfehler. Bitte versuchen Sie es erneut.')
+    } finally {
       setLoading(false)
-      return
     }
-
-    setSuccess(true)
-    setLoading(false)
   }
 
   if (success) {
@@ -71,20 +73,21 @@ export default function RegisterPage() {
               />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-brand-text">
-            Bitte bestätigen Sie Ihre E-Mail
-          </h2>
+          <h2 className="text-xl font-bold text-brand-text">Fast geschafft</h2>
           <p className="mt-3 text-sm text-brand-muted">
-            Wir haben eine Bestätigungs-E-Mail an{' '}
-            <span className="font-medium text-brand-text">{email}</span>{' '}
-            gesendet. Bitte klicken Sie auf den Link in der E-Mail, um Ihr Konto
-            zu aktivieren.
+            Wir haben ein automatisch generiertes Passwort an{' '}
+            <span className="font-medium text-brand-text">{email}</span> gesendet. Bitte prüfen
+            Sie auch den Spam-Ordner.
+          </p>
+          <p className="mt-3 text-sm text-brand-muted">
+            Sofern aktiviert, erhalten Sie zusätzlich eine E-Mail zur Bestätigung Ihrer Adresse —
+            bitte klicken Sie auf den Link, bevor Sie sich anmelden.
           </p>
           <Link
             href="/login"
             className="mt-6 inline-block text-sm font-medium text-brand-gold hover:text-brand-gold-dark"
           >
-            Zurück zur Anmeldung
+            Zur Anmeldung
           </Link>
         </motion.div>
       </div>
@@ -154,27 +157,11 @@ export default function RegisterPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm text-brand-text placeholder:text-brand-muted/50 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
-              placeholder="ihre@email.de"
+              placeholder="ihre.email@example.com"
             />
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-1.5 block text-sm font-medium text-brand-text"
-            >
-              Passwort
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm text-brand-text placeholder:text-brand-muted/50 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
-              placeholder="Mindestens 6 Zeichen"
-            />
+            <p className="mt-2 text-sm text-brand-muted">
+              Ein Passwort wird automatisch generiert und an Ihre E-Mail gesendet.
+            </p>
           </div>
 
           {error && (

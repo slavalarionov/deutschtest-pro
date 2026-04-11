@@ -23,10 +23,14 @@ export async function getCachedSession(
   const expiresAt = new Date(row.expires_at)
   if (expiresAt < new Date()) return null
 
+  const flow = row.session_flow === 'full_test' ? 'full_test' : 'single'
+
   return {
     id: row.id,
     level: row.level as ExamSession['level'],
     mode: row.mode as ExamSession['mode'],
+    sessionFlow: flow,
+    currentModule: row.current_module ?? null,
     content: row.content as ExamSession['content'],
     audioUrls: row.audio_urls as ExamSession['audioUrls'],
     createdAt: row.created_at,
@@ -48,6 +52,8 @@ export async function cacheSession(
     user_id: 'anonymous',
     level: session.level,
     mode: session.mode,
+    session_flow: session.sessionFlow ?? 'single',
+    current_module: session.currentModule ?? null,
     content: JSON.parse(JSON.stringify(session.content)),
     answers: JSON.parse(JSON.stringify(answers)),
     audio_urls: session.audioUrls ? JSON.parse(JSON.stringify(session.audioUrls)) : null,

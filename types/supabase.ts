@@ -15,6 +15,8 @@ export interface Database {
           user_id: string
           level: string
           mode: string
+          session_flow: string
+          current_module: string | null
           content: Json
           answers: Json | null
           audio_urls: Json | null
@@ -26,6 +28,8 @@ export interface Database {
           user_id: string
           level: string
           mode: string
+          session_flow?: string
+          current_module?: string | null
           content: Json
           answers?: Json | null
           audio_urls?: Json | null
@@ -38,6 +42,8 @@ export interface Database {
           level?: string
           mode?: string
           content?: Json
+          session_flow?: string
+          current_module?: string | null
           answers?: Json | null
           audio_urls?: Json | null
           created_at?: string

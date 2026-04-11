@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { useExamStore } from '@/store/examStore'
 import type { SprechenContent, SprechenTask, SprechenFeedback } from '@/types/exam'
 
@@ -34,16 +35,81 @@ interface TeilResult {
   error: string | null
 }
 
+function aggregateSprechenFeedback(
+  teilResults: Record<number, TeilResult>,
+  taskCount: number
+): SprechenFeedback | null {
+  const fbs: SprechenFeedback[] = []
+  for (let i = 0; i < taskCount; i++) {
+    const fb = teilResults[i]?.feedback
+    if (fb) fbs.push(fb)
+  }
+  if (fbs.length === 0) return null
+  const n = fbs.length
+  return {
+    score: Math.round(fbs.reduce((s, f) => s + f.score, 0) / n),
+    criteria: {
+      taskFulfillment: Math.round(fbs.reduce((s, f) => s + f.criteria.taskFulfillment, 0) / n),
+      fluency: Math.round(fbs.reduce((s, f) => s + f.criteria.fluency, 0) / n),
+      vocabulary: Math.round(fbs.reduce((s, f) => s + f.criteria.vocabulary, 0) / n),
+      grammar: Math.round(fbs.reduce((s, f) => s + f.criteria.grammar, 0) / n),
+      pronunciation: Math.round(fbs.reduce((s, f) => s + f.criteria.pronunciation, 0) / n),
+    },
+    comment: fbs.map((f) => f.comment).filter(Boolean).join('\n\n—\n\n'),
+  }
+}
+
 export function SprechenModule() {
+  const router = useRouter()
   const { session } = useExamStore()
   const sprechen = session?.content.sprechen as SprechenContent | undefined
 
   const [currentTeil, setCurrentTeil] = useState(0)
   const [teilResults, setTeilResults] = useState<Record<number, TeilResult>>({})
+  const [finalizeDone, setFinalizeDone] = useState(false)
+  const [finalizeError, setFinalizeError] = useState<string | null>(null)
+  const finalizeStarted = useRef(false)
+  const aggregateFailed = useRef(false)
 
-  const allDone = sprechen
-    ? sprechen.tasks.every((_, i) => teilResults[i]?.feedback || teilResults[i]?.error)
-    : false
+  const taskCount = sprechen?.tasks.length ?? 0
+  const allDone = Boolean(
+    sprechen && sprechen.tasks.every((_, i) => teilResults[i]?.feedback || teilResults[i]?.error)
+  )
+
+  useEffect(() => {
+    if (!allDone || !session) return
+    const agg = aggregateSprechenFeedback(teilResults, taskCount)
+    if (!agg) {
+      if (!aggregateFailed.current) {
+        aggregateFailed.current = true
+        setFinalizeError('Keine auswertbaren Aufnahmen — bitte wiederholen Sie die Teile mit Fehler.')
+      }
+      return
+    }
+    aggregateFailed.current = false
+    setFinalizeError(null)
+    if (finalizeStarted.current) return
+    finalizeStarted.current = true
+    ;(async () => {
+      try {
+        const res = await fetch('/api/exam/finalize-sprechen', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: session.id, feedback: agg }),
+        })
+        const data = await res.json()
+        if (data.success) {
+          setFinalizeDone(true)
+        } else {
+          setFinalizeError(data.error || 'Speichern fehlgeschlagen')
+          finalizeStarted.current = false
+        }
+      } catch {
+        setFinalizeError('Netzwerkfehler')
+        finalizeStarted.current = false
+      }
+    })()
+  }, [allDone, session, teilResults, taskCount])
 
   if (!sprechen) {
     return (
@@ -143,14 +209,19 @@ export function SprechenModule() {
         </button>
       </div>
 
-      {allDone && (
+      {allDone && finalizeError && (
+        <p className="text-center text-sm text-brand-red">{finalizeError}</p>
+      )}
+
+      {allDone && finalizeDone && session && (
         <div className="text-center">
-          <a
-            href="/"
+          <button
+            type="button"
+            onClick={() => router.push(`/exam/${session.id}/results`)}
             className="inline-block rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
           >
-            Zurück zur Startseite
-          </a>
+            Zu den Ergebnissen
+          </button>
         </div>
       )}
     </div>
@@ -529,9 +600,9 @@ function ProcessingView({ step, progress }: { step: string; progress: number }) 
         <p className="text-sm font-semibold text-brand-text">{step}</p>
         <p className="mt-1 text-xs text-brand-muted">
           {progress < 50
-            ? 'Audio wird an Whisper gesendet…'
+            ? 'Automatische Transkription…'
             : progress < 95
-              ? 'Claude analysiert Ihren Text…'
+              ? 'KI-Bewertung Ihres Textes…'
               : 'Fast fertig…'}
         </p>
       </div>

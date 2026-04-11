@@ -6,6 +6,10 @@ export interface ExamSession {
   id: string
   level: ExamLevel
   mode: ExamMode
+  /** single = one module; full_test = all four (mode is then 'full') */
+  sessionFlow: 'single' | 'full_test'
+  /** Progress in full_test; null for single-module sessions */
+  currentModule: string | null
   content: ExamContent
   audioUrls?: AudioUrls
   createdAt: string

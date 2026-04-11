@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { useExamStore } from '@/store/examStore'
 import { ExamTimerDisplay, TimerWarningBanner } from '@/components/exam/ExamTimerDisplay'
 import { TimeUpOverlay } from '@/components/exam/TimeUpOverlay'
+import { FULL_TEST_MODULE_LABELS, type FullTestModule } from '@/lib/exam/full-test-constants'
 import type {
   LesenContent,
   LesenTeil1,
@@ -21,12 +23,14 @@ const TOTAL_TIME = 65 * 60
 const TEIL_LABELS = ['Teil 1', 'Teil 2', 'Teil 3', 'Teil 4', 'Teil 5'] as const
 
 export function LesenModule() {
+  const router = useRouter()
   const { session, answers, setAnswer } = useExamStore()
   const [currentTeil, setCurrentTeil] = useState(0)
   const [timeLeft, setTimeLeft] = useState(TOTAL_TIME)
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [timeUp, setTimeUp] = useState(false)
+  const [postSubmit, setPostSubmit] = useState<{ href: string; label: string } | null>(null)
   const [results, setResults] = useState<{
     score: number
     details: Record<string, { userAnswer: string; correctAnswer: string; isCorrect: boolean }>
@@ -47,9 +51,18 @@ export function LesenModule() {
       const data = await res.json()
       if (data.success) {
         setResults({ score: data.scores.lesen, details: data.details, summary: data.summary })
+        if (data.sessionFlow === 'full_test' && data.nextModule && data.nextModule !== 'completed') {
+          const nm = data.nextModule as FullTestModule
+          setPostSubmit({
+            href: `/exam/${session.id}?module=${nm}`,
+            label: `Weiter zu ${FULL_TEST_MODULE_LABELS[nm]}`,
+          })
+        } else {
+          setPostSubmit({ href: `/exam/${session.id}/results`, label: 'Zu den Ergebnissen' })
+        }
+        setSubmitted(true)
       }
     } catch { /* silent */ } finally {
-      setSubmitted(true)
       setSubmitting(false)
     }
   }, [session, answers, submitted])
@@ -66,6 +79,12 @@ export function LesenModule() {
     return () => clearInterval(t)
   }, [timeLeft, submitted, handleSubmit])
 
+  useEffect(() => {
+    if (!timeUp || !submitted || !postSubmit) return
+    const t = setTimeout(() => router.push(postSubmit.href), 2600)
+    return () => clearTimeout(t)
+  }, [timeUp, submitted, postSubmit, router])
+
   if (!lesen) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -76,7 +95,7 @@ export function LesenModule() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-5">
-      {timeUp && session && <TimeUpOverlay sessionId={session.id} />}
+      {timeUp && session && <TimeUpOverlay detail={postSubmit ? 'Sie werden weitergeleitet…' : undefined} />}
 
       {/* Header with timer */}
       <div className="flex items-center justify-between rounded-xl bg-brand-white p-4 shadow-soft">
@@ -148,6 +167,18 @@ export function LesenModule() {
           Weiter →
         </button>
       </div>
+
+      {submitted && results && postSubmit && !timeUp && (
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={() => router.push(postSubmit.href)}
+            className="rounded-lg bg-brand-gold px-8 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark"
+          >
+            {postSubmit.label}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

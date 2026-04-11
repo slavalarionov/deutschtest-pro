@@ -1,20 +1,24 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { useExamStore } from '@/store/examStore'
 import { ExamTimerDisplay, TimerWarningBanner } from '@/components/exam/ExamTimerDisplay'
 import { TimeUpOverlay } from '@/components/exam/TimeUpOverlay'
+import { FULL_TEST_MODULE_LABELS, type FullTestModule } from '@/lib/exam/full-test-constants'
 import type { SchreibenContent, SchreibenFeedback } from '@/types/exam'
 
 const SCHREIBEN_TIME = 60 * 60
 
 export function SchreibenModule() {
+  const router = useRouter()
   const { session } = useExamStore()
   const [text, setText] = useState('')
   const [timeLeft, setTimeLeft] = useState(SCHREIBEN_TIME)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [timeUp, setTimeUp] = useState(false)
+  const [postSubmit, setPostSubmit] = useState<{ href: string; label: string } | null>(null)
   const [feedback, setFeedback] = useState<SchreibenFeedback | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -46,13 +50,22 @@ export function SchreibenModule() {
       const data = await res.json()
       if (data.success && data.feedback) {
         setFeedback(data.feedback)
+        if (data.sessionFlow === 'full_test' && data.nextModule && data.nextModule !== 'completed') {
+          const nm = data.nextModule as FullTestModule
+          setPostSubmit({
+            href: `/exam/${session.id}?module=${nm}`,
+            label: `Weiter zu ${FULL_TEST_MODULE_LABELS[nm]}`,
+          })
+        } else {
+          setPostSubmit({ href: `/exam/${session.id}/results`, label: 'Zu den Ergebnissen' })
+        }
+        setSubmitted(true)
       } else {
         setError(data.error || 'Scoring failed')
       }
     } catch {
       setError('Network error')
     } finally {
-      setSubmitted(true)
       setSubmitting(false)
     }
   }, [session, task, text, submitted])
@@ -69,6 +82,12 @@ export function SchreibenModule() {
     return () => clearInterval(t)
   }, [timeLeft, submitted, handleSubmit])
 
+  useEffect(() => {
+    if (!timeUp || !submitted || !postSubmit) return
+    const t = setTimeout(() => router.push(postSubmit.href), 2600)
+    return () => clearTimeout(t)
+  }, [timeUp, submitted, postSubmit, router])
+
   if (!task) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -81,7 +100,7 @@ export function SchreibenModule() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      {timeUp && session && <TimeUpOverlay sessionId={session.id} />}
+      {timeUp && session && <TimeUpOverlay detail={postSubmit ? 'Sie werden weitergeleitet…' : undefined} />}
 
       {/* Header */}
       <div className="flex items-center justify-between rounded-xl bg-brand-white p-4 shadow-soft">
@@ -167,7 +186,7 @@ export function SchreibenModule() {
               {submitting ? (
                 <span className="flex items-center gap-2">
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  KI bewertet…
+                  Wird bewertet…
                 </span>
               ) : (
                 'Text abgeben'
@@ -231,14 +250,17 @@ export function SchreibenModule() {
                 </p>
               </div>
 
-              <div className="text-center">
-                <a
-                  href="/"
-                  className="inline-block rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
-                >
-                  Zurück zur Startseite
-                </a>
-              </div>
+              {postSubmit && !timeUp && (
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => router.push(postSubmit.href)}
+                    className="inline-block rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+                  >
+                    {postSubmit.label}
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

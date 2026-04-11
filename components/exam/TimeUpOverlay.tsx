@@ -1,22 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-
 interface TimeUpOverlayProps {
-  sessionId: string
+  /** Optional extra line under the main message */
+  detail?: string
 }
 
-export function TimeUpOverlay({ sessionId }: TimeUpOverlayProps) {
-  const router = useRouter()
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      router.push(`/exam/${sessionId}/results`)
-    }, 3000)
-    return () => clearTimeout(timeout)
-  }, [router, sessionId])
-
+export function TimeUpOverlay({ detail }: TimeUpOverlayProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="mx-4 max-w-md rounded-2xl bg-brand-white p-8 text-center shadow-xl">
@@ -30,6 +19,7 @@ export function TimeUpOverlay({ sessionId }: TimeUpOverlayProps) {
         <p className="mb-4 text-sm text-brand-muted">
           Ihre Antworten werden automatisch gesendet.
         </p>
+        {detail && <p className="mb-4 text-xs text-brand-muted">{detail}</p>}
         <div className="mx-auto h-1.5 w-32 overflow-hidden rounded-full bg-brand-surface">
           <div className="h-full animate-progress rounded-full bg-brand-gold" />
         </div>

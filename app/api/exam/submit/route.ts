@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSession, type StoredSession } from '@/lib/session-store'
-import { createServerClient } from '@/lib/supabase-server'
 import { scoreSchreiben } from '@/lib/claude'
 import type { ExamLevel, SchreibenContent } from '@/types/exam'
-import type { Json } from '@/types/supabase'
+import {
+  advanceFullTestSession,
+  mergeAttemptScores,
+  type FullTestModule,
+} from '@/lib/exam/full-test'
 
 const submitLesenSchema = z.object({
   sessionId: z.string().min(1),
@@ -73,24 +76,27 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function persistScores(
-  sessionId: string,
+async function afterModuleSubmit(
+  stored: StoredSession,
+  module: FullTestModule,
   scores: Record<string, number>,
   aiFeedback?: Record<string, unknown>
 ) {
-  const supabase = createServerClient()
-  const { error } = await supabase
-    .from('user_attempts')
-    .update({
-      submitted_at: new Date().toISOString(),
-      scores,
-      ai_feedback: (aiFeedback ?? null) as Json,
-    })
-    .eq('session_id', sessionId)
+  const isFull = stored.sessionFlow === 'full_test'
+  await mergeAttemptScores(
+    stored.id,
+    scores,
+    aiFeedback,
+    { setSubmittedAt: !isFull }
+  )
 
-  if (error) {
-    console.error('[submit] Failed to persist scores:', error.message)
+  let nextModule: FullTestModule | 'completed' | null = null
+  if (isFull) {
+    const { next } = await advanceFullTestSession(stored.id, module)
+    nextModule = next
   }
+
+  return { nextModule, sessionFlow: stored.sessionFlow }
 }
 
 async function handleLesenSubmit(
@@ -112,13 +118,17 @@ async function handleLesenSubmit(
 
   const score = total > 0 ? Math.round((correct / total) * 100) : 0
 
-  await persistScores(stored.id, { lesen: score }, { lesen: { details, summary: { correct, total, score } } })
+  const { nextModule, sessionFlow } = await afterModuleSubmit(stored, 'lesen', { lesen: score }, {
+    lesen: { details, summary: { correct, total, score } },
+  })
 
   return NextResponse.json({
     success: true,
     scores: { lesen: score },
     details,
     summary: { correct, total, score },
+    nextModule,
+    sessionFlow,
   })
 }
 
@@ -142,13 +152,17 @@ async function handleHorenSubmit(
 
   const score = total > 0 ? Math.round((correct / total) * 100) : 0
 
-  await persistScores(stored.id, { horen: score }, { horen: { details, summary: { correct, total, score } } })
+  const { nextModule, sessionFlow } = await afterModuleSubmit(stored, 'horen', { horen: score }, {
+    horen: { details, summary: { correct, total, score } },
+  })
 
   return NextResponse.json({
     success: true,
     scores: { horen: score },
     details,
     summary: { correct, total, score },
+    nextModule,
+    sessionFlow,
   })
 }
 
@@ -174,11 +188,18 @@ async function handleSchreibenSubmit(
     userText
   )
 
-  await persistScores(stored.id, { schreiben: feedback.score }, { schreiben: feedback })
+  const { nextModule, sessionFlow } = await afterModuleSubmit(
+    stored,
+    'schreiben',
+    { schreiben: feedback.score },
+    { schreiben: feedback }
+  )
 
   return NextResponse.json({
     success: true,
     scores: { schreiben: feedback.score },
     feedback,
+    nextModule,
+    sessionFlow,
   })
 }

@@ -30,6 +30,7 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
   const [selectedLevel, setSelectedLevel] = useState<ExamLevel>('B1')
   const [selectedModule, setSelectedModule] = useState<ExamModule>('lesen')
   const [loading, setLoading] = useState(false)
+  const [fullTestLoading, setFullTestLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   async function handleStartExam() {
@@ -68,6 +69,41 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
       setLoading(false)
+    }
+  }
+
+  async function handleFullTest() {
+    if (!isLoggedIn) {
+      router.push('/register')
+      return
+    }
+
+    setFullTestLoading(true)
+    setError(null)
+
+    try {
+      const res = await fetch('/api/exam/generate-full', { method: 'POST' })
+      const data = await res.json()
+
+      if (res.status === 401) {
+        router.push('/login')
+        return
+      }
+
+      if (res.status === 403) {
+        router.push('/pricing')
+        return
+      }
+
+      if (!data.success || !data.sessionId) {
+        throw new Error(data.error || 'Generation failed')
+      }
+
+      router.push(`/exam/${data.sessionId}?module=lesen&fresh=1`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setFullTestLoading(false)
     }
   }
 
@@ -165,6 +201,38 @@ export function HeroSection({ isLoggedIn, freeTestAvailable, paidTestsCount }: H
                     {!mod.ready && <span className="block text-[9px] text-brand-muted">bald</span>}
                   </button>
                 ))}
+              </div>
+
+              {/* Full exam (B1) */}
+              <div className="mx-auto mb-8 mt-2 max-w-lg">
+                <button
+                  type="button"
+                  onClick={handleFullTest}
+                  disabled={loading || fullTestLoading}
+                  className="group relative w-full overflow-hidden rounded-2xl border-2 border-brand-gold bg-gradient-to-br from-brand-gold/15 via-amber-50/80 to-brand-gold/10 px-6 py-5 text-left shadow-soft transition hover:border-brand-gold-dark hover:shadow-md disabled:opacity-60"
+                >
+                  <div className="flex items-start gap-4">
+                    <span className="text-3xl" aria-hidden>✅</span>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-brand-gold-dark">
+                        Vollständiger Test B1
+                      </p>
+                      <p className="mt-1 text-lg font-bold text-brand-text">
+                        Vollständiger Test — Alle 4 Module
+                      </p>
+                      <p className="mt-1 text-sm text-brand-muted">~2h 30min</p>
+                    </div>
+                  </div>
+                  {fullTestLoading && (
+                    <span className="mt-3 flex items-center gap-2 text-xs font-medium text-brand-gold-dark">
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-brand-gold border-t-transparent" />
+                      Alle Module werden generiert…
+                    </span>
+                  )}
+                </button>
+                <p className="mt-2 text-center text-[11px] text-brand-muted">
+                  Lesen → Hören → Schreiben → Sprechen nacheinander
+                </p>
               </div>
             </>
           )}

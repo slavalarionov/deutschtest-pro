@@ -1,11 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { useExamStore } from '@/store/examStore'
 import { LesenModule } from '@/components/modules/LesenModule'
 import { SchreibenModule } from '@/components/modules/SchreibenModule'
 import { HorenModule } from '@/components/modules/HorenModule'
 import { SprechenModule } from '@/components/modules/SprechenModule'
+import {
+  FULL_TEST_MODULE_ORDER,
+  type FullTestModule,
+} from '@/lib/exam/full-test-constants'
 
 interface ExamShellProps {
   sessionId: string
@@ -18,10 +23,36 @@ const MODULE_LABELS: Record<string, string> = {
   sprechen: 'Sprechen',
 }
 
+function FullTestProgressBar({ activeModule }: { activeModule: string }) {
+  const idx = FULL_TEST_MODULE_ORDER.indexOf(activeModule as FullTestModule)
+  const currentIndex = idx >= 0 ? idx + 1 : 1
+  const pct = (currentIndex / 4) * 100
+  const label = MODULE_LABELS[activeModule] || activeModule
+
+  return (
+    <div className="border-b border-brand-border/80 bg-brand-surface/60 px-4 py-2">
+      <div className="mx-auto flex max-w-5xl flex-col gap-1.5">
+        <p className="text-center text-xs font-medium text-brand-text">
+          Modul {currentIndex}/4: {label}
+        </p>
+        <div className="h-1 overflow-hidden rounded-full bg-brand-border/60">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-brand-gold to-amber-600 transition-all duration-500"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function ExamShell({ sessionId }: ExamShellProps) {
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const { session, setSession } = useExamStore()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [resumeOpen, setResumeOpen] = useState(false)
 
   useEffect(() => {
     async function loadSession() {
@@ -42,6 +73,44 @@ export function ExamShell({ sessionId }: ExamShellProps) {
 
     loadSession()
   }, [sessionId, setSession])
+
+  const syncUrlAndResume = useCallback(() => {
+    if (!session) return
+
+    const qModule = searchParams.get('module')
+    const isFull = session.sessionFlow === 'full_test'
+    const current = session.currentModule
+    const freshStart = searchParams.get('fresh') === '1'
+
+    if (isFull && current && current !== 'completed') {
+      if (!qModule || qModule !== current) {
+        router.replace(`/exam/${sessionId}?module=${current}`)
+        return
+      }
+      const dismissed =
+        freshStart
+        || (typeof window !== 'undefined'
+          && sessionStorage.getItem(`exam_resume_ok_${sessionId}`) === '1')
+      if (!dismissed) {
+        setResumeOpen(true)
+      }
+    }
+  }, [session, searchParams, router, sessionId])
+
+  useEffect(() => {
+    if (!loading && session) {
+      syncUrlAndResume()
+    }
+  }, [loading, session, syncUrlAndResume])
+
+  useEffect(() => {
+    if (!session || searchParams.get('fresh') !== '1') return
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(`exam_resume_ok_${sessionId}`, '1')
+    }
+    const m = searchParams.get('module') || session.currentModule || 'lesen'
+    router.replace(`/exam/${sessionId}?module=${m}`)
+  }, [session, searchParams, sessionId, router])
 
   if (loading) {
     return (
@@ -67,10 +136,88 @@ export function ExamShell({ sessionId }: ExamShellProps) {
     )
   }
 
-  const moduleLabel = MODULE_LABELS[session.mode] || session.mode
+  const isFullTest = session.sessionFlow === 'full_test'
+  const qModule = searchParams.get('module')
+
+  const activeModule: string =
+    isFullTest && qModule
+      ? qModule
+      : session.mode === 'full'
+        ? (session.currentModule ?? 'lesen')
+        : session.mode
+
+  if (isFullTest && session.currentModule === 'completed') {
+    router.replace(`/exam/${sessionId}/results`)
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-brand-bg">
+        <p className="text-sm text-brand-muted">Weiterleitung zu den Ergebnissen…</p>
+      </div>
+    )
+  }
+
+  const moduleLabel = MODULE_LABELS[activeModule] || activeModule
+
+  function handleResumeContinue() {
+    if (!session) return
+    sessionStorage.setItem(`exam_resume_ok_${sessionId}`, '1')
+    setResumeOpen(false)
+    if (session.currentModule && session.currentModule !== 'completed') {
+      router.replace(`/exam/${sessionId}?module=${session.currentModule}`)
+    }
+  }
+
+  async function handleResumeRestart() {
+    try {
+      const res = await fetch('/api/exam/reset-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        sessionStorage.removeItem(`exam_resume_ok_${sessionId}`)
+        router.push('/')
+      }
+    } catch {
+      /* silent */
+    }
+  }
+
+  const currentLabel =
+    session.currentModule && session.currentModule !== 'completed'
+      ? MODULE_LABELS[session.currentModule] || session.currentModule
+      : ''
 
   return (
     <div className="min-h-screen bg-brand-bg">
+      {resumeOpen && isFullTest && session.currentModule && session.currentModule !== 'completed' && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
+          <div className="max-w-md rounded-2xl bg-brand-white p-6 shadow-xl">
+            <h2 className="text-lg font-bold text-brand-text">Test fortsetzen?</h2>
+            <p className="mt-2 text-sm text-brand-muted">
+              Sie haben einen laufenden vollständigen Test. Aktueller Stand:{' '}
+              <span className="font-semibold text-brand-text">{currentLabel}</span>
+            </p>
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={handleResumeRestart}
+                className="rounded-lg border border-brand-border px-4 py-2.5 text-sm font-medium text-brand-text transition hover:bg-brand-surface"
+              >
+                Neu starten
+              </button>
+              <button
+                type="button"
+                onClick={handleResumeContinue}
+                className="rounded-lg bg-brand-gold px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+              >
+                Fortfahren
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="sticky top-0 z-50 border-b border-brand-border bg-brand-white/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
@@ -86,11 +233,13 @@ export function ExamShell({ sessionId }: ExamShellProps) {
         </div>
       </header>
 
+      {isFullTest && <FullTestProgressBar activeModule={activeModule} />}
+
       <div className="px-4 py-8">
-        {session.mode === 'lesen' && <LesenModule />}
-        {session.mode === 'horen' && <HorenModule />}
-        {session.mode === 'schreiben' && <SchreibenModule />}
-        {session.mode === 'sprechen' && <SprechenModule />}
+        {activeModule === 'lesen' && <LesenModule />}
+        {activeModule === 'horen' && <HorenModule />}
+        {activeModule === 'schreiben' && <SchreibenModule />}
+        {activeModule === 'sprechen' && <SprechenModule />}
       </div>
     </div>
   )
