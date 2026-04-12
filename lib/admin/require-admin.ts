@@ -34,8 +34,8 @@ export async function requireAdminPage(currentPath: string): Promise<AdminUser> 
   const { data: { user } } = await supabase.auth.getUser()
 
   // ВРЕМЕННЫЙ DEBUG
-  console.log('[requireAdminPage] path:', currentPath)
-  console.log('[requireAdminPage] user:', user ? { id: user.id, email: user.email } : null)
+  console.error('[DEBUG requireAdminPage] path:', currentPath)
+  console.error('[DEBUG requireAdminPage] user:', user ? { id: user.id, email: user.email } : null)
 
   if (!user) {
     redirect(`/login?next=${encodeURIComponent(currentPath)}`)
@@ -48,8 +48,8 @@ export async function requireAdminPage(currentPath: string): Promise<AdminUser> 
     .single()
 
   // ВРЕМЕННЫЙ DEBUG
-  console.log('[requireAdminPage] profile:', profile)
-  console.log('[requireAdminPage] error:', error)
+  console.error('[DEBUG requireAdminPage] profile:', profile)
+  console.error('[DEBUG requireAdminPage] error:', error)
 
   if (error || !profile || !profile.is_admin) {
     redirect('/')
