@@ -15,7 +15,6 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
 
 export interface AdminUser {
   id: string
@@ -34,30 +33,18 @@ export async function requireAdminPage(currentPath: string): Promise<AdminUser> 
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // ВРЕМЕННЫЙ DEBUG
-  console.error('[DEBUG requireAdminPage] path:', currentPath)
-  console.error('[DEBUG requireAdminPage] user:', user ? { id: user.id, email: user.email } : null)
-
   if (!user) {
     redirect(`/login?next=${encodeURIComponent(currentPath)}`)
   }
 
-  console.error('[DEBUG requireAdminPage] querying profile for user.id:', user.id)
-
-  // Временно читаем через admin client, чтобы обойти возможные проблемы с RLS.
-  // Безопасно: мы проверяем id против user.id из подтверждённой сессии.
-  const adminClient = createAdminClient()
-  const { data: profile, error } = await adminClient
+  const { data: profile, error } = await supabase
     .from('profiles')
     .select('id, email, is_admin')
     .eq('id', user.id)
     .single()
 
-  // ВРЕМЕННЫЙ DEBUG
-  console.error('[DEBUG requireAdminPage] profile:', profile)
-  console.error('[DEBUG requireAdminPage] error:', error)
-
   if (error || !profile || !profile.is_admin) {
+    // Никаких подсказок наружу — просто на главную
     redirect('/')
   }
 
@@ -72,14 +59,6 @@ export async function requireAdminPage(currentPath: string): Promise<AdminUser> 
  * Используется в API routes /api/admin/*.
  * Бросает Response с 401/403 — обработать в каждом route через try/catch
  * или return response непосредственно.
- *
- * Пример использования в API route:
- *   export async function POST(req: NextRequest) {
- *     const adminCheck = await requireAdminApi()
- *     if (adminCheck instanceof Response) return adminCheck
- *     const admin = adminCheck
- *     // ... основная логика
- *   }
  */
 export async function requireAdminApi(): Promise<AdminUser | Response> {
   const supabase = await createClient()
@@ -93,10 +72,7 @@ export async function requireAdminApi(): Promise<AdminUser | Response> {
     )
   }
 
-  // Временно читаем через admin client, чтобы обойти возможные проблемы с RLS.
-  // Безопасно: мы проверяем id против user.id из подтверждённой сессии.
-  const adminClient = createAdminClient()
-  const { data: profile, error } = await adminClient
+  const { data: profile, error } = await supabase
     .from('profiles')
     .select('id, email, is_admin')
     .eq('id', user.id)
