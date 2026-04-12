@@ -1,6 +1,8 @@
 // server-only — this file must NEVER be imported in client components
 
 import OpenAI from 'openai'
+import { logAiUsage } from './ai-usage-logger'
+import { calculateWhisperCost } from './ai-pricing'
 
 let _openai: OpenAI | null = null
 
@@ -30,7 +32,18 @@ export async function transcribeAudio(
     file,
     model: 'whisper-1',
     language: 'de',
+    response_format: 'verbose_json',
   })
+
+  const audioSeconds = (response as { duration?: number }).duration ?? 0
+  const cost = calculateWhisperCost('whisper-1', audioSeconds)
+  logAiUsage({
+    provider: 'openai',
+    model: 'whisper-1',
+    operation: 'whisper_transcribe',
+    audioSeconds,
+    costUsd: cost,
+  }).catch(() => {})
 
   return response.text
 }

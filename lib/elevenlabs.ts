@@ -3,6 +3,8 @@
 import { getInterLineSilenceMp3 } from '@/lib/audio/silence-between-lines'
 import { resolveVoiceId, type VoiceRole } from '@/lib/voices'
 import { concatenateMp3Buffers } from '@/lib/concat-mp3'
+import { logAiUsage } from './ai-usage-logger'
+import { calculateElevenLabsTtsCost } from './ai-pricing'
 
 const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1'
 
@@ -106,6 +108,16 @@ async function synthesizeToBuffer(
     }
 
     const arrayBuffer = await response.arrayBuffer()
+
+    const cost = calculateElevenLabsTtsCost('eleven_multilingual_v2', text.length)
+    logAiUsage({
+      provider: 'elevenlabs',
+      model: 'eleven_multilingual_v2',
+      operation: 'tts_generate',
+      characters: text.length,
+      costUsd: cost,
+    }).catch(() => {})
+
     return Buffer.from(arrayBuffer)
   }
 

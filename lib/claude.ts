@@ -17,6 +17,8 @@ import { getSprechenPrompt } from '@/prompts/generation/sprechen'
 import { getSchreibenScorePrompt } from '@/prompts/scoring/schreiben-score'
 import { getSprechenScorePrompt } from '@/prompts/scoring/sprechen-score'
 import { horenDialogueEmotionSchema } from '@/lib/horen-emotion'
+import { logAiUsage } from './ai-usage-logger'
+import { calculateAnthropicCost } from './ai-pricing'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
@@ -31,7 +33,8 @@ async function sleep(ms: number) {
 export async function generateWithClaude(
   systemPrompt: string,
   userPrompt: string,
-  maxTokens: number = 4096
+  maxTokens: number = 4096,
+  operation: 'claude_generate' | 'claude_score' = 'claude_generate'
 ): Promise<string> {
   let lastError: unknown
 
@@ -50,6 +53,20 @@ export async function generateWithClaude(
       if (block.type !== 'text') {
         throw new Error('Unexpected response type from Claude')
       }
+
+      const cost = calculateAnthropicCost(
+        message.model,
+        message.usage.input_tokens,
+        message.usage.output_tokens
+      )
+      logAiUsage({
+        provider: 'anthropic',
+        model: message.model,
+        operation,
+        inputTokens: message.usage.input_tokens,
+        outputTokens: message.usage.output_tokens,
+        costUsd: cost,
+      }).catch(() => {})
 
       return block.text
     } catch (err) {
@@ -71,7 +88,7 @@ export async function scoreWithClaude(
   submission: string,
   maxTokens: number = 2048
 ): Promise<string> {
-  return generateWithClaude(systemPrompt, submission, maxTokens)
+  return generateWithClaude(systemPrompt, submission, maxTokens, 'claude_score')
 }
 
 // --- JSON extraction ---

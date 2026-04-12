@@ -1,43 +1,160 @@
 # DeutschTest.pro — Cursor Rules
 
-## Project
-AI simulator for Goethe-Zertifikat exams (A1, A2, B1).
-Stack: Next.js 14 App Router, TypeScript strict, Tailwind CSS, shadcn/ui, Zustand, Zod, Supabase, Anthropic Claude.
+## О проекте
 
-## Security — NEVER violate
-- API keys ONLY in .env.local, NEVER in client code
-- All Anthropic/ElevenLabs calls — ONLY through /app/api/ server routes
-- process.env.SECRET_KEY only in server components and API routes
-- Correct answers stored server-side only, NEVER sent to client
-- Zod validation on every Claude response
-- Never log API keys
+DeutschTest.pro — AI-симулятор экзамена Goethe-Zertifikat. Каждый тест уникален: Claude генерирует тексты, вопросы и аудио на лету. Формат 1:1 с Goethe-Institut.
 
-## Architecture
-- /app — pages and API routes (App Router)
-- /components — React components (client-side)
-- /lib — server utilities (claude.ts, elevenlabs.ts, supabase.ts)
-- /prompts — Claude prompt templates
-- /store — Zustand state management
-- /types — TypeScript type definitions
+- Уровни: A1, A2, B1 (B2/C1/C2 — позже)
+- Модули: Lesen, Hören, Schreiben, Sprechen
+- Задеплоен на Vercel: deutschtest.pro
 
-## Code Style
-- TypeScript strict mode, no `any`
-- Functional components with named exports
-- Zustand for client state
-- Zod schemas for API validation
-- Server components by default, 'use client' only when needed
-- Tailwind for styling, no inline styles
-- German exam terminology: Lesen, Hören, Schreiben, Sprechen
+## Технический стек
 
-## Design System
-- Light German premium aesthetic (Miele/Braun inspired)
-- Background: #FAFAF7, Cards: #F2EFE8, Text: #1A1A1A
-- Gold accent (#C8A84B) only on CTAs and icons
-- Soft shadows, rounded-lg/xl borders
-- Font: Geist Sans
+- Frontend: Next.js 14 App Router + TypeScript (strict)
+- Стили: Tailwind CSS, shadcn/ui (компоненты вручную)
+- Состояние: Zustand (store/examStore.ts)
+- Валидация: Zod (контракт на ВСЕ AI-ответы)
+- Анимации: Framer Motion
+- Бэкенд: Next.js API Routes
+- БД + Auth + Storage: Supabase (@supabase/ssr 0.10, @supabase/supabase-js 2.47)
+- AI генерация и оценка: Anthropic Claude Sonnet 4.6 (@anthropic-ai/sdk 0.39)
+- TTS: ElevenLabs, модель eleven_multilingual_v2
+- STT: OpenAI Whisper, язык 'de' принудительно
+- Email: Resend
+- Audio склейка: ffmpeg (@ffmpeg-installer/ffmpeg)
 
-## Exam Rules
-- AudioPlayer: play/pause ONLY, no seeking (real exam behavior)
-- Timer auto-submits at 0, no going back
-- Correct answers never in component props
-- Each Hören track plays max 1-2 times as specified
+## Структура папок
+
+deutschtest/
+├── app/
+│   ├── (auth)/login, /register
+│   ├── (exam)/exam/[sessionId]/{page,results/page}
+│   ├── api/
+│   │   ├── audio/generate
+│   │   ├── auth/{logout,register}
+│   │   ├── exam/{generate,generate-module,submit,results,reset-session,finalize-sprechen,[sessionId]}
+│   │   └── sprechen/{transcribe,score}
+│   ├── auth/callback
+│   └── pricing/page.tsx
+├── components/{audio,auth,exam,landing,modules,ui}/
+├── lib/
+│   ├── audio/, exam/, supabase/
+│   ├── billing.ts          (списание modules_balance)
+│   ├── claude.ts           (server-only, generateAndParse)
+│   ├── elevenlabs.ts       (server-only)
+│   ├── whisper.ts          (server-only)
+│   ├── concat-mp3.ts, voices.ts, horen-emotion.ts
+│   ├── email.ts (Resend)
+│   ├── exam-cache.ts, session-store.ts, supabase-audio-cache.ts
+├── prompts/
+│   ├── generation/{lesen-teil1..5,horen-teil1..4,schreiben,sprechen}
+│   └── scoring/{schreiben-score,sprechen-score}
+├── store/examStore.ts
+├── supabase/migrations/    (001..006 SQL)
+├── types/{api,exam,supabase}.ts
+└── middleware.ts
+
+## База данных (Supabase)
+
+### exam_sessions
+- id, user_id, level (A1/A2/B1), mode (модуль или CSV-список модулей)
+- content jsonb, answers jsonb (server-only!), audio_urls jsonb
+- session_flow (single/multi/full_test), current_module, completed_modules
+- created_at, expires_at (24ч)
+
+### user_attempts
+- id, user_id, session_id, level, started_at, submitted_at
+- scores jsonb, ai_feedback jsonb
+- is_free_test bool, payment_status (free/paid/pending)
+
+### profiles (триггер на auth.users через handle_new_user)
+- id, email, full_name, target_level, exams_taken
+- is_admin (обходит лимиты)
+- modules_balance (предоплаченные кредиты модулей)
+
+Миграции 001–006 применены. RLS включён, service_role обходит RLS.
+
+## Правила безопасности (КРИТИЧНО)
+
+### API-ключи
+1. Все ключи только в .env.local, никогда в клиентском коде.
+2. process.env.KEY — только в server components и API routes.
+3. Все вызовы Claude / ElevenLabs / Whisper — ТОЛЬКО через /app/api/ routes.
+4. .env.local в .gitignore. Шаблон в .env.example без значений.
+5. Никогда не логировать API-ключи в консоль.
+
+### Данные экзамена
+1. Правильные ответы (exam_sessions.answers) хранятся ТОЛЬКО на сервере.
+2. Клиенту НЕ отдавать эталонные ответы до сабмита.
+3. Zod-валидация на КАЖДЫЙ ответ от Claude (generateAndParse с maxRetries: 3).
+4. Все API routes проверяют auth session через lib/supabase/server.ts.
+
+### Rate limiting
+Все /api/ эндпоинты должны иметь rate-limit. На текущий момент НЕ реализовано — известный долг.
+
+### Платежи
+1. Никогда не работать с банковскими данными в коде.
+2. Webhooks от Точки/Prodamus проверять подписью.
+3. Списание кредитов модулей — атомарно через lib/billing.ts.
+
+## Стиль кода
+
+### TypeScript
+- Strict mode, явные типы, никаких any.
+- Zod-схемы в types/exam.ts — единый источник правды.
+
+### React / Next.js
+- Server Components по умолчанию.
+- 'use client' только когда реально нужны хуки или браузерные API.
+- Динамические роуты в App Router: app/(group)/segment/[param]/page.tsx
+
+### Именование
+- Файлы: kebab-case (lesen-module.tsx, session-store.ts)
+- Компоненты: PascalCase (LesenModule, ExamShell)
+- Функции и переменные: camelCase
+- БД-колонки: snake_case
+
+### Промпты
+- Все промпты в prompts/generation/* и prompts/scoring/*.
+- Никогда не хардкодить промпты в lib/claude.ts или в API routes.
+- При изменении промпта — короткий комментарий-changelog в шапке файла.
+
+## Чего НИКОГДА не делать
+
+- Не вызывать Claude / ElevenLabs / Whisper из клиентского кода
+- Не хранить API-ключи в коде или в NEXT_PUBLIC_* env-переменных
+- Не отдавать правильные ответы клиенту до сабмита
+- Не использовать localStorage/sessionStorage в артефактах
+- Не упоминать AI-провайдеров в UI на немецком (Whisper, Claude, ElevenLabs → KI-Bewertung, Automatische Transkription)
+- Не генерировать промпты по памяти — читать из prompts/
+- Не пропускать Zod-валидацию ответов Claude
+- Не использовать mode: 'full' для новых сессий — это легаси-режим. Использовать session_flow: 'multi' со списком модулей через запятую в mode.
+
+## Что ВСЕГДА делать
+
+- Server-only для всех AI-вызовов
+- Zod-валидация ответов
+- Кешировать аудио (Supabase Storage через lib/supabase-audio-cache.ts)
+- Проверять авторизацию перед генерацией
+- Списывать кредиты через lib/billing.ts, не напрямую SQL
+- Перед изменением БД — создавать новую миграцию в supabase/migrations/NNN_*.sql
+
+## Бизнес-логика
+
+- Единица продажи: один модуль (Lesen/Hören/Schreiben/Sprechen)
+- Цена: 40₽ / $0.50 / €0.45 за модуль
+- Минимальная покупка: 4 модуля. Дальше 5..10 (скидка ~10% на 10 модулей)
+- Гибкость: купленные модули можно тратить на любые из четырёх типов
+- Бесплатно при регистрации: 2 модуля любых на выбор
+- Оплата: Точка (РФ-эквайринг), Prodamus (международные карты)
+- Поля БД: profiles.modules_balance, user_attempts.is_free_test, user_attempts.payment_status
+
+## Рабочий процесс
+
+1. Перед задачей — прочитать этот файл (.cursorrules).
+2. Работать последовательно: сначала баги, потом фичи.
+3. После каждого изменения тестировать.
+4. Если непонятно — спросить пользователя, не придумывать сам.
+5. Перед изменением БД — отдельная миграция, не править существующие.
+
+Последнее обновление: 12 апреля 2026
