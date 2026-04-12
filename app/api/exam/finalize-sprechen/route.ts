@@ -69,24 +69,20 @@ export async function POST(req: NextRequest) {
       { setSubmittedAt: !hasNext }
     )
 
-    let sessionComplete = false
-    if (order.length > 1) {
-      const { next } = await advanceSessionAfterModule(sessionId, 'sprechen', {
-        mode: stored.mode,
-        sessionFlow: stored.sessionFlow,
-        completedModules: stored.completedModules,
-      })
-      sessionComplete = next === 'completed'
-    } else {
-      sessionComplete = true
-    }
+    const { next } = await advanceSessionAfterModule(sessionId, 'sprechen', {
+      mode: stored.mode,
+      sessionFlow: stored.sessionFlow,
+      completedModules: stored.completedModules,
+    })
+    const nextModule: string | null = next === 'completed' ? null : next
 
     await deductModuleBalanceIfNeeded(user.id, sessionId)
 
     return NextResponse.json({
       success: true,
       scores: { sprechen: feedback.score },
-      sessionComplete,
+      nextModule,
+      sessionComplete: nextModule === null,
       sessionFlow: stored.sessionFlow,
     })
   } catch (e) {

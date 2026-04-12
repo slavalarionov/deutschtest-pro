@@ -1,9 +1,9 @@
 'use client'
 
-import { useParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState, useMemo } from 'react'
 import { parseModuleOrder } from '@/lib/exam/module-order'
-import { FULL_TEST_MODULE_ORDER } from '@/lib/exam/full-test-constants'
+import { RetakeModuleModal } from '@/components/exam/RetakeModuleModal'
 
 interface ModuleScores {
   lesen?: number
@@ -34,9 +34,11 @@ interface ResultsData {
   mode: string
   sessionFlow?: string
   completedModules?: string
+  currentModule?: string | null
   scores: ModuleScores | null
   aiFeedback: Record<string, unknown> | null
   submittedAt: string | null
+  modulesBalance: number
 }
 
 const MODULE_LABELS: Record<string, string> = {
@@ -89,9 +91,11 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
 export default function ResultsPage() {
   const params = useParams<{ sessionId: string }>()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [data, setData] = useState<ResultsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [retakeModalOpen, setRetakeModalOpen] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -111,6 +115,40 @@ export default function ResultsPage() {
     }
     load()
   }, [params.sessionId])
+
+  const sessionModulesOrder = useMemo(
+    () => (data ? parseModuleOrder(data.mode ?? '', data.sessionFlow ?? '') : []),
+    [data],
+  )
+
+  const completedSet = useMemo(
+    () => new Set((data?.completedModules ?? '').split(',').map(s => s.trim()).filter(Boolean)),
+    [data],
+  )
+
+  const isSessionComplete = sessionModulesOrder.length > 0
+    && sessionModulesOrder.every(m => completedSet.has(m))
+
+  const remainingInSession = sessionModulesOrder.filter(m => !completedSet.has(m))
+
+  useEffect(() => {
+    if (!data || loading) return
+    if (isSessionComplete && sessionModulesOrder.length >= 2) {
+      router.replace(`/exam/${params.sessionId}/results/summary`)
+    }
+  }, [data, loading, isSessionComplete, sessionModulesOrder.length, router, params.sessionId])
+
+  const shownModule = useMemo(() => {
+    const justParam = searchParams.get('just')
+    if (justParam && sessionModulesOrder.includes(justParam)) return justParam
+    if (!data?.scores) return sessionModulesOrder[0] ?? null
+    const lastCompleted = [...completedSet].filter(m => sessionModulesOrder.includes(m)).pop()
+    return lastCompleted ?? sessionModulesOrder[0] ?? null
+  }, [searchParams, sessionModulesOrder, data, completedSet])
+
+  const currentModuleScore = shownModule && data?.scores
+    ? (data.scores as Record<string, number>)[shownModule]
+    : undefined
 
   if (loading) {
     return (
@@ -140,26 +178,22 @@ export default function ResultsPage() {
     )
   }
 
-  const { scores, aiFeedback, level, mode, sessionFlow, completedModules } = data
-  const flow = sessionFlow ?? 'single'
-  const selectedOrder = parseModuleOrder(mode, flow)
-  const completedList = (completedModules ?? '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean)
-  const isFullExam = selectedOrder.length === 4
-  const isPartial = selectedOrder.length > 0 && selectedOrder.length < 4
-  const remainingInSession = selectedOrder.filter((m) => !completedList.includes(m))
-  const isSelectionComplete = selectedOrder.every((m) => completedList.includes(m))
+  if (isSessionComplete && sessionModulesOrder.length >= 2) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-brand-bg">
+        <p className="text-sm text-brand-muted">Weiterleitung zur Gesamtauswertung…</p>
+      </div>
+    )
+  }
 
-  const activeModules = selectedOrder
+  const { scores, aiFeedback, level } = data
+  const activeModules = sessionModulesOrder
 
   const totalScore = scores
     ? activeModules.reduce((sum, m) => sum + ((scores as Record<string, number>)[m] || 0), 0)
     : 0
   const averageScore = activeModules.length > 0 ? Math.round(totalScore / activeModules.length) : 0
-  const passedFull = isFullExam && averageScore >= 60
-  const showPerModulePass = isFullExam || activeModules.length > 1
+  const showPerModulePass = activeModules.length > 1
   const overallText =
     activeModules.length > 1 ? buildOverallRecommendations(aiFeedback, activeModules) : ''
 
@@ -171,26 +205,6 @@ export default function ResultsPage() {
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-muted">
             Goethe-Zertifikat {level} — Ergebnisse
           </p>
-          {isFullExam && (
-            <p
-              className={`mb-3 text-lg font-bold ${
-                passedFull ? 'text-green-700' : 'text-brand-red'
-              }`}
-            >
-              {passedFull ? 'Bestanden' : 'Nicht bestanden'}
-              <span className="ml-2 text-sm font-normal text-brand-muted">(Grenze 60/100 Ø)</span>
-            </p>
-          )}
-          {isPartial && (
-            <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50/80 px-4 py-3 text-left text-sm text-brand-text">
-              <p className="font-semibold text-amber-900">Teilprüfung</p>
-              <p className="mt-1 text-brand-muted">
-                Sie haben {selectedOrder.length} von 4 Modulen trainiert. Für das offizielle
-                Goethe-Zertifikat müssen alle vier Teile absolviert werden; in der Regel wird pro Teil
-                mindestens 60 % erwartet — Details bei Ihrer Prüfungsstelle.
-              </p>
-            </div>
-          )}
           <div className="mb-2 text-7xl font-bold text-brand-text">{averageScore}</div>
           <p className="text-sm text-brand-muted">
             {activeModules.length > 1
@@ -252,36 +266,41 @@ export default function ResultsPage() {
           return null
         })}
 
-        <div className="mb-8 rounded-xl border border-brand-border bg-brand-white p-5 shadow-soft">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">
-            Alle Prüfungsteile (Überblick)
-          </p>
-          <ul className="space-y-2 text-sm text-brand-text">
-            {FULL_TEST_MODULE_ORDER.map((m) => {
-              const chosen = selectedOrder.includes(m)
-              const sc = scores ? (scores as Record<string, number>)[m] : undefined
-              if (!chosen) {
+        {/* Alle Prüfungsteile (Überblick) — only session modules */}
+        {sessionModulesOrder.length > 1 && (
+          <div className="mb-8 rounded-xl border border-brand-border bg-brand-white p-5 shadow-soft">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">
+              Alle Prüfungsteile (Überblick)
+            </p>
+            <ul className="space-y-2 text-sm text-brand-text">
+              {sessionModulesOrder.map((m) => {
+                const sc = scores ? (scores as Record<string, number>)[m] : undefined
+                const isCompleted = completedSet.has(m)
+                const isCurrent = m === data.currentModule
+
+                if (isCompleted && sc !== undefined) {
+                  return (
+                    <li key={m}>
+                      {sc >= 60 ? '✅' : '❌'} {MODULE_LABELS[m]}: {sc}/100
+                    </li>
+                  )
+                }
+                if (isCurrent) {
+                  return (
+                    <li key={m} className="text-brand-gold-dark">
+                      🟡 {MODULE_LABELS[m]} — aktuell
+                    </li>
+                  )
+                }
                 return (
                   <li key={m} className="text-brand-muted">
-                    ⚪ {MODULE_LABELS[m]} — nicht gewählt
+                    ⚪ {MODULE_LABELS[m]} — ausstehend
                   </li>
                 )
-              }
-              if (sc === undefined) {
-                return (
-                  <li key={m} className="text-amber-800">
-                    ⚪ {MODULE_LABELS[m]} — noch keine Bewertung
-                  </li>
-                )
-              }
-              return (
-                <li key={m}>
-                  {sc >= 60 ? '✅' : '❌'} {MODULE_LABELS[m]}: {sc}/100
-                </li>
-              )
-            })}
-          </ul>
-        </div>
+              })}
+            </ul>
+          </div>
+        )}
 
         {overallText && (
           <div className="mb-8 rounded-xl bg-brand-white p-6 shadow-soft">
@@ -291,71 +310,73 @@ export default function ResultsPage() {
         )}
 
         {/* Navigation buttons */}
-        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
-          {remainingInSession.length > 0 && !isSelectionComplete && (
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {!isSessionComplete && remainingInSession.length > 0 ? (
+              <button
+                type="button"
+                onClick={() => router.push(`/exam/${params.sessionId}?module=${remainingInSession[0]}`)}
+                className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+              >
+                Test fortsetzen
+              </button>
+            ) : sessionModulesOrder.length === 1 ? (
+              <button
+                type="button"
+                onClick={() => router.push('/')}
+                className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+              >
+                Anderes Modul trainieren
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => router.push('/')}
+                className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+              >
+                Zur Modulauswahl
+              </button>
+            )}
+
+            {(!isSessionComplete || sessionModulesOrder.length === 1) && (
+              <button
+                type="button"
+                onClick={() => router.push('/')}
+                className="rounded-lg border border-brand-border bg-brand-white px-6 py-2.5 text-sm font-semibold text-brand-text transition hover:bg-brand-surface"
+              >
+                Zur Modulauswahl
+              </button>
+            )}
+          </div>
+
+          {currentModuleScore !== undefined && currentModuleScore < 60 && shownModule && (
             <button
               type="button"
-              onClick={() =>
-                router.push(`/exam/${params.sessionId}?module=${remainingInSession[0]}`)
-              }
-              className="w-full rounded-lg bg-brand-gold px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-gold-dark sm:w-auto"
+              onClick={() => {
+                if (data.modulesBalance > 0) {
+                  setRetakeModalOpen(true)
+                } else {
+                  router.push('/pricing')
+                }
+              }}
+              className="text-sm text-brand-muted underline underline-offset-2 hover:text-brand-text"
             >
-              Test fortsetzen
+              Prüfung erneut öffnen ({MODULE_LABELS[shownModule]})
             </button>
-          )}
-          {isPartial && (
-            <button
-              type="button"
-              onClick={() => router.push('/')}
-              className="w-full rounded-lg border border-brand-border px-6 py-3 text-sm font-semibold text-brand-text transition hover:bg-brand-surface sm:w-auto"
-            >
-              Weitere Module trainieren
-            </button>
-          )}
-          {isFullExam ? (
-            <>
-              <button
-                type="button"
-                onClick={() => router.push('/')}
-                className="w-full rounded-lg bg-brand-gold px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-gold-dark sm:w-auto"
-              >
-                Neue Prüfung starten
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push('/')}
-                className="w-full rounded-lg border border-brand-border px-6 py-3 text-sm font-semibold text-brand-text transition hover:bg-brand-surface sm:w-auto"
-              >
-                Modulauswahl
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push('/')}
-                className="w-full rounded-lg border border-brand-border px-6 py-3 text-sm font-semibold text-brand-text transition hover:bg-brand-surface sm:w-auto"
-              >
-                Zur Startseite
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                type="button"
-                onClick={() => router.push('/')}
-                className="w-full rounded-lg border border-brand-border px-6 py-3 text-sm font-semibold text-brand-text transition hover:bg-brand-surface sm:w-auto"
-              >
-                Zurück zur Modulauswahl
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push(`/exam/${params.sessionId}`)}
-                className="w-full rounded-lg border border-brand-border px-6 py-3 text-sm font-semibold text-brand-text transition hover:bg-brand-surface sm:w-auto"
-              >
-                Prüfung erneut öffnen
-              </button>
-            </>
           )}
         </div>
       </div>
+
+      {shownModule && (
+        <RetakeModuleModal
+          open={retakeModalOpen}
+          onClose={() => setRetakeModalOpen(false)}
+          originalSessionId={params.sessionId}
+          module={shownModule as 'lesen' | 'horen' | 'schreiben' | 'sprechen'}
+          moduleLabel={MODULE_LABELS[shownModule] || shownModule}
+          modulesBalance={data?.modulesBalance ?? 0}
+        />
+      )}
     </div>
   )
 }

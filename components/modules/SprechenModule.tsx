@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useExamStore } from '@/store/examStore'
+import { FULL_TEST_MODULE_LABELS, type FullTestModule } from '@/lib/exam/full-test-constants'
 import type { SprechenContent, SprechenTask, SprechenFeedback } from '@/types/exam'
 
 const TEIL_TIMES: Record<SprechenTask['type'], number> = {
@@ -68,6 +69,7 @@ export function SprechenModule() {
   const [teilResults, setTeilResults] = useState<Record<number, TeilResult>>({})
   const [finalizeDone, setFinalizeDone] = useState(false)
   const [finalizeError, setFinalizeError] = useState<string | null>(null)
+  const [postSubmit, setPostSubmit] = useState<{ href: string; label: string } | null>(null)
   const finalizeStarted = useRef(false)
   const aggregateFailed = useRef(false)
 
@@ -99,6 +101,15 @@ export function SprechenModule() {
         })
         const data = await res.json()
         if (data.success) {
+          if (data.nextModule) {
+            const nm = data.nextModule as FullTestModule
+            setPostSubmit({
+              href: `/exam/${session.id}?module=${nm}`,
+              label: `Weiter zu ${FULL_TEST_MODULE_LABELS[nm]}`,
+            })
+          } else {
+            setPostSubmit({ href: `/exam/${session.id}/results`, label: 'Zu den Ergebnissen' })
+          }
           setFinalizeDone(true)
         } else {
           setFinalizeError(data.error || 'Speichern fehlgeschlagen')
@@ -213,14 +224,14 @@ export function SprechenModule() {
         <p className="text-center text-sm text-brand-red">{finalizeError}</p>
       )}
 
-      {allDone && finalizeDone && session && (
+      {allDone && finalizeDone && session && postSubmit && (
         <div className="text-center">
           <button
             type="button"
-            onClick={() => router.push(`/exam/${session.id}/results`)}
+            onClick={() => router.push(postSubmit.href)}
             className="inline-block rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
           >
-            Zu den Ergebnissen
+            {postSubmit.label}
           </button>
         </div>
       )}

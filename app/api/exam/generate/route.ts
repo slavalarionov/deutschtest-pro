@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
     const now = new Date()
     const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
 
-    const mode = modules.join(',')
+    const mode = modules.length > 1 ? modules.join(',') : modules[0]!
     const sessionFlow = modules.length > 1 ? 'multi' : 'single'
     const currentModule = modules.length > 1 ? modules[0]! : null
 

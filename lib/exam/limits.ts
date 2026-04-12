@@ -9,17 +9,12 @@ export async function checkFreeTestAvailable(userId: string): Promise<boolean> {
     .eq('user_id', userId)
     .eq('is_free_test', true)
 
-  console.log('[limits] checkFreeTestAvailable for user:', userId)
-  console.log('[limits] query result — data:', JSON.stringify(data), 'error:', JSON.stringify(error))
-
   if (error) {
     console.error('[limits] query error:', error)
     return true
   }
 
-  const available = !data || data.length === 0
-  console.log('[limits] freeTestAvailable:', available)
-  return available
+  return !data || data.length === 0
 }
 
 export interface TestAvailability {

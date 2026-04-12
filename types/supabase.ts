@@ -23,6 +23,8 @@ export interface Database {
           audio_urls: Json | null
           created_at: string
           expires_at: string
+          retake_of: string | null
+          retake_module: string | null
         }
         Insert: {
           id?: string
@@ -37,6 +39,8 @@ export interface Database {
           audio_urls?: Json | null
           created_at?: string
           expires_at?: string
+          retake_of?: string | null
+          retake_module?: string | null
         }
         Update: {
           id?: string
@@ -51,6 +55,8 @@ export interface Database {
           audio_urls?: Json | null
           created_at?: string
           expires_at?: string
+          retake_of?: string | null
+          retake_module?: string | null
         }
         Relationships: []
       }
@@ -103,6 +109,8 @@ export interface Database {
           exams_taken: number
           is_admin: boolean
           modules_balance: number
+          is_unlimited: boolean
+          is_blocked: boolean
         }
         Insert: {
           id: string
@@ -113,6 +121,8 @@ export interface Database {
           exams_taken?: number
           is_admin?: boolean
           modules_balance?: number
+          is_unlimited?: boolean
+          is_blocked?: boolean
         }
         Update: {
           id?: string
@@ -123,6 +133,236 @@ export interface Database {
           exams_taken?: number
           is_admin?: boolean
           modules_balance?: number
+          is_unlimited?: boolean
+          is_blocked?: boolean
+        }
+        Relationships: []
+      }
+      ai_usage_log: {
+        Row: {
+          id: number
+          user_id: string | null
+          session_id: string | null
+          provider: string
+          model: string
+          operation: string
+          input_tokens: number | null
+          output_tokens: number | null
+          audio_seconds: number | null
+          characters: number | null
+          cost_usd: number
+          metadata: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          user_id?: string | null
+          session_id?: string | null
+          provider: string
+          model: string
+          operation: string
+          input_tokens?: number | null
+          output_tokens?: number | null
+          audio_seconds?: number | null
+          characters?: number | null
+          cost_usd: number
+          metadata?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          user_id?: string | null
+          session_id?: string | null
+          provider?: string
+          model?: string
+          operation?: string
+          input_tokens?: number | null
+          output_tokens?: number | null
+          audio_seconds?: number | null
+          characters?: number | null
+          cost_usd?: number
+          metadata?: Json | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      prompts: {
+        Row: {
+          key: string
+          category: string
+          active_version_id: number | null
+          description: string | null
+          updated_at: string
+        }
+        Insert: {
+          key: string
+          category: string
+          active_version_id?: number | null
+          description?: string | null
+          updated_at?: string
+        }
+        Update: {
+          key?: string
+          category?: string
+          active_version_id?: number | null
+          description?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      prompt_versions: {
+        Row: {
+          id: number
+          prompt_key: string
+          version: number
+          content: string
+          changed_by: string | null
+          change_note: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          prompt_key: string
+          version: number
+          content: string
+          changed_by?: string | null
+          change_note?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          prompt_key?: string
+          version?: number
+          content?: string
+          changed_by?: string | null
+          change_note?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      promo_codes: {
+        Row: {
+          id: string
+          code: string
+          modules_reward: number
+          max_redemptions: number | null
+          current_redemptions: number
+          valid_until: string | null
+          one_per_user: boolean
+          is_active: boolean
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          code: string
+          modules_reward: number
+          max_redemptions?: number | null
+          current_redemptions?: number
+          valid_until?: string | null
+          one_per_user?: boolean
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          code?: string
+          modules_reward?: number
+          max_redemptions?: number | null
+          current_redemptions?: number
+          valid_until?: string | null
+          one_per_user?: boolean
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      promo_redemptions: {
+        Row: {
+          id: number
+          promo_id: string
+          user_id: string
+          modules_granted: number
+          redeemed_at: string
+        }
+        Insert: {
+          id?: number
+          promo_id: string
+          user_id: string
+          modules_granted: number
+          redeemed_at?: string
+        }
+        Update: {
+          id?: number
+          promo_id?: string
+          user_id?: string
+          modules_granted?: number
+          redeemed_at?: string
+        }
+        Relationships: []
+      }
+      modules_ledger: {
+        Row: {
+          id: number
+          user_id: string
+          delta: number
+          reason: string
+          related_attempt_id: string | null
+          related_promo_id: string | null
+          performed_by: string | null
+          note: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          user_id: string
+          delta: number
+          reason: string
+          related_attempt_id?: string | null
+          related_promo_id?: string | null
+          performed_by?: string | null
+          note?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          user_id?: string
+          delta?: number
+          reason?: string
+          related_attempt_id?: string | null
+          related_promo_id?: string | null
+          performed_by?: string | null
+          note?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      feedback: {
+        Row: {
+          id: number
+          user_id: string | null
+          attempt_id: string | null
+          rating: number | null
+          message: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          user_id?: string | null
+          attempt_id?: string | null
+          rating?: number | null
+          message?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          user_id?: string | null
+          attempt_id?: string | null
+          rating?: number | null
+          message?: string | null
+          created_at?: string
         }
         Relationships: []
       }

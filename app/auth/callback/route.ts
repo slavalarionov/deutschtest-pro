@@ -10,5 +10,13 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code)
   }
 
-  return NextResponse.redirect(requestUrl.origin)
+  // Безопасное чтение next: только относительные пути, начинающиеся с одного /.
+  // Защита от open redirect — '//evil.com' интерпретируется браузером как протокол-относительный URL.
+  const rawNext = requestUrl.searchParams.get('next')
+  const safeNext =
+    rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
+      ? rawNext
+      : '/'
+
+  return NextResponse.redirect(new URL(safeNext, requestUrl.origin))
 }

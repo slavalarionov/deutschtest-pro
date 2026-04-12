@@ -17,6 +17,10 @@ export interface ExamSession {
   audioUrls?: AudioUrls
   createdAt: string
   expiresAt: string
+  /** If this session is a single-module retake, original session id */
+  retakeOf?: string | null
+  /** Which module is being retaken */
+  retakeModule?: string | null
 }
 
 export interface ExamContent {

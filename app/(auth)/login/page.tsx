@@ -1,13 +1,23 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Безопасное чтение next: только относительные пути, начинающиеся с /
+  // Это защита от open redirect — нельзя редиректить на внешние URL.
+  const rawNext = searchParams.get('next')
+  const safeNext =
+    rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
+      ? rawNext
+      : '/'
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -18,7 +28,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext)}`,
       },
     })
     if (error) setError(error.message)
@@ -41,7 +51,7 @@ export default function LoginPage() {
       return
     }
 
-    router.push('/')
+    router.push(safeNext)
     router.refresh()
   }
 
@@ -164,6 +174,22 @@ export default function LoginPage() {
           </Link>
         </p>
       </motion.div>
+    </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <LoginForm />
+    </Suspense>
+  )
+}
+
+function LoginFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#FAFAF7]">
+      <div className="text-sm text-[#6B6560]">Загрузка…</div>
     </div>
   )
 }

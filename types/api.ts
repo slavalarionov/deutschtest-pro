@@ -1,16 +1,11 @@
 import { z } from 'zod'
-import type { ExamLevel, ExamMode, ExamSession, ModuleScores } from './exam'
+import type { ExamSession, ModuleScores } from './exam'
 
 // --- Request schemas ---
 
 export const generateExamSchema = z.object({
   level: z.enum(['A1', 'A2', 'B1']),
-  mode: z.enum(['full', 'lesen', 'horen', 'schreiben', 'sprechen']),
-})
-
-export const submitExamSchema = z.object({
-  sessionId: z.string().uuid(),
-  answers: z.record(z.string(), z.unknown()),
+  modules: z.array(z.enum(['lesen', 'horen', 'schreiben', 'sprechen'])).min(1).max(4),
 })
 
 export const generateAudioSchema = z.object({
@@ -28,7 +23,6 @@ export const generateAudioSchema = z.object({
 // --- Request types ---
 
 export type GenerateExamRequest = z.infer<typeof generateExamSchema>
-export type SubmitExamRequest = z.infer<typeof submitExamSchema>
 export type GenerateAudioRequest = z.infer<typeof generateAudioSchema>
 
 // --- Response types ---

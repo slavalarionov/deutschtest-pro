@@ -15,6 +15,8 @@ export interface StoredSession {
   audioUrls?: Record<string, unknown> | null
   createdAt: string
   expiresAt: string
+  retakeOf?: string | null
+  retakeModule?: string | null
 }
 
 export async function saveSession(session: StoredSession): Promise<void> {
@@ -33,6 +35,8 @@ export async function saveSession(session: StoredSession): Promise<void> {
     audio_urls: (session.audioUrls ?? null) as unknown as Json,
     created_at: session.createdAt,
     expires_at: session.expiresAt,
+    retake_of: session.retakeOf ?? null,
+    retake_module: session.retakeModule ?? null,
   })
 
   if (error) {
@@ -68,6 +72,8 @@ export async function getSession(id: string): Promise<StoredSession | null> {
     audioUrls: data.audio_urls as Record<string, unknown> | null,
     createdAt: data.created_at,
     expiresAt: data.expires_at,
+    retakeOf: (data.retake_of as string | null) ?? null,
+    retakeModule: (data.retake_module as string | null) ?? null,
   }
 }
 

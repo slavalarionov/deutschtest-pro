@@ -81,21 +81,17 @@ async function afterModuleSubmit(
   aiFeedback?: Record<string, unknown>
 ) {
   const order = parseModuleOrder(stored.mode, stored.sessionFlow)
-  const isMulti = order.length > 1
   const idx = order.indexOf(module)
   const hasNext = idx >= 0 && idx < order.length - 1
 
   await mergeAttemptScores(stored.id, scores, aiFeedback, { setSubmittedAt: !hasNext })
 
-  let nextModule: string | null = null
-  if (isMulti) {
-    const { next } = await advanceSessionAfterModule(stored.id, module, {
-      mode: stored.mode,
-      sessionFlow: stored.sessionFlow,
-      completedModules: stored.completedModules,
-    })
-    nextModule = next === 'completed' ? null : next
-  }
+  const { next } = await advanceSessionAfterModule(stored.id, module, {
+    mode: stored.mode,
+    sessionFlow: stored.sessionFlow,
+    completedModules: stored.completedModules,
+  })
+  const nextModule: string | null = next === 'completed' ? null : next
 
   await deductModuleBalanceIfNeeded(stored.userId, stored.id)
 
