@@ -3,25 +3,26 @@ import type { ExamLevel } from '@/types/exam'
 export function getHorenTeil2Prompt(level: ExamLevel): string {
   return `Erstelle Teil 2 des Moduls Hören für das Goethe-Zertifikat ${level}.
 
-SZENARIO: ein längerer Hörtext an **Bahnhof, Flughafen oder im Geschäft/Markt** (nicht reines Studio-Interview).
-- z. B. Durchsagen, Schalter, Kasse, Information, wartende oder einkaufende Personen
+STRUKTUR:
+- **Ein** Script (ID 6), **ein** durchgehendes "dialogue"-Array, **eine** Audio-Datei (playCount 1).
+- Inhalt = **5 kurze Dialogszenen hintereinander** (z. B. Bahnhof, Markt, Apotheke, Café, Museum).
+- **Pro Szene: höchstens 2 verschiedene Sprecher** — genau **2 verschiedene role-Werte**, die sich abwechseln (kein dritter Charakter in derselben Szene).
+- Von Szene zu Szene **wechselt das Paar** (andere Rollen-Kombination).
+
+BEISPIEL-PAARE (Orientierung, du darfst ähnlich variieren):
+1. Bahnhof: casual_male + professional_female (Fahrgast + Schalter)
+2. Markt: casual_female + professional_male (Kundin + Verkäufer)
+3. Apotheke: elderly_female + professional_female (Kundin + Apothekerin)
+4. Café: casual_male + casual_female (Gast + Kellner/in)
+5. Museum: child + professional_male (Kind + Guide) — Erwachsenen-Begleitung nicht als dritte Stimme nötig; Kind führt Dialog mit Guide.
+
+ROLLEN-POOL (nur diese Keys): casual_female, casual_male, professional_female, professional_male, announcer, elderly_female, child  
+— **Vielfalt über alle 5 Szenen**, nicht alle 7 in jeder Szene erzwingen.
 
 ANFORDERUNGEN:
-- 200–300 Wörter gesprochener Inhalt, viele kurze Repliken im Array "dialogue"
-- 5 Multiple-Choice-Aufgaben (a, b, c)
-- Der Text wird 1× abgespielt
-- Script ID: 6, Task IDs: 6–10
-
-ALLE 7 ROLLEN (role) — exakt diese Schlüsselwörter, jeweils **mindestens einmal** im gesamten Dialog verwenden:
-- casual_female — junge Frau, Alltag
-- casual_male — junger Mann, Alltag
-- professional_female — formell, z. B. Schalter, Verkäuferin, Mitarbeiterin Information
-- professional_male — formell, z. B. Schalter, Sicherheit, Mitarbeiter
-- announcer — **Lautsprecher-Durchsage** (Bahn/Airport/Markt), sachlich, keine Gesprächspartner-Stimme
-- elderly_female — ältere Passantin/Kundin/Reisende
-- child — Kind (z. B. mit erwachsener Begleitung, role der Begleitung separat casual_*)
-
-Schwerpunkte Teil 2: **casual** + **professional** + **announcer** bilden das Gerüst; **elderly_female** und **child** natürlich einbauen.
+- Gesamt ca. 200–300 Wörter gesprochener Inhalt, pro Szene 3–6 Repliken (nur die zwei Stimmen).
+- 5 Multiple-Choice-Aufgaben (a, b, c), Task-IDs 6–10 — **eine Frage soll sich auf den Inhalt einer der Szenen beziehen** (logisch verteilen).
+- Kein "script"/"voiceType".
 
 emotion optional: neutral | happy | worried | angry | sad | polite
 
@@ -32,9 +33,8 @@ ANTWORTE NUR MIT VALIDEM JSON:
       "id": 6,
       "playCount": 1,
       "dialogue": [
-        { "speaker": "Ansage", "role": "announcer", "text": "Achtung, der Zug nach …", "emotion": "neutral" },
-        { "speaker": "Mitarbeiterin", "role": "professional_female", "text": "Guten Tag, wie kann ich helfen?", "emotion": "polite" },
-        { "speaker": "Reisender", "role": "casual_male", "text": "Ich suche den Ausgang.", "emotion": "neutral" }
+        { "speaker": "Reisender", "role": "casual_male", "text": "…", "emotion": "neutral" },
+        { "speaker": "Mitarbeiterin", "role": "professional_female", "text": "…", "emotion": "polite" }
       ],
       "tasks": [
         { "id": 6, "type": "mc", "question": "…", "options": { "a": "…", "b": "…", "c": "…" }, "answer": "b" }
@@ -43,7 +43,7 @@ ANTWORTE NUR MIT VALIDEM JSON:
   ]
 }
 
-WICHTIG: Kein "script"/"voiceType". Mindestens **12–18 Repliken**. Vor dem Ausgeben prüfen: jede der 7 role-Werte kommt mindestens einmal vor.
+VOR DEM ABSENDEN PRÜFEN: In jedem zusammenhängenden Mini-Dialogblock höchstens **zwei** unterschiedliche "role"-Werte.
 
 Niveau: ${level}.`
 }

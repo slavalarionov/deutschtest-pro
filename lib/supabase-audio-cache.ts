@@ -6,9 +6,14 @@ import { VOICES, type VoiceRole } from '@/lib/voices'
 
 const DEFAULT_BUCKET = 'audio-cache'
 
-/** Änderung der Voice-IDs invalidiert alte gecachte MP3s. */
+/** Voice-IDs + Audio-Pipeline (Pausen, TTS-Speed) → neue Hashes nach Änderungen. */
+const AUDIO_OUTPUT_REVISION = 'silence1s-tts09'
+
 function voiceTableFingerprint(): string {
-  return createHash('md5').update(JSON.stringify(VOICES)).digest('hex').slice(0, 12)
+  return createHash('md5')
+    .update(JSON.stringify(VOICES) + '|' + AUDIO_OUTPUT_REVISION)
+    .digest('hex')
+    .slice(0, 12)
 }
 
 export function getAudioCacheBucket(): string {

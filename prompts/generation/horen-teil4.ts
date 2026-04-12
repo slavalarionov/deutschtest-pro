@@ -3,25 +3,22 @@ import type { ExamLevel } from '@/types/exam'
 export function getHorenTeil4Prompt(level: ExamLevel): string {
   return `Erstelle Teil 4 des Moduls Hören für das Goethe-Zertifikat ${level}.
 
-SZENARIO: **5 kurze Alltags- oder Situationsgespräche** (Diskussionen, Nachbarschaft, Behörde light, Laden, öffentlicher Raum).
+STRUKTUR: **5 getrennte kurze Dialoge** — jeweils **genau 2 verschiedene Sprecher** (nur 2 verschiedene role-Werte pro Script, abwechselnde Repliken).
+
+EMPFOHLENE PAARE (Script-Reihenfolge IDs 8–12, Task-IDs 16–20):
+- Dialog 1 (id 8): casual_male + casual_female
+- Dialog 2 (id 9): professional_male + elderly_female
+- Dialog 3 (id 10): casual_female + professional_female
+- Dialog 4 (id 11): casual_male + professional_male
+- Dialog 5 (id 12): child + casual_female (z. B. Mutter/Verkäuferin + Kind — nur **zwei** Stimmen im Dialog)
+
+Über **alle 5 Dialoge** verteilt entsteht Vielfalt; **announcer** nur nutzen, wenn eine Szene wirklich eine **Durchsage** braucht — dann **trotzdem nur 2 Rollen pro Script** (z. B. announcer + casual_male als Zuhörer-Reaktion in 1–2 Zeilen), oder announcer in einem Script statt eines der Paare oben.
 
 ANFORDERUNGEN:
-- 5 Gespräche, je 40–80 Wörter gesprochener Inhalt
-- Jedes Gespräch: "dialogue" mit 4–10 Repliken, mindestens zwei Sprecher pro Script
-- Jedes Gespräch: genau 1 Richtig/Falsch-Aufgabe
-- Jeder Text wird 2× abgespielt
-- Script IDs: 8–12, Task IDs: 16–20
-
-ALLE 7 ROLLEN (role) — exakt diese Schlüsselwörter. **Über alle 5 Scripts zusammen** muss jede Rolle **mindestens einmal** vorkommen (verteile die Rollen auf die verschiedenen Gespräche):
-- casual_female — junge Frau, Alltag
-- casual_male — junger Mann, Alltag
-- professional_female — formell, z. B. Verkäuferin, Sachbearbeiterin
-- professional_male — formell, z. B. Beamter, Verkäufer
-- announcer — z. B. Durchsage im Hintergrund eines Mini-Szenarios (Bahnhof/Markt) oder kurze offizielle Ansage
-- elderly_female — ältere Nachbarin, Kundin, Passantin
-- child — Kind in der Szene (z. B. mit Elternteil)
-
-Schwerpunkt Teil 4: **professional** + **casual** + **elderly_female** in den Szenen; **announcer** und **child** dort einbauen, wo die Situation es trägt.
+- Je Dialog 40–80 Wörter, 4–10 Repliken.
+- Pro Script genau 1 Richtig/Falsch-Aufgabe.
+- playCount: 2 für jedes Script.
+- Kein "script"/"voiceType".
 
 emotion optional: neutral | happy | worried | angry | sad | polite
 
@@ -33,14 +30,14 @@ ANTWORTE NUR MIT VALIDEM JSON:
       "playCount": 2,
       "dialogue": [
         { "speaker": "Mann", "role": "casual_male", "text": "…", "emotion": "polite" },
-        { "speaker": "Frau", "role": "professional_female", "text": "…", "emotion": "neutral" }
+        { "speaker": "Frau", "role": "casual_female", "text": "…", "emotion": "neutral" }
       ],
       "tasks": [{ "id": 16, "type": "rf", "statement": "…", "answer": "richtig" }]
     }
   ]
 }
 
-WICHTIG: Pro Script nur "dialogue". Genau 5 Scripts (IDs 8–12). Vor dem Ausgeben prüfen: über **alle fünf Dialoge** gesehen kommt jede der 7 role-Werte mindestens einmal vor.
+WICHTIG: Genau **5** Scripts (IDs 8–12). Pro Script **höchstens zwei** unterschiedliche "role"-Werte.
 
 Niveau: ${level}. Mische richtig und falsch.`
 }

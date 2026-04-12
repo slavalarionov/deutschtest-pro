@@ -3,25 +3,23 @@ import type { ExamLevel } from '@/types/exam'
 export function getHorenTeil3Prompt(level: ExamLevel): string {
   return `Erstelle Teil 3 des Moduls Hören für das Goethe-Zertifikat ${level}.
 
-SZENARIO: **Radio-, Podcast- oder TV-Interview** (Studiogespräch oder Reportage mit Gesprächspartnern).
+SZENARIO: **Radio-, Podcast- oder TV-Interview**.
+
+STRUKTUR — **maximal 2 Gesprächspartner** im eigentlichen Interview:
+- **Moderation:** entweder professional_male **oder** professional_female (eine Moderator-Stimme durchgehend).
+- **Gast:** genau eine weitere Person: **casual_female**, **casual_male** **oder** **elderly_female** (wähle eine passende Rolle).
+
+OPTIONAL (Sender-Design):
+- **Maximal 2 kurze Repliken** mit role **announcer** (nur Programmhinweis am Anfang und/oder Schluss), **kein** dritter Gesprächspartner im Interview selbst.
+- **Kein** child in Teil 3 (wirkt selten natürlich im Formatt).
+
+VERBOTEN im Hauptgespräch:
+- Keine dritte „Interview“-Stimme (nicht zwei Gäste gleichzeitig, kein Wechsel zu einem dritten Charakter mitten im Gespräch).
 
 ANFORDERUNGEN:
-- 200–300 Wörter gesprochener Inhalt
-- Jede Replik = Objekt in "dialogue" mit passendem "role"
-- 5 Aufgaben Richtig/Falsch
-- Der Text wird 1× abgespielt
-- Script ID: 7, Task IDs: 11–15
-
-ALLE 7 ROLLEN (role) — exakt diese Schlüsselwörter, jeweils **mindestens einmal** im gesamten Interview:
-- casual_female — junge Frau, Alltag / lockere Gesprächspartnerin
-- casual_male — junger Mann, Alltag / lockere Gesprächspartner
-- professional_female — Moderatorin, formelle Einleitung, ernstes Fachgespräch
-- professional_male — Moderator, formelle Einleitung, ernstes Fachgespräch
-- announcer — kurze **Sender-/Programm-Ansage** oder Jingle-Text zu Beginn oder nach Pause (1–2 Repliken)
-- elderly_female — ältere Interviewgästin oder Expertin
-- child — Kind oder Jugendlicher als Gast (z. B. Schule, Hobby, Familienthema)
-
-Schwerpunkt Teil 3: **professional_male** / **professional_female** (Moderation, Führung) + **casual_male** / **casual_female** (Gäste im Alltagston); announcer, elderly_female und child **situativ** einweben.
+- 200–300 Wörter, 10–16 Repliken im "dialogue".
+- 5 Richtig/Falsch-Aufgaben, Script ID 7, Task-IDs 11–15.
+- Kein "script"/"voiceType".
 
 emotion optional: neutral | happy | worried | angry | sad | polite
 
@@ -32,9 +30,9 @@ ANTWORTE NUR MIT VALIDEM JSON:
       "id": 7,
       "playCount": 1,
       "dialogue": [
-        { "speaker": "Ansage", "role": "announcer", "text": "Sie hören …", "emotion": "neutral" },
-        { "speaker": "Moderatorin", "role": "professional_female", "text": "Willkommen in unserer Sendung.", "emotion": "neutral" },
-        { "speaker": "Gast", "role": "casual_male", "text": "Danke für die Einladung.", "emotion": "happy" }
+        { "speaker": "Ansage", "role": "announcer", "text": "Kurzer Senderhinweis …", "emotion": "neutral" },
+        { "speaker": "Moderatorin", "role": "professional_female", "text": "Willkommen …", "emotion": "neutral" },
+        { "speaker": "Gast", "role": "casual_male", "text": "Danke …", "emotion": "neutral" }
       ],
       "tasks": [
         { "id": 11, "type": "rf", "statement": "…", "answer": "richtig" }
@@ -42,8 +40,6 @@ ANTWORTE NUR MIT VALIDEM JSON:
     }
   ]
 }
-
-WICHTIG: Kein "script"/"voiceType". Mindestens **12–18 Repliken**. Jede der 7 role-Werte mindestens einmal.
 
 Niveau: ${level}. Mische richtig und falsch.`
 }

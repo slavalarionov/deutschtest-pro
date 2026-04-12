@@ -1,5 +1,6 @@
 // server-only — this file must NEVER be imported in client components
 
+import { getInterLineSilenceMp3 } from '@/lib/audio/silence-between-lines'
 import { resolveVoiceId, type VoiceRole } from '@/lib/voices'
 import { concatenateMp3Buffers } from '@/lib/concat-mp3'
 
@@ -26,6 +27,14 @@ export interface DialogueTtsLine {
   emotion?: string
 }
 
+function getSpeechSpeed(): number {
+  const raw = process.env.ELEVENLABS_TTS_SPEED
+  if (raw === undefined || raw === '') return 0.9
+  const n = parseFloat(raw)
+  if (!Number.isFinite(n)) return 0.9
+  return Math.min(1.2, Math.max(0.7, n))
+}
+
 function voiceSettings(emotion?: string) {
   const styleMap: Record<string, number> = {
     neutral: 0.2,
@@ -41,6 +50,8 @@ function voiceSettings(emotion?: string) {
     stability: 0.75,
     similarity_boost: 0.75,
     style,
+    use_speaker_boost: true,
+    speed: getSpeechSpeed(),
   }
 }
 
@@ -132,7 +143,16 @@ export async function generateDialogue(
     )
     buffers.push(...parts)
   }
-  return concatenateMp3Buffers(buffers)
+
+  const silence = getInterLineSilenceMp3()
+  const withPauses: Buffer[] = []
+  for (let i = 0; i < buffers.length; i++) {
+    withPauses.push(buffers[i])
+    if (i < buffers.length - 1) {
+      withPauses.push(silence)
+    }
+  }
+  return concatenateMp3Buffers(withPauses)
 }
 
 export async function transcribeSpeech(

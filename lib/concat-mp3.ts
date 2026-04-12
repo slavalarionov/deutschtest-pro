@@ -19,7 +19,8 @@ async function getFfmpegPath(): Promise<string | null> {
 }
 
 /**
- * Склейка сегментов MP3. Сначала ffmpeg concat demuxer (-c copy), при ошибке — побайтовая склейка.
+ * Склейка сегментов MP3 (inkl. ggf. Stille aus elevenlabs.ts zwischen Repliken).
+ * Zuerst ffmpeg concat demuxer (-c copy), bei Fehler naive Buffer.concat.
  */
 export async function concatenateMp3Buffers(buffers: Buffer[]): Promise<Buffer> {
   if (buffers.length === 0) throw new Error('No audio buffers')
