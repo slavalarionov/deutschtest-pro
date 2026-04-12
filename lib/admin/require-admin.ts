@@ -15,6 +15,7 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export interface AdminUser {
   id: string
@@ -41,7 +42,12 @@ export async function requireAdminPage(currentPath: string): Promise<AdminUser> 
     redirect(`/login?next=${encodeURIComponent(currentPath)}`)
   }
 
-  const { data: profile, error } = await supabase
+  console.error('[DEBUG requireAdminPage] querying profile for user.id:', user.id)
+
+  // Временно читаем через admin client, чтобы обойти возможные проблемы с RLS.
+  // Безопасно: мы проверяем id против user.id из подтверждённой сессии.
+  const adminClient = createAdminClient()
+  const { data: profile, error } = await adminClient
     .from('profiles')
     .select('id, email, is_admin')
     .eq('id', user.id)
@@ -87,7 +93,10 @@ export async function requireAdminApi(): Promise<AdminUser | Response> {
     )
   }
 
-  const { data: profile, error } = await supabase
+  // Временно читаем через admin client, чтобы обойти возможные проблемы с RLS.
+  // Безопасно: мы проверяем id против user.id из подтверждённой сессии.
+  const adminClient = createAdminClient()
+  const { data: profile, error } = await adminClient
     .from('profiles')
     .select('id, email, is_admin')
     .eq('id', user.id)
