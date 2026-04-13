@@ -139,38 +139,14 @@ export async function POST(req: NextRequest) {
         expiresAt: expiresAt.toISOString(),
       },
     })
-  } catch (err) {
-    const raw = err instanceof Error ? err.message : String(err)
-    console.error('Exam generation error:', raw, err)
-
-    const lower = raw.toLowerCase()
-    let error =
-      'Die Prüfung konnte nicht generiert werden. Bitte versuchen Sie es etwas später erneut.'
-
-    if (
-      lower.includes('timeout') ||
-      lower.includes('timed out') ||
-      lower.includes('504') ||
-      lower.includes('task timed out') ||
-      lower.includes('max duration')
-    ) {
-      error =
-        'Zeitüberschreitung bei der Generierung. Wählen Sie weniger Module auf einmal oder versuchen Sie es später erneut. (Auf Vercel Free/Hobby gilt oft ein Limit von ca. 60 s.)'
-    } else if (lower.includes('completed_modules') || lower.includes('session_flow')) {
-      error =
-        'Datenbank-Schema veraltet: bitte Migrationen 003 und 004 in Supabase ausführen (completed_modules, session_flow multi).'
-    } else if (lower.includes('rate limit') || lower.includes('429') || lower.includes('overloaded')) {
-      error =
-        'Der KI-Dienst ist vorübergehend überlastet. Bitte in 1–2 Minuten erneut versuchen oder weniger Module wählen.'
-    }
-
-    return NextResponse.json(
-      {
-        success: false,
-        error,
-        ...(process.env.NODE_ENV === 'development' ? { debug: raw } : {}),
-      },
-      { status: 500 }
-    )
+  } catch (e: unknown) {
+    const err = e instanceof Error ? e : null
+    console.error('[generate] FAIL', {
+      message: err?.message ?? String(e),
+      stack: err?.stack,
+      name: err?.name,
+    })
+    const message = err?.message ?? (typeof e === 'string' ? e : 'unknown')
+    return NextResponse.json({ error: message, code: 'GENERATE_FAILED' }, { status: 500 })
   }
 }
