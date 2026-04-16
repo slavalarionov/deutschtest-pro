@@ -1,10 +1,7 @@
-import { PlaceholderPage } from '@/components/dashboard/PlaceholderPage'
+import { ProgressView } from '@/components/dashboard/ProgressView'
+
+export const dynamic = 'force-dynamic'
 
 export default function DashboardProgressPage() {
-  return (
-    <PlaceholderPage
-      title="Fortschritt"
-      description="Graphische Auswertung Ihrer Ergebnisse über die Zeit, nach Modul aufgeschlüsselt."
-    />
-  )
+  return <ProgressView />
 }
