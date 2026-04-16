@@ -33,6 +33,50 @@ async function sleep(ms: number) {
 
 const TOOL_GEN_RETRIES = 3
 
+// Claude sometimes opens a quote with „ (U+201E) but closes with ASCII " (U+0022).
+// When that broken pair lands inside a JSON-encoded string the model returned for
+// a field that should be an array, JSON.parse fails on the unescaped ASCII ".
+// Replace the closing " with typographic " (U+201C) so the JSON becomes parseable.
+function repairGermanQuotes(s: string): string {
+  return s.replace(/(„[^"„\\]*?)"/g, '$1\u201C')
+}
+
+function tryParseArray(val: unknown): unknown {
+  if (Array.isArray(val)) return val
+  if (typeof val !== 'string') return val
+  const trimmed = val.trim()
+  if (!trimmed.startsWith('[')) return val
+  try {
+    const parsed = JSON.parse(val)
+    if (Array.isArray(parsed)) return parsed
+  } catch { /* fall through to repair */ }
+  const repaired = repairGermanQuotes(val)
+  if (repaired !== val) {
+    try {
+      const parsed = JSON.parse(repaired)
+      if (Array.isArray(parsed)) return parsed
+    } catch { /* repair didn't help — leave as-is */ }
+  }
+  return val
+}
+
+// Claude frequently returns top-level array fields (tasks, scripts, texts, situations)
+// as JSON-encoded strings instead of actual JSON arrays. Coerce them back before Zod.
+// Applies to ANY tool_use.input shaped like an object — cheap and safe: strings that
+// aren't array-JSON are returned unchanged.
+function coerceTopLevelJsonStrings(raw: unknown): unknown {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw
+  const obj = raw as Record<string, unknown>
+  const out: Record<string, unknown> = {}
+  let changed = false
+  for (const [k, v] of Object.entries(obj)) {
+    const coerced = tryParseArray(v)
+    if (coerced !== v) changed = true
+    out[k] = coerced
+  }
+  return changed ? out : obj
+}
+
 interface GenerateWithToolOptions<T> {
   systemPrompt: string
   userPrompt: string
@@ -111,7 +155,8 @@ export async function generateWithTool<T>(opts: GenerateWithToolOptions<T>): Pro
       }
 
       receivedInput = toolUseBlock.input
-      const normalized = normalizeInput ? normalizeInput(receivedInput) : receivedInput
+      const preNormalized = coerceTopLevelJsonStrings(receivedInput)
+      const normalized = normalizeInput ? normalizeInput(preNormalized) : preNormalized
       const validated = schema.parse(normalized)
       return validated
     } catch (err) {
@@ -551,53 +596,26 @@ export interface HorenWithAnswers {
 }
 
 /**
- * Defensive normalizer for Hören tool input.
- * Claude occasionally returns array fields (scripts, dialogue, tasks) as
- * JSON strings instead of actual arrays. This function recursively coerces
- * those fields to arrays before Zod validation runs, preventing the
- * `invalid_type: expected array, received string` error (~75% failure rate).
+ * Nested-array normalizer for Hören tool input.
+ * `coerceTopLevelJsonStrings` in generateWithTool already handles the top-level
+ * `scripts` field. This hook descends one more level to coerce each script's
+ * `dialogue` and `tasks` fields, which Claude sometimes also JSON-string-encodes.
  */
 function normalizeHorenInput(raw: unknown): unknown {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw
   const obj = raw as Record<string, unknown>
+  const scripts = obj.scripts
+  if (!Array.isArray(scripts)) return obj
 
-  // Claude sometimes opens a quote with „ (U+201E) but closes with ASCII " (U+0022).
-  // When that broken pair lands inside a JSON-encoded string, JSON.parse fails
-  // on the unescaped ASCII ". Replace the closing " with typographic " (U+201C)
-  // so the JSON becomes parseable again.
-  function repairGermanQuotes(s: string): string {
-    return s.replace(/(„[^"„\\]*?)"/g, '$1\u201C')
-  }
-
-  function tryParseArray(val: unknown): unknown {
-    if (Array.isArray(val)) return val
-    if (typeof val !== 'string') return val
-    try {
-      const parsed = JSON.parse(val)
-      if (Array.isArray(parsed)) return parsed
-    } catch { /* fall through to repair */ }
-    const repaired = repairGermanQuotes(val)
-    if (repaired !== val) {
-      try {
-        const parsed = JSON.parse(repaired)
-        if (Array.isArray(parsed)) return parsed
-      } catch { /* repair didn't help — leave as-is */ }
+  const normalizedScripts = scripts.map((s: unknown) => {
+    if (!s || typeof s !== 'object' || Array.isArray(s)) return s
+    const script = s as Record<string, unknown>
+    return {
+      ...script,
+      dialogue: tryParseArray(script.dialogue),
+      tasks: tryParseArray(script.tasks),
     }
-    return val
-  }
-
-  const scripts = tryParseArray(obj.scripts)
-  const normalizedScripts = Array.isArray(scripts)
-    ? scripts.map((s: unknown) => {
-        if (!s || typeof s !== 'object' || Array.isArray(s)) return s
-        const script = s as Record<string, unknown>
-        return {
-          ...script,
-          dialogue: tryParseArray(script.dialogue),
-          tasks: tryParseArray(script.tasks),
-        }
-      })
-    : scripts
+  })
 
   return { ...obj, scripts: normalizedScripts }
 }
