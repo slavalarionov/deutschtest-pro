@@ -1,10 +1,7 @@
-import { PlaceholderPage } from '@/components/dashboard/PlaceholderPage'
+import { HistoryView } from '@/components/dashboard/HistoryView'
+
+export const dynamic = 'force-dynamic'
 
 export default function DashboardHistoryPage() {
-  return (
-    <PlaceholderPage
-      title="Verlauf"
-      description="Alle Ihre Modul-Versuche mit Filtern nach Niveau, Modul und Datum."
-    />
-  )
+  return <HistoryView />
 }
