@@ -561,13 +561,27 @@ function normalizeHorenInput(raw: unknown): unknown {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw
   const obj = raw as Record<string, unknown>
 
+  // Claude sometimes opens a quote with „ (U+201E) but closes with ASCII " (U+0022).
+  // When that broken pair lands inside a JSON-encoded string, JSON.parse fails
+  // on the unescaped ASCII ". Replace the closing " with typographic " (U+201C)
+  // so the JSON becomes parseable again.
+  function repairGermanQuotes(s: string): string {
+    return s.replace(/(„[^"„\\]*?)"/g, '$1\u201C')
+  }
+
   function tryParseArray(val: unknown): unknown {
     if (Array.isArray(val)) return val
-    if (typeof val === 'string') {
+    if (typeof val !== 'string') return val
+    try {
+      const parsed = JSON.parse(val)
+      if (Array.isArray(parsed)) return parsed
+    } catch { /* fall through to repair */ }
+    const repaired = repairGermanQuotes(val)
+    if (repaired !== val) {
       try {
-        const parsed = JSON.parse(val)
+        const parsed = JSON.parse(repaired)
         if (Array.isArray(parsed)) return parsed
-      } catch { /* not JSON — leave as-is */ }
+      } catch { /* repair didn't help — leave as-is */ }
     }
     return val
   }
