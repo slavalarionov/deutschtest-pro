@@ -228,10 +228,15 @@ export interface SchreibenContent {
 
 export interface SchreibenTask {
   id: number
+  type: 'email' | 'brief' | 'forum'
+  situation: string
   prompt: string
-  context?: string
-  requiredPoints?: string[]
+  requiredPoints: string[]
   wordCount: number
+  /** Nur bei type === 'forum': Originalbeitrag im Forum. */
+  samplePost?: string
+  /** Für Anzeige und Scoring (z. B. Forum-Beitrag als Kontext). */
+  context: string
 }
 
 // --- Sprechen ---

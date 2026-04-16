@@ -21,6 +21,8 @@ ${typeLines}
 - wordCount: ca. ${wc} Wörter
 - samplePost: Bei Forumaufgaben — der Originalbeitrag, auf den geantwortet wird (optional)
 
+Für Aufgaben vom Typ 'email' oder 'brief' gibt es kein Feld samplePost — du musst es nicht angeben und nicht als null setzen.
+
 Themen: Alltag, Freizeit, Arbeit, Wohnung, Reise, Kurs, Veranstaltung.
 Niveau: ${level}
 

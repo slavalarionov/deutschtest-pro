@@ -378,15 +378,29 @@ export async function generateLesenFull(level: ExamLevel): Promise<LesenWithAnsw
 // SCHREIBEN — Generation + Scoring
 // ====================================================================
 
-const schreibenTaskSchema = z.object({
+const schreibenEmailOrBriefTaskSchema = z.object({
   id: z.number(),
-  type: z.enum(['email', 'forum', 'brief']),
-  situation: z.string().min(20),
-  prompt: z.string().min(20),
-  requiredPoints: z.array(z.string().min(3)).min(3).max(5),
-  wordCount: z.number().min(20).max(200),
-  samplePost: z.string().optional(),
+  type: z.enum(['email', 'brief']),
+  situation: z.string().min(1),
+  prompt: z.string().min(1),
+  requiredPoints: z.array(z.string().min(1)).min(3).max(5),
+  wordCount: z.number().int().min(20).max(200),
 })
+
+const schreibenForumTaskSchema = z.object({
+  id: z.number(),
+  type: z.literal('forum'),
+  situation: z.string().min(1),
+  prompt: z.string().min(1),
+  samplePost: z.string().min(1),
+  requiredPoints: z.array(z.string().min(1)).min(3).max(5),
+  wordCount: z.number().int().min(20).max(200),
+})
+
+const schreibenTaskSchema = z.discriminatedUnion('type', [
+  schreibenEmailOrBriefTaskSchema,
+  schreibenForumTaskSchema,
+])
 
 const schreibenSchema = z.object({
   tasks: z.array(schreibenTaskSchema).min(1).max(2),
@@ -420,13 +434,21 @@ export async function generateSchreiben(level: ExamLevel): Promise<SchreibenGenR
 
   return {
     content: {
-      tasks: validated.tasks.map((t) => ({
-        id: t.id,
-        prompt: t.prompt,
-        context: t.samplePost || t.situation,
-        requiredPoints: t.requiredPoints,
-        wordCount: t.wordCount,
-      })),
+      tasks: validated.tasks.map((t) => {
+        const base = {
+          id: t.id,
+          type: t.type,
+          situation: t.situation,
+          prompt: t.prompt,
+          requiredPoints: t.requiredPoints,
+          wordCount: t.wordCount,
+          context: t.type === 'forum' ? (t.samplePost ?? t.situation) : t.situation,
+        }
+        if (t.type === 'forum') {
+          return { ...base, samplePost: t.samplePost }
+        }
+        return base
+      }),
     },
   }
 }
