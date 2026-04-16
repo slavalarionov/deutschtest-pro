@@ -111,6 +111,9 @@ export interface Database {
           modules_balance: number
           is_unlimited: boolean
           is_blocked: boolean
+          cached_recommendations: Json | null
+          recommendations_attempts_count: number | null
+          recommendations_generated_at: string | null
         }
         Insert: {
           id: string
@@ -123,6 +126,9 @@ export interface Database {
           modules_balance?: number
           is_unlimited?: boolean
           is_blocked?: boolean
+          cached_recommendations?: Json | null
+          recommendations_attempts_count?: number | null
+          recommendations_generated_at?: string | null
         }
         Update: {
           id?: string
@@ -135,6 +141,9 @@ export interface Database {
           modules_balance?: number
           is_unlimited?: boolean
           is_blocked?: boolean
+          cached_recommendations?: Json | null
+          recommendations_attempts_count?: number | null
+          recommendations_generated_at?: string | null
         }
         Relationships: []
       }

@@ -17,6 +17,7 @@ import { getSchreibenPrompt } from '@/prompts/generation/schreiben'
 import { getSprechenPrompt } from '@/prompts/generation/sprechen'
 import { getSchreibenScorePrompt } from '@/prompts/scoring/schreiben-score'
 import { getSprechenScorePrompt } from '@/prompts/scoring/sprechen-score'
+import { getRecommendationsPrompt, type RecommendationsInput } from '@/prompts/recommendations'
 import { horenDialogueEmotionSchema, normalizeDialogueEmotion } from '@/lib/horen-emotion'
 import { logAiUsage } from './ai-usage-logger'
 import { calculateAnthropicCost } from './ai-pricing'
@@ -84,7 +85,7 @@ interface GenerateWithToolOptions<T> {
   toolDescription: string
   schema: z.ZodType<T>
   maxTokens?: number
-  operation?: 'claude_generate' | 'claude_score'
+  operation?: 'claude_generate' | 'claude_score' | 'claude_recommendations'
   /** Optional hook to defensively normalize the raw tool input before Zod parsing. */
   normalizeInput?: (raw: unknown) => unknown
 }
@@ -787,5 +788,46 @@ export async function scoreSprechen(
     schema: sprechenFeedbackSchema,
     maxTokens: 2048,
     operation: 'claude_score',
+  })
+}
+
+// ====================================================================
+// RECOMMENDATIONS — Dashboard AI-Empfehlungen
+// ====================================================================
+
+const recommendationsSchema = z.object({
+  overallAssessment: z.string().min(20).max(800),
+  strengths: z.array(z.string().min(5).max(300)).min(1).max(5),
+  weaknesses: z.array(z.string().min(5).max(300)).min(1).max(5),
+  studyPlan: z
+    .array(
+      z.object({
+        title: z.string().min(3).max(120),
+        description: z.string().min(10).max(500),
+      })
+    )
+    .min(2)
+    .max(6),
+  motivation: z.string().min(10).max(400),
+})
+
+export type Recommendations = z.infer<typeof recommendationsSchema>
+
+const SYSTEM_PROMPT_RECOMMENDATIONS = `Du bist ein erfahrener Lerncoach für Deutsch als Fremdsprache, spezialisiert auf das Goethe-Zertifikat.
+Du gibst ehrliche, datengetriebene und motivierende Empfehlungen, die genau auf die bisherigen Ergebnisse des Prüflings abgestimmt sind.
+Verwende ausschließlich das bereitgestellte Tool, um deine Empfehlungen strukturiert zurückzugeben.`
+
+export async function generateRecommendations(
+  input: RecommendationsInput
+): Promise<Recommendations> {
+  return generateWithTool({
+    systemPrompt: SYSTEM_PROMPT_RECOMMENDATIONS,
+    userPrompt: getRecommendationsPrompt(input),
+    toolName: 'submit_recommendations',
+    toolDescription:
+      'Reicht personalisierte Lernempfehlungen für den Prüfling ein: Gesamteinschätzung, Stärken, Schwächen, Studienplan und Motivation.',
+    schema: recommendationsSchema,
+    maxTokens: 2048,
+    operation: 'claude_recommendations',
   })
 }
