@@ -41,6 +41,8 @@ interface GenerateWithToolOptions<T> {
   schema: z.ZodType<T>
   maxTokens?: number
   operation?: 'claude_generate' | 'claude_score'
+  /** Optional hook to defensively normalize the raw tool input before Zod parsing. */
+  normalizeInput?: (raw: unknown) => unknown
 }
 
 /**
@@ -59,6 +61,7 @@ export async function generateWithTool<T>(opts: GenerateWithToolOptions<T>): Pro
     schema,
     maxTokens = 4096,
     operation = 'claude_generate',
+    normalizeInput,
   } = opts
 
   const inputSchema = zodToJsonSchema(schema, {
@@ -108,7 +111,8 @@ export async function generateWithTool<T>(opts: GenerateWithToolOptions<T>): Pro
       }
 
       receivedInput = toolUseBlock.input
-      const validated = schema.parse(receivedInput)
+      const normalized = normalizeInput ? normalizeInput(receivedInput) : receivedInput
+      const validated = schema.parse(normalized)
       return validated
     } catch (err) {
       lastError = err
@@ -507,6 +511,8 @@ const horenDialogueLineSchema = z.object({
   emotion: horenDialogueEmotionSchema,
 })
 
+const horenTaskUnion = z.discriminatedUnion('type', [horenRFTaskSchema, horenMCTaskSchema])
+
 const horenScriptMonoSchema = z.object({
   id: z.number(),
   playCount: z.number().min(1).max(2),
@@ -518,7 +524,7 @@ const horenScriptMonoSchema = z.object({
     'male_casual',
     'female_casual',
   ]),
-  tasks: z.array(z.union([horenRFTaskSchema, horenMCTaskSchema])).min(1),
+  tasks: z.array(horenTaskUnion).min(1),
 })
 
 const horenScriptDialogueSchema = z.object({
@@ -526,7 +532,7 @@ const horenScriptDialogueSchema = z.object({
   playCount: z.number().min(1).max(2),
   mode: z.literal('dialogue'),
   dialogue: z.array(horenDialogueLineSchema).min(2),
-  tasks: z.array(z.union([horenRFTaskSchema, horenMCTaskSchema])).min(1),
+  tasks: z.array(horenTaskUnion).min(1),
 })
 
 const horenScriptSchema = z.discriminatedUnion('mode', [
@@ -544,6 +550,44 @@ export interface HorenWithAnswers {
   answers: Record<string, string>
 }
 
+/**
+ * Defensive normalizer for Hören tool input.
+ * Claude occasionally returns array fields (scripts, dialogue, tasks) as
+ * JSON strings instead of actual arrays. This function recursively coerces
+ * those fields to arrays before Zod validation runs, preventing the
+ * `invalid_type: expected array, received string` error (~75% failure rate).
+ */
+function normalizeHorenInput(raw: unknown): unknown {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw
+  const obj = raw as Record<string, unknown>
+
+  function tryParseArray(val: unknown): unknown {
+    if (Array.isArray(val)) return val
+    if (typeof val === 'string') {
+      try {
+        const parsed = JSON.parse(val)
+        if (Array.isArray(parsed)) return parsed
+      } catch { /* not JSON — leave as-is */ }
+    }
+    return val
+  }
+
+  const scripts = tryParseArray(obj.scripts)
+  const normalizedScripts = Array.isArray(scripts)
+    ? scripts.map((s: unknown) => {
+        if (!s || typeof s !== 'object' || Array.isArray(s)) return s
+        const script = s as Record<string, unknown>
+        return {
+          ...script,
+          dialogue: tryParseArray(script.dialogue),
+          tasks: tryParseArray(script.tasks),
+        }
+      })
+    : scripts
+
+  return { ...obj, scripts: normalizedScripts }
+}
+
 async function generateHorenTeil(
   level: ExamLevel,
   promptFn: (level: ExamLevel) => string,
@@ -557,6 +601,7 @@ async function generateHorenTeil(
     toolDescription,
     schema: horenTeilSchema,
     maxTokens: 4096,
+    normalizeInput: normalizeHorenInput,
   })
 
   const answers: Record<string, string> = {}
