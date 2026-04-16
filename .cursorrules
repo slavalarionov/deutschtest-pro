@@ -40,7 +40,7 @@ deutschtest/
 ├── lib/
 │   ├── audio/, exam/, supabase/
 │   ├── billing.ts          (списание modules_balance)
-│   ├── claude.ts           (server-only, generateAndParse)
+│   ├── claude.ts           (server-only, generateWithTool + Zod)
 │   ├── elevenlabs.ts       (server-only)
 │   ├── whisper.ts          (server-only)
 │   ├── concat-mp3.ts, voices.ts, horen-emotion.ts
@@ -86,7 +86,7 @@ deutschtest/
 ### Данные экзамена
 1. Правильные ответы (exam_sessions.answers) хранятся ТОЛЬКО на сервере.
 2. Клиенту НЕ отдавать эталонные ответы до сабмита.
-3. Zod-валидация на КАЖДЫЙ ответ от Claude (generateAndParse с maxRetries: 3).
+3. Zod-валидация на КАЖДЫЙ ответ от Claude (generateWithTool: Anthropic tool_use + Zod, до 3 retry на вызов).
 4. Все API routes проверяют auth session через lib/supabase/server.ts.
 
 ### Rate limiting

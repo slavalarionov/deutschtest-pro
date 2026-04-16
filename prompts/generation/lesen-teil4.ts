@@ -13,17 +13,5 @@ ANFORDERUNGEN:
   - Die Antwort ist die ID des passenden Textes (a–h)
   - Jeder Text wird maximal einmal zugeordnet; manche Texte bleiben übrig
 
-ANTWORTE NUR MIT VALIDEM JSON:
-{
-  "texts": [
-    { "id": "a", "text": "Anzeige/Aushang..." },
-    { "id": "b", "text": "..." },
-    ...
-  ],
-  "situations": [
-    { "id": 0, "situation": "Beispiel: Sie suchen...", "answer": "a", "isExample": true },
-    { "id": 19, "situation": "...", "answer": "c" },
-    ...
-  ]
-}`
+Strukturiere die vollständige Antwort ausschließlich über das bereitgestellte Tool (kein JSON als Fließtext, kein zusätzlicher Erläuterungstext).`
 }

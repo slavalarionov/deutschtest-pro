@@ -11,7 +11,7 @@ STRUKTUR — **maximal 2 Gesprächspartner** im eigentlichen Interview:
 
 OPTIONAL (Sender-Design):
 - **Maximal 2 kurze Repliken** mit role **announcer** (nur Programmhinweis am Anfang und/oder Schluss), **kein** dritter Gesprächspartner im Interview selbst.
-- **Kein** child in Teil 3 (wirkt selten natürlich im Formatt).
+- **Kein** child in Teil 3 (wirkt selten natürlich im Format).
 
 VERBOTEN im Hauptgespräch:
 - Keine dritte „Interview“-Stimme (nicht zwei Gäste gleichzeitig, kein Wechsel zu einem dritten Charakter mitten im Gespräch).
@@ -23,23 +23,9 @@ ANFORDERUNGEN:
 
 emotion optional: neutral | happy | worried | angry | sad | polite
 
-ANTWORTE NUR MIT VALIDEM JSON:
-{
-  "scripts": [
-    {
-      "id": 7,
-      "playCount": 1,
-      "dialogue": [
-        { "speaker": "Ansage", "role": "announcer", "text": "Kurzer Senderhinweis …", "emotion": "neutral" },
-        { "speaker": "Moderatorin", "role": "professional_female", "text": "Willkommen …", "emotion": "neutral" },
-        { "speaker": "Gast", "role": "casual_male", "text": "Danke …", "emotion": "neutral" }
-      ],
-      "tasks": [
-        { "id": 11, "type": "rf", "statement": "…", "answer": "richtig" }
-      ]
-    }
-  ]
-}
+Für jedes Hörscript wähle entweder "mode": "mono" (eine Person spricht — dann fülle "script" und "voiceType") oder "mode": "dialogue" (mehrere Personen — dann fülle "dialogue" als Liste von Repliken). Mische die beiden Modi nicht innerhalb eines Scripts.
+
+Übergib das Ergebnis ausschließlich über das bereitgestellte Tool. Verwende authentisches, natürliches Deutsch — typografische Anführungszeichen („…") sind im Inhalt erwünscht.
 
 Niveau: ${level}. Mische richtig und falsch.`
 }

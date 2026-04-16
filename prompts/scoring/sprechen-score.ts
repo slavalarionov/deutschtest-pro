@@ -22,7 +22,9 @@ Erwartete Inhaltspunkte:
 ${taskPoints.map((p, i) => `${i + 1}. ${p}`).join('\n')}
 
 TRANSKRIPTION DES PRÜFLINGS:
-"${transcript}"
+\`\`\`
+${transcript}
+\`\`\`
 
 Bewerte nach den offiziellen Goethe-Bewertungskriterien:
 1. Aufgabenerfüllung (0–20): Wurden alle Punkte der Aufgabe behandelt? Passt die Antwort zur Aufgabenstellung?
@@ -31,18 +33,5 @@ Bewerte nach den offiziellen Goethe-Bewertungskriterien:
 4. Grammatik (0–20): Sind die grammatischen Strukturen korrekt und dem Niveau angemessen?
 5. Aussprache (0–20): Kann indirekt beurteilt werden — korrekte Wortformen, keine Verwechslungen.
 
-ANTWORTE NUR MIT VALIDEM JSON:
-{
-  "score": 0-100,
-  "criteria": {
-    "taskFulfillment": 0-20,
-    "fluency": 0-20,
-    "vocabulary": 0-20,
-    "grammar": 0-20,
-    "pronunciation": 0-20
-  },
-  "comment": "Detailliertes Feedback auf Deutsch mit konkreten Verbesserungsvorschlägen..."
-}
-
-Sei fair aber streng — wie ein echter Goethe-Prüfer.`
+Übergib deine Bewertung ausschließlich über das bereitgestellte Tool. Schreibe das Feedback im Kommentar auf authentischem Deutsch — typografische Anführungszeichen sind erlaubt.`
 }

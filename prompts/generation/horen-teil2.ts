@@ -26,24 +26,11 @@ ANFORDERUNGEN:
 
 emotion optional: neutral | happy | worried | angry | sad | polite
 
-ANTWORTE NUR MIT VALIDEM JSON:
-{
-  "scripts": [
-    {
-      "id": 6,
-      "playCount": 1,
-      "dialogue": [
-        { "speaker": "Reisender", "role": "casual_male", "text": "…", "emotion": "neutral" },
-        { "speaker": "Mitarbeiterin", "role": "professional_female", "text": "…", "emotion": "polite" }
-      ],
-      "tasks": [
-        { "id": 6, "type": "mc", "question": "…", "options": { "a": "…", "b": "…", "c": "…" }, "answer": "b" }
-      ]
-    }
-  ]
-}
-
 VOR DEM ABSENDEN PRÜFEN: In jedem zusammenhängenden Mini-Dialogblock höchstens **zwei** unterschiedliche "role"-Werte.
+
+Für jedes Hörscript wähle entweder "mode": "mono" (eine Person spricht — dann fülle "script" und "voiceType") oder "mode": "dialogue" (mehrere Personen — dann fülle "dialogue" als Liste von Repliken). Mische die beiden Modi nicht innerhalb eines Scripts.
+
+Übergib das Ergebnis ausschließlich über das bereitgestellte Tool. Verwende authentisches, natürliches Deutsch — typografische Anführungszeichen („…") sind im Inhalt erwünscht.
 
 Niveau: ${level}.`
 }

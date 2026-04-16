@@ -11,14 +11,5 @@ ANFORDERUNGEN:
   - Aufgaben 1–6: genau 3 "richtig" und 3 "falsch"
 - Jede Aufgabe ist eine Aussage über den Text
 
-ANTWORTE NUR MIT VALIDEM JSON:
-{
-  "text": "Der vollständige Blogbeitrag...",
-  "tasks": [
-    { "id": 0, "statement": "Beispiel...", "answer": "richtig", "isExample": true },
-    { "id": 1, "statement": "...", "answer": "richtig" },
-    { "id": 2, "statement": "...", "answer": "falsch" },
-    ...
-  ]
-}`
+Strukturiere die vollständige Antwort ausschließlich über das bereitgestellte Tool (kein JSON als Fließtext, kein zusätzlicher Erläuterungstext).`
 }

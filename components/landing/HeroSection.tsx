@@ -32,6 +32,9 @@ const MINUTES: Record<string, number> = {
   sprechen: 15,
 }
 
+const GENERIC_GENERATE_FAIL =
+  'Die Prüfung konnte nicht generiert werden. Bitte versuchen Sie es etwas später erneut.'
+
 function calculateTotalTimeLabel(moduleIds: string[]): string {
   const totalMinutes = moduleIds.reduce((sum, m) => sum + (MINUTES[m] ?? 0), 0)
   if (totalMinutes <= 0) return '—'
@@ -65,6 +68,8 @@ export function HeroSection({
   const [selectedModules, setSelectedModules] = useState<ExamModule[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  /** API `error` string for dev-only under the German message (screenshots / debugging). */
+  const [errorDetail, setErrorDetail] = useState<string | null>(null)
 
   const orderedSelection = useMemo(() => sortSelectedModules(selectedModules), [selectedModules])
 
@@ -94,6 +99,7 @@ export function HeroSection({
 
     setLoading(true)
     setError(null)
+    setErrorDetail(null)
 
     try {
       const res = await fetch('/api/exam/generate', {
@@ -102,7 +108,12 @@ export function HeroSection({
         body: JSON.stringify({ level: selectedLevel, modules: orderedSelection }),
       })
 
-      const data = await res.json()
+      let data: Record<string, unknown> = {}
+      try {
+        data = (await res.json()) as Record<string, unknown>
+      } catch {
+        data = {}
+      }
 
       if (res.status === 401) {
         setLoading(false)
@@ -113,15 +124,31 @@ export function HeroSection({
       if (res.status === 403) {
         setLoading(false)
         if (data.code === 'insufficient_balance') {
-          setError(data.error || 'Nicht genug Modul-Credits.')
+          setError(String(data.error ?? 'Nicht genug Modul-Credits.'))
         } else {
-          router.push(data.redirect || '/pricing')
+          router.push(String(data.redirect ?? '/pricing'))
         }
         return
       }
 
+      if (!res.ok) {
+        const code = data.code
+        const apiError = typeof data.error === 'string' ? data.error : undefined
+        console.error('[exam/generate] non-OK response', { status: res.status, code, error: apiError })
+        setError(GENERIC_GENERATE_FAIL)
+        setErrorDetail(apiError ?? null)
+        setLoading(false)
+        return
+      }
+
       if (!data.success || !data.sessionId) {
-        throw new Error(data.error || 'Generation failed')
+        const code = data.code
+        const apiError = typeof data.error === 'string' ? data.error : undefined
+        console.error('[exam/generate] unexpected body', { code, error: apiError, success: data.success })
+        setError(GENERIC_GENERATE_FAIL)
+        setErrorDetail(apiError ?? null)
+        setLoading(false)
+        return
       }
 
       const first = data.firstModule as string
@@ -133,7 +160,9 @@ export function HeroSection({
       }
       setLoading(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      console.error('[exam/generate] fetch failed', err)
+      setError(GENERIC_GENERATE_FAIL)
+      setErrorDetail(err instanceof Error ? err.message : String(err))
       setLoading(false)
     }
   }
@@ -305,7 +334,14 @@ export function HeroSection({
             )}
           </div>
 
-          {error && <p className="mt-4 text-sm text-brand-red">{error}</p>}
+          {error && (
+            <div className="mt-4">
+              <p className="text-sm text-brand-red">{error}</p>
+              {process.env.NODE_ENV !== 'production' && errorDetail && (
+                <p className="mt-1 break-all font-mono text-xs text-brand-red/80">{errorDetail}</p>
+              )}
+            </div>
+          )}
 
           {loadingHint && <p className="mt-3 text-xs text-brand-muted">{loadingHint}</p>}
         </motion.div>

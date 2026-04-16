@@ -11,19 +11,9 @@ ANFORDERUNGEN:
 - voiceType abwechselnd: male_professional, female_professional, male_casual, female_casual
 - IDs der Scripts: 1–5, IDs der Tasks: 1–5
 
-ANTWORTE NUR MIT VALIDEM JSON:
-{
-  "scripts": [
-    {
-      "id": 1,
-      "script": "Achtung, eine Durchsage: Der Zug nach München...",
-      "voiceType": "female_professional",
-      "playCount": 2,
-      "tasks": [{ "id": 1, "type": "rf", "statement": "Der Zug fährt heute nicht.", "answer": "falsch" }]
-    },
-    ...
-  ]
-}
+Für jedes Hörscript wähle entweder "mode": "mono" (eine Person spricht — dann fülle "script" und "voiceType") oder "mode": "dialogue" (mehrere Personen — dann fülle "dialogue" als Liste von Repliken). Mische die beiden Modi nicht innerhalb eines Scripts.
+
+Übergib das Ergebnis ausschließlich über das bereitgestellte Tool. Verwende authentisches, natürliches Deutsch — typografische Anführungszeichen („…") sind im Inhalt erwünscht.
 
 Niveau: ${level}. Mische richtig und falsch gleichmäßig.`
 }

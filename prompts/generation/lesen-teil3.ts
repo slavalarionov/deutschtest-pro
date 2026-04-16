@@ -10,13 +10,5 @@ ANFORDERUNGEN:
   - Aufgaben 12–18: Aussagen mit "ja" oder "nein"
   - Mischung: ca. Hälfte "ja", Hälfte "nein"
 
-ANTWORTE NUR MIT VALIDEM JSON:
-{
-  "text": "Der vollständige Regeltext...",
-  "tasks": [
-    { "id": 0, "statement": "Beispiel...", "answer": "ja", "isExample": true },
-    { "id": 12, "statement": "...", "answer": "nein" },
-    ...
-  ]
-}`
+Strukturiere die vollständige Antwort ausschließlich über das bereitgestellte Tool (kein JSON als Fließtext, kein zusätzlicher Erläuterungstext).`
 }

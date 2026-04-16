@@ -1,6 +1,7 @@
 // server-only — this file must NEVER be imported in client components
 import Anthropic from '@anthropic-ai/sdk'
 import { z } from 'zod'
+import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { ExamLevel, LesenTeil1, LesenTeil4, LesenContent, SchreibenContent, SchreibenFeedback, SprechenFeedback, SprechenContent, HorenContent } from '@/types/exam'
 
 import { getLesenTeil1Prompt } from '@/prompts/generation/lesen-teil1'
@@ -16,7 +17,7 @@ import { getSchreibenPrompt } from '@/prompts/generation/schreiben'
 import { getSprechenPrompt } from '@/prompts/generation/sprechen'
 import { getSchreibenScorePrompt } from '@/prompts/scoring/schreiben-score'
 import { getSprechenScorePrompt } from '@/prompts/scoring/sprechen-score'
-import { horenDialogueEmotionSchema } from '@/lib/horen-emotion'
+import { horenDialogueEmotionSchema, normalizeDialogueEmotion } from '@/lib/horen-emotion'
 import { logAiUsage } from './ai-usage-logger'
 import { calculateAnthropicCost } from './ai-pricing'
 
@@ -24,35 +25,67 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 })
 
-const MAX_RETRIES = 5
-
 async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export async function generateWithClaude(
-  systemPrompt: string,
-  userPrompt: string,
-  maxTokens: number = 4096,
-  operation: 'claude_generate' | 'claude_score' = 'claude_generate'
-): Promise<string> {
+// --- Tool-based generation (the new way) ---
+
+const TOOL_GEN_RETRIES = 3
+
+interface GenerateWithToolOptions<T> {
+  systemPrompt: string
+  userPrompt: string
+  toolName: string
+  toolDescription: string
+  schema: z.ZodType<T>
+  maxTokens?: number
+  operation?: 'claude_generate' | 'claude_score'
+}
+
+/**
+ * Tool-use based structured generation (Anthropic tool_use + Zod).
+ * The model is forced via tool_choice to call the provided tool. The tool's
+ * input_schema is derived from the Zod schema; the model's output arrives
+ * already parsed (as the tool_use block's `input`) and is additionally
+ * validated against the same Zod schema for safety.
+ */
+export async function generateWithTool<T>(opts: GenerateWithToolOptions<T>): Promise<T> {
+  const {
+    systemPrompt,
+    userPrompt,
+    toolName,
+    toolDescription,
+    schema,
+    maxTokens = 4096,
+    operation = 'claude_generate',
+  } = opts
+
+  const inputSchema = zodToJsonSchema(schema, {
+    target: 'openAi',
+    $refStrategy: 'none',
+  }) as Record<string, unknown>
+
   let lastError: unknown
 
-  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+  for (let attempt = 1; attempt <= TOOL_GEN_RETRIES; attempt++) {
     try {
-      if (attempt > 0) await sleep(5000 * attempt)
+      if (attempt > 1) await sleep(2000 * (attempt - 1))
 
       const message = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens: maxTokens,
         system: systemPrompt,
+        tools: [
+          {
+            name: toolName,
+            description: toolDescription,
+            input_schema: inputSchema as Anthropic.Tool['input_schema'],
+          },
+        ],
+        tool_choice: { type: 'tool', name: toolName },
         messages: [{ role: 'user', content: userPrompt }],
       })
-
-      const block = message.content[0]
-      if (block.type !== 'text') {
-        throw new Error('Unexpected response type from Claude')
-      }
 
       const cost = calculateAnthropicCost(
         message.model,
@@ -68,86 +101,48 @@ export async function generateWithClaude(
         costUsd: cost,
       }).catch(() => {})
 
-      return block.text
+      const toolUseBlock = message.content.find((b) => b.type === 'tool_use')
+      if (!toolUseBlock || toolUseBlock.type !== 'tool_use') {
+        throw new Error(`Model did not return a tool_use block (stop_reason: ${message.stop_reason})`)
+      }
+
+      const validated = schema.parse(toolUseBlock.input)
+      return validated
     } catch (err) {
       lastError = err
       const msg = err instanceof Error ? err.message : String(err)
+
       if (msg.includes('overloaded') || msg.includes('529')) {
-        console.warn(`Claude overloaded, retry ${attempt + 1}/${MAX_RETRIES}...`)
+        console.warn(`[generateWithTool] Claude overloaded, retry ${attempt}/${TOOL_GEN_RETRIES}...`)
+        await sleep(5000 * attempt)
         continue
       }
-      throw err
-    }
-  }
 
-  throw lastError
-}
-
-export async function scoreWithClaude(
-  systemPrompt: string,
-  submission: string,
-  maxTokens: number = 2048
-): Promise<string> {
-  return generateWithClaude(systemPrompt, submission, maxTokens, 'claude_score')
-}
-
-// --- JSON extraction ---
-
-function extractJSON(raw: string): unknown {
-  let jsonStr = raw
-
-  const codeBlockMatch = raw.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/)
-  if (codeBlockMatch) {
-    jsonStr = codeBlockMatch[1].trim()
-  } else {
-    const firstBrace = raw.indexOf('{')
-    const lastBrace = raw.lastIndexOf('}')
-    if (firstBrace !== -1 && lastBrace > firstBrace) {
-      jsonStr = raw.substring(firstBrace, lastBrace + 1)
-    }
-  }
-
-  try {
-    return JSON.parse(jsonStr)
-  } catch (e) {
-    console.error('Raw Claude response (first 500 chars):', raw.substring(0, 500))
-    throw new Error(`Failed to parse Claude JSON: ${e instanceof Error ? e.message : 'unknown'}`)
-  }
-}
-
-const GENERATE_AND_PARSE_RETRIES = 3
-
-async function generateAndParse<T>(
-  systemPrompt: string,
-  userPrompt: string,
-  schema: z.ZodType<T>,
-  maxTokens: number = 4096
-): Promise<T> {
-  let lastError: unknown
-
-  for (let attempt = 1; attempt <= GENERATE_AND_PARSE_RETRIES; attempt++) {
-    try {
-      const raw = await generateWithClaude(systemPrompt, userPrompt, maxTokens)
-      const json = extractJSON(raw)
-      return schema.parse(json)
-    } catch (err) {
-      lastError = err
-      const msg = err instanceof Error ? err.message : String(err)
-      console.warn(`generateAndParse attempt ${attempt}/${GENERATE_AND_PARSE_RETRIES} failed: ${msg}`)
-      if (attempt < GENERATE_AND_PARSE_RETRIES) {
-        await sleep(2000 * attempt)
+      if (err instanceof z.ZodError) {
+        console.error(`[generateWithTool] Zod validation failed on attempt ${attempt}/${TOOL_GEN_RETRIES}:`, {
+          issues: err.issues,
+          toolName,
+        })
+        continue
       }
+
+      console.error(`[generateWithTool] attempt ${attempt}/${TOOL_GEN_RETRIES} failed:`, msg)
     }
   }
 
   throw lastError
 }
 
-// --- System prompt ---
+// --- System prompts (tool use) ---
 
-const SYSTEM_PROMPT = `Du bist ein erfahrener Prüfungsautor für das Goethe-Zertifikat.
+const SYSTEM_PROMPT_TOOL_GEN = `Du bist ein erfahrener Prüfungsautor für das Goethe-Zertifikat.
 Du erstellst ausschließlich Aufgaben im offiziellen Prüfungsformat.
-Du antwortest IMMER nur mit validem JSON — kein Markdown, kein Text drumherum, nur reines JSON.`
+Verwende ausschließlich das bereitgestellte Tool, um deine Antwort zu strukturieren.
+Achte besonders auf authentisches, natürliches Deutsch — typografische Anführungszeichen („…") sind erwünscht im Inhalt der Texte.`
+
+const SYSTEM_PROMPT_TOOL_SCORE = `Du bist ein offizieller Prüfer für das Goethe-Zertifikat.
+Du bewertest Antworten von Prüflingen fair, aber streng — wie ein echter Goethe-Prüfer.
+Verwende ausschließlich das bereitgestellte Tool, um deine Bewertung zu strukturieren.`
 
 // --- Zod schemas ---
 
@@ -236,7 +231,14 @@ export interface LesenWithAnswers {
 // --- Generators ---
 
 async function generateTeil1(level: ExamLevel) {
-  const validated = await generateAndParse(SYSTEM_PROMPT, getLesenTeil1Prompt(level), teil1Schema, 4096)
+  const validated = await generateWithTool({
+    systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
+    userPrompt: getLesenTeil1Prompt(level),
+    toolName: 'submit_lesen_teil1',
+    toolDescription: 'Liefert den Lesen-Teil-1-Inhalt: Blogtext plus Richtig/Falsch-Aufgaben.',
+    schema: teil1Schema,
+    maxTokens: 4096,
+  })
 
   const answers: Record<string, string> = {}
   const tasks = validated.tasks.map((t) => {
@@ -248,7 +250,14 @@ async function generateTeil1(level: ExamLevel) {
 }
 
 async function generateTeil2(level: ExamLevel) {
-  const validated = await generateAndParse(SYSTEM_PROMPT, getLesenTeil2Prompt(level), teil2Schema, 4096)
+  const validated = await generateWithTool({
+    systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
+    userPrompt: getLesenTeil2Prompt(level),
+    toolName: 'submit_lesen_teil2',
+    toolDescription: 'Liefert den Lesen-Teil-2-Inhalt: Zeitungsartikel plus Multiple-Choice-Aufgaben.',
+    schema: teil2Schema,
+    maxTokens: 4096,
+  })
 
   const answers: Record<string, string> = {}
   const tasks = validated.tasks.map((t) => {
@@ -266,7 +275,14 @@ async function generateTeil2(level: ExamLevel) {
 }
 
 async function generateTeil3(level: ExamLevel) {
-  const validated = await generateAndParse(SYSTEM_PROMPT, getLesenTeil3Prompt(level), teil3Schema, 4096)
+  const validated = await generateWithTool({
+    systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
+    userPrompt: getLesenTeil3Prompt(level),
+    toolName: 'submit_lesen_teil3',
+    toolDescription: 'Liefert den Lesen-Teil-3-Inhalt: Regeltext plus Ja/Nein-Aufgaben.',
+    schema: teil3Schema,
+    maxTokens: 4096,
+  })
 
   const answers: Record<string, string> = {}
   const tasks = validated.tasks.map((t) => {
@@ -278,7 +294,14 @@ async function generateTeil3(level: ExamLevel) {
 }
 
 async function generateTeil4(level: ExamLevel) {
-  const validated = await generateAndParse(SYSTEM_PROMPT, getLesenTeil4Prompt(level), teil4Schema, 4096)
+  const validated = await generateWithTool({
+    systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
+    userPrompt: getLesenTeil4Prompt(level),
+    toolName: 'submit_lesen_teil4',
+    toolDescription: 'Liefert den Lesen-Teil-4-Inhalt: Kurztexte mit IDs und Zuordnungssituationen.',
+    schema: teil4Schema,
+    maxTokens: 4096,
+  })
 
   const answers: Record<string, string> = {}
   const situations = validated.situations.map((s) => {
@@ -296,7 +319,14 @@ async function generateTeil4(level: ExamLevel) {
 }
 
 async function generateTeil5(level: ExamLevel) {
-  const validated = await generateAndParse(SYSTEM_PROMPT, getLesenTeil5Prompt(level), teil5Schema, 4096)
+  const validated = await generateWithTool({
+    systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
+    userPrompt: getLesenTeil5Prompt(level),
+    toolName: 'submit_lesen_teil5',
+    toolDescription: 'Liefert den Lesen-Teil-5-Inhalt: Lückentext plus Lücken mit je drei Optionen.',
+    schema: teil5Schema,
+    maxTokens: 4096,
+  })
 
   const answers: Record<string, string> = {}
   const gaps = validated.gaps.map((g) => {
@@ -368,7 +398,14 @@ export interface SchreibenGenResult {
 }
 
 export async function generateSchreiben(level: ExamLevel): Promise<SchreibenGenResult> {
-  const validated = await generateAndParse(SYSTEM_PROMPT, getSchreibenPrompt(level), schreibenSchema, 2048)
+  const validated = await generateWithTool({
+    systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
+    userPrompt: getSchreibenPrompt(level),
+    toolName: 'submit_schreiben_tasks',
+    toolDescription: 'Reicht die Schreibaufgabe(n) für das Modul Schreiben ein.',
+    schema: schreibenSchema,
+    maxTokens: 2048,
+  })
 
   return {
     content: {
@@ -390,12 +427,15 @@ export async function scoreSchreiben(
   requiredPoints: string[],
   userText: string
 ): Promise<SchreibenFeedback> {
-  return generateAndParse(
-    SYSTEM_PROMPT,
-    getSchreibenScorePrompt(level, task, requiredPoints, userText),
-    schreibenFeedbackSchema,
-    2048
-  )
+  return generateWithTool({
+    systemPrompt: SYSTEM_PROMPT_TOOL_SCORE,
+    userPrompt: getSchreibenScorePrompt(level, task, requiredPoints, userText),
+    toolName: 'submit_schreiben_score',
+    toolDescription: 'Reicht die Bewertung des Schreiben-Textes nach Goethe-Kriterien ein.',
+    schema: schreibenFeedbackSchema,
+    maxTokens: 2048,
+    operation: 'claude_score',
+  })
 }
 
 // ====================================================================
@@ -434,28 +474,32 @@ const horenDialogueLineSchema = z.object({
   emotion: horenDialogueEmotionSchema,
 })
 
-const horenScriptSchema = z
-  .object({
-    id: z.number(),
-    playCount: z.number().min(1).max(2),
-    tasks: z.array(z.union([horenRFTaskSchema, horenMCTaskSchema])).min(1),
-    script: z.string().min(10).optional(),
-    voiceType: z
-      .enum(['male_professional', 'female_professional', 'male_casual', 'female_casual'])
-      .optional(),
-    dialogue: z.array(horenDialogueLineSchema).min(2).optional(),
-  })
-  .refine(
-    (data) => {
-      const mono = Boolean(data.script && data.voiceType)
-      const dia = Boolean(data.dialogue && data.dialogue.length >= 2)
-      return mono !== dia
-    },
-    {
-      message:
-        'Entweder script+voiceType ODER dialogue (mind. 2 Repliken), nicht beides und nicht keins.',
-    }
-  )
+const horenScriptMonoSchema = z.object({
+  id: z.number(),
+  playCount: z.number().min(1).max(2),
+  mode: z.literal('mono'),
+  script: z.string().min(10),
+  voiceType: z.enum([
+    'male_professional',
+    'female_professional',
+    'male_casual',
+    'female_casual',
+  ]),
+  tasks: z.array(z.union([horenRFTaskSchema, horenMCTaskSchema])).min(1),
+})
+
+const horenScriptDialogueSchema = z.object({
+  id: z.number(),
+  playCount: z.number().min(1).max(2),
+  mode: z.literal('dialogue'),
+  dialogue: z.array(horenDialogueLineSchema).min(2),
+  tasks: z.array(z.union([horenRFTaskSchema, horenMCTaskSchema])).min(1),
+})
+
+const horenScriptSchema = z.discriminatedUnion('mode', [
+  horenScriptMonoSchema,
+  horenScriptDialogueSchema,
+])
 
 const horenTeilSchema = z.object({
   scripts: z.array(horenScriptSchema).min(1),
@@ -469,9 +513,18 @@ export interface HorenWithAnswers {
 
 async function generateHorenTeil(
   level: ExamLevel,
-  promptFn: (level: ExamLevel) => string
+  promptFn: (level: ExamLevel) => string,
+  toolName: string,
+  toolDescription: string
 ) {
-  const validated = await generateAndParse(SYSTEM_PROMPT, promptFn(level), horenTeilSchema, 4096)
+  const validated = await generateWithTool({
+    systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
+    userPrompt: promptFn(level),
+    toolName,
+    toolDescription,
+    schema: horenTeilSchema,
+    maxTokens: 4096,
+  })
 
   const answers: Record<string, string> = {}
   const scripts = validated.scripts.map((s) => {
@@ -483,11 +536,15 @@ async function generateHorenTeil(
       return { id: t.id, type: 'mc' as const, question: t.question, options: t.options }
     })
 
-    if (s.dialogue && s.dialogue.length >= 2) {
+    if (s.mode === 'dialogue') {
+      const normalizedDialogue = s.dialogue.map((line) => ({
+        ...line,
+        emotion: normalizeDialogueEmotion(line.emotion),
+      }))
       return {
         id: s.id,
         playCount: s.playCount,
-        dialogue: s.dialogue,
+        dialogue: normalizedDialogue,
         tasks,
       }
     }
@@ -495,8 +552,8 @@ async function generateHorenTeil(
     return {
       id: s.id,
       playCount: s.playCount,
-      script: s.script!,
-      voiceType: s.voiceType!,
+      script: s.script,
+      voiceType: s.voiceType,
       tasks,
     }
   })
@@ -507,10 +564,36 @@ async function generateHorenTeil(
 export async function generateHorenFull(level: ExamLevel): Promise<HorenWithAnswers> {
   const delay = 5000
   const [t1, t2, t3, t4] = await Promise.all([
-    generateHorenTeil(level, getHorenTeil1Prompt),
-    sleep(delay).then(() => generateHorenTeil(level, getHorenTeil2Prompt)),
-    sleep(delay * 2).then(() => generateHorenTeil(level, getHorenTeil3Prompt)),
-    sleep(delay * 3).then(() => generateHorenTeil(level, getHorenTeil4Prompt)),
+    generateHorenTeil(
+      level,
+      getHorenTeil1Prompt,
+      'submit_horen_teil1',
+      'Reicht das Hörverstehen-Teil 1 ein: kurze Mono-Ansagen (Durchsage, Anrufbeantworter usw.) mit jeweils einer Richtig/Falsch-Aufgabe.'
+    ),
+    sleep(delay).then(() =>
+      generateHorenTeil(
+        level,
+        getHorenTeil2Prompt,
+        'submit_horen_teil2',
+        'Reicht das Hörverstehen-Teil 2 ein: ein durchgehender Alltagsdialog (mehrere Mini-Szenen) mit Multiple-Choice-Aufgaben.'
+      )
+    ),
+    sleep(delay * 2).then(() =>
+      generateHorenTeil(
+        level,
+        getHorenTeil3Prompt,
+        'submit_horen_teil3',
+        'Reicht das Hörverstehen-Teil 3 ein: Radio-/Podcast- oder TV-Interview als Dialog mit Richtig/Falsch-Aufgaben.'
+      )
+    ),
+    sleep(delay * 3).then(() =>
+      generateHorenTeil(
+        level,
+        getHorenTeil4Prompt,
+        'submit_horen_teil4',
+        'Reicht das Hörverstehen-Teil 4 ein: fünf kurze getrennte Alltagsdialoge, je eine Richtig/Falsch-Aufgabe pro Dialog.'
+      )
+    ),
   ])
 
   return {
@@ -557,7 +640,14 @@ export interface SprechenGenResult {
 }
 
 export async function generateSprechen(level: ExamLevel): Promise<SprechenGenResult> {
-  const validated = await generateAndParse(SYSTEM_PROMPT, getSprechenPrompt(level), sprechenContentSchema, 2048)
+  const validated = await generateWithTool({
+    systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
+    userPrompt: getSprechenPrompt(level),
+    toolName: 'submit_sprechen_tasks',
+    toolDescription: 'Reicht die drei Sprechaufgaben (Planning, Presentation, Reaction) für das Modul Sprechen ein.',
+    schema: sprechenContentSchema,
+    maxTokens: 2048,
+  })
 
   return {
     content: {
@@ -579,10 +669,13 @@ export async function scoreSprechen(
   taskTopic: string,
   taskPoints: string[]
 ): Promise<SprechenFeedback> {
-  return generateAndParse(
-    SYSTEM_PROMPT,
-    getSprechenScorePrompt(level, taskType, taskTopic, taskPoints, transcript),
-    sprechenFeedbackSchema,
-    2048
-  )
+  return generateWithTool({
+    systemPrompt: SYSTEM_PROMPT_TOOL_SCORE,
+    userPrompt: getSprechenScorePrompt(level, taskType, taskTopic, taskPoints, transcript),
+    toolName: 'submit_sprechen_score',
+    toolDescription: 'Reicht die Bewertung der mündlichen Leistung nach Goethe-Kriterien ein.',
+    schema: sprechenFeedbackSchema,
+    maxTokens: 2048,
+    operation: 'claude_score',
+  })
 }

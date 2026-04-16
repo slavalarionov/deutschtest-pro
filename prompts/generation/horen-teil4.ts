@@ -22,22 +22,11 @@ ANFORDERUNGEN:
 
 emotion optional: neutral | happy | worried | angry | sad | polite
 
-ANTWORTE NUR MIT VALIDEM JSON:
-{
-  "scripts": [
-    {
-      "id": 8,
-      "playCount": 2,
-      "dialogue": [
-        { "speaker": "Mann", "role": "casual_male", "text": "…", "emotion": "polite" },
-        { "speaker": "Frau", "role": "casual_female", "text": "…", "emotion": "neutral" }
-      ],
-      "tasks": [{ "id": 16, "type": "rf", "statement": "…", "answer": "richtig" }]
-    }
-  ]
-}
-
 WICHTIG: Genau **5** Scripts (IDs 8–12). Pro Script **höchstens zwei** unterschiedliche "role"-Werte.
+
+Für jedes Hörscript wähle entweder "mode": "mono" (eine Person spricht — dann fülle "script" und "voiceType") oder "mode": "dialogue" (mehrere Personen — dann fülle "dialogue" als Liste von Repliken). Mische die beiden Modi nicht innerhalb eines Scripts.
+
+Übergib das Ergebnis ausschließlich über das bereitgestellte Tool. Verwende authentisches, natürliches Deutsch — typografische Anführungszeichen („…") sind im Inhalt erwünscht.
 
 Niveau: ${level}. Mische richtig und falsch.`
 }

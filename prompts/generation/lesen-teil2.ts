@@ -6,19 +6,11 @@ export function getLesenTeil2Prompt(level: ExamLevel): string {
 ANFORDERUNGEN:
 - Schreibe einen Zeitungsartikel auf Deutsch (400–500 Wörter), Niveau ${level}
 - Thema: Gesellschaft, Kultur, Wissenschaft oder Bildung
-- Erstelle genau 6 Multiple-Choice-Aufgaben:
+- Erstelle genau 7 Aufgaben insgesamt:
   - Aufgabe 0 ist ein Beispiel (isExample: true)
-  - Aufgaben 7–11 sind die echten Aufgaben
+  - Die Aufgaben mit den IDs 7–12 sind die sechs echten Multiple-Choice-Aufgaben
   - Jede hat 3 Optionen (a, b, c), nur eine ist korrekt
 - Fragen beziehen sich auf verschiedene Absätze
 
-ANTWORTE NUR MIT VALIDEM JSON:
-{
-  "text": "Der vollständige Zeitungsartikel...",
-  "tasks": [
-    { "id": 0, "question": "Was ist das Hauptthema?", "options": { "a": "...", "b": "...", "c": "..." }, "answer": "b", "isExample": true },
-    { "id": 7, "question": "...", "options": { "a": "...", "b": "...", "c": "..." }, "answer": "a" },
-    ...
-  ]
-}`
+Strukturiere die vollständige Antwort ausschließlich über das bereitgestellte Tool (kein JSON als Fließtext, kein zusätzlicher Erläuterungstext).`
 }

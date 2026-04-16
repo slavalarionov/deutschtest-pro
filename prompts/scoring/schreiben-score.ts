@@ -15,7 +15,9 @@ INHALTLICHE PUNKTE die behandelt werden sollten:
 ${requiredPoints.map((p, i) => `${i + 1}. ${p}`).join('\n')}
 
 TEXT DES PRÜFLINGS:
-"${userText}"
+\`\`\`
+${userText}
+\`\`\`
 
 Bewerte den Text nach den offiziellen Goethe-Bewertungskriterien:
 1. Aufgabenerfüllung (0–25): Wurden alle Inhaltspunkte behandelt? Ist das Format korrekt?
@@ -23,17 +25,5 @@ Bewerte den Text nach den offiziellen Goethe-Bewertungskriterien:
 3. Wortschatz (0–25): Passt der Wortschatz zum Niveau ${level}? Ist er vielfältig?
 4. Grammatik (0–25): Sind die grammatischen Strukturen korrekt? Passen sie zum Niveau?
 
-ANTWORTE NUR MIT VALIDEM JSON:
-{
-  "score": 0-100,
-  "criteria": {
-    "taskFulfillment": 0-25,
-    "coherence": 0-25,
-    "vocabulary": 0-25,
-    "grammar": 0-25
-  },
-  "comment": "Detailliertes Feedback auf Deutsch mit konkreten Verbesserungsvorschlägen..."
-}
-
-Sei fair aber streng — wie ein echter Goethe-Prüfer. Gib konkretes, hilfreiches Feedback.`
+Übergib deine Bewertung ausschließlich über das bereitgestellte Tool. Schreibe das Feedback im Kommentar auf authentischem Deutsch — typografische Anführungszeichen sind erlaubt.`
 }

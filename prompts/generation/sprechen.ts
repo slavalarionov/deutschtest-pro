@@ -29,12 +29,5 @@ Erstelle genau 3 Aufgaben:
 Themen: Alltag, Freizeit, Arbeit, Medien, Umwelt, Gesundheit, Bildung, Reise.
 Niveau: ${level}.
 
-ANTWORTE NUR MIT VALIDEM JSON:
-{
-  "tasks": [
-    { "id": 1, "type": "planning", "topic": "...", "points": ["...", "...", "...", "..."] },
-    { "id": 2, "type": "presentation", "topic": "...", "points": ["Folie 1: ...", "Folie 2: ...", "Folie 3: ...", "Folie 4: ...", "Folie 5: ..."] },
-    { "id": 3, "type": "reaction", "topic": "...", "points": ["...", "..."] }
-  ]
-}`
+Übergib das Ergebnis ausschließlich über das bereitgestellte Tool. Verwende authentisches, natürliches Deutsch — typografische Anführungszeichen („…") sind im Inhalt erwünscht.`
 }

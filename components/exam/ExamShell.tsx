@@ -73,7 +73,10 @@ export function ExamShell({ sessionId }: ExamShellProps) {
     return moduleOrder[0] ?? session.mode
   }, [session, searchParams])
 
+  const moduleFromUrl = searchParams.get('module')
+
   useEffect(() => {
+    let cancelled = false
     async function loadSession() {
       try {
         const res = await fetch(`/api/exam/${sessionId}`)
@@ -82,16 +85,20 @@ export function ExamShell({ sessionId }: ExamShellProps) {
           throw new Error(data.error || 'Failed to load exam')
         }
         const data = await res.json()
+        if (cancelled) return
         setSession(data.session)
       } catch (err) {
+        if (cancelled) return
         setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
-
     loadSession()
-  }, [sessionId, setSession])
+    return () => {
+      cancelled = true
+    }
+  }, [sessionId, moduleFromUrl, setSession])
 
   const syncUrlAndResume = useCallback(() => {
     if (!session) return
@@ -104,7 +111,9 @@ export function ExamShell({ sessionId }: ExamShellProps) {
 
     if (!isMulti || !current || current === 'completed') return
 
-    if (!qModule || qModule !== current) {
+    const qModuleIsValid = qModule != null && moduleOrder.includes(qModule)
+
+    if (!qModuleIsValid) {
       router.replace(`/exam/${sessionId}?module=${current}`)
       return
     }
@@ -145,7 +154,8 @@ export function ExamShell({ sessionId }: ExamShellProps) {
     if (loading || !session || !activeModuleComputed) return
     if (!isMultiModuleSession(session.mode, session.sessionFlow)) return
     if (session.currentModule === 'completed') return
-    if (session.currentModule && activeModuleComputed !== session.currentModule) return
+    const order = parseModuleOrder(session.mode, session.sessionFlow)
+    if (!order.includes(activeModuleComputed)) return
 
     const c = session.content as Record<string, unknown>
     if (c[activeModuleComputed] != null) {
