@@ -61,8 +61,18 @@ export async function POST(req: NextRequest) {
     }
 
     const existing = stored.content as Record<string, unknown>
-    if (existing[module] != null) {
-      return NextResponse.json({ success: true, module, cached: true })
+    const existingContent = existing[module]
+    if (existingContent != null) {
+      console.log(
+        `[generate-module] Module ${module} already generated for session ${sessionId}, returning cached content`
+      )
+      return NextResponse.json({
+        success: true,
+        module,
+        alreadyGenerated: true,
+        content: { [module]: existingContent },
+        answers: stored.answers,
+      })
     }
 
     const { content: genContent, answers: genAnswers } = await generateExamModule(
