@@ -173,6 +173,7 @@ export function ExamShell({ sessionId }: ExamShellProps) {
     const c = session.content as Record<string, unknown>
     if (c[activeModuleComputed] != null) {
       setGenerateError(null)
+      setGeneratingModule(false)
       // Модуль уже в content — отмечаем ключ как обработанный, чтобы последующие ре-рендеры
       // с новой ссылкой на session не запускали никаких запросов.
       generatedModulesRef.current.add(`${sessionId}:${activeModuleComputed}`)
@@ -207,7 +208,7 @@ export function ExamShell({ sessionId }: ExamShellProps) {
         generatedModulesRef.current.delete(key)
         setGenerateError(e instanceof Error ? e.message : 'Fehler')
       } finally {
-        if (!ac.signal.aborted) setGeneratingModule(false)
+        setGeneratingModule(false)
       }
     })()
     return () => ac.abort()
