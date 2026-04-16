@@ -114,6 +114,7 @@ export interface Database {
           cached_recommendations: Json | null
           recommendations_attempts_count: number | null
           recommendations_generated_at: string | null
+          display_name: string | null
         }
         Insert: {
           id: string
@@ -129,6 +130,7 @@ export interface Database {
           cached_recommendations?: Json | null
           recommendations_attempts_count?: number | null
           recommendations_generated_at?: string | null
+          display_name?: string | null
         }
         Update: {
           id?: string
@@ -144,6 +146,7 @@ export interface Database {
           cached_recommendations?: Json | null
           recommendations_attempts_count?: number | null
           recommendations_generated_at?: string | null
+          display_name?: string | null
         }
         Relationships: []
       }
