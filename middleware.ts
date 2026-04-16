@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
   // Здесь мы НЕ ходим в БД — middleware должен оставаться быстрым.
   const pathname = request.nextUrl.pathname
 
-  if (pathname.startsWith('/admin')) {
+  if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard')) {
     if (!user) {
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('next', pathname)

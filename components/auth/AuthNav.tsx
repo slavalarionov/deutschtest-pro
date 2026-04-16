@@ -20,10 +20,16 @@ export function AuthNav({ userEmail }: AuthNavProps) {
 
   if (userEmail) {
     return (
-      <div className="flex items-center gap-4">
-        <span className="text-sm text-brand-muted">
+      <div className="flex items-center gap-3">
+        <span className="hidden text-sm text-brand-muted sm:inline">
           Hallo, <span className="font-medium text-brand-text">{userEmail}</span>!
         </span>
+        <Link
+          href="/dashboard"
+          className="rounded-lg bg-brand-gold px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark"
+        >
+          Mein Konto
+        </Link>
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
