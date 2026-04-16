@@ -1,8 +1,7 @@
 'use client'
 
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState, useMemo } from 'react'
-import { parseModuleOrder } from '@/lib/exam/module-order'
+import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { RetakeModuleModal } from '@/components/exam/RetakeModuleModal'
 
 interface ModuleScores {
@@ -32,9 +31,6 @@ interface LesenHorenFeedback {
 interface ResultsData {
   level: string
   mode: string
-  sessionFlow?: string
-  completedModules?: string
-  currentModule?: string | null
   scores: ModuleScores | null
   aiFeedback: Record<string, unknown> | null
   submittedAt: string | null
@@ -48,35 +44,7 @@ const MODULE_LABELS: Record<string, string> = {
   sprechen: 'Sprechen',
 }
 
-function buildOverallRecommendations(
-  aiFeedback: Record<string, unknown> | null,
-  modules: string[]
-): string {
-  if (!aiFeedback) {
-    return 'Üben Sie regelmäßig alle Prüfungsteile und nutzen Sie das Detail-Feedback zu Ihren Aufgaben.'
-  }
-  const chunks: string[] = []
-  for (const m of modules) {
-    const fb = aiFeedback[m]
-    if (!fb || typeof fb !== 'object') continue
-    if (m === 'lesen' || m === 'horen') {
-      const summary = (fb as LesenHorenFeedback).summary
-      if (summary) {
-        chunks.push(
-          `${MODULE_LABELS[m] || m}: ${summary.correct}/${summary.total} richtig — wiederholen Sie die markierten Fehler gezielt.`
-        )
-      }
-    }
-    if (m === 'schreiben' || m === 'sprechen') {
-      const c = (fb as SchreibenFeedback | SprechenFeedback).comment
-      if (c) chunks.push(`${MODULE_LABELS[m] || m}: ${c}`)
-    }
-  }
-  if (chunks.length === 0) {
-    return 'Üben Sie regelmäßig alle Prüfungsteile und nutzen Sie das Detail-Feedback zu Ihren Aufgaben.'
-  }
-  return chunks.join('\n\n')
-}
+const VALID_MODULES = new Set(['lesen', 'horen', 'schreiben', 'sprechen'])
 
 function ProgressBar({ value, max }: { value: number; max: number }) {
   const pct = max > 0 ? (value / max) * 100 : 0
@@ -91,7 +59,6 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
 export default function ResultsPage() {
   const params = useParams<{ sessionId: string }>()
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [data, setData] = useState<ResultsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -115,40 +82,6 @@ export default function ResultsPage() {
     }
     load()
   }, [params.sessionId])
-
-  const sessionModulesOrder = useMemo(
-    () => (data ? parseModuleOrder(data.mode ?? '', data.sessionFlow ?? '') : []),
-    [data],
-  )
-
-  const completedSet = useMemo(
-    () => new Set((data?.completedModules ?? '').split(',').map(s => s.trim()).filter(Boolean)),
-    [data],
-  )
-
-  const isSessionComplete = sessionModulesOrder.length > 0
-    && sessionModulesOrder.every(m => completedSet.has(m))
-
-  const remainingInSession = sessionModulesOrder.filter(m => !completedSet.has(m))
-
-  useEffect(() => {
-    if (!data || loading) return
-    if (isSessionComplete && sessionModulesOrder.length >= 2) {
-      router.replace(`/exam/${params.sessionId}/results/summary`)
-    }
-  }, [data, loading, isSessionComplete, sessionModulesOrder.length, router, params.sessionId])
-
-  const shownModule = useMemo(() => {
-    const justParam = searchParams.get('just')
-    if (justParam && sessionModulesOrder.includes(justParam)) return justParam
-    if (!data?.scores) return sessionModulesOrder[0] ?? null
-    const lastCompleted = [...completedSet].filter(m => sessionModulesOrder.includes(m)).pop()
-    return lastCompleted ?? sessionModulesOrder[0] ?? null
-  }, [searchParams, sessionModulesOrder, data, completedSet])
-
-  const currentModuleScore = shownModule && data?.scores
-    ? (data.scores as Record<string, number>)[shownModule]
-    : undefined
 
   if (loading) {
     return (
@@ -178,24 +111,10 @@ export default function ResultsPage() {
     )
   }
 
-  if (isSessionComplete && sessionModulesOrder.length >= 2) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-brand-bg">
-        <p className="text-sm text-brand-muted">Weiterleitung zur Gesamtauswertung…</p>
-      </div>
-    )
-  }
-
-  const { scores, aiFeedback, level } = data
-  const activeModules = sessionModulesOrder
-
-  const totalScore = scores
-    ? activeModules.reduce((sum, m) => sum + ((scores as Record<string, number>)[m] || 0), 0)
-    : 0
-  const averageScore = activeModules.length > 0 ? Math.round(totalScore / activeModules.length) : 0
-  const showPerModulePass = activeModules.length > 1
-  const overallText =
-    activeModules.length > 1 ? buildOverallRecommendations(aiFeedback, activeModules) : ''
+  const { scores, aiFeedback, level, mode } = data
+  const activeModule = VALID_MODULES.has(mode) ? mode : 'lesen'
+  const score = scores ? (scores as Record<string, number>)[activeModule] : undefined
+  const passed = score !== undefined && score >= 60
 
   return (
     <div className="min-h-screen bg-brand-bg">
@@ -203,15 +122,16 @@ export default function ResultsPage() {
         {/* Header */}
         <div className="mb-8 rounded-2xl bg-brand-white p-8 text-center shadow-soft">
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-muted">
-            Goethe-Zertifikat {level} — Ergebnisse
+            Goethe-Zertifikat {level} — {MODULE_LABELS[activeModule] || activeModule}
           </p>
-          <div className="mb-2 text-7xl font-bold text-brand-text">{averageScore}</div>
-          <p className="text-sm text-brand-muted">
-            {activeModules.length > 1
-              ? `Durchschnitt über ${activeModules.length} gewählte Module (von 100)`
-              : 'von 100 Punkten'}
-          </p>
-          <ProgressBar value={averageScore} max={100} />
+          <div className="mb-2 text-7xl font-bold text-brand-text">{score ?? '—'}</div>
+          <p className="text-sm text-brand-muted">von 100 Punkten</p>
+          {score !== undefined && <ProgressBar value={score} max={100} />}
+          {score !== undefined && (
+            <p className={`mt-4 text-lg font-bold ${passed ? 'text-green-700' : 'text-brand-red'}`}>
+              {passed ? 'Bestanden ✅' : 'Nicht bestanden ❌'}
+            </p>
+          )}
           {data.submittedAt && (
             <p className="mt-4 text-xs text-brand-muted">
               Abgegeben am {new Date(data.submittedAt).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}
@@ -219,137 +139,32 @@ export default function ResultsPage() {
           )}
         </div>
 
-        {/* Module scores */}
-        <div className={`mb-6 grid gap-4 ${activeModules.length > 1 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-1'}`}>
-          {activeModules.map((mod) => {
-            const score = scores ? (scores as Record<string, number>)[mod] : undefined
-            return (
-              <div key={mod} className="rounded-xl bg-brand-white p-5 shadow-soft">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-brand-muted">
-                  {MODULE_LABELS[mod] || mod}
-                </p>
-                <p className="flex items-center justify-center gap-2 text-4xl font-bold text-brand-text">
-                  {score !== undefined ? (
-                    <>
-                      {score}
-                      {showPerModulePass && (
-                        <span className="text-2xl" aria-hidden>
-                          {score >= 60 ? '✅' : '❌'}
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    '—'
-                  )}
-                </p>
-                <p className="mt-1 text-xs text-brand-muted">/ 100 Punkte</p>
-                {score !== undefined && <ProgressBar value={score} max={100} />}
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Detailed feedback per module */}
-        {aiFeedback && activeModules.map((mod) => {
-          const fb = (aiFeedback as Record<string, unknown>)[mod]
+        {/* Detailed feedback */}
+        {aiFeedback && (() => {
+          const fb = (aiFeedback as Record<string, unknown>)[activeModule]
           if (!fb) return null
-
-          if (mod === 'lesen' || mod === 'horen') {
-            return <LesenHorenDetails key={mod} module={mod} feedback={fb as LesenHorenFeedback} />
+          if (activeModule === 'lesen' || activeModule === 'horen') {
+            return <LesenHorenDetails module={activeModule} feedback={fb as LesenHorenFeedback} />
           }
-          if (mod === 'schreiben') {
-            return <SchreibenDetails key={mod} feedback={fb as SchreibenFeedback} />
+          if (activeModule === 'schreiben') {
+            return <SchreibenDetails feedback={fb as SchreibenFeedback} />
           }
-          if (mod === 'sprechen') {
-            return <SprechenDetails key={mod} feedback={fb as SprechenFeedback} />
+          if (activeModule === 'sprechen') {
+            return <SprechenDetails feedback={fb as SprechenFeedback} />
           }
           return null
-        })}
-
-        {/* Alle Prüfungsteile (Überblick) — only session modules */}
-        {sessionModulesOrder.length > 1 && (
-          <div className="mb-8 rounded-xl border border-brand-border bg-brand-white p-5 shadow-soft">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">
-              Alle Prüfungsteile (Überblick)
-            </p>
-            <ul className="space-y-2 text-sm text-brand-text">
-              {sessionModulesOrder.map((m) => {
-                const sc = scores ? (scores as Record<string, number>)[m] : undefined
-                const isCompleted = completedSet.has(m)
-                const isCurrent = m === data.currentModule
-
-                if (isCompleted && sc !== undefined) {
-                  return (
-                    <li key={m}>
-                      {sc >= 60 ? '✅' : '❌'} {MODULE_LABELS[m]}: {sc}/100
-                    </li>
-                  )
-                }
-                if (isCurrent) {
-                  return (
-                    <li key={m} className="text-brand-gold-dark">
-                      🟡 {MODULE_LABELS[m]} — aktuell
-                    </li>
-                  )
-                }
-                return (
-                  <li key={m} className="text-brand-muted">
-                    ⚪ {MODULE_LABELS[m]} — ausstehend
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        )}
-
-        {overallText && (
-          <div className="mb-8 rounded-xl bg-brand-white p-6 shadow-soft">
-            <h3 className="mb-3 text-base font-semibold text-brand-text">Gesamtempfehlungen</h3>
-            <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">{overallText}</p>
-          </div>
-        )}
+        })()}
 
         {/* Navigation buttons */}
         <div className="mt-6 flex flex-col items-center gap-3">
           <div className="flex flex-wrap items-center justify-center gap-3">
-            {!isSessionComplete && remainingInSession.length > 0 ? (
-              <button
-                type="button"
-                onClick={() => router.push(`/exam/${params.sessionId}?module=${remainingInSession[0]}`)}
-                className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
-              >
-                Test fortsetzen
-              </button>
-            ) : sessionModulesOrder.length === 1 ? (
-              <button
-                type="button"
-                onClick={() => router.push('/')}
-                className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
-              >
-                Anderes Modul trainieren
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => router.push('/')}
-                className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
-              >
-                Zur Modulauswahl
-              </button>
-            )}
-
-            {(!isSessionComplete || sessionModulesOrder.length === 1) && (
-              <button
-                type="button"
-                onClick={() => router.push('/')}
-                className="rounded-lg border border-brand-border bg-brand-white px-6 py-2.5 text-sm font-semibold text-brand-text transition hover:bg-brand-surface"
-              >
-                Zur Modulauswahl
-              </button>
-            )}
-          </div>
-
-          {currentModuleScore !== undefined && currentModuleScore < 60 && shownModule && (
+            <button
+              type="button"
+              onClick={() => router.push('/dashboard')}
+              className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+            >
+              Zum Dashboard
+            </button>
             <button
               type="button"
               onClick={() => {
@@ -359,24 +174,22 @@ export default function ResultsPage() {
                   router.push('/pricing')
                 }
               }}
-              className="text-sm text-brand-muted underline underline-offset-2 hover:text-brand-text"
+              className="rounded-lg border border-brand-border bg-brand-white px-6 py-2.5 text-sm font-semibold text-brand-text transition hover:bg-brand-surface"
             >
-              Prüfung erneut öffnen ({MODULE_LABELS[shownModule]})
+              Modul wiederholen
             </button>
-          )}
+          </div>
         </div>
       </div>
 
-      {shownModule && (
-        <RetakeModuleModal
-          open={retakeModalOpen}
-          onClose={() => setRetakeModalOpen(false)}
-          originalSessionId={params.sessionId}
-          module={shownModule as 'lesen' | 'horen' | 'schreiben' | 'sprechen'}
-          moduleLabel={MODULE_LABELS[shownModule] || shownModule}
-          modulesBalance={data?.modulesBalance ?? 0}
-        />
-      )}
+      <RetakeModuleModal
+        open={retakeModalOpen}
+        onClose={() => setRetakeModalOpen(false)}
+        originalSessionId={params.sessionId}
+        module={activeModule as 'lesen' | 'horen' | 'schreiben' | 'sprechen'}
+        moduleLabel={MODULE_LABELS[activeModule] || activeModule}
+        modulesBalance={data?.modulesBalance ?? 0}
+      />
     </div>
   )
 }

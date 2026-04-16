@@ -3,9 +3,9 @@ import { z } from 'zod'
 import { getSession, type StoredSession } from '@/lib/session-store'
 import { scoreSchreiben } from '@/lib/claude'
 import type { ExamLevel, SchreibenContent } from '@/types/exam'
-import { mergeAttemptScores } from '@/lib/exam/full-test'
-import { advanceSessionAfterModule, parseModuleOrder } from '@/lib/exam/session-modules'
+import { createServerClient } from '@/lib/supabase-server'
 import { deductModuleBalanceIfNeeded } from '@/lib/billing'
+import type { Json } from '@/types/supabase'
 
 const submitLesenSchema = z.object({
   sessionId: z.string().min(1),
@@ -74,28 +74,33 @@ export async function POST(req: NextRequest) {
   }
 }
 
+async function saveAttempt(
+  sessionId: string,
+  scores: Record<string, number>,
+  aiFeedback: Record<string, unknown>
+) {
+  const supabase = createServerClient()
+  const { error } = await supabase
+    .from('user_attempts')
+    .update({
+      scores: scores as unknown as Json,
+      ai_feedback: aiFeedback as unknown as Json,
+      submitted_at: new Date().toISOString(),
+    })
+    .eq('session_id', sessionId)
+
+  if (error) {
+    console.error('[submit] saveAttempt update:', error.message)
+  }
+}
+
 async function afterModuleSubmit(
   stored: StoredSession,
-  module: string,
   scores: Record<string, number>,
-  aiFeedback?: Record<string, unknown>
+  aiFeedback: Record<string, unknown>
 ) {
-  const order = parseModuleOrder(stored.mode, stored.sessionFlow)
-  const idx = order.indexOf(module)
-  const hasNext = idx >= 0 && idx < order.length - 1
-
-  await mergeAttemptScores(stored.id, scores, aiFeedback, { setSubmittedAt: !hasNext })
-
-  const { next } = await advanceSessionAfterModule(stored.id, module, {
-    mode: stored.mode,
-    sessionFlow: stored.sessionFlow,
-    completedModules: stored.completedModules,
-  })
-  const nextModule: string | null = next === 'completed' ? null : next
-
+  await saveAttempt(stored.id, scores, aiFeedback)
   await deductModuleBalanceIfNeeded(stored.userId, stored.id)
-
-  return { nextModule, sessionFlow: stored.sessionFlow }
 }
 
 async function handleLesenSubmit(
@@ -117,7 +122,7 @@ async function handleLesenSubmit(
 
   const score = total > 0 ? Math.round((correct / total) * 100) : 0
 
-  const { nextModule, sessionFlow } = await afterModuleSubmit(stored, 'lesen', { lesen: score }, {
+  await afterModuleSubmit(stored, { lesen: score }, {
     lesen: { details, summary: { correct, total, score } },
   })
 
@@ -126,8 +131,6 @@ async function handleLesenSubmit(
     scores: { lesen: score },
     details,
     summary: { correct, total, score },
-    nextModule,
-    sessionFlow,
   })
 }
 
@@ -151,7 +154,7 @@ async function handleHorenSubmit(
 
   const score = total > 0 ? Math.round((correct / total) * 100) : 0
 
-  const { nextModule, sessionFlow } = await afterModuleSubmit(stored, 'horen', { horen: score }, {
+  await afterModuleSubmit(stored, { horen: score }, {
     horen: { details, summary: { correct, total, score } },
   })
 
@@ -160,8 +163,6 @@ async function handleHorenSubmit(
     scores: { horen: score },
     details,
     summary: { correct, total, score },
-    nextModule,
-    sessionFlow,
   })
 }
 
@@ -187,18 +188,11 @@ async function handleSchreibenSubmit(
     userText
   )
 
-  const { nextModule, sessionFlow } = await afterModuleSubmit(
-    stored,
-    'schreiben',
-    { schreiben: feedback.score },
-    { schreiben: feedback }
-  )
+  await afterModuleSubmit(stored, { schreiben: feedback.score }, { schreiben: feedback })
 
   return NextResponse.json({
     success: true,
     scores: { schreiben: feedback.score },
     feedback,
-    nextModule,
-    sessionFlow,
   })
 }

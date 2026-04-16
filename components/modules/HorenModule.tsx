@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useExamStore } from '@/store/examStore'
 import { ExamTimerDisplay, TimerWarningBanner } from '@/components/exam/ExamTimerDisplay'
 import { TimeUpOverlay } from '@/components/exam/TimeUpOverlay'
-import { FULL_TEST_MODULE_LABELS, type FullTestModule } from '@/lib/exam/full-test-constants'
 import type {
   HorenContent,
   HorenTeil,
@@ -53,15 +52,7 @@ export function HorenModule() {
       const data = await res.json()
       if (data.success) {
         setResults({ score: data.scores.horen, details: data.details, summary: data.summary })
-        if (data.nextModule) {
-          const nm = data.nextModule as FullTestModule
-          setPostSubmit({
-            href: `/exam/${session.id}?module=${nm}`,
-            label: `Weiter zu ${FULL_TEST_MODULE_LABELS[nm]}`,
-          })
-        } else {
-          setPostSubmit({ href: `/exam/${session.id}/results`, label: 'Zu den Ergebnissen' })
-        }
+        setPostSubmit({ href: `/exam/${session.id}/results`, label: 'Zu den Ergebnissen' })
         setSubmitted(true)
       }
     } catch { /* silent */ } finally {

@@ -5,14 +5,11 @@ import { generateExamModule, type ExamModuleKey } from '@/lib/exam/generate-one-
 import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@/lib/supabase-server'
 import { checkUserCanTakeTest } from '@/lib/exam/limits'
-import { sortModulesByExamOrder } from '@/lib/exam/module-order'
 import { randomUUID } from 'crypto'
-
-const moduleEnum = z.enum(['lesen', 'horen', 'schreiben', 'sprechen'])
 
 const requestSchema = z.object({
   level: z.enum(['A1', 'A2', 'B1']),
-  modules: z.array(moduleEnum).min(1).max(4),
+  module: z.enum(['lesen', 'horen', 'schreiben', 'sprechen']),
 })
 
 export const maxDuration = 300
@@ -52,26 +49,18 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { level, modules: rawModules } = parsed.data
-    const modules = sortModulesByExamOrder(rawModules)
-
-    if (modules.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'No valid modules selected' },
-        { status: 400 }
-      )
-    }
+    const { level, module } = parsed.data
 
     const needsPrepaidSlots =
       !availability.isAdmin &&
       !availability.freeTestAvailable &&
       availability.paidTestsCount === 0
 
-    if (needsPrepaidSlots && (availability.modulesBalance ?? 0) < modules.length) {
+    if (needsPrepaidSlots && (availability.modulesBalance ?? 0) < 1) {
       return NextResponse.json(
         {
           success: false,
-          error: `Nicht genug Modul-Credits (${availability.modulesBalance ?? 0} verfügbar, ${modules.length} benötigt). Bitte kaufen Sie weitere Module.`,
+          error: `Nicht genug Modul-Credits (${availability.modulesBalance ?? 0} verfügbar, 1 benötigt). Bitte kaufen Sie weitere Module.`,
           code: 'insufficient_balance',
           redirect: '/pricing',
         },
@@ -79,29 +68,25 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const firstModule = modules[0]! as ExamModuleKey
-    const { content: genContent, answers: genAnswers } = await generateExamModule(level, firstModule)
-    const content: Record<string, unknown> = { ...genContent }
-    const answers: Record<string, unknown> = { ...genAnswers }
+    const { content: genContent, answers: genAnswers } = await generateExamModule(
+      level,
+      module as ExamModuleKey
+    )
 
     const sessionId = randomUUID()
     const now = new Date()
     const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
 
-    const mode = modules.length > 1 ? modules.join(',') : modules[0]!
-    const sessionFlow = modules.length > 1 ? 'multi' : 'single'
-    const currentModule = modules.length > 1 ? modules[0]! : null
-
     await saveSession({
       id: sessionId,
       userId: user.id,
       level,
-      mode,
-      sessionFlow,
-      currentModule,
+      mode: module,
+      sessionFlow: 'single',
+      currentModule: null,
       completedModules: '',
-      content,
-      answers,
+      content: genContent,
+      answers: genAnswers,
       createdAt: now.toISOString(),
       expiresAt: expiresAt.toISOString(),
     })
@@ -126,15 +111,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       sessionId,
-      firstModule,
       session: {
         id: sessionId,
         level,
-        mode,
-        sessionFlow,
-        currentModule,
+        mode: module,
+        sessionFlow: 'single',
+        currentModule: null,
         completedModules: '',
-        content,
+        content: genContent,
         createdAt: now.toISOString(),
         expiresAt: expiresAt.toISOString(),
       },

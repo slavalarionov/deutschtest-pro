@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSession } from '@/lib/session-store'
-import { mergeAttemptScores } from '@/lib/exam/full-test'
-import { advanceSessionAfterModule, parseModuleOrder } from '@/lib/exam/session-modules'
 import { deductModuleBalanceIfNeeded } from '@/lib/billing'
 import { createClient } from '@/lib/supabase/server'
+import { createServerClient } from '@/lib/supabase-server'
+import type { Json } from '@/types/supabase'
 
 const criteriaSchema = z.object({
   taskFulfillment: z.number(),
@@ -54,36 +54,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
 
-    const order = parseModuleOrder(stored.mode, stored.sessionFlow)
-    if (!order.includes('sprechen')) {
-      return NextResponse.json({ success: false, error: 'Invalid session mode' }, { status: 400 })
+    const serviceClient = createServerClient()
+    const { error: updateError } = await serviceClient
+      .from('user_attempts')
+      .update({
+        scores: { sprechen: feedback.score } as unknown as Json,
+        ai_feedback: { sprechen: feedback } as unknown as Json,
+        submitted_at: new Date().toISOString(),
+      })
+      .eq('session_id', sessionId)
+
+    if (updateError) {
+      console.error('[finalize-sprechen] update:', updateError.message)
     }
-
-    const idx = order.indexOf('sprechen')
-    const hasNext = idx >= 0 && idx < order.length - 1
-
-    await mergeAttemptScores(
-      sessionId,
-      { sprechen: feedback.score },
-      { sprechen: feedback },
-      { setSubmittedAt: !hasNext }
-    )
-
-    const { next } = await advanceSessionAfterModule(sessionId, 'sprechen', {
-      mode: stored.mode,
-      sessionFlow: stored.sessionFlow,
-      completedModules: stored.completedModules,
-    })
-    const nextModule: string | null = next === 'completed' ? null : next
 
     await deductModuleBalanceIfNeeded(user.id, sessionId)
 
     return NextResponse.json({
       success: true,
       scores: { sprechen: feedback.score },
-      nextModule,
-      sessionComplete: nextModule === null,
-      sessionFlow: stored.sessionFlow,
+      sessionComplete: true,
     })
   } catch (e) {
     console.error('finalize-sprechen:', e instanceof Error ? e.message : e)

@@ -5,7 +5,7 @@ import type { ExamSession, ModuleScores } from './exam'
 
 export const generateExamSchema = z.object({
   level: z.enum(['A1', 'A2', 'B1']),
-  modules: z.array(z.enum(['lesen', 'horen', 'schreiben', 'sprechen'])).min(1).max(4),
+  module: z.enum(['lesen', 'horen', 'schreiben', 'sprechen']),
 })
 
 export const generateAudioSchema = z.object({

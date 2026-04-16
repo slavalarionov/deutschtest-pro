@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@/lib/supabase-server'
 import { saveSession } from '@/lib/session-store'
 import { generateExamModule, type ExamModuleKey } from '@/lib/exam/generate-one-module'
-import { parseModuleOrder } from '@/lib/exam/module-order'
 import { getModulesBalance, deductModuleFromBalance } from '@/lib/billing'
 import type { ExamLevel } from '@/types/exam'
 
@@ -41,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     const { data: origSession, error: origErr } = await serviceClient
       .from('exam_sessions')
-      .select('user_id, level, mode, session_flow')
+      .select('user_id, level')
       .eq('id', originalSessionId)
       .single()
 
@@ -51,14 +50,6 @@ export async function POST(req: NextRequest) {
 
     if (origSession.user_id !== user.id) {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
-    }
-
-    const order = parseModuleOrder(origSession.mode, origSession.session_flow)
-    if (!order.includes(module)) {
-      return NextResponse.json(
-        { success: false, error: 'Modul gehört nicht zu dieser Sitzung' },
-        { status: 400 },
-      )
     }
 
     const balance = await getModulesBalance(user.id)
@@ -101,7 +92,7 @@ export async function POST(req: NextRequest) {
       level: origSession.level,
       mode: module,
       sessionFlow: 'single',
-      currentModule: module,
+      currentModule: null,
       completedModules: '',
       content: genContent,
       answers: genAnswers,

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useExamStore } from '@/store/examStore'
 import { ExamTimerDisplay, TimerWarningBanner } from '@/components/exam/ExamTimerDisplay'
 import { TimeUpOverlay } from '@/components/exam/TimeUpOverlay'
-import { FULL_TEST_MODULE_LABELS, type FullTestModule } from '@/lib/exam/full-test-constants'
 import type { SchreibenContent, SchreibenFeedback } from '@/types/exam'
 
 const SCHREIBEN_TIME = 60 * 60
@@ -50,15 +49,7 @@ export function SchreibenModule() {
       const data = await res.json()
       if (data.success && data.feedback) {
         setFeedback(data.feedback)
-        if (data.nextModule) {
-          const nm = data.nextModule as FullTestModule
-          setPostSubmit({
-            href: `/exam/${session.id}?module=${nm}`,
-            label: `Weiter zu ${FULL_TEST_MODULE_LABELS[nm]}`,
-          })
-        } else {
-          setPostSubmit({ href: `/exam/${session.id}/results`, label: 'Zu den Ergebnissen' })
-        }
+        setPostSubmit({ href: `/exam/${session.id}/results`, label: 'Zu den Ergebnissen' })
         setSubmitted(true)
       } else {
         setError(data.error || 'Scoring failed')

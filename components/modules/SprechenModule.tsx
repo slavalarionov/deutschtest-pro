@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useExamStore } from '@/store/examStore'
-import { FULL_TEST_MODULE_LABELS, type FullTestModule } from '@/lib/exam/full-test-constants'
 import type { SprechenContent, SprechenTask, SprechenFeedback } from '@/types/exam'
 
 const TEIL_TIMES: Record<SprechenTask['type'], number> = {
@@ -101,15 +100,7 @@ export function SprechenModule() {
         })
         const data = await res.json()
         if (data.success) {
-          if (data.nextModule) {
-            const nm = data.nextModule as FullTestModule
-            setPostSubmit({
-              href: `/exam/${session.id}?module=${nm}`,
-              label: `Weiter zu ${FULL_TEST_MODULE_LABELS[nm]}`,
-            })
-          } else {
-            setPostSubmit({ href: `/exam/${session.id}/results`, label: 'Zu den Ergebnissen' })
-          }
+          setPostSubmit({ href: `/exam/${session.id}/results`, label: 'Zu den Ergebnissen' })
           setFinalizeDone(true)
         } else {
           setFinalizeError(data.error || 'Speichern fehlgeschlagen')
