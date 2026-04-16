@@ -32,7 +32,6 @@ function MultiProgressBar({
   const total = moduleOrder.length
   const pct = total > 0 ? (currentIndex / total) * 100 : 0
   const label = MODULE_LABELS[activeModule] || activeModule
-
   return (
     <div className="border-b border-brand-border/80 bg-brand-surface/60 px-4 py-2">
       <div className="mx-auto flex max-w-5xl flex-col gap-1.5">
@@ -54,6 +53,7 @@ export function ExamShell({ sessionId }: ExamShellProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { session, setSession } = useExamStore()
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [resumeOpen, setResumeOpen] = useState(false)
@@ -61,17 +61,11 @@ export function ExamShell({ sessionId }: ExamShellProps) {
   const [generateError, setGenerateError] = useState<string | null>(null)
   const [retryGen, setRetryGen] = useState(0)
 
-  // Защёлка от повторной генерации одного и того же модуля в рамках этой сессии.
-  // Ключ = `${sessionId}:${module}`. При ре-рендере useEffect проверяет, не делали ли мы уже
-  // запрос для этого ключа. Если делали — не дёргаем generate-module снова.
-  const generatedModulesRef = useRef<Set<string>>(new Set())
+  // Защёлка: какой модуль сейчас в процессе генерации (чтобы не запускать параллельно)
+  // ВАЖНО: это не "уже сгенерили", а "генерация сейчас in-flight". Снимается на success и error.
+  const inFlightRef = useRef<string | null>(null)
 
-  // Сбрасываем защёлку при смене retryGen — это позволяет кнопке «Erneut versuchen» реально перегенерить.
-  useEffect(() => {
-    if (retryGen > 0) {
-      generatedModulesRef.current = new Set()
-    }
-  }, [retryGen])
+  const moduleFromUrl = searchParams.get('module')
 
   const activeModuleComputed = useMemo((): string | null => {
     if (!session) return null
@@ -85,10 +79,11 @@ export function ExamShell({ sessionId }: ExamShellProps) {
     return moduleOrder[0] ?? session.mode
   }, [session, searchParams])
 
-  const moduleFromUrl = searchParams.get('module')
-
+  // === Эффект 1: загрузка сессии ===
+  // Работает только при старте и при явной смене sessionId/moduleFromUrl.
+  // Не умеет отменяться — нам важнее данные чем чистый cleanup.
   useEffect(() => {
-    let cancelled = false
+    let alive = true
     async function loadSession() {
       try {
         const res = await fetch(`/api/exam/${sessionId}`)
@@ -97,50 +92,44 @@ export function ExamShell({ sessionId }: ExamShellProps) {
           throw new Error(data.error || 'Failed to load exam')
         }
         const data = await res.json()
-        if (cancelled) return
+        if (!alive) return
         setSession(data.session)
       } catch (err) {
-        if (cancelled) return
+        if (!alive) return
         setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
-        if (!cancelled) setLoading(false)
+        if (alive) setLoading(false)
       }
     }
     loadSession()
     return () => {
-      cancelled = true
+      alive = false
     }
   }, [sessionId, moduleFromUrl, setSession])
 
+  // === Эффект 2: sync URL и resume modal ===
   const syncUrlAndResume = useCallback(() => {
     if (!session) return
-
     const qModule = searchParams.get('module')
     const moduleOrder = parseModuleOrder(session.mode, session.sessionFlow)
     const isMulti = isMultiModuleSession(session.mode, session.sessionFlow)
     const current = session.currentModule
     const freshStart = searchParams.get('fresh') === '1'
-
     if (!isMulti || !current || current === 'completed') return
-
     const qModuleIsValid = qModule != null && moduleOrder.includes(qModule)
-
     if (!qModuleIsValid) {
       router.replace(`/exam/${sessionId}?module=${current}`)
       return
     }
-
     const completed = session.completedModules
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean)
     const remaining = moduleOrder.filter((m) => !completed.includes(m))
-
     const dismissed =
-      freshStart
-      || (typeof window !== 'undefined'
-        && sessionStorage.getItem(`exam_resume_ok_${sessionId}`) === '1')
-
+      freshStart ||
+      (typeof window !== 'undefined' &&
+        sessionStorage.getItem(`exam_resume_ok_${sessionId}`) === '1')
     if (completed.length > 0 && remaining.length > 0 && !dismissed) {
       setResumeOpen(true)
     }
@@ -162,56 +151,75 @@ export function ExamShell({ sessionId }: ExamShellProps) {
     router.replace(`/exam/${sessionId}?module=${m}`)
   }, [session, searchParams, sessionId, router])
 
+  // === Эффект 3: генерация модуля ===
+  // КРИТИЧНО: никаких AbortController. Запрос ДОЛЖЕН завершиться.
+  // Защита от параллельных запусков — через inFlightRef.
   useEffect(() => {
     if (loading || !session || !activeModuleComputed) return
     if (!isMultiModuleSession(session.mode, session.sessionFlow)) return
     if (session.currentModule === 'completed') return
-
     const order = parseModuleOrder(session.mode, session.sessionFlow)
     if (!order.includes(activeModuleComputed)) return
 
     const c = session.content as Record<string, unknown>
-    if (c[activeModuleComputed] != null) {
+    const moduleContent = c[activeModuleComputed]
+
+    // Проверяем: контент не просто существует, а имеет осмысленную структуру.
+    // Для schreiben нам нужен минимум tasks[0], иначе это пустышка от упавшей генерации.
+    const isValidContent = isModuleContentValid(activeModuleComputed, moduleContent)
+
+    if (isValidContent) {
       setGenerateError(null)
       setGeneratingModule(false)
-      // Модуль уже в content — отмечаем ключ как обработанный, чтобы последующие ре-рендеры
-      // с новой ссылкой на session не запускали никаких запросов.
-      generatedModulesRef.current.add(`${sessionId}:${activeModuleComputed}`)
       return
     }
 
-    const key = `${sessionId}:${activeModuleComputed}`
-    if (generatedModulesRef.current.has(key)) {
+    // Если уже идёт генерация этого модуля — не запускаем параллельный запрос
+    if (inFlightRef.current === activeModuleComputed) {
       return
     }
-    generatedModulesRef.current.add(key)
 
-    const ac = new AbortController()
+    // Стартуем генерацию
+    inFlightRef.current = activeModuleComputed
     setGeneratingModule(true)
     setGenerateError(null)
+
+    let cancelled = false
+
     ;(async () => {
       try {
         const res = await fetch('/api/exam/generate-module', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId, module: activeModuleComputed }),
-          signal: ac.signal,
+          // НЕТ signal — запрос должен завершиться
         })
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Generierung fehlgeschlagen')
-        const sres = await fetch(`/api/exam/${sessionId}`, { signal: ac.signal })
+
+        // Загружаем свежую сессию
+        const sres = await fetch(`/api/exam/${sessionId}`)
         const sdata = await sres.json()
-        if (!sdata.success) return
+        if (!sdata.success) throw new Error('Failed to reload session')
+
+        if (cancelled) return
         setSession(sdata.session)
       } catch (e) {
-        if (ac.signal.aborted) return
-        generatedModulesRef.current.delete(key)
+        if (cancelled) return
         setGenerateError(e instanceof Error ? e.message : 'Fehler')
       } finally {
-        setGeneratingModule(false)
+        // Всегда снимаем in-flight флаг и крутилку
+        inFlightRef.current = null
+        if (!cancelled) setGeneratingModule(false)
       }
     })()
-    return () => ac.abort()
+
+    return () => {
+      // При размонтировании/ре-рендере мы НЕ отменяем запрос
+      // (пусть долетает до БД). Только отмечаем, что текущий useEffect run не должен
+      // больше обновлять state этого компонента.
+      cancelled = true
+    }
   }, [loading, session, activeModuleComputed, sessionId, setSession, retryGen])
 
   if (loading) {
@@ -230,7 +238,10 @@ export function ExamShell({ sessionId }: ExamShellProps) {
       <div className="flex min-h-screen items-center justify-center bg-brand-bg">
         <div className="rounded-xl bg-brand-white p-8 text-center shadow-card">
           <p className="mb-4 text-brand-red">{error || 'Session nicht gefunden'}</p>
-          <a href="/" className="rounded-lg bg-brand-gold px-6 py-2 text-sm font-semibold text-white transition hover:bg-brand-gold-dark">
+          <a
+            href="/"
+            className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+          >
             Zurück
           </a>
         </div>
@@ -240,9 +251,7 @@ export function ExamShell({ sessionId }: ExamShellProps) {
 
   const moduleOrder = parseModuleOrder(session.mode, session.sessionFlow)
   const isMulti = isMultiModuleSession(session.mode, session.sessionFlow)
-
-  const activeModule: string =
-    activeModuleComputed ?? moduleOrder[0] ?? session.mode
+  const activeModule: string = activeModuleComputed ?? moduleOrder[0] ?? session.mode
 
   if (isMulti && session.currentModule === 'completed') {
     router.replace(`/exam/${sessionId}/results`)
@@ -254,7 +263,6 @@ export function ExamShell({ sessionId }: ExamShellProps) {
   }
 
   const moduleLabel = MODULE_LABELS[activeModule] || activeModule
-
   const completed = session.completedModules
     .split(',')
     .map((s) => s.trim())
@@ -301,7 +309,6 @@ export function ExamShell({ sessionId }: ExamShellProps) {
           </div>
         </div>
       )}
-
       {generateError && !generatingModule && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
           <div className="max-w-md rounded-2xl bg-brand-white p-6 text-center shadow-xl">
@@ -309,55 +316,62 @@ export function ExamShell({ sessionId }: ExamShellProps) {
             <button
               type="button"
               className="mt-4 rounded-lg bg-brand-gold px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-gold-dark"
-              onClick={() => setRetryGen((n) => n + 1)}
+              onClick={() => {
+                setGenerateError(null)
+                inFlightRef.current = null
+                setRetryGen((n) => n + 1)
+              }}
             >
               Erneut versuchen
             </button>
           </div>
         </div>
       )}
-
-      {resumeOpen && isMulti && session.currentModule && session.currentModule !== 'completed' && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
-          <div className="max-w-md rounded-2xl bg-brand-white p-6 shadow-xl">
-            <h2 className="text-lg font-bold text-brand-text">Test fortsetzen?</h2>
-            <p className="mt-2 text-sm text-brand-muted">
-              Diese Auswahl ist noch nicht abgeschlossen.
-            </p>
-            {completed.length > 0 && (
-              <p className="mt-2 text-sm text-brand-text">
-                <span className="font-semibold">Erledigt:</span> {completedLabels}
+      {resumeOpen &&
+        isMulti &&
+        session.currentModule &&
+        session.currentModule !== 'completed' && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
+            <div className="max-w-md rounded-2xl bg-brand-white p-6 shadow-xl">
+              <h2 className="text-lg font-bold text-brand-text">Test fortsetzen?</h2>
+              <p className="mt-2 text-sm text-brand-muted">
+                Diese Auswahl ist noch nicht abgeschlossen.
               </p>
-            )}
-            {remaining.length > 0 && (
-              <p className="mt-1 text-sm text-brand-text">
-                <span className="font-semibold">Noch offen:</span> {remainingLabels}
-              </p>
-            )}
-            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={handleResumeRestart}
-                className="rounded-lg border border-brand-border px-4 py-2.5 text-sm font-medium text-brand-text transition hover:bg-brand-surface"
-              >
-                Neu starten
-              </button>
-              <button
-                type="button"
-                onClick={handleResumeContinue}
-                className="rounded-lg bg-brand-gold px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
-              >
-                Fortfahren
-              </button>
+              {completed.length > 0 && (
+                <p className="mt-2 text-sm text-brand-text">
+                  <span className="font-semibold">Erledigt:</span> {completedLabels}
+                </p>
+              )}
+              {remaining.length > 0 && (
+                <p className="mt-1 text-sm text-brand-text">
+                  <span className="font-semibold">Noch offen:</span> {remainingLabels}
+                </p>
+              )}
+              <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={handleResumeRestart}
+                  className="rounded-lg border border-brand-border px-4 py-2.5 text-sm font-medium text-brand-text transition hover:bg-brand-surface"
+                >
+                  Neu starten
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResumeContinue}
+                  className="rounded-lg bg-brand-gold px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+                >
+                  Fortfahren
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-
+        )}
       <header className="sticky top-0 z-50 border-b border-brand-border bg-brand-white/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-sm font-bold text-brand-gold">DeutschTest.pro</a>
+            <a href="/" className="text-sm font-bold text-brand-gold">
+              DeutschTest.pro
+            </a>
             <span className="text-brand-border">|</span>
             <span className="text-sm font-semibold text-brand-text">
               Goethe-Zertifikat {session.level}
@@ -368,11 +382,9 @@ export function ExamShell({ sessionId }: ExamShellProps) {
           </div>
         </div>
       </header>
-
       {isMulti && moduleOrder.length > 0 && (
         <MultiProgressBar activeModule={activeModule} moduleOrder={moduleOrder} />
       )}
-
       <div className="px-4 py-8">
         {activeModule === 'lesen' && <LesenModule />}
         {activeModule === 'horen' && <HorenModule />}
@@ -381,4 +393,29 @@ export function ExamShell({ sessionId }: ExamShellProps) {
       </div>
     </div>
   )
+}
+
+/**
+ * Проверяет, что контент модуля не пустой и имеет ожидаемую структуру.
+ * Нужно чтобы не считать «есть контент» для модуля, где в БД лежит огрызок от упавшей генерации.
+ */
+function isModuleContentValid(module: string, content: unknown): boolean {
+  if (content == null) return false
+  if (typeof content !== 'object') return false
+  const obj = content as Record<string, unknown>
+
+  if (module === 'schreiben') {
+    const tasks = obj.tasks
+    return Array.isArray(tasks) && tasks.length > 0
+  }
+  if (module === 'sprechen') {
+    const tasks = obj.tasks
+    return Array.isArray(tasks) && tasks.length > 0
+  }
+  if (module === 'lesen' || module === 'horen') {
+    // Для lesen/horen контент имеет форму { teil1: {...}, teil2: {...}, ... }
+    // Считаем валидным если есть хотя бы teil1
+    return obj.teil1 != null
+  }
+  return true
 }
