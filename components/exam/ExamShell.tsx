@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useExamStore } from '@/store/examStore'
 import { LesenModule } from '@/components/modules/LesenModule'
@@ -60,6 +60,18 @@ export function ExamShell({ sessionId }: ExamShellProps) {
   const [generatingModule, setGeneratingModule] = useState(false)
   const [generateError, setGenerateError] = useState<string | null>(null)
   const [retryGen, setRetryGen] = useState(0)
+
+  // Защёлка от повторной генерации одного и того же модуля в рамках этой сессии.
+  // Ключ = `${sessionId}:${module}`. При ре-рендере useEffect проверяет, не делали ли мы уже
+  // запрос для этого ключа. Если делали — не дёргаем generate-module снова.
+  const generatedModulesRef = useRef<Set<string>>(new Set())
+
+  // Сбрасываем защёлку при смене retryGen — это позволяет кнопке «Erneut versuchen» реально перегенерить.
+  useEffect(() => {
+    if (retryGen > 0) {
+      generatedModulesRef.current = new Set()
+    }
+  }, [retryGen])
 
   const activeModuleComputed = useMemo((): string | null => {
     if (!session) return null
@@ -154,19 +166,28 @@ export function ExamShell({ sessionId }: ExamShellProps) {
     if (loading || !session || !activeModuleComputed) return
     if (!isMultiModuleSession(session.mode, session.sessionFlow)) return
     if (session.currentModule === 'completed') return
+
     const order = parseModuleOrder(session.mode, session.sessionFlow)
     if (!order.includes(activeModuleComputed)) return
 
     const c = session.content as Record<string, unknown>
     if (c[activeModuleComputed] != null) {
       setGenerateError(null)
+      // Модуль уже в content — отмечаем ключ как обработанный, чтобы последующие ре-рендеры
+      // с новой ссылкой на session не запускали никаких запросов.
+      generatedModulesRef.current.add(`${sessionId}:${activeModuleComputed}`)
       return
     }
+
+    const key = `${sessionId}:${activeModuleComputed}`
+    if (generatedModulesRef.current.has(key)) {
+      return
+    }
+    generatedModulesRef.current.add(key)
 
     const ac = new AbortController()
     setGeneratingModule(true)
     setGenerateError(null)
-
     ;(async () => {
       try {
         const res = await fetch('/api/exam/generate-module', {
@@ -183,12 +204,12 @@ export function ExamShell({ sessionId }: ExamShellProps) {
         setSession(sdata.session)
       } catch (e) {
         if (ac.signal.aborted) return
+        generatedModulesRef.current.delete(key)
         setGenerateError(e instanceof Error ? e.message : 'Fehler')
       } finally {
         if (!ac.signal.aborted) setGeneratingModule(false)
       }
     })()
-
     return () => ac.abort()
   }, [loading, session, activeModuleComputed, sessionId, setSession, retryGen])
 
