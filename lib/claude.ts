@@ -69,6 +69,7 @@ export async function generateWithTool<T>(opts: GenerateWithToolOptions<T>): Pro
   let lastError: unknown
 
   for (let attempt = 1; attempt <= TOOL_GEN_RETRIES; attempt++) {
+    let receivedInput: unknown | undefined
     try {
       if (attempt > 1) await sleep(2000 * (attempt - 1))
 
@@ -106,7 +107,8 @@ export async function generateWithTool<T>(opts: GenerateWithToolOptions<T>): Pro
         throw new Error(`Model did not return a tool_use block (stop_reason: ${message.stop_reason})`)
       }
 
-      const validated = schema.parse(toolUseBlock.input)
+      receivedInput = toolUseBlock.input
+      const validated = schema.parse(receivedInput)
       return validated
     } catch (err) {
       lastError = err
@@ -119,10 +121,19 @@ export async function generateWithTool<T>(opts: GenerateWithToolOptions<T>): Pro
       }
 
       if (err instanceof z.ZodError) {
-        console.error(`[generateWithTool] Zod validation failed on attempt ${attempt}/${TOOL_GEN_RETRIES}:`, {
-          issues: err.issues,
-          toolName,
-        })
+        console.error(
+          '[generateWithTool] Zod validation failed on attempt',
+          `${attempt}/${TOOL_GEN_RETRIES}:`,
+          JSON.stringify(
+            {
+              toolName,
+              issues: err.issues,
+              receivedInput,
+            },
+            null,
+            2
+          )
+        )
         continue
       }
 
