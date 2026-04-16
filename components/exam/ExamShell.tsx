@@ -202,15 +202,22 @@ export function ExamShell({ sessionId }: ExamShellProps) {
         const sdata = await sres.json()
         if (!sdata.success) throw new Error('Failed to reload session')
 
-        if (cancelled) return
+        // ВАЖНО: setSession — глобальный Zustand store, обновляем всегда.
+        // Даже если компонент размонтирован — данные попадут в стор, и при следующем
+        // рендере всё будет правильно.
+        console.log('[ExamShell] setSession after generation', {
+          module: activeModuleComputed,
+          contentKeys: Object.keys(sdata.session?.content || {}),
+          schreibenTasks: (sdata.session?.content?.schreiben as { tasks?: unknown[] })?.tasks?.length,
+        })
         setSession(sdata.session)
       } catch (e) {
         if (cancelled) return
         setGenerateError(e instanceof Error ? e.message : 'Fehler')
       } finally {
-        // Всегда снимаем in-flight флаг и крутилку
+        // Всегда снимаем in-flight флаг и спиннер
         inFlightRef.current = null
-        if (!cancelled) setGeneratingModule(false)
+        setGeneratingModule(false)
       }
     })()
 
