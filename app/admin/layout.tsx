@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: '📊' },
   { href: '/admin/users', label: 'Пользователи', icon: '👥' },
   { href: '/admin/prompts', label: 'Промпты', icon: '✏️' },
+  { href: '/admin/topics', label: 'Темы', icon: '🎲' },
   { href: '/admin/promo', label: 'Промокоды', icon: '🎟️' },
   { href: '/admin/economy', label: 'Экономика', icon: '💰' },
   { href: '/admin/feedback', label: 'Фидбэк', icon: '💬' },
