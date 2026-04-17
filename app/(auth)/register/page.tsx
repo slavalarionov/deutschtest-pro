@@ -1,15 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const turnstileRef = useRef<TurnstileInstance | null>(null)
+
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
   async function handleGoogleLogin() {
     const supabase = createClient()
@@ -27,16 +33,30 @@ export default function RegisterPage() {
     setLoading(true)
     setError(null)
 
+    if (password.length < 8) {
+      setError('Passwort muss mindestens 8 Zeichen enthalten.')
+      setLoading(false)
+      return
+    }
+
+    if (turnstileSiteKey && !turnstileToken) {
+      setError('Bitte bestätigen Sie das Captcha.')
+      setLoading(false)
+      return
+    }
+
     try {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, password, turnstileToken }),
       })
       const data = await res.json()
 
       if (!res.ok) {
         setError(data.error || 'Registrierung fehlgeschlagen')
+        turnstileRef.current?.reset()
+        setTurnstileToken(null)
         setLoading(false)
         return
       }
@@ -73,15 +93,15 @@ export default function RegisterPage() {
               />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-brand-text">Fast geschafft</h2>
+          <h2 className="text-xl font-bold text-brand-text">Bestätigung erforderlich</h2>
           <p className="mt-3 text-sm text-brand-muted">
-            Wir haben ein automatisch generiertes Passwort an{' '}
-            <span className="font-medium text-brand-text">{email}</span> gesendet. Bitte prüfen
-            Sie auch den Spam-Ordner.
+            Wir haben eine Bestätigungs-E-Mail an{' '}
+            <span className="font-medium text-brand-text">{email}</span> gesendet.
+            Bitte öffnen Sie den Link in der Nachricht, um Ihr Konto zu aktivieren.
           </p>
           <p className="mt-3 text-sm text-brand-muted">
-            Sie können sich direkt mit E-Mail und Passwort anmelden — es ist keine separate
-            Bestätigungs-Mail nötig.
+            Nach der Bestätigung erhalten Sie <span className="font-medium">3 Module gratis</span> zum
+            Ausprobieren. Prüfen Sie auch den Spam-Ordner.
           </p>
           <Link
             href="/login"
@@ -156,13 +176,47 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoComplete="email"
               className="w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm text-brand-text placeholder:text-brand-muted/50 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
               placeholder="ihre.email@example.com"
             />
-            <p className="mt-2 text-sm text-brand-muted">
-              Ein Passwort wird automatisch generiert und an Ihre E-Mail gesendet.
+          </div>
+
+          <div>
+            <label
+              htmlFor="password"
+              className="mb-1.5 block text-sm font-medium text-brand-text"
+            >
+              Passwort
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              autoComplete="new-password"
+              className="w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm text-brand-text placeholder:text-brand-muted/50 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
+              placeholder="Mindestens 8 Zeichen"
+            />
+            <p className="mt-2 text-xs text-brand-muted">
+              Sie erhalten anschließend eine E-Mail zur Bestätigung Ihrer Adresse.
             </p>
           </div>
+
+          {turnstileSiteKey && (
+            <div className="flex justify-center">
+              <Turnstile
+                ref={turnstileRef}
+                siteKey={turnstileSiteKey}
+                onSuccess={setTurnstileToken}
+                onExpire={() => setTurnstileToken(null)}
+                onError={() => setTurnstileToken(null)}
+                options={{ theme: 'light', size: 'flexible' }}
+              />
+            </div>
+          )}
 
           {error && (
             <p className="rounded-lg bg-brand-red/5 px-3 py-2 text-sm text-brand-red">
