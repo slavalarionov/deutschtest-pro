@@ -1,12 +1,14 @@
 // scripts/seed-prompts.ts
 //
-// Разовый сидер: читает FALLBACK_TEMPLATE из файлов prompts/generation/*
-// и prompts/scoring/*, пишет по одной записи в prompts + prompt_versions v1
-// и проставляет active_version_id.
+// Сидер: читает FALLBACK_TEMPLATE из файлов prompts/generation/*
+// и prompts/scoring/*, синхронизирует с БД.
 //
-// Идемпотентность: если запись в prompts уже есть, ничего не трогаем.
-// Если нужно пересеять — удали строку из prompts (каскадно удалит versions)
-// или создай новую версию через /admin/prompts.
+// Поведение:
+// 1. Если записи в prompts нет — создаёт её и пишет v1 (initial seed).
+// 2. Если запись есть и active-версия совпадает с файлом по content — skip.
+// 3. Если запись есть и content отличается — создаёт новую версию
+//    (version = max(version)+1), проставляет active_version_id, change_note
+//    задаётся через ENTRY.changeNote (или дефолт).
 //
 // Запуск (требует tsx и заполненный .env.local):
 //   npx tsx scripts/seed-prompts.ts
@@ -73,7 +75,10 @@ interface SeedEntry {
   key: string
   template: string
   description: string
+  changeNote?: string
 }
+
+const DEFAULT_CHANGE_NOTE = 'Fix: level-dependent constants replaced with placeholders'
 
 const ENTRIES: SeedEntry[] = [
   { key: LESEN_T1_KEY, template: LESEN_T1_TPL, description: 'Lesen Teil 1 — Blogtext + richtig/falsch' },
@@ -104,6 +109,7 @@ async function main() {
   })
 
   let inserted = 0
+  let updated = 0
   let skipped = 0
 
   for (const entry of ENTRIES) {
@@ -120,13 +126,68 @@ async function main() {
       continue
     }
 
+    // Если есть активная версия — сравним её content с файлом.
     if (existing?.active_version_id) {
-      console.log(`⏭  ${entry.key} — already seeded (active_version_id=${existing.active_version_id})`)
-      skipped++
+      const { data: activeVersion, error: activeErr } = await supabase
+        .from('prompt_versions')
+        .select('content, version')
+        .eq('id', existing.active_version_id)
+        .maybeSingle()
+
+      if (activeErr) {
+        console.error(`[${entry.key}] active version lookup failed:`, activeErr.message)
+        continue
+      }
+
+      if (activeVersion?.content === entry.template) {
+        console.log(`⏭  ${entry.key} — up to date (v${activeVersion.version})`)
+        skipped++
+        continue
+      }
+
+      // Content отличается → создаём новую версию.
+      const { data: maxRow } = await supabase
+        .from('prompt_versions')
+        .select('version')
+        .eq('prompt_key', entry.key)
+        .order('version', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      const nextVersion = (maxRow?.version ?? 0) + 1
+
+      const { data: newVersion, error: insertErr } = await supabase
+        .from('prompt_versions')
+        .insert({
+          prompt_key: entry.key,
+          version: nextVersion,
+          content: entry.template,
+          change_note: entry.changeNote ?? DEFAULT_CHANGE_NOTE,
+        })
+        .select('id')
+        .single()
+
+      if (insertErr || !newVersion) {
+        console.error(`[${entry.key}] new version insert failed:`, insertErr?.message)
+        continue
+      }
+
+      const { error: promoteErr } = await supabase
+        .from('prompts')
+        .update({ active_version_id: newVersion.id, updated_at: new Date().toISOString() })
+        .eq('key', entry.key)
+
+      if (promoteErr) {
+        console.error(`[${entry.key}] activate new version failed:`, promoteErr.message)
+        continue
+      }
+
+      console.log(`🔄 ${entry.key} — updated to v${nextVersion} (id=${newVersion.id})`)
+      updated++
       continue
     }
 
-    // Upsert базовой записи в prompts (на случай, если уже есть без версии).
+    // Нет записи или нет активной версии — первичный сид.
     const { error: promptErr } = await supabase
       .from('prompts')
       .upsert({
@@ -141,7 +202,6 @@ async function main() {
       continue
     }
 
-    // Вставляем v1.
     const { data: version, error: versionErr } = await supabase
       .from('prompt_versions')
       .insert({
@@ -172,7 +232,9 @@ async function main() {
     inserted++
   }
 
-  console.log(`\nDone. Inserted: ${inserted}, skipped (already seeded): ${skipped}, total: ${ENTRIES.length}`)
+  console.log(
+    `\nDone. Inserted: ${inserted}, updated: ${updated}, skipped (unchanged): ${skipped}, total: ${ENTRIES.length}`,
+  )
 }
 
 main().catch((err) => {
