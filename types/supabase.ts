@@ -115,6 +115,7 @@ export interface Database {
           recommendations_attempts_count: number | null
           recommendations_generated_at: string | null
           display_name: string | null
+          preferred_language: 'de' | 'ru' | 'en' | 'tr'
         }
         Insert: {
           id: string
@@ -131,6 +132,7 @@ export interface Database {
           recommendations_attempts_count?: number | null
           recommendations_generated_at?: string | null
           display_name?: string | null
+          preferred_language?: 'de' | 'ru' | 'en' | 'tr'
         }
         Update: {
           id?: string
@@ -147,6 +149,7 @@ export interface Database {
           recommendations_attempts_count?: number | null
           recommendations_generated_at?: string | null
           display_name?: string | null
+          preferred_language?: 'de' | 'ru' | 'en' | 'tr'
         }
         Relationships: []
       }
