@@ -14,8 +14,6 @@ import type { TopicData } from '../lib/topic-sampler'
 const FAKE_TOPIC: TopicData = {
   situation: 'Einladung zu einer Geburtstagsfeier',
   recipient: 'Freund Klaus',
-  sceneHint: null,
-  category: null,
   taskHints: [],
   examples: [],
 }
