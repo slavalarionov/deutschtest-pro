@@ -1,5 +1,6 @@
-import { requireAdminPage } from '@/lib/admin/require-admin'
 import Link from 'next/link'
+import { requireAdminPage } from '@/lib/admin/require-admin'
+import { AdminNavLink } from './admin-nav-link'
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: '📊' },
@@ -33,14 +34,7 @@ export default async function AdminLayout({
 
         <nav className="flex-1 p-4 space-y-1">
           {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-3 px-4 py-2.5 rounded-md text-sm text-[#1A1A1A] hover:bg-[#E0DDD6] transition-colors"
-            >
-              <span className="text-base">{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
+            <AdminNavLink key={item.href} href={item.href} icon={item.icon} label={item.label} />
           ))}
         </nav>
 
