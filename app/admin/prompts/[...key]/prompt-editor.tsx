@@ -1,17 +1,16 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 
-const PLACEHOLDER_HINT: Record<string, string[]> = {
-  generation: [
-    '{level}', '{topic_situation}', '{topic_recipient}', '{topic_category}',
-    '{topic_scene}', '{topic_extra}', '{seed}', '{word_count}', '{type_lines}',
-  ],
-  scoring: [
-    '{level}', '{task}', '{required_points}', '{user_text}',
-    '{task_type_label}', '{task_topic}', '{task_points}', '{transcript}',
-  ],
+const PLACEHOLDER_RE = /\{(\w+)\}/g
+
+function extractPlaceholders(template: string): string[] {
+  const seen = new Set<string>()
+  for (const match of template.matchAll(PLACEHOLDER_RE)) {
+    seen.add(`{${match[1]}}`)
+  }
+  return Array.from(seen).sort()
 }
 
 interface Props {
@@ -27,8 +26,7 @@ export function PromptEditor({ promptKey, initialContent, currentVersion }: Prop
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
-  const category = promptKey.split('/')[0] as 'generation' | 'scoring'
-  const placeholders = PLACEHOLDER_HINT[category] ?? []
+  const placeholders = useMemo(() => extractPlaceholders(content), [content])
   const dirty = content !== initialContent
 
   async function handleSave() {
@@ -77,12 +75,16 @@ export function PromptEditor({ promptKey, initialContent, currentVersion }: Prop
       />
 
       <div className="text-xs text-[#6B6560]">
-        <span className="font-medium">Доступные плейсхолдеры:</span>{' '}
-        {placeholders.map((p) => (
-          <code key={p} className="bg-[#F2EFE8] px-1.5 py-0.5 rounded mr-1">
-            {p}
-          </code>
-        ))}
+        <span className="font-medium">Плейсхолдеры в шаблоне:</span>{' '}
+        {placeholders.length === 0 ? (
+          <span className="italic">— нет —</span>
+        ) : (
+          placeholders.map((p) => (
+            <code key={p} className="bg-[#F2EFE8] px-1.5 py-0.5 rounded mr-1">
+              {p}
+            </code>
+          ))
+        )}
       </div>
 
       <div className="space-y-2">
