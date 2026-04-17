@@ -378,6 +378,48 @@ export interface Database {
         }
         Relationships: []
       }
+      deleted_users_audit: {
+        Row: {
+          id: number
+          deleted_at: string
+          deleted_by: string | null
+          user_id: string
+          email: string | null
+          display_name: string | null
+          modules_balance_at_delete: number | null
+          attempts_count_at_delete: number | null
+          was_admin: boolean | null
+          was_unlimited: boolean | null
+          note: string | null
+        }
+        Insert: {
+          id?: number
+          deleted_at?: string
+          deleted_by?: string | null
+          user_id: string
+          email?: string | null
+          display_name?: string | null
+          modules_balance_at_delete?: number | null
+          attempts_count_at_delete?: number | null
+          was_admin?: boolean | null
+          was_unlimited?: boolean | null
+          note?: string | null
+        }
+        Update: {
+          id?: number
+          deleted_at?: string
+          deleted_by?: string | null
+          user_id?: string
+          email?: string | null
+          display_name?: string | null
+          modules_balance_at_delete?: number | null
+          attempts_count_at_delete?: number | null
+          was_admin?: boolean | null
+          was_unlimited?: boolean | null
+          note?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
