@@ -1,7 +1,14 @@
-import type { ExamLevel } from '@/types/exam'
+// Промпт генерации для модуля Sprechen (3 задачи: planning/presentation/reaction).
+// Шаблон в БД, этот файл — fallback.
+// Плейсхолдеры: {level}, {topic_situation}, {topic_extra}, {seed}.
 
-export function getSprechenPrompt(level: ExamLevel): string {
-  return `Erstelle das Modul Sprechen für das Goethe-Zertifikat ${level}.
+import type { ExamLevel } from '@/types/exam'
+import type { TopicData } from '@/lib/topic-sampler'
+import { getPrompt } from '@/lib/prompt-store'
+
+export const PROMPT_KEY = 'generation/sprechen'
+
+export const FALLBACK_TEMPLATE = `Erstelle das Modul Sprechen für das Goethe-Zertifikat {level}.
 
 ANFORDERUNGEN:
 Erstelle genau 3 Aufgaben:
@@ -24,10 +31,23 @@ Erstelle genau 3 Aufgaben:
 3. Teil 3 — Auf eine Präsentation reagieren (type: "reaction"):
    - Eine Frage oder ein Kommentar als Reaktion auf die Präsentation aus Teil 2
    - 2–3 Stichpunkte als Hilfe
-   - Beispiel: "Was denken Sie über die Nutzung sozialer Medien?"
 
-Themen: Alltag, Freizeit, Arbeit, Medien, Umwelt, Gesundheit, Bildung, Reise.
-Niveau: ${level}.
+VORGEGEBENER THEMATISCHER KONTEXT (verbindlich — orientiere dich daran):
+- Leitsituation für eine der Aufgaben: {topic_situation}
+- Zusatzdaten: {topic_extra}
+
+Niveau: {level}.
+Variations-Seed (nur intern, nicht im Text nennen): {seed}
 
 Übergib das Ergebnis ausschließlich über das bereitgestellte Tool. Verwende authentisches, natürliches Deutsch — typografische Anführungszeichen („…") sind im Inhalt erwünscht.`
+
+export async function buildSprechenPrompt(level: ExamLevel, topic: TopicData): Promise<string> {
+  const template = await getPrompt(PROMPT_KEY, FALLBACK_TEMPLATE)
+  const seed = Math.random().toString(36).slice(2, 8)
+
+  return template
+    .replaceAll('{level}', level)
+    .replaceAll('{topic_situation}', topic.situation ?? 'Alltagsthema')
+    .replaceAll('{topic_extra}', JSON.stringify(topic))
+    .replaceAll('{seed}', seed)
 }

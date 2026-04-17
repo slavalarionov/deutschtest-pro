@@ -4,20 +4,21 @@ import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 import type { ExamLevel, LesenTeil1, LesenTeil4, LesenContent, SchreibenContent, SchreibenFeedback, SprechenFeedback, SprechenContent, HorenContent } from '@/types/exam'
 
-import { getLesenTeil1Prompt } from '@/prompts/generation/lesen-teil1'
-import { getLesenTeil2Prompt } from '@/prompts/generation/lesen-teil2'
-import { getLesenTeil3Prompt } from '@/prompts/generation/lesen-teil3'
-import { getLesenTeil4Prompt } from '@/prompts/generation/lesen-teil4'
-import { getLesenTeil5Prompt } from '@/prompts/generation/lesen-teil5'
-import { getHorenTeil1Prompt } from '@/prompts/generation/horen-teil1'
-import { getHorenTeil2Prompt } from '@/prompts/generation/horen-teil2'
-import { getHorenTeil3Prompt } from '@/prompts/generation/horen-teil3'
-import { getHorenTeil4Prompt } from '@/prompts/generation/horen-teil4'
-import { getSchreibenPrompt } from '@/prompts/generation/schreiben'
-import { getSprechenPrompt } from '@/prompts/generation/sprechen'
-import { getSchreibenScorePrompt } from '@/prompts/scoring/schreiben-score'
-import { getSprechenScorePrompt } from '@/prompts/scoring/sprechen-score'
+import { buildLesenTeil1Prompt } from '@/prompts/generation/lesen-teil1'
+import { buildLesenTeil2Prompt } from '@/prompts/generation/lesen-teil2'
+import { buildLesenTeil3Prompt } from '@/prompts/generation/lesen-teil3'
+import { buildLesenTeil4Prompt } from '@/prompts/generation/lesen-teil4'
+import { buildLesenTeil5Prompt } from '@/prompts/generation/lesen-teil5'
+import { buildHorenTeil1Prompt } from '@/prompts/generation/horen-teil1'
+import { buildHorenTeil2Prompt } from '@/prompts/generation/horen-teil2'
+import { buildHorenTeil3Prompt } from '@/prompts/generation/horen-teil3'
+import { buildHorenTeil4Prompt } from '@/prompts/generation/horen-teil4'
+import { buildSchreibenPrompt } from '@/prompts/generation/schreiben'
+import { buildSprechenPrompt } from '@/prompts/generation/sprechen'
+import { buildSchreibenScorePrompt } from '@/prompts/scoring/schreiben-score'
+import { buildSprechenScorePrompt } from '@/prompts/scoring/sprechen-score'
 import { getRecommendationsPrompt, type RecommendationsInput } from '@/prompts/recommendations'
+import { pickRandomTopic, type TopicData, type ExamLevelLower } from '@/lib/topic-sampler'
 import { horenDialogueEmotionSchema, normalizeDialogueEmotion } from '@/lib/horen-emotion'
 import { logAiUsage } from './ai-usage-logger'
 import { calculateAnthropicCost } from './ai-pricing'
@@ -291,10 +292,15 @@ export interface LesenWithAnswers {
 
 // --- Generators ---
 
+function toLower(level: ExamLevel): ExamLevelLower {
+  return level.toLowerCase() as ExamLevelLower
+}
+
 async function generateTeil1(level: ExamLevel) {
+  const topic = await pickRandomTopic({ module: 'lesen', level: toLower(level), teil: 1 })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
-    userPrompt: getLesenTeil1Prompt(level),
+    userPrompt: await buildLesenTeil1Prompt(level, topic),
     toolName: 'submit_lesen_teil1',
     toolDescription: 'Liefert den Lesen-Teil-1-Inhalt: Blogtext plus Richtig/Falsch-Aufgaben.',
     schema: teil1Schema,
@@ -311,9 +317,10 @@ async function generateTeil1(level: ExamLevel) {
 }
 
 async function generateTeil2(level: ExamLevel) {
+  const topic = await pickRandomTopic({ module: 'lesen', level: toLower(level), teil: 2 })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
-    userPrompt: getLesenTeil2Prompt(level),
+    userPrompt: await buildLesenTeil2Prompt(level, topic),
     toolName: 'submit_lesen_teil2',
     toolDescription: 'Liefert den Lesen-Teil-2-Inhalt: Zeitungsartikel plus Multiple-Choice-Aufgaben.',
     schema: teil2Schema,
@@ -336,9 +343,10 @@ async function generateTeil2(level: ExamLevel) {
 }
 
 async function generateTeil3(level: ExamLevel) {
+  const topic = await pickRandomTopic({ module: 'lesen', level: toLower(level), teil: 3 })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
-    userPrompt: getLesenTeil3Prompt(level),
+    userPrompt: await buildLesenTeil3Prompt(level, topic),
     toolName: 'submit_lesen_teil3',
     toolDescription: 'Liefert den Lesen-Teil-3-Inhalt: Regeltext plus Ja/Nein-Aufgaben.',
     schema: teil3Schema,
@@ -355,9 +363,10 @@ async function generateTeil3(level: ExamLevel) {
 }
 
 async function generateTeil4(level: ExamLevel) {
+  const topic = await pickRandomTopic({ module: 'lesen', level: toLower(level), teil: 4 })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
-    userPrompt: getLesenTeil4Prompt(level),
+    userPrompt: await buildLesenTeil4Prompt(level, topic),
     toolName: 'submit_lesen_teil4',
     toolDescription: 'Liefert den Lesen-Teil-4-Inhalt: Kurztexte mit IDs und Zuordnungssituationen.',
     schema: teil4Schema,
@@ -380,9 +389,10 @@ async function generateTeil4(level: ExamLevel) {
 }
 
 async function generateTeil5(level: ExamLevel) {
+  const topic = await pickRandomTopic({ module: 'lesen', level: toLower(level), teil: 5 })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
-    userPrompt: getLesenTeil5Prompt(level),
+    userPrompt: await buildLesenTeil5Prompt(level, topic),
     toolName: 'submit_lesen_teil5',
     toolDescription: 'Liefert den Lesen-Teil-5-Inhalt: Lückentext plus Lücken mit je drei Optionen.',
     schema: teil5Schema,
@@ -473,9 +483,10 @@ export interface SchreibenGenResult {
 }
 
 export async function generateSchreiben(level: ExamLevel): Promise<SchreibenGenResult> {
+  const topic = await pickRandomTopic({ module: 'schreiben', level: toLower(level) })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
-    userPrompt: getSchreibenPrompt(level),
+    userPrompt: await buildSchreibenPrompt(level, topic),
     toolName: 'submit_schreiben_tasks',
     toolDescription: 'Reicht die Schreibaufgabe(n) für das Modul Schreiben ein.',
     schema: schreibenSchema,
@@ -512,7 +523,7 @@ export async function scoreSchreiben(
 ): Promise<SchreibenFeedback> {
   return generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_SCORE,
-    userPrompt: getSchreibenScorePrompt(level, task, requiredPoints, userText),
+    userPrompt: await buildSchreibenScorePrompt(level, task, requiredPoints, userText),
     toolName: 'submit_schreiben_score',
     toolDescription: 'Reicht die Bewertung des Schreiben-Textes nach Goethe-Kriterien ein.',
     schema: schreibenFeedbackSchema,
@@ -623,13 +634,15 @@ function normalizeHorenInput(raw: unknown): unknown {
 
 async function generateHorenTeil(
   level: ExamLevel,
-  promptFn: (level: ExamLevel) => string,
+  teil: number,
+  promptBuilder: (level: ExamLevel, topic: TopicData) => Promise<string>,
   toolName: string,
   toolDescription: string
 ) {
+  const topic = await pickRandomTopic({ module: 'horen', level: toLower(level), teil })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
-    userPrompt: promptFn(level),
+    userPrompt: await promptBuilder(level, topic),
     toolName,
     toolDescription,
     schema: horenTeilSchema,
@@ -677,14 +690,16 @@ export async function generateHorenFull(level: ExamLevel): Promise<HorenWithAnsw
   const [t1, t2, t3, t4] = await Promise.all([
     generateHorenTeil(
       level,
-      getHorenTeil1Prompt,
+      1,
+      buildHorenTeil1Prompt,
       'submit_horen_teil1',
       'Reicht das Hörverstehen-Teil 1 ein: kurze Mono-Ansagen (Durchsage, Anrufbeantworter usw.) mit jeweils einer Richtig/Falsch-Aufgabe.'
     ),
     sleep(delay).then(() =>
       generateHorenTeil(
         level,
-        getHorenTeil2Prompt,
+        2,
+        buildHorenTeil2Prompt,
         'submit_horen_teil2',
         'Reicht das Hörverstehen-Teil 2 ein: ein durchgehender Alltagsdialog (mehrere Mini-Szenen) mit Multiple-Choice-Aufgaben.'
       )
@@ -692,7 +707,8 @@ export async function generateHorenFull(level: ExamLevel): Promise<HorenWithAnsw
     sleep(delay * 2).then(() =>
       generateHorenTeil(
         level,
-        getHorenTeil3Prompt,
+        3,
+        buildHorenTeil3Prompt,
         'submit_horen_teil3',
         'Reicht das Hörverstehen-Teil 3 ein: Radio-/Podcast- oder TV-Interview als Dialog mit Richtig/Falsch-Aufgaben.'
       )
@@ -700,7 +716,8 @@ export async function generateHorenFull(level: ExamLevel): Promise<HorenWithAnsw
     sleep(delay * 3).then(() =>
       generateHorenTeil(
         level,
-        getHorenTeil4Prompt,
+        4,
+        buildHorenTeil4Prompt,
         'submit_horen_teil4',
         'Reicht das Hörverstehen-Teil 4 ein: fünf kurze getrennte Alltagsdialoge, je eine Richtig/Falsch-Aufgabe pro Dialog.'
       )
@@ -751,9 +768,10 @@ export interface SprechenGenResult {
 }
 
 export async function generateSprechen(level: ExamLevel): Promise<SprechenGenResult> {
+  const topic = await pickRandomTopic({ module: 'sprechen', level: toLower(level) })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
-    userPrompt: getSprechenPrompt(level),
+    userPrompt: await buildSprechenPrompt(level, topic),
     toolName: 'submit_sprechen_tasks',
     toolDescription: 'Reicht die drei Sprechaufgaben (Planning, Presentation, Reaction) für das Modul Sprechen ein.',
     schema: sprechenContentSchema,
@@ -782,7 +800,7 @@ export async function scoreSprechen(
 ): Promise<SprechenFeedback> {
   return generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_SCORE,
-    userPrompt: getSprechenScorePrompt(level, taskType, taskTopic, taskPoints, transcript),
+    userPrompt: await buildSprechenScorePrompt(level, taskType, taskTopic, taskPoints, transcript),
     toolName: 'submit_sprechen_score',
     toolDescription: 'Reicht die Bewertung der mündlichen Leistung nach Goethe-Kriterien ein.',
     schema: sprechenFeedbackSchema,

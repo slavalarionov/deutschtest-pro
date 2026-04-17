@@ -1,22 +1,22 @@
-import type { ExamLevel } from '@/types/exam'
+// Промпт генерации Hören Teil 2 (durchgehender Dialog, 5 Mini-Szenen). Шаблон в БД, файл — fallback.
 
-export function getHorenTeil2Prompt(level: ExamLevel): string {
-  return `Erstelle Teil 2 des Moduls Hören für das Goethe-Zertifikat ${level}.
+import type { ExamLevel } from '@/types/exam'
+import type { TopicData } from '@/lib/topic-sampler'
+import { getPrompt } from '@/lib/prompt-store'
+
+export const PROMPT_KEY = 'generation/horen-teil2'
+
+export const FALLBACK_TEMPLATE = `Erstelle Teil 2 des Moduls Hören für das Goethe-Zertifikat {level}.
 
 STRUKTUR:
 - **Ein** Script (ID 6), **ein** durchgehendes "dialogue"-Array, **eine** Audio-Datei (playCount 1).
-- Inhalt = **5 kurze Dialogszenen hintereinander** (z. B. Bahnhof, Markt, Apotheke, Café, Museum).
+- Inhalt = **5 kurze Dialogszenen hintereinander**.
+- Leitsituation des Tages: {topic_situation}
+- Vorschlag für Szenenfolge: {topic_scene}
 - **Pro Szene: höchstens 2 verschiedene Sprecher** — genau **2 verschiedene role-Werte**, die sich abwechseln (kein dritter Charakter in derselben Szene).
 - Von Szene zu Szene **wechselt das Paar** (andere Rollen-Kombination).
 
-BEISPIEL-PAARE (Orientierung, du darfst ähnlich variieren):
-1. Bahnhof: casual_male + professional_female (Fahrgast + Schalter)
-2. Markt: casual_female + professional_male (Kundin + Verkäufer)
-3. Apotheke: elderly_female + professional_female (Kundin + Apothekerin)
-4. Café: casual_male + casual_female (Gast + Kellner/in)
-5. Museum: child + professional_male (Kind + Guide) — Erwachsenen-Begleitung nicht als dritte Stimme nötig; Kind führt Dialog mit Guide.
-
-ROLLEN-POOL (nur diese Keys): casual_female, casual_male, professional_female, professional_male, announcer, elderly_female, child  
+ROLLEN-POOL (nur diese Keys): casual_female, casual_male, professional_female, professional_male, announcer, elderly_female, child
 — **Vielfalt über alle 5 Szenen**, nicht alle 7 in jeder Szene erzwingen.
 
 ANFORDERUNGEN:
@@ -28,9 +28,23 @@ emotion optional: neutral | happy | worried | angry | sad | polite
 
 VOR DEM ABSENDEN PRÜFEN: In jedem zusammenhängenden Mini-Dialogblock höchstens **zwei** unterschiedliche "role"-Werte.
 
-Für jedes Hörscript wähle entweder "mode": "mono" (eine Person spricht — dann fülle "script" und "voiceType") oder "mode": "dialogue" (mehrere Personen — dann fülle "dialogue" als Liste von Repliken). Mische die beiden Modi nicht innerhalb eines Scripts.
+Zusatzdaten: {topic_extra}
+Variations-Seed (nicht erwähnen): {seed}
+
+Für jedes Hörscript wähle entweder "mode": "mono" oder "mode": "dialogue". Mische die beiden Modi nicht innerhalb eines Scripts.
 
 Übergib das Ergebnis ausschließlich über das bereitgestellte Tool. Verwende authentisches, natürliches Deutsch — typografische Anführungszeichen („…") sind im Inhalt erwünscht.
 
-Niveau: ${level}.`
+Niveau: {level}.`
+
+export async function buildHorenTeil2Prompt(level: ExamLevel, topic: TopicData): Promise<string> {
+  const template = await getPrompt(PROMPT_KEY, FALLBACK_TEMPLATE)
+  const seed = Math.random().toString(36).slice(2, 8)
+
+  return template
+    .replaceAll('{level}', level)
+    .replaceAll('{topic_situation}', topic.situation ?? 'Alltag in der Stadt')
+    .replaceAll('{topic_scene}', topic.sceneHint ?? 'Bahnhof, Markt, Apotheke, Café, Museum')
+    .replaceAll('{topic_extra}', JSON.stringify(topic))
+    .replaceAll('{seed}', seed)
 }
