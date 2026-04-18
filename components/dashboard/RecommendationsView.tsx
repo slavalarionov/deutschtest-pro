@@ -1,7 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/routing'
 import type { Recommendations } from '@/lib/claude'
 import type { RecommendationsPayload } from '@/lib/dashboard/recommendations'
 
@@ -21,6 +22,7 @@ function formatDateTime(iso: string | null): string {
 }
 
 export function RecommendationsView() {
+  const t = useTranslations('dashboard.recommendations')
   const [data, setData] = useState<RecommendationsPayload | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -40,18 +42,18 @@ export function RecommendationsView() {
         const res = await fetch(url, { cache: 'no-store' })
         const json = await res.json()
         if (!res.ok || !json.success) {
-          setError(json.error || 'Empfehlungen konnten nicht geladen werden.')
+          setError(json.error || t('errors.loadFailed'))
           return
         }
         setData(json.data as RecommendationsPayload)
       } catch {
-        setError('Netzwerkfehler beim Laden der Empfehlungen.')
+        setError(t('errors.network'))
       } finally {
         if (isRefresh) setRefreshing(false)
         else setLoading(false)
       }
     },
-    []
+    [t]
   )
 
   useEffect(() => {
@@ -62,10 +64,8 @@ export function RecommendationsView() {
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-brand-text">Empfehlungen</h1>
-          <p className="mt-1 text-sm text-brand-muted">
-            Persönliche Lerntipps auf Basis Ihrer bisherigen Module.
-          </p>
+          <h1 className="text-2xl font-bold text-brand-text">{t('title')}</h1>
+          <p className="mt-1 text-sm text-brand-muted">{t('subtitle')}</p>
         </div>
         {data && data.recommendations && (
           <button
@@ -74,12 +74,12 @@ export function RecommendationsView() {
             disabled={refreshing}
             className="inline-flex items-center justify-center rounded-lg border border-brand-border bg-brand-white px-4 py-2 text-sm font-semibold text-brand-text hover:bg-brand-surface disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {refreshing ? 'Wird aktualisiert…' : 'Empfehlungen aktualisieren'}
+            {refreshing ? t('refreshingButton') : t('refreshButton')}
           </button>
         )}
       </div>
 
-      {loading && <LoadingCard text="Empfehlungen werden geladen…" />}
+      {loading && <LoadingCard text={t('loading')} />}
 
       {!loading && error && (
         <div className="rounded-2xl bg-brand-white px-6 py-10 text-center shadow-soft">
@@ -89,7 +89,7 @@ export function RecommendationsView() {
             onClick={() => load()}
             className="mt-4 inline-block rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark"
           >
-            Erneut versuchen
+            {t('retry')}
           </button>
         </div>
       )}
@@ -97,23 +97,21 @@ export function RecommendationsView() {
       {!loading && !error && data && !data.recommendations && (
         <div className="rounded-2xl bg-brand-white px-6 py-16 text-center shadow-soft">
           <p className="text-sm font-medium text-brand-text">
-            Absolvieren Sie mindestens ein Modul, um personalisierte Empfehlungen zu erhalten
+            {t('empty.title')}
           </p>
-          <p className="mt-2 text-xs text-brand-muted">
-            Sobald Sie ein Modul abgeschlossen haben, analysieren wir Ihre Ergebnisse und erstellen einen persönlichen Lernplan.
-          </p>
+          <p className="mt-2 text-xs text-brand-muted">{t('empty.hint')}</p>
           <Link
             href="/dashboard"
             className="mt-6 inline-block rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark"
           >
-            Zum Dashboard
+            {t('empty.toDashboard')}
           </Link>
         </div>
       )}
 
       {!loading && !error && data && data.recommendations && (
         <>
-          {refreshing && <LoadingCard text="Neue Empfehlungen werden generiert…" />}
+          {refreshing && <LoadingCard text={t('refreshing')} />}
           {!refreshing && (
             <RecommendationsContent
               recs={data.recommendations}
@@ -148,24 +146,27 @@ function RecommendationsContent({
   generatedAt: string | null
   cached: boolean
 }) {
+  const t = useTranslations('dashboard.recommendations')
   return (
     <div className="space-y-5">
       <Card>
-        <SectionHeader title="Allgemeine Einschätzung" emoji="🎯" />
+        <SectionHeader title={t('sections.overall')} emoji="🎯" />
         <p className="text-sm leading-relaxed text-brand-text">{recs.overallAssessment}</p>
         <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-brand-muted">
           <span className="rounded-md bg-brand-surface px-2 py-0.5 font-medium">
-            {attemptsCount} Modul{attemptsCount === 1 ? '' : 'e'} berücksichtigt
+            {t('modulesCount', { count: attemptsCount })}
           </span>
           <span>
-            {cached ? 'Gespeichert am' : 'Erstellt am'} {formatDateTime(generatedAt)}
+            {cached
+              ? t('cachedAt', { date: formatDateTime(generatedAt) })
+              : t('generatedAt', { date: formatDateTime(generatedAt) })}
           </span>
         </div>
       </Card>
 
       <div className="grid gap-5 md:grid-cols-2">
         <Card>
-          <SectionHeader title="Stärken" emoji="✅" />
+          <SectionHeader title={t('sections.strengths')} emoji="✅" />
           <ul className="space-y-2 text-sm text-brand-text">
             {recs.strengths.map((s, i) => (
               <li key={i} className="flex gap-2">
@@ -177,7 +178,7 @@ function RecommendationsContent({
         </Card>
 
         <Card>
-          <SectionHeader title="Schwächen" emoji="⚠️" />
+          <SectionHeader title={t('sections.weaknesses')} emoji="⚠️" />
           <ul className="space-y-2 text-sm text-brand-text">
             {recs.weaknesses.map((w, i) => (
               <li key={i} className="flex gap-2">
@@ -190,7 +191,7 @@ function RecommendationsContent({
       </div>
 
       <Card>
-        <SectionHeader title="Ihr Lernplan" emoji="🗺️" />
+        <SectionHeader title={t('sections.studyPlan')} emoji="🗺️" />
         <ol className="space-y-4">
           {recs.studyPlan.map((step, i) => (
             <li key={i} className="flex gap-3">
@@ -209,7 +210,7 @@ function RecommendationsContent({
       </Card>
 
       <Card className="bg-brand-gold/5">
-        <SectionHeader title="Motivation" emoji="💪" />
+        <SectionHeader title={t('sections.motivation')} emoji="💪" />
         <p className="text-sm leading-relaxed text-brand-text">{recs.motivation}</p>
       </Card>
     </div>

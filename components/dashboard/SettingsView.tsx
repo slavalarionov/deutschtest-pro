@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface SettingsViewProps {
   email: string
@@ -13,13 +14,13 @@ export function SettingsView({
   initialName,
   canChangePassword,
 }: SettingsViewProps) {
+  const t = useTranslations('dashboard.settings')
+
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Einstellungen</h1>
-        <p className="mt-1 text-sm text-brand-muted">
-          Profil, Passwort und Konto verwalten.
-        </p>
+        <h1 className="text-2xl font-bold text-brand-text">{t('title')}</h1>
+        <p className="mt-1 text-sm text-brand-muted">{t('subtitle')}</p>
       </div>
 
       <ProfileSection email={email} initialName={initialName} />
@@ -28,10 +29,11 @@ export function SettingsView({
         <PasswordSection />
       ) : (
         <Card>
-          <h2 className="text-lg font-semibold text-brand-text">Passwort</h2>
+          <h2 className="text-lg font-semibold text-brand-text">
+            {t('password.externalTitle')}
+          </h2>
           <p className="mt-2 text-sm text-brand-muted">
-            Sie haben sich über einen externen Anbieter (z. B. Google)
-            angemeldet. Das Passwort wird beim Anbieter verwaltet.
+            {t('password.externalText')}
           </p>
         </Card>
       )}
@@ -56,6 +58,7 @@ function ProfileSection({
   email: string
   initialName: string
 }) {
+  const t = useTranslations('dashboard.settings.profile')
   const [name, setName] = useState(initialName)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<
@@ -76,13 +79,13 @@ function ProfileSection({
       if (!res.ok || !json.success) {
         setMessage({
           kind: 'err',
-          text: json.error || 'Speichern fehlgeschlagen.',
+          text: json.error || t('saveFailed'),
         })
       } else {
-        setMessage({ kind: 'ok', text: 'Name gespeichert.' })
+        setMessage({ kind: 'ok', text: t('saved') })
       }
     } catch {
-      setMessage({ kind: 'err', text: 'Netzwerkfehler.' })
+      setMessage({ kind: 'err', text: t('network') })
     } finally {
       setSaving(false)
     }
@@ -90,27 +93,25 @@ function ProfileSection({
 
   return (
     <Card>
-      <h2 className="text-lg font-semibold text-brand-text">Profil</h2>
+      <h2 className="text-lg font-semibold text-brand-text">{t('title')}</h2>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-        <Field label="E-Mail">
+        <Field label={t('emailLabel')}>
           <input
             type="email"
             value={email}
             readOnly
             className="w-full cursor-not-allowed rounded-lg border border-brand-border bg-brand-surface px-3 py-2 text-sm text-brand-muted"
           />
-          <p className="mt-1 text-xs text-brand-muted">
-            E-Mail kann derzeit nicht geändert werden.
-          </p>
+          <p className="mt-1 text-xs text-brand-muted">{t('emailHint')}</p>
         </Field>
 
-        <Field label="Name">
+        <Field label={t('nameLabel')}>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             maxLength={80}
-            placeholder="Wie sollen wir Sie nennen?"
+            placeholder={t('namePlaceholder')}
             className="w-full rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm text-brand-text focus:border-brand-gold focus:outline-none"
           />
         </Field>
@@ -130,7 +131,7 @@ function ProfileSection({
           disabled={saving || name.trim() === initialName.trim()}
           className="inline-flex items-center justify-center rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {saving ? 'Wird gespeichert…' : 'Speichern'}
+          {saving ? t('saving') : t('saveButton')}
         </button>
       </form>
     </Card>
@@ -138,6 +139,7 @@ function ProfileSection({
 }
 
 function PasswordSection() {
+  const t = useTranslations('dashboard.settings.password')
   const [current, setCurrent] = useState('')
   const [next, setNext] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -151,14 +153,11 @@ function PasswordSection() {
     setMessage(null)
 
     if (next.length < 8) {
-      setMessage({
-        kind: 'err',
-        text: 'Neues Passwort muss mindestens 8 Zeichen lang sein.',
-      })
+      setMessage({ kind: 'err', text: t('tooShort') })
       return
     }
     if (next !== confirm) {
-      setMessage({ kind: 'err', text: 'Passwörter stimmen nicht überein.' })
+      setMessage({ kind: 'err', text: t('mismatch') })
       return
     }
 
@@ -176,16 +175,16 @@ function PasswordSection() {
       if (!res.ok || !json.success) {
         setMessage({
           kind: 'err',
-          text: json.error || 'Passwort konnte nicht geändert werden.',
+          text: json.error || t('changeFailed'),
         })
       } else {
-        setMessage({ kind: 'ok', text: 'Passwort wurde aktualisiert.' })
+        setMessage({ kind: 'ok', text: t('updated') })
         setCurrent('')
         setNext('')
         setConfirm('')
       }
     } catch {
-      setMessage({ kind: 'err', text: 'Netzwerkfehler.' })
+      setMessage({ kind: 'err', text: t('network') })
     } finally {
       setSaving(false)
     }
@@ -193,11 +192,9 @@ function PasswordSection() {
 
   return (
     <Card>
-      <h2 className="text-lg font-semibold text-brand-text">
-        Passwort ändern
-      </h2>
+      <h2 className="text-lg font-semibold text-brand-text">{t('title')}</h2>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-        <Field label="Aktuelles Passwort">
+        <Field label={t('currentLabel')}>
           <input
             type="password"
             value={current}
@@ -207,7 +204,7 @@ function PasswordSection() {
             className="w-full rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm text-brand-text focus:border-brand-gold focus:outline-none"
           />
         </Field>
-        <Field label="Neues Passwort">
+        <Field label={t('newLabel')}>
           <input
             type="password"
             value={next}
@@ -217,11 +214,9 @@ function PasswordSection() {
             required
             className="w-full rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm text-brand-text focus:border-brand-gold focus:outline-none"
           />
-          <p className="mt-1 text-xs text-brand-muted">
-            Mindestens 8 Zeichen.
-          </p>
+          <p className="mt-1 text-xs text-brand-muted">{t('newHint')}</p>
         </Field>
-        <Field label="Neues Passwort bestätigen">
+        <Field label={t('confirmLabel')}>
           <input
             type="password"
             value={confirm}
@@ -248,7 +243,7 @@ function PasswordSection() {
           disabled={saving || !current || !next || !confirm}
           className="inline-flex items-center justify-center rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {saving ? 'Wird gespeichert…' : 'Passwort ändern'}
+          {saving ? t('saving') : t('changeButton')}
         </button>
       </form>
     </Card>
@@ -256,20 +251,19 @@ function PasswordSection() {
 }
 
 function DeleteAccountSection() {
+  const t = useTranslations('dashboard.settings.delete')
   const [showModal, setShowModal] = useState(false)
 
   return (
     <Card>
-      <h2 className="text-lg font-semibold text-brand-text">Konto löschen</h2>
-      <p className="mt-2 text-sm text-brand-muted">
-        Ihr Konto und alle zugehörigen Daten werden dauerhaft entfernt.
-      </p>
+      <h2 className="text-lg font-semibold text-brand-text">{t('title')}</h2>
+      <p className="mt-2 text-sm text-brand-muted">{t('hint')}</p>
       <button
         type="button"
         onClick={() => setShowModal(true)}
         className="mt-4 inline-flex items-center justify-center rounded-lg border border-brand-red px-5 py-2 text-sm font-semibold text-brand-red hover:bg-brand-red hover:text-white"
       >
-        Konto löschen
+        {t('button')}
       </button>
 
       {showModal && (
@@ -284,29 +278,28 @@ function DeleteAccountSection() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-semibold text-brand-text">
-              Konto löschen
+              {t('modalTitle')}
             </h3>
             <p className="mt-3 text-sm text-brand-text">
-              Bitte kontaktieren Sie uns unter{' '}
-              <a
-                href="mailto:contact@deutschtest.pro"
-                className="font-semibold text-brand-gold hover:text-brand-gold-dark"
-              >
-                contact@deutschtest.pro
-              </a>
-              , um Ihr Konto zu löschen.
+              {t.rich('modalBody', {
+                email: (chunks) => (
+                  <a
+                    href="mailto:contact@deutschtest.pro"
+                    className="font-semibold text-brand-gold hover:text-brand-gold-dark"
+                  >
+                    {chunks}
+                  </a>
+                ),
+              })}
             </p>
-            <p className="mt-2 text-xs text-brand-muted">
-              Wir bestätigen die Löschung manuell, um versehentliche Anfragen
-              zu vermeiden.
-            </p>
+            <p className="mt-2 text-xs text-brand-muted">{t('modalHint')}</p>
             <div className="mt-5 flex justify-end">
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
                 className="rounded-lg border border-brand-border bg-brand-white px-4 py-2 text-sm font-semibold text-brand-text hover:bg-brand-surface"
               >
-                Schließen
+                {t('close')}
               </button>
             </div>
           </div>

@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/routing'
 import {
   CartesianGrid,
   Legend,
@@ -19,13 +20,6 @@ import type {
   Trend,
 } from '@/lib/dashboard/progress'
 
-const MODULE_LABELS: Record<ProgressModule, string> = {
-  lesen: 'Lesen',
-  horen: 'Hören',
-  schreiben: 'Schreiben',
-  sprechen: 'Sprechen',
-}
-
 const MODULE_COLORS: Record<ProgressModule, string> = {
   lesen: '#C8A84B',
   horen: '#3B82F6',
@@ -35,19 +29,10 @@ const MODULE_COLORS: Record<ProgressModule, string> = {
 
 const MODULES: ProgressModule[] = ['lesen', 'horen', 'schreiben', 'sprechen']
 
-const TREND_LABELS: Record<Trend, { text: string; className: string }> = {
-  improving: {
-    text: 'Verbessert sich',
-    className: 'bg-green-50 text-green-700',
-  },
-  stable: {
-    text: 'Stabil',
-    className: 'bg-brand-surface text-brand-muted',
-  },
-  declining: {
-    text: 'Verschlechtert sich',
-    className: 'bg-red-50 text-brand-red',
-  },
+const TREND_CLASSES: Record<Trend, string> = {
+  improving: 'bg-green-50 text-green-700',
+  stable: 'bg-brand-surface text-brand-muted',
+  declining: 'bg-red-50 text-brand-red',
 }
 
 function formatDay(iso: string): string {
@@ -81,6 +66,8 @@ function buildChartData(points: ProgressPoint[]): ChartPoint[] {
 }
 
 export function ProgressView() {
+  const t = useTranslations('dashboard.progress')
+  const tModules = useTranslations('modules')
   const [data, setData] = useState<ProgressData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -95,14 +82,14 @@ export function ProgressView() {
         const json = await res.json()
         if (!active) return
         if (!res.ok || !json.success) {
-          setError(json.error || 'Fortschrittsdaten konnten nicht geladen werden.')
+          setError(json.error || t('errors.loadFailed'))
           return
         }
         setData(json.data as ProgressData)
       })
       .catch(() => {
         if (!active) return
-        setError('Netzwerkfehler beim Laden der Fortschrittsdaten.')
+        setError(t('errors.network'))
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -111,7 +98,7 @@ export function ProgressView() {
     return () => {
       active = false
     }
-  }, [])
+  }, [t])
 
   const chartData = useMemo(
     () => (data ? buildChartData(data.points) : []),
@@ -130,11 +117,8 @@ export function ProgressView() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Fortschritt</h1>
-        <p className="mt-1 text-sm text-brand-muted">
-          Graphische Auswertung Ihrer Ergebnisse über die Zeit, nach Modul
-          aufgeschlüsselt.
-        </p>
+        <h1 className="text-2xl font-bold text-brand-text">{t('title')}</h1>
+        <p className="mt-1 text-sm text-brand-muted">{t('subtitle')}</p>
       </div>
 
       {loading && (
@@ -152,16 +136,16 @@ export function ProgressView() {
       {!loading && !error && data && data.points.length < 2 && (
         <div className="rounded-2xl bg-brand-white px-6 py-16 text-center shadow-soft">
           <p className="text-sm font-medium text-brand-text">
-            Absolvieren Sie mindestens 2 Module, um Ihren Fortschritt zu sehen
+            {t('empty.title')}
           </p>
           <p className="mt-2 text-xs text-brand-muted">
-            Bereits absolviert: {data.points.length}
+            {t('empty.completed', { count: data.points.length })}
           </p>
           <Link
             href="/dashboard"
             className="mt-6 inline-block rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark"
           >
-            Zum Dashboard
+            {t('empty.toDashboard')}
           </Link>
         </div>
       )}
@@ -171,8 +155,8 @@ export function ProgressView() {
           <StatsRow data={data} />
 
           <ChartCard
-            title="Punktzahl über die Zeit"
-            subtitle="Alle Module kombiniert, sortiert nach Abschlussdatum."
+            title={t('charts.scoreTime.title')}
+            subtitle={t('charts.scoreTime.subtitle')}
           >
             <ResponsiveContainer width="100%" height={280}>
               <LineChart
@@ -196,7 +180,10 @@ export function ProgressView() {
                     border: '1px solid #E0DDD6',
                     fontSize: 12,
                   }}
-                  formatter={(value) => [`${value}`, 'Punkte']}
+                  formatter={(value) => [
+                    `${value}`,
+                    t('charts.scoreTime.pointsLabel'),
+                  ]}
                 />
                 <Line
                   type="monotone"
@@ -206,15 +193,15 @@ export function ProgressView() {
                   dot={{ r: 4, fill: '#C8A84B' }}
                   activeDot={{ r: 6 }}
                   connectNulls
-                  name="Punkte"
+                  name={t('charts.scoreTime.pointsLabel')}
                 />
               </LineChart>
             </ResponsiveContainer>
           </ChartCard>
 
           <ChartCard
-            title="Aufschlüsselung nach Modul"
-            subtitle="Jede Linie folgt den Ergebnissen eines Moduls."
+            title={t('charts.byModule.title')}
+            subtitle={t('charts.byModule.subtitle')}
           >
             <ResponsiveContainer width="100%" height={320}>
               <LineChart
@@ -250,7 +237,7 @@ export function ProgressView() {
                     dot={{ r: 3 }}
                     activeDot={{ r: 5 }}
                     connectNulls
-                    name={MODULE_LABELS[m]}
+                    name={tModules(m)}
                   />
                 ))}
               </LineChart>
@@ -259,8 +246,8 @@ export function ProgressView() {
 
           {showLevelChart && (
             <ChartCard
-              title="Durchschnitt nach Niveau"
-              subtitle="Durchschnittliche Punktzahl über alle Module je Niveau."
+              title={t('charts.byLevel.title')}
+              subtitle={t('charts.byLevel.subtitle')}
             >
               <div className="space-y-3">
                 {data.levelAverages.map((lvl) => (
@@ -270,8 +257,10 @@ export function ProgressView() {
                         {lvl.level}
                       </span>
                       <span className="text-brand-muted">
-                        {lvl.averageScore} · {lvl.attempts} Modul
-                        {lvl.attempts === 1 ? '' : 'e'}
+                        {t('charts.byLevel.row', {
+                          score: lvl.averageScore,
+                          attempts: lvl.attempts,
+                        })}
                       </span>
                     </div>
                     <div className="h-2 w-full overflow-hidden rounded-full bg-brand-surface">
@@ -292,36 +281,44 @@ export function ProgressView() {
 }
 
 function StatsRow({ data }: { data: ProgressData }) {
-  const trendInfo = TREND_LABELS[data.monthlyTrend.trend]
+  const t = useTranslations('dashboard.progress.stats')
+  const tModules = useTranslations('modules')
+  const trendClass = TREND_CLASSES[data.monthlyTrend.trend]
+  const trendText = t(`trend.${data.monthlyTrend.trend}`)
+  const delta = data.monthlyTrend.delta
   const deltaText =
-    data.monthlyTrend.delta === null
-      ? 'Noch keine Daten aus dem Vormonat'
-      : data.monthlyTrend.delta === 0
-        ? 'Keine Veränderung'
-        : `${data.monthlyTrend.delta > 0 ? '+' : ''}${data.monthlyTrend.delta} Punkte vs. Vormonat`
+    delta === null
+      ? t('noPrevMonth')
+      : delta === 0
+        ? t('noChange')
+        : delta > 0
+          ? t('deltaPositive', { delta })
+          : t('deltaNegative', { delta })
 
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-      <StatCard label="Trend letzter Monat">
+      <StatCard label={t('trendLabel')}>
         <div className="flex items-center gap-2">
           <span
-            className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${trendInfo.className}`}
+            className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${trendClass}`}
           >
-            {trendInfo.text}
+            {trendText}
           </span>
         </div>
         <p className="mt-2 text-xs text-brand-muted">{deltaText}</p>
       </StatCard>
 
-      <StatCard label="Stärkstes Modul">
+      <StatCard label={t('strongestModule')}>
         {data.strongestModule ? (
           <>
             <p className="text-xl font-bold text-brand-text">
-              {MODULE_LABELS[data.strongestModule.module]}
+              {tModules(data.strongestModule.module)}
             </p>
             <p className="mt-1 text-xs text-brand-muted">
-              Ø {data.strongestModule.averageScore} · {data.strongestModule.attempts} Modul
-              {data.strongestModule.attempts === 1 ? '' : 'e'}
+              {t('avgLine', {
+                avg: data.strongestModule.averageScore,
+                attempts: data.strongestModule.attempts,
+              })}
             </p>
           </>
         ) : (
@@ -329,15 +326,17 @@ function StatsRow({ data }: { data: ProgressData }) {
         )}
       </StatCard>
 
-      <StatCard label="Problemmodul">
+      <StatCard label={t('weakestModule')}>
         {data.weakestModule ? (
           <>
             <p className="text-xl font-bold text-brand-text">
-              {MODULE_LABELS[data.weakestModule.module]}
+              {tModules(data.weakestModule.module)}
             </p>
             <p className="mt-1 text-xs text-brand-muted">
-              Ø {data.weakestModule.averageScore} · {data.weakestModule.attempts} Modul
-              {data.weakestModule.attempts === 1 ? '' : 'e'}
+              {t('avgLine', {
+                avg: data.weakestModule.averageScore,
+                attempts: data.weakestModule.attempts,
+              })}
             </p>
           </>
         ) : (
