@@ -1,1 +1,756 @@
-{}
+{
+  "common": {
+    "appName": "DeutschTest.pro",
+    "appNameHighlight": ".pro",
+    "loading": "Loading…",
+    "or": "Or"
+  },
+  "nav": {
+    "login": "Log in",
+    "register": "Sign up",
+    "dashboard": "My account",
+    "logout": "Log out",
+    "greeting": "Hi, <name>{email}</name>!"
+  },
+  "modules": {
+    "lesen": "Lesen",
+    "horen": "Hören",
+    "schreiben": "Schreiben",
+    "sprechen": "Sprechen"
+  },
+  "landing": {
+    "metadata": {
+      "title": "DeutschTest.pro — AI Simulator for the Goethe-Zertifikat",
+      "description": "Prepare for the Goethe-Zertifikat with AI-generated exams. Lesen, Hören, Schreiben, Sprechen — all on one platform."
+    },
+    "hero": {
+      "badge": "AI-powered exam prep",
+      "titlePart1": "Pass the",
+      "titleHighlight": "Goethe-Zertifikat",
+      "titlePart2": "on your first try",
+      "subtitle": "Realistic exam simulation with AI-generated tasks, automatic scoring and detailed feedback.",
+      "subtitleGuest": "Sign up and get a free test.",
+      "subtitleFreeAvailable": "Your free trial test is waiting for you.",
+      "subtitlePaidTests": "{count, plural, one {You have # test available.} other {You have # tests available.}}",
+      "subtitleModules": "Module credits: {count} (1 credit per module)",
+      "ctaRegister": "Sign up free & try it",
+      "ctaSelectModule": "Choose a module",
+      "ctaStart": "Start test — {level}",
+      "ctaBuy": "Buy tests",
+      "ctaGenerating": "AI is generating the exam…",
+      "levels": {
+        "a1": "Start Deutsch 1",
+        "a2": "Goethe-Zertifikat A2",
+        "b1": "Goethe-Zertifikat B1"
+      },
+      "modules": {
+        "lesen": "Lesen",
+        "horen": "Hören",
+        "schreiben": "Schreiben",
+        "sprechen": "Sprechen",
+        "durationLesen": "65 min",
+        "durationHoren": "40 min",
+        "durationSchreiben": "60 min",
+        "durationSprechen": "15 min"
+      },
+      "modulesHint": "💡 Pick a single module for focused practice. 1 credit = 1 module.",
+      "buyPrompt": "You've already used your free test. Buy more tests to keep going.",
+      "loadingHint": "Generating the module — please wait a moment…",
+      "errors": {
+        "noCredits": "You have no module credits left. Please buy more credits.",
+        "insufficientBalanceFallback": "Not enough module credits.",
+        "generateFailed": "Couldn't generate the exam. Please try again in a bit."
+      },
+      "stats": {
+        "levels": "Levels",
+        "modules": "Modules",
+        "aiLabel": "AI",
+        "ai": "scoring"
+      }
+    },
+    "features": {
+      "title": "All four modules. One platform.",
+      "subtitle": "Every module follows the Goethe-Zertifikat format exactly.",
+      "items": {
+        "lesen": {
+          "title": "Lesen",
+          "description": "AI-generated reading texts with multiple-choice and true/false tasks — just like the real Goethe-Zertifikat."
+        },
+        "horen": {
+          "title": "Hören",
+          "description": "Professionally voiced listening texts with realistic voices. No rewinding — just like the real exam."
+        },
+        "schreiben": {
+          "title": "Schreiben",
+          "description": "Writing tasks with AI scoring based on official criteria: task fulfillment, coherence, vocabulary, grammar."
+        },
+        "sprechen": {
+          "title": "Sprechen",
+          "description": "Oral exam with voice recording and AI analysis. Pronunciation, fluency and grammar are all scored."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Simple pricing",
+      "subtitle": "Start free, upgrade when you're ready.",
+      "plans": {
+        "probe": {
+          "name": "Trial",
+          "price": "Free",
+          "period": "",
+          "description": "Try the platform with one free trial exam.",
+          "feature1": "1 trial exam (all modules)",
+          "feature2": "AI scoring",
+          "feature3": "Basic feedback",
+          "cta": "Start free"
+        },
+        "premium": {
+          "name": "Premium",
+          "price": "€19",
+          "period": "/month",
+          "description": "Unlimited exams with detailed AI feedback.",
+          "feature1": "Unlimited exams",
+          "feature2": "All levels (A1–B1)",
+          "feature3": "Detailed AI feedback",
+          "feature4": "Progress analytics",
+          "feature5": "Priority support",
+          "cta": "Go Premium"
+        }
+      }
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "items": {
+        "realism": {
+          "q": "How realistic are the exams?",
+          "a": "Our AI generates tasks that match the official Goethe-Zertifikat format and difficulty exactly. Format, timing and scoring criteria are replicated 1:1."
+        },
+        "levels": {
+          "q": "Which levels are supported?",
+          "a": "Right now we support A1 (Start Deutsch 1), A2 (Goethe-Zertifikat A2) and B1 (Goethe-Zertifikat B1). More levels are coming."
+        },
+        "aiScoring": {
+          "q": "How does AI scoring work?",
+          "a": "Lesen and Hören are scored automatically. For Schreiben and Sprechen the AI analyzes your answers against the official Goethe criteria and gives detailed feedback."
+        },
+        "singleModules": {
+          "q": "Can I practice single modules?",
+          "a": "Yes — you can take a full exam or practice any single module (Lesen, Hören, Schreiben or Sprechen) on its own."
+        },
+        "microphone": {
+          "q": "Do I need a microphone for the Sprechen module?",
+          "a": "Yes, the Sprechen module needs a mic. Most laptops and phones have a built-in one that works fine."
+        }
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "welcome": "Welcome back to DeutschTest.pro",
+      "googleButton": "Log in with Google",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@email.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Log in",
+      "submitting": "Logging in…",
+      "noAccount": "No account yet?",
+      "registerLink": "Sign up",
+      "loadingFallback": "Loading…"
+    },
+    "register": {
+      "title": "Sign up",
+      "subtitle": "Create your DeutschTest.pro account",
+      "googleButton": "Sign up with Google",
+      "emailLabel": "Email",
+      "emailPlaceholder": "your.email@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "passwordHint": "We'll send a confirmation email so you can verify your address.",
+      "submitButton": "Sign up",
+      "submitting": "Signing up…",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "successTitle": "Confirmation needed",
+      "successBody": "We sent a confirmation email to <strong>{email}</strong>. Open the link in it to activate your account.",
+      "successBonus": "After you confirm, you'll get <strong>3 free modules</strong> to try the platform. Check your spam folder too.",
+      "successLoginLink": "Go to login",
+      "errors": {
+        "passwordTooShort": "Password must be at least 8 characters.",
+        "captchaRequired": "Please complete the captcha.",
+        "registrationFailed": "Sign-up failed",
+        "network": "Network error. Please try again."
+      }
+    }
+  },
+  "pricing": {
+    "header": {
+      "loginLink": "Log in"
+    },
+    "title": "Buy tests",
+    "subtitle": "Pick the right pack for your exam prep. Every test includes all modules: Lesen, Hören, Schreiben, Sprechen.",
+    "freeAvailable": "You still have a <strong>free test</strong> available!",
+    "freeAvailableCta": "Take it free now →",
+    "paidAvailable": "{count, plural, one {You have <strong># test</strong> available.} other {You have <strong># tests</strong> available.}}",
+    "paidAvailableCta": "Start test →",
+    "packages": {
+      "single": {
+        "name": "1 test",
+        "priceNote": "one-time",
+        "feature1": "1 full exam",
+        "feature2": "All 4 modules",
+        "feature3": "AI scoring & feedback"
+      },
+      "pack5": {
+        "name": "5 tests",
+        "priceNote": "Save pack",
+        "badge": "Popular",
+        "feature1": "5 full exams",
+        "feature2": "All 4 modules",
+        "feature3": "AI scoring & feedback",
+        "feature4": "Progress analytics"
+      },
+      "pack10": {
+        "name": "10 tests",
+        "priceNote": "Best deal",
+        "badge": "-34%",
+        "feature1": "10 full exams",
+        "feature2": "All 4 modules",
+        "feature3": "AI scoring & feedback",
+        "feature4": "Progress analytics",
+        "feature5": "Priority support"
+      }
+    },
+    "ctaBuy": "Buy (coming soon)",
+    "footnote": "Secure checkout. All prices include VAT. Tests are valid for 30 days."
+  },
+  "dashboard": {
+    "shell": {
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "backHome": "← Back to home",
+      "logout": "Log out",
+      "nav": {
+        "dashboard": "Dashboard",
+        "history": "History",
+        "progress": "Progress",
+        "recommendations": "Recommendations",
+        "payments": "Payments",
+        "settings": "Settings"
+      }
+    },
+    "overview": {
+      "title": "Welcome back",
+      "subtitle": "Your personal learning space — stats and new exams.",
+      "metrics": {
+        "modulesTaken": "Modules taken",
+        "averageScore": "Average score",
+        "bestScore": "Best result",
+        "lastModule": "Last module",
+        "credits": "Credits available"
+      },
+      "outOf100": "out of 100",
+      "noAttempts": "No attempts yet",
+      "adminMode": "Admin mode",
+      "creditHint": "1 credit = 1 module"
+    },
+    "launcher": {
+      "title": "Start a new test",
+      "subtitle": "Pick a level and a module — 1 credit per module.",
+      "levelLabel": "Level",
+      "moduleLabel": "Module",
+      "chooseModule": "Choose a module",
+      "startButton": "Start — {level}",
+      "generating": "AI is generating the exam…",
+      "buyModules": "Buy modules",
+      "adminUnlimited": "Admin mode — unlimited",
+      "creditsAvailable": "Credits available: {count}",
+      "insufficientBalance": "Not enough module credits.",
+      "generateFailed": "Couldn't generate the exam. Please try again in a bit.",
+      "levels": {
+        "a1": "Start Deutsch 1",
+        "a2": "Goethe-Zertifikat A2",
+        "b1": "Goethe-Zertifikat B1"
+      },
+      "modules": {
+        "lesen": "Lesen",
+        "horen": "Hören",
+        "schreiben": "Schreiben",
+        "sprechen": "Sprechen"
+      },
+      "durations": {
+        "lesen": "65 min",
+        "horen": "40 min",
+        "schreiben": "60 min",
+        "sprechen": "15 min"
+      }
+    },
+    "history": {
+      "title": "History",
+      "subtitle": "All completed modules, filtered by level, module and date.",
+      "filters": {
+        "level": "Level",
+        "module": "Module",
+        "dateFrom": "From",
+        "dateTo": "To",
+        "allLevels": "All levels",
+        "allModules": "All modules",
+        "reset": "Reset filters"
+      },
+      "table": {
+        "date": "Date",
+        "level": "Level",
+        "module": "Module",
+        "score": "Score",
+        "status": "Status",
+        "detailsLink": "Details →"
+      },
+      "empty": {
+        "withFilters": "No modules match your filters.",
+        "withFiltersHint": "Change the filters or reset them.",
+        "noAttempts": "You haven't taken any modules yet",
+        "noAttemptsHint": "Start a module from the dashboard.",
+        "toDashboard": "Go to dashboard"
+      },
+      "status": {
+        "free": "Free",
+        "paid": "Paid"
+      },
+      "errors": {
+        "loadFailed": "Couldn't load history.",
+        "network": "Network error while loading history."
+      }
+    },
+    "testDetail": {
+      "backToHistory": "← Back to history",
+      "backToHistoryButton": "Back to history",
+      "toHistory": "Go to history",
+      "certificateHeading": "Goethe-Zertifikat {level} — {module}",
+      "outOf100": "out of 100 points",
+      "passed": "Passed ✅",
+      "failed": "Not passed ❌",
+      "submittedAt": "Submitted on {date} · {status}",
+      "retakeModule": "Retake module",
+      "errors": {
+        "forbidden": "You don't have access to this module.",
+        "notSubmitted": "This module hasn't been submitted yet.",
+        "notFound": "Module not found."
+      },
+      "lesenHoren": {
+        "summary": "{module} — summary",
+        "correct": "correct",
+        "wrong": "wrong",
+        "total": "total",
+        "allAnswers": "All answers",
+        "yourAnswerLabel": "Yours:",
+        "correctAnswerLabel": "Correct:",
+        "taskLabel": "Task {id}",
+        "allCorrect": "All answers correct — great job!",
+        "noDetails": "No detailed answers saved."
+      },
+      "schreiben": {
+        "task": "Task",
+        "criteria": "Criteria-based scoring",
+        "aiFeedback": "AI feedback",
+        "noFeedback": "No detailed feedback available.",
+        "taskFulfillment": "Task fulfillment",
+        "coherence": "Coherence",
+        "vocabulary": "Vocabulary",
+        "grammar": "Grammar"
+      },
+      "sprechen": {
+        "tasks": "Tasks",
+        "teilLabel": "Teil {n} · {type}",
+        "criteria": "Criteria-based scoring",
+        "aiFeedback": "AI feedback",
+        "noFeedback": "No detailed feedback available.",
+        "taskFulfillment": "Task fulfillment",
+        "fluency": "Fluency",
+        "vocabulary": "Vocabulary",
+        "grammar": "Grammar",
+        "pronunciation": "Pronunciation"
+      }
+    },
+    "progress": {
+      "title": "Progress",
+      "subtitle": "Visual breakdown of your results over time, module by module.",
+      "empty": {
+        "title": "Take at least 2 modules to see your progress",
+        "completed": "Taken so far: {count}",
+        "toDashboard": "Go to dashboard"
+      },
+      "errors": {
+        "loadFailed": "Couldn't load progress data.",
+        "network": "Network error while loading progress."
+      },
+      "stats": {
+        "trendLabel": "Trend last month",
+        "strongestModule": "Strongest module",
+        "weakestModule": "Weakest module",
+        "trend": {
+          "improving": "Improving",
+          "stable": "Stable",
+          "declining": "Declining"
+        },
+        "noPrevMonth": "No data from last month yet",
+        "noChange": "No change",
+        "deltaPositive": "+{delta} points vs. last month",
+        "deltaNegative": "{delta} points vs. last month",
+        "avgLine": "Avg {avg} · {attempts, plural, one {# module} other {# modules}}"
+      },
+      "charts": {
+        "scoreTime": {
+          "title": "Score over time",
+          "subtitle": "All modules combined, sorted by completion date.",
+          "pointsLabel": "Points"
+        },
+        "byModule": {
+          "title": "Breakdown by module",
+          "subtitle": "Each line tracks the results of one module."
+        },
+        "byLevel": {
+          "title": "Average by level",
+          "subtitle": "Average score across all modules for each level.",
+          "row": "{score} · {attempts, plural, one {# module} other {# modules}}"
+        }
+      }
+    },
+    "recommendations": {
+      "title": "Recommendations",
+      "subtitle": "Personal study tips based on your past modules.",
+      "loading": "Loading recommendations…",
+      "refreshing": "Generating new recommendations…",
+      "refreshButton": "Refresh recommendations",
+      "refreshingButton": "Refreshing…",
+      "retry": "Try again",
+      "empty": {
+        "title": "Take at least one module to get personalized recommendations",
+        "hint": "Once you finish a module, we'll analyze your results and put together a personal study plan.",
+        "toDashboard": "Go to dashboard"
+      },
+      "sections": {
+        "overall": "Overall assessment",
+        "strengths": "Strengths",
+        "weaknesses": "Weaknesses",
+        "studyPlan": "Your study plan",
+        "motivation": "Motivation"
+      },
+      "modulesCount": "{count, plural, one {# module} other {# modules}} considered",
+      "cachedAt": "Saved on {date}",
+      "generatedAt": "Created on {date}",
+      "errors": {
+        "loadFailed": "Couldn't load recommendations.",
+        "network": "Network error while loading recommendations."
+      }
+    },
+    "payments": {
+      "title": "Payments",
+      "subtitle": "Your balance, purchase options and payment history.",
+      "currentBalance": "Current balance",
+      "balanceUnlimited": "Unlimited",
+      "balanceUnit": "{count, plural, one {module} other {modules}}",
+      "adminHint": "Admin mode — no limits.",
+      "creditExplanation": "1 credit is one exam module (Lesen, Hören, Schreiben or Sprechen).",
+      "buyTitle": "Buy modules",
+      "buyHint": "Pick a package — purchased modules can be used freely across Lesen, Hören, Schreiben and Sprechen.",
+      "viewPackages": "View packages",
+      "historyTitle": "Payment history",
+      "historyEmpty": "No payments yet",
+      "historyHint": "Payment history will show up once the payment system is live."
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Manage profile, password and account.",
+      "profile": {
+        "title": "Profile",
+        "emailLabel": "Email",
+        "emailHint": "Email can't be changed right now.",
+        "nameLabel": "Name",
+        "namePlaceholder": "What should we call you?",
+        "saveButton": "Save",
+        "saving": "Saving…",
+        "saved": "Name saved.",
+        "saveFailed": "Save failed.",
+        "network": "Network error."
+      },
+      "password": {
+        "title": "Change password",
+        "externalTitle": "Password",
+        "externalText": "You signed in with an external provider (like Google). Your password is managed by that provider.",
+        "currentLabel": "Current password",
+        "newLabel": "New password",
+        "newHint": "At least 8 characters.",
+        "confirmLabel": "Confirm new password",
+        "changeButton": "Change password",
+        "saving": "Saving…",
+        "updated": "Password updated.",
+        "tooShort": "New password must be at least 8 characters.",
+        "mismatch": "Passwords don't match.",
+        "changeFailed": "Couldn't change password.",
+        "network": "Network error."
+      },
+      "delete": {
+        "title": "Delete account",
+        "hint": "Your account and all related data will be permanently removed.",
+        "button": "Delete account",
+        "modalTitle": "Delete account",
+        "modalBody": "To delete your account, please email us at <email>contact@deutschtest.pro</email>.",
+        "modalHint": "We confirm deletions manually to prevent accidental requests.",
+        "close": "Close"
+      }
+    },
+    "placeholder": {
+      "soon": "This section is coming soon.",
+      "soonHint": "We're working on the next stage of your account."
+    }
+  },
+  "exam": {
+    "shell": {
+      "loading": "Loading exam…",
+      "notFound": "Session not found",
+      "back": "Back",
+      "certificate": "Goethe-Zertifikat {level}"
+    },
+    "timer": {
+      "warning5Minutes": "5 minutes left!",
+      "warning60Seconds": "60 seconds left!",
+      "dismiss": "OK",
+      "timeUpTitle": "Time's up",
+      "timeUpMessage": "Your answers are being submitted automatically.",
+      "redirecting": "Redirecting…"
+    },
+    "answerSheet": {
+      "title": "Answer sheet"
+    },
+    "audio": {
+      "play": "Play",
+      "pause": "Pause",
+      "loading": "Loading",
+      "startRecording": "Start recording",
+      "stopRecording": "Stop recording",
+      "error": "Error",
+      "scriptHeader": "Audio {id} — {count, plural, one {# play} other {# plays}}"
+    },
+    "modules": {
+      "shared": {
+        "back": "← Back",
+        "next": "Next →",
+        "submitAll": "Submit all answers",
+        "submitting": "Checking…",
+        "toResults": "Go to results",
+        "example": "Example",
+        "gapLabel": "Gap ({id})",
+        "taskNumber": "Task {id}",
+        "teilLabel": "Teil {n}"
+      },
+      "lesen": {
+        "loading": "Loading Lesen module…",
+        "moduleTitle": "Lesen module",
+        "moduleHint": "65 minutes — 5 parts — 30 tasks",
+        "teil1": {
+          "title": "Teil 1",
+          "desc": "Read the text and the tasks. Are the statements true or false?",
+          "tag": "Blog post"
+        },
+        "teil2": {
+          "title": "Teil 2",
+          "desc": "Read the text and the tasks. Choose the right answer: a, b or c.",
+          "tag": "News article"
+        },
+        "teil3": {
+          "title": "Teil 3",
+          "desc": "Read the text and the tasks. Choose Ja or Nein.",
+          "tag": "Rules / regulations"
+        },
+        "teil4": {
+          "title": "Teil 4",
+          "desc": "Read the texts and the situations. Which text fits?",
+          "tag": "Ads / notices"
+        },
+        "teil5": {
+          "title": "Teil 5",
+          "desc": "Read the text and choose the right word for each gap.",
+          "tag": "Gap-fill text",
+          "exampleLabel": "Example — gap (0)"
+        },
+        "answers": {
+          "richtig": "Richtig",
+          "falsch": "Falsch",
+          "ja": "Ja",
+          "nein": "Nein"
+        }
+      },
+      "horen": {
+        "loading": "Loading Hören module…",
+        "moduleTitle": "Hören module",
+        "moduleHint": "40 minutes — 4 parts — 20 tasks",
+        "teil1": {
+          "title": "Teil 1",
+          "desc": "You'll hear five short texts. Each text plays twice. True or false?",
+          "tag": "Announcements"
+        },
+        "teil2": {
+          "title": "Teil 2",
+          "desc": "You'll hear a conversation. The text plays once. Choose a, b or c.",
+          "tag": "Interview"
+        },
+        "teil3": {
+          "title": "Teil 3",
+          "desc": "You'll hear a conversation. The text plays once. True or false?",
+          "tag": "Everyday conversation"
+        },
+        "teil4": {
+          "title": "Teil 4",
+          "desc": "You'll hear five short conversations. Each text plays twice. True or false?",
+          "tag": "Conversations"
+        },
+        "answers": {
+          "richtig": "Richtig",
+          "falsch": "Falsch"
+        }
+      },
+      "schreiben": {
+        "loading": "Loading Schreiben module…",
+        "moduleTitle": "Schreiben module",
+        "moduleHint": "60 minutes — written expression",
+        "task": "Task",
+        "requiredPoints": "Write about the following points:",
+        "yourText": "Your text",
+        "textPlaceholder": "Write your text here...",
+        "wordCount": "{count} / ~{target} words",
+        "wordCountFinal": "{count, plural, one {# word} other {# words}}",
+        "wordHint": {
+          "empty": "Start writing…",
+          "low": "Keep going!",
+          "almost": "Almost enough words.",
+          "enough": "Good length!"
+        },
+        "submitButton": "Submit text",
+        "submitting": "Scoring…",
+        "outOf100": "out of 100 points",
+        "aiFeedback": "AI feedback",
+        "errors": {
+          "scoring": "Scoring failed",
+          "network": "Network error"
+        },
+        "criteria": {
+          "taskFulfillment": "Task fulfillment",
+          "coherence": "Coherence",
+          "vocabulary": "Vocabulary",
+          "grammar": "Grammar"
+        }
+      },
+      "sprechen": {
+        "loading": "Loading Sprechen module…",
+        "moduleTitle": "Sprechen module",
+        "moduleHint": "Oral exam — 3 parts",
+        "slides": "Slides",
+        "pointsLabel": "Discussion points",
+        "clickToStart": "Click the button to start recording.",
+        "startRecording": "Start recording",
+        "stopRecording": "Stop recording",
+        "recording": "Recording…",
+        "processing": {
+          "transcribing": "Recognizing speech…",
+          "scoring": "AI is scoring your answer…",
+          "stepTranscribing": "Automatic transcription…",
+          "stepScoring": "AI scoring your text…",
+          "stepFinalizing": "Almost done…"
+        },
+        "transcript": "Your transcript",
+        "outOf100": "out of 100 points",
+        "averagePer100": "/ 100 avg",
+        "aiFeedback": "AI feedback",
+        "toResults": "Go to results",
+        "errors": {
+          "transcribe": "Transcription failed",
+          "scoring": "Scoring failed",
+          "micDenied": "Microphone access denied",
+          "network": "Network error",
+          "saveFailed": "Save failed",
+          "aggregate": "No scorable recordings — please redo the parts that failed."
+        },
+        "teil": {
+          "planning": {
+            "title": "Teil 1 — Plan something together",
+            "desc": "Talk about the points below and plan together.",
+            "tag": "~3 minutes"
+          },
+          "presentation": {
+            "title": "Teil 2 — Present a topic",
+            "desc": "Give a short presentation based on the bullet points on the slides.",
+            "tag": "~3 minutes"
+          },
+          "reaction": {
+            "title": "Teil 3 — React to a presentation",
+            "desc": "Respond to the question and explain your opinion.",
+            "tag": "~2 minutes"
+          }
+        },
+        "criteria": {
+          "taskFulfillment": "Task fulfillment",
+          "fluency": "Fluency",
+          "vocabulary": "Vocabulary",
+          "grammar": "Grammar",
+          "pronunciation": "Pronunciation"
+        }
+      }
+    }
+  },
+  "results": {
+    "title": "Results",
+    "loading": "Loading results…",
+    "notFound": "No results found",
+    "notSubmitted": "The exam hasn't been submitted yet.",
+    "toHome": "Go to home",
+    "toDashboard": "Go to dashboard",
+    "retakeModule": "Retake module",
+    "certificateHeading": "Goethe-Zertifikat {level} — {module}",
+    "outOf100": "out of 100 points",
+    "passed": "Passed ✅",
+    "failed": "Not passed ❌",
+    "submittedAt": "Submitted on {date}",
+    "errors": {
+      "loadFailed": "Couldn't load results.",
+      "network": "Network error while loading results."
+    },
+    "lesenHoren": {
+      "title": "{module} — detailed results",
+      "correct": "correct",
+      "wrong": "wrong",
+      "total": "total",
+      "wrongAnswers": "Wrong answers",
+      "taskLabel": "Task {id}",
+      "yourAnswerLabel": "Yours:",
+      "correctAnswerLabel": "Correct:"
+    },
+    "schreiben": {
+      "title": "Schreiben — scoring",
+      "aiFeedback": "AI feedback",
+      "taskFulfillment": "Task fulfillment",
+      "coherence": "Coherence",
+      "vocabulary": "Vocabulary",
+      "grammar": "Grammar"
+    },
+    "sprechen": {
+      "title": "Sprechen — scoring",
+      "aiFeedback": "AI feedback",
+      "taskFulfillment": "Task fulfillment",
+      "fluency": "Fluency",
+      "vocabulary": "Vocabulary",
+      "grammar": "Grammar",
+      "pronunciation": "Pronunciation"
+    },
+    "retakeModal": {
+      "title": "Retake module",
+      "body": "You're starting a new {module} exam with completely new tasks. <b>1 module</b> will be deducted from your balance for this.",
+      "balance": "Current balance: <b>{current, plural, one {# module} other {# modules}}</b> → after starting: <b>{next, plural, one {# module} other {# modules}}</b>",
+      "cancel": "Cancel",
+      "confirm": "Yes, start",
+      "confirming": "Starting…",
+      "errorFallback": "Error while creating the new exam",
+      "errorNetwork": "Network error"
+    }
+  }
+}
