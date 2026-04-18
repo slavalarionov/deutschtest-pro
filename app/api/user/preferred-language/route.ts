@@ -27,7 +27,13 @@ export async function POST(req: NextRequest) {
 
     const { error } = await supabase
       .from('profiles')
-      .update({ preferred_language: parsed.data.language })
+      .update({
+        preferred_language: parsed.data.language,
+        cached_recommendations: null,
+        cached_recommendations_language: null,
+        recommendations_attempts_count: null,
+        recommendations_generated_at: null,
+      })
       .eq('id', user.id)
 
     if (error) {
