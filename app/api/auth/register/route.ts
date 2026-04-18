@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createServerClient as createSupabaseAdmin } from '@/lib/supabase-server'
-import { createClient as createSupabaseSSR } from '@/lib/supabase/server'
 import { normalizeEmail } from '@/lib/email-normalize'
 import { rateLimit, getClientIp } from '@/lib/rate-limit'
+import { sendConfirmationEmail, type EmailLocale } from '@/lib/email'
 
 const REGISTER_API_HEADER = 'X-Deutschtest-Register-Api'
-const REGISTER_API_VALUE = 'v3-signup-confirm'
+const REGISTER_API_VALUE = 'v4-resend-confirm'
 
 const bodySchema = z.object({
   email: z.string().email(),
@@ -109,27 +109,41 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Стандартный signUp: Supabase сам пришлёт confirmation email, юзер подтвердит
-    // через /auth/callback, `email_confirmed_at` проставится только после клика.
-    const supabase = await createSupabaseSSR()
+    // generateLink создаёт юзера (неподтверждённого) и возвращает confirmation link,
+    // НЕ инициируя Supabase-отправку email. Наш Resend отправляет единственное письмо
+    // на языке профиля. См. lib/email.ts.
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(req.url).origin
-    const { error: signUpError } = await supabase.auth.signUp({
+    const language: EmailLocale = preferredLanguage ?? 'de'
+    const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+      type: 'signup',
       email,
       password,
       options: {
-        emailRedirectTo: `${baseUrl}/auth/callback`,
+        redirectTo: `${baseUrl}/auth/callback`,
         data: {
-          preferred_language: preferredLanguage ?? 'de',
+          preferred_language: language,
         },
       },
     })
 
-    if (signUpError) {
-      const msg = signUpError.message || 'Registrierung fehlgeschlagen'
-      // Supabase возвращает 422 для «User already registered» — мапим на 409 для клиента.
-      const status = /already registered|already exists/i.test(msg) ? 409 : 400
+    if (linkError || !linkData?.properties?.action_link) {
+      const msg = linkError?.message || 'Registrierung fehlgeschlagen'
+      const status = /already registered|already exists|already been registered/i.test(msg)
+        ? 409
+        : 400
       const clientMsg = status === 409 ? 'Diese E-Mail ist bereits registriert.' : msg
       return registerJson({ error: clientMsg }, { status })
+    }
+
+    try {
+      await sendConfirmationEmail(email, linkData.properties.action_link, language)
+    } catch (e) {
+      // Юзер уже создан в auth.users. Письмо не ушло — не блокируем UX, но логируем громко.
+      // Пользователь увидит success-экран и сможет запросить новое письмо через /login.
+      console.error(
+        '[register] sendConfirmationEmail failed:',
+        e instanceof Error ? e.message : e,
+      )
     }
 
     return registerJson({
