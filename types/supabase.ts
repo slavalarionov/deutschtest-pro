@@ -116,6 +116,7 @@ export interface Database {
           recommendations_generated_at: string | null
           display_name: string | null
           preferred_language: 'de' | 'ru' | 'en' | 'tr'
+          cached_recommendations_language: 'de' | 'ru' | 'en' | 'tr' | null
         }
         Insert: {
           id: string
@@ -133,6 +134,7 @@ export interface Database {
           recommendations_generated_at?: string | null
           display_name?: string | null
           preferred_language?: 'de' | 'ru' | 'en' | 'tr'
+          cached_recommendations_language?: 'de' | 'ru' | 'en' | 'tr' | null
         }
         Update: {
           id?: string
@@ -150,6 +152,7 @@ export interface Database {
           recommendations_generated_at?: string | null
           display_name?: string | null
           preferred_language?: 'de' | 'ru' | 'en' | 'tr'
+          cached_recommendations_language?: 'de' | 'ru' | 'en' | 'tr' | null
         }
         Relationships: []
       }

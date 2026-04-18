@@ -17,7 +17,12 @@ import { buildSchreibenPrompt } from '@/prompts/generation/schreiben'
 import { buildSprechenPrompt } from '@/prompts/generation/sprechen'
 import { buildSchreibenScorePrompt } from '@/prompts/scoring/schreiben-score'
 import { buildSprechenScorePrompt } from '@/prompts/scoring/sprechen-score'
-import { getRecommendationsPrompt, type RecommendationsInput } from '@/prompts/recommendations'
+import {
+  getRecommendationsPrompt,
+  LANGUAGE_NAME,
+  type RecommendationsInput,
+} from '@/prompts/recommendations'
+import type { Locale } from '@/i18n/request'
 import { pickRandomTopic, type TopicData, type ExamLevelLower } from '@/lib/topic-sampler'
 import { horenDialogueEmotionSchema, normalizeDialogueEmotion } from '@/lib/horen-emotion'
 import { logAiUsage } from './ai-usage-logger'
@@ -831,16 +836,30 @@ const recommendationsSchema = z.object({
 
 export type Recommendations = z.infer<typeof recommendationsSchema>
 
-const SYSTEM_PROMPT_RECOMMENDATIONS = `Du bist ein erfahrener Lerncoach für Deutsch als Fremdsprache, spezialisiert auf das Goethe-Zertifikat.
-Du gibst ehrliche, datengetriebene und motivierende Empfehlungen, die genau auf die bisherigen Ergebnisse des Prüflings abgestimmt sind.
-Verwende ausschließlich das bereitgestellte Tool, um deine Empfehlungen strukturiert zurückzugeben.`
+function buildRecommendationsSystemPrompt(language: Locale): string {
+  return `You are an AI tutor for DeutschTest.pro, a Goethe-Zertifikat exam simulator. You analyze a learner's exam attempts and give personalized, data-driven, motivating recommendations.
+
+CRITICAL OUTPUT LANGUAGE: ${LANGUAGE_NAME[language]} (code: "${language}")
+- "de" → all string fields of the JSON response in German
+- "ru" → all string fields of the JSON response in Russian
+- "en" → all string fields of the JSON response in English
+- "tr" → all string fields of the JSON response in Turkish
+
+KEEP IN GERMAN regardless of output language (these are Goethe exam terms):
+Lesen, Hören, Schreiben, Sprechen, Teil 1-5, A1, A2, B1, Goethe-Zertifikat, DeutschTest.pro
+
+Tone: friendly, motivating, specific. Avoid generic phrases ("study more"), give concrete recommendations ("complete 3-4 Sprechen modules at A2/B1 to get familiar with the format").
+
+Return your answer exclusively via the provided tool.`
+}
 
 export async function generateRecommendations(
-  input: RecommendationsInput
+  input: RecommendationsInput,
+  language: Locale
 ): Promise<Recommendations> {
   return generateWithTool({
-    systemPrompt: SYSTEM_PROMPT_RECOMMENDATIONS,
-    userPrompt: getRecommendationsPrompt(input),
+    systemPrompt: buildRecommendationsSystemPrompt(language),
+    userPrompt: getRecommendationsPrompt(input, language),
     toolName: 'submit_recommendations',
     toolDescription:
       'Reicht personalisierte Lernempfehlungen für den Prüfling ein: Gesamteinschätzung, Stärken, Schwächen, Studienplan und Motivation.',

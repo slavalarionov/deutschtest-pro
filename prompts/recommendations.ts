@@ -1,6 +1,14 @@
 // Промпт для генерации персональных рекомендаций в /dashboard/recommendations.
-// Принимает краткую сводку всех user_attempts пользователя и просит Claude
-// дать общую оценку, сильные/слабые стороны, план и мотивацию — всё на немецком.
+// Принимает краткую сводку всех user_attempts пользователя и код языка вывода.
+// Claude возвращает overallAssessment / strengths / weaknesses / studyPlan /
+// motivation на языке пользователя. Данные о попытках остаются на немецком
+// (модуль, уровень, AI-фидбек) — это часть симуляции Goethe.
+//
+// Changelog:
+// - 2026-04-18: добавлен параметр language (de/ru/en/tr), инструкции о языке
+//   вывода вынесены в начало промпта, термины Goethe остаются на немецком.
+
+import type { Locale } from '@/i18n/request'
 
 export type RecommendationsModule = 'lesen' | 'horen' | 'schreiben' | 'sprechen'
 export type RecommendationsLevel = 'A1' | 'A2' | 'B1'
@@ -31,6 +39,13 @@ const MODULE_LABEL: Record<RecommendationsModule, string> = {
   sprechen: 'Sprechen',
 }
 
+export const LANGUAGE_NAME: Record<Locale, string> = {
+  de: 'German (Deutsch)',
+  ru: 'Russian (Русский)',
+  en: 'English',
+  tr: 'Turkish (Türkçe)',
+}
+
 function formatAttempt(a: RecommendationsAttemptSummary, idx: number): string {
   const date = new Date(a.submittedAt).toISOString().slice(0, 10)
   const base = `${idx + 1}. ${date} · ${a.level} · ${MODULE_LABEL[a.module]} · ${a.score}/100`
@@ -41,7 +56,10 @@ function formatAttempt(a: RecommendationsAttemptSummary, idx: number): string {
   return `${base}\n   Prüfer-Kommentar: ${shortened}`
 }
 
-export function getRecommendationsPrompt(input: RecommendationsInput): string {
+export function getRecommendationsPrompt(
+  input: RecommendationsInput,
+  language: Locale
+): string {
   const attemptsBlock = input.attempts.map(formatAttempt).join('\n')
 
   const moduleAveragesBlock = input.moduleAverages
@@ -55,7 +73,9 @@ export function getRecommendationsPrompt(input: RecommendationsInput): string {
   const strongest = input.strongestModule ? MODULE_LABEL[input.strongestModule] : '—'
   const weakest = input.weakestModule ? MODULE_LABEL[input.weakestModule] : '—'
 
-  return `Du bist ein erfahrener Lerncoach für Deutsch als Fremdsprache. Ein Prüfling trainiert mit unserer Plattform für das Goethe-Zertifikat und möchte persönliche Empfehlungen auf Basis seiner bisherigen Ergebnisse.
+  return `REMINDER: Write all string fields of your tool-call response in ${LANGUAGE_NAME[language]} (code: "${language}"). Keep these German exam terms unchanged: Lesen, Hören, Schreiben, Sprechen, Teil 1-5, A1, A2, B1, Goethe-Zertifikat, DeutschTest.pro.
+
+The learner's training data is provided in German below. Analyze it and give personalized recommendations.
 
 GESAMTSTATISTIK:
 - Absolvierte Module: ${input.totalAttempts}
@@ -73,18 +93,18 @@ ${levelAveragesBlock}
 EINZELNE MODUL-ERGEBNISSE (chronologisch, ältestes zuerst):
 ${attemptsBlock}
 
-Erstelle personalisierte Empfehlungen auf Deutsch (Du-Form, freundlicher aber konkreter Ton). Dein Output muss folgende Struktur haben:
+Produce the following structured output (all prose in ${LANGUAGE_NAME[language]}, German exam terms preserved):
 
-1. overallAssessment: 2–4 Sätze allgemeine Einschätzung des aktuellen Vorbereitungsstands — ehrlich, aber ermutigend.
-2. strengths: 2–4 konkrete Stärken (was der Prüfling gut kann, mit Bezug auf die Daten).
-3. weaknesses: 2–4 konkrete Schwächen bzw. Bereiche, an denen gearbeitet werden sollte.
-4. studyPlan: 3–5 konkrete nächste Schritte. Jeder Schritt hat einen kurzen \`title\` (1 Zeile) und eine konkrete \`description\` (2–3 Sätze mit praktischer Anleitung, gern mit Modul-Namen und Anzahl empfohlener Module).
-5. motivation: 1–2 motivierende Sätze am Ende — persönlich, nicht generisch.
+1. overallAssessment: 2–4 sentences — honest but encouraging assessment of the current preparation level.
+2. strengths: 2–4 specific strengths grounded in the data.
+3. weaknesses: 2–4 specific weaknesses or areas to work on.
+4. studyPlan: 3–5 concrete next steps. Each step has a short \`title\` (1 line) and a \`description\` (2–3 sentences with practical guidance, referencing German module names and suggested module counts).
+5. motivation: 1–2 motivating sentences — personal, not generic.
 
-Wichtig:
-- Verwende ausschließlich das bereitgestellte Tool, um die Antwort strukturiert zurückzugeben.
-- Nenne Module auf Deutsch: Lesen, Hören, Schreiben, Sprechen (nicht "Listening", nicht "Reading").
-- Sprich direkt den Prüfling an (Du). Erwähne weder „KI" noch „Claude" noch andere Provider.
-- Wenn bisher nur 1 Modul absolviert wurde, sei entsprechend zurückhaltend mit Aussagen über Trends.
-- Plan soll realistisch sein: 1 Modul kostet 1 Kredit auf unserer Plattform, also empfehle konkrete Anzahlen (z. B. „2 weitere Schreiben-Module auf A2").`
+Rules:
+- Address the learner directly in the second person (use the native equivalent: "du" for de, "ты" for ru, "you" for en, "sen" for tr).
+- Do not mention AI, Claude, or any provider.
+- If the learner has only completed 1 module, be appropriately cautious about trends.
+- Realistic plan: 1 module costs 1 credit on our platform, so recommend concrete numbers (e.g. "2 more Schreiben modules at A2").
+- Return the answer exclusively via the provided tool.`
 }

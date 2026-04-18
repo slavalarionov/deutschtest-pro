@@ -4,6 +4,7 @@
 import { createServerClient } from '@/lib/supabase-server'
 import { generateRecommendations, type Recommendations } from '@/lib/claude'
 import type { Json } from '@/types/supabase'
+import { defaultLocale, locales, type Locale } from '@/i18n/request'
 import type {
   RecommendationsAttemptSummary,
   RecommendationsInput,
@@ -133,6 +134,13 @@ function buildRecommendationsInput(rows: AttemptRow[]): RecommendationsInput | n
   }
 }
 
+function normalizeLocale(value: unknown): Locale {
+  if (typeof value === 'string' && (locales as readonly string[]).includes(value)) {
+    return value as Locale
+  }
+  return defaultLocale
+}
+
 export async function loadRecommendations(
   userId: string,
   opts: { forceRefresh?: boolean } = {}
@@ -150,7 +158,7 @@ export async function loadRecommendations(
     supabase
       .from('profiles')
       .select(
-        'cached_recommendations, recommendations_attempts_count, recommendations_generated_at'
+        'cached_recommendations, recommendations_attempts_count, recommendations_generated_at, cached_recommendations_language, preferred_language'
       )
       .eq('id', userId)
       .maybeSingle(),
@@ -171,11 +179,14 @@ export async function loadRecommendations(
   const cachedCount = profile?.recommendations_attempts_count ?? null
   const cachedAt = profile?.recommendations_generated_at ?? null
   const cachedRecs = profile?.cached_recommendations ?? null
+  const cachedLanguage = profile?.cached_recommendations_language ?? null
+  const preferredLanguage = normalizeLocale(profile?.preferred_language)
 
   const cacheFresh =
     !opts.forceRefresh &&
     cachedRecs !== null &&
-    cachedCount === input.totalAttempts
+    cachedCount === input.totalAttempts &&
+    cachedLanguage === preferredLanguage
 
   if (cacheFresh) {
     return {
@@ -186,7 +197,7 @@ export async function loadRecommendations(
     }
   }
 
-  const recommendations = await generateRecommendations(input)
+  const recommendations = await generateRecommendations(input, preferredLanguage)
   const generatedAt = new Date().toISOString()
 
   const { error: updateError } = await supabase
@@ -195,6 +206,7 @@ export async function loadRecommendations(
       cached_recommendations: recommendations as unknown as Json,
       recommendations_attempts_count: input.totalAttempts,
       recommendations_generated_at: generatedAt,
+      cached_recommendations_language: preferredLanguage,
     })
     .eq('id', userId)
 
