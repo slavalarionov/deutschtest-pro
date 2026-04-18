@@ -2,11 +2,15 @@
 
 import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { createClient } from '@/lib/supabase/client'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 
 export default function RegisterPage() {
+  const t = useTranslations('auth.register')
+  const tCommon = useTranslations('common')
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
@@ -34,13 +38,13 @@ export default function RegisterPage() {
     setError(null)
 
     if (password.length < 8) {
-      setError('Passwort muss mindestens 8 Zeichen enthalten.')
+      setError(t('errors.passwordTooShort'))
       setLoading(false)
       return
     }
 
     if (turnstileSiteKey && !turnstileToken) {
-      setError('Bitte bestätigen Sie das Captcha.')
+      setError(t('errors.captchaRequired'))
       setLoading(false)
       return
     }
@@ -54,7 +58,7 @@ export default function RegisterPage() {
       const data = await res.json()
 
       if (!res.ok) {
-        setError(data.error || 'Registrierung fehlgeschlagen')
+        setError(data.error || t('errors.registrationFailed'))
         turnstileRef.current?.reset()
         setTurnstileToken(null)
         setLoading(false)
@@ -63,7 +67,7 @@ export default function RegisterPage() {
 
       setSuccess(true)
     } catch {
-      setError('Netzwerkfehler. Bitte versuchen Sie es erneut.')
+      setError(t('errors.network'))
     } finally {
       setLoading(false)
     }
@@ -93,21 +97,25 @@ export default function RegisterPage() {
               />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-brand-text">Bestätigung erforderlich</h2>
+          <h2 className="text-xl font-bold text-brand-text">{t('successTitle')}</h2>
           <p className="mt-3 text-sm text-brand-muted">
-            Wir haben eine Bestätigungs-E-Mail an{' '}
-            <span className="font-medium text-brand-text">{email}</span> gesendet.
-            Bitte öffnen Sie den Link in der Nachricht, um Ihr Konto zu aktivieren.
+            {t.rich('successBody', {
+              email,
+              strong: (chunks) => (
+                <span className="font-medium text-brand-text">{chunks}</span>
+              ),
+            })}
           </p>
           <p className="mt-3 text-sm text-brand-muted">
-            Nach der Bestätigung erhalten Sie <span className="font-medium">3 Module gratis</span> zum
-            Ausprobieren. Prüfen Sie auch den Spam-Ordner.
+            {t.rich('successBonus', {
+              strong: (chunks) => <span className="font-medium">{chunks}</span>,
+            })}
           </p>
           <Link
             href="/login"
             className="mt-6 inline-block text-sm font-medium text-brand-gold hover:text-brand-gold-dark"
           >
-            Zur Anmeldung
+            {t('successLoginLink')}
           </Link>
         </motion.div>
       </div>
@@ -123,10 +131,8 @@ export default function RegisterPage() {
         className="w-full max-w-md rounded-2xl bg-brand-white p-8 shadow-card"
       >
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-brand-text">Registrieren</h1>
-          <p className="mt-2 text-sm text-brand-muted">
-            Erstellen Sie Ihr DeutschTest.pro Konto
-          </p>
+          <h1 className="text-2xl font-bold text-brand-text">{t('title')}</h1>
+          <p className="mt-2 text-sm text-brand-muted">{t('subtitle')}</p>
         </div>
 
         <motion.button
@@ -153,12 +159,12 @@ export default function RegisterPage() {
               fill="#EA4335"
             />
           </svg>
-          Mit Google registrieren
+          {t('googleButton')}
         </motion.button>
 
         <div className="my-6 flex items-center gap-4">
           <div className="h-px flex-1 bg-brand-border" />
-          <span className="text-xs font-medium text-brand-muted">Oder</span>
+          <span className="text-xs font-medium text-brand-muted">{tCommon('or')}</span>
           <div className="h-px flex-1 bg-brand-border" />
         </div>
 
@@ -168,7 +174,7 @@ export default function RegisterPage() {
               htmlFor="email"
               className="mb-1.5 block text-sm font-medium text-brand-text"
             >
-              E-Mail
+              {t('emailLabel')}
             </label>
             <input
               id="email"
@@ -178,7 +184,7 @@ export default function RegisterPage() {
               required
               autoComplete="email"
               className="w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm text-brand-text placeholder:text-brand-muted/50 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
-              placeholder="ihre.email@example.com"
+              placeholder={t('emailPlaceholder')}
             />
           </div>
 
@@ -187,7 +193,7 @@ export default function RegisterPage() {
               htmlFor="password"
               className="mb-1.5 block text-sm font-medium text-brand-text"
             >
-              Passwort
+              {t('passwordLabel')}
             </label>
             <input
               id="password"
@@ -198,11 +204,9 @@ export default function RegisterPage() {
               minLength={8}
               autoComplete="new-password"
               className="w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm text-brand-text placeholder:text-brand-muted/50 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
-              placeholder="Mindestens 8 Zeichen"
+              placeholder={t('passwordPlaceholder')}
             />
-            <p className="mt-2 text-xs text-brand-muted">
-              Sie erhalten anschließend eine E-Mail zur Bestätigung Ihrer Adresse.
-            </p>
+            <p className="mt-2 text-xs text-brand-muted">{t('passwordHint')}</p>
           </div>
 
           {turnstileSiteKey && (
@@ -234,21 +238,21 @@ export default function RegisterPage() {
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                Registrieren…
+                {t('submitting')}
               </span>
             ) : (
-              'Registrieren'
+              t('submitButton')
             )}
           </motion.button>
         </form>
 
         <p className="mt-6 text-center text-sm text-brand-muted">
-          Bereits ein Konto?{' '}
+          {t('hasAccount')}{' '}
           <Link
             href="/login"
             className="font-medium text-brand-gold hover:text-brand-gold-dark"
           >
-            Anmelden
+            {t('loginLink')}
           </Link>
         </p>
       </motion.div>

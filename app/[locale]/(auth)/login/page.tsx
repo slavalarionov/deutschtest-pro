@@ -3,12 +3,15 @@
 import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const t = useTranslations('auth.login')
+  const tCommon = useTranslations('common')
 
   // Безопасное чтение next: только относительные пути, начинающиеся с /
   // Это защита от open redirect — нельзя редиректить на внешние URL.
@@ -64,10 +67,8 @@ function LoginForm() {
         className="w-full max-w-md rounded-2xl bg-brand-white p-8 shadow-card"
       >
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-brand-text">Anmelden</h1>
-          <p className="mt-2 text-sm text-brand-muted">
-            Willkommen bei DeutschTest.pro
-          </p>
+          <h1 className="text-2xl font-bold text-brand-text">{t('title')}</h1>
+          <p className="mt-2 text-sm text-brand-muted">{t('welcome')}</p>
         </div>
 
         <motion.button
@@ -94,12 +95,12 @@ function LoginForm() {
               fill="#EA4335"
             />
           </svg>
-          Mit Google anmelden
+          {t('googleButton')}
         </motion.button>
 
         <div className="my-6 flex items-center gap-4">
           <div className="h-px flex-1 bg-brand-border" />
-          <span className="text-xs font-medium text-brand-muted">Oder</span>
+          <span className="text-xs font-medium text-brand-muted">{tCommon('or')}</span>
           <div className="h-px flex-1 bg-brand-border" />
         </div>
 
@@ -109,7 +110,7 @@ function LoginForm() {
               htmlFor="email"
               className="mb-1.5 block text-sm font-medium text-brand-text"
             >
-              E-Mail
+              {t('emailLabel')}
             </label>
             <input
               id="email"
@@ -118,7 +119,7 @@ function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm text-brand-text placeholder:text-brand-muted/50 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
-              placeholder="ihre@email.de"
+              placeholder={t('emailPlaceholder')}
             />
           </div>
 
@@ -127,7 +128,7 @@ function LoginForm() {
               htmlFor="password"
               className="mb-1.5 block text-sm font-medium text-brand-text"
             >
-              Passwort
+              {t('passwordLabel')}
             </label>
             <input
               id="password"
@@ -136,7 +137,7 @@ function LoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm text-brand-text placeholder:text-brand-muted/50 focus:border-brand-gold focus:outline-none focus:ring-1 focus:ring-brand-gold"
-              placeholder="••••••••"
+              placeholder={t('passwordPlaceholder')}
             />
           </div>
 
@@ -156,21 +157,21 @@ function LoginForm() {
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                Anmelden…
+                {t('submitting')}
               </span>
             ) : (
-              'Anmelden'
+              t('submitButton')
             )}
           </motion.button>
         </form>
 
         <p className="mt-6 text-center text-sm text-brand-muted">
-          Noch kein Konto?{' '}
+          {t('noAccount')}{' '}
           <Link
             href="/register"
             className="font-medium text-brand-gold hover:text-brand-gold-dark"
           >
-            Registrieren
+            {t('registerLink')}
           </Link>
         </p>
       </motion.div>
@@ -189,7 +190,7 @@ export default function LoginPage() {
 function LoginFallback() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FAFAF7]">
-      <div className="text-sm text-[#6B6560]">Загрузка…</div>
+      <div className="text-sm text-[#6B6560]">Wird geladen…</div>
     </div>
   )
 }

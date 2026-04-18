@@ -167,7 +167,7 @@
       "hasAccount": "Bereits ein Konto?",
       "loginLink": "Anmelden",
       "successTitle": "Bestätigung erforderlich",
-      "successBody": "Wir haben eine Bestätigungs-E-Mail an <email>{email}</email> gesendet. Bitte öffnen Sie den Link in der Nachricht, um Ihr Konto zu aktivieren.",
+      "successBody": "Wir haben eine Bestätigungs-E-Mail an <strong>{email}</strong> gesendet. Bitte öffnen Sie den Link in der Nachricht, um Ihr Konto zu aktivieren.",
       "successBonus": "Nach der Bestätigung erhalten Sie <strong>3 Module gratis</strong> zum Ausprobieren. Prüfen Sie auch den Spam-Ordner.",
       "successLoginLink": "Zur Anmeldung",
       "errors": {
