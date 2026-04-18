@@ -1,1 +1,222 @@
-{}
+{
+  "common": {
+    "appName": "DeutschTest.pro",
+    "appNameHighlight": ".pro",
+    "loading": "Wird geladen…",
+    "or": "Oder"
+  },
+  "nav": {
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "dashboard": "Mein Konto",
+    "logout": "Abmelden",
+    "greeting": "Hallo, {email}!"
+  },
+  "landing": {
+    "metadata": {
+      "title": "DeutschTest.pro — AI-Simulator Goethe-Zertifikat",
+      "description": "Bereiten Sie sich mit KI-generierten Prüfungen auf das Goethe-Zertifikat vor. Lesen, Hören, Schreiben, Sprechen — alles in einer Plattform."
+    },
+    "hero": {
+      "badge": "KI-gestützte Prüfungsvorbereitung",
+      "titlePart1": "Bestehen Sie das",
+      "titleHighlight": "Goethe-Zertifikat",
+      "titlePart2": "beim ersten Versuch",
+      "subtitle": "Realistische Prüfungssimulation mit KI-generierten Aufgaben, automatischer Bewertung und detailliertem Feedback.",
+      "subtitleGuest": "Registrieren Sie sich und erhalten Sie einen kostenlosen Test.",
+      "subtitleFreeAvailable": "Ihr kostenloser Probetest wartet auf Sie.",
+      "subtitlePaidTests": "{count, plural, one {Sie haben # Test verfügbar.} other {Sie haben # Tests verfügbar.}}",
+      "subtitleModules": "Modul-Credits: {count} (1 Credit pro Modul)",
+      "ctaRegister": "Kostenlos registrieren & testen",
+      "ctaSelectModule": "Modul wählen",
+      "ctaStart": "Test starten — {level}",
+      "ctaBuy": "Tests kaufen",
+      "ctaGenerating": "KI generiert Prüfung…",
+      "levels": {
+        "a1": "Start Deutsch 1",
+        "a2": "Goethe-Zertifikat A2",
+        "b1": "Goethe-Zertifikat B1"
+      },
+      "modules": {
+        "lesen": "Lesen",
+        "horen": "Hören",
+        "schreiben": "Schreiben",
+        "sprechen": "Sprechen",
+        "durationLesen": "65 Min",
+        "durationHoren": "40 Min",
+        "durationSchreiben": "60 Min",
+        "durationSprechen": "15 Min"
+      },
+      "modulesHint": "💡 Wählen Sie ein Modul für ein gezieltes Training. 1 Credit = 1 Modul.",
+      "buyPrompt": "Sie haben bereits Ihren kostenlosen Test verwendet. Kaufen Sie weitere Tests, um fortzufahren.",
+      "loadingHint": "Modul wird generiert — bitte einen Moment warten…",
+      "errors": {
+        "noCredits": "Sie haben keine Modul-Credits mehr. Bitte kaufen Sie weitere Credits.",
+        "insufficientBalanceFallback": "Nicht genug Modul-Credits.",
+        "generateFailed": "Die Prüfung konnte nicht generiert werden. Bitte versuchen Sie es etwas später erneut."
+      },
+      "stats": {
+        "levels": "Niveaustufen",
+        "modules": "Module",
+        "aiLabel": "KI",
+        "ai": "Bewertung"
+      }
+    },
+    "features": {
+      "title": "Alle vier Module. Eine Plattform.",
+      "subtitle": "Jedes Modul folgt exakt dem Format des Goethe-Zertifikats.",
+      "items": {
+        "lesen": {
+          "title": "Lesen",
+          "description": "KI-generierte Lesetexte mit Multiple-Choice und Richtig/Falsch-Aufgaben — exakt wie im echten Goethe-Zertifikat."
+        },
+        "horen": {
+          "title": "Hören",
+          "description": "Professionell vertonte Hörtexte mit realistischen Stimmen. Kein Zurückspulen — wie in der echten Prüfung."
+        },
+        "schreiben": {
+          "title": "Schreiben",
+          "description": "Schreibaufgaben mit KI-Bewertung nach offiziellen Kriterien: Aufgabenerfüllung, Kohärenz, Wortschatz, Grammatik."
+        },
+        "sprechen": {
+          "title": "Sprechen",
+          "description": "Mündliche Prüfung mit Sprachaufnahme und KI-Analyse. Aussprache, Flüssigkeit und Grammatik werden bewertet."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Einfache Preisgestaltung",
+      "subtitle": "Starten Sie kostenlos, upgraden Sie wenn Sie bereit sind.",
+      "plans": {
+        "probe": {
+          "name": "Probe",
+          "price": "Kostenlos",
+          "period": "",
+          "description": "Testen Sie die Plattform mit einem kostenlosen Probeexamen.",
+          "feature1": "1 Probeexamen (alle Module)",
+          "feature2": "KI-Bewertung",
+          "feature3": "Grundlegendes Feedback",
+          "cta": "Kostenlos starten"
+        },
+        "premium": {
+          "name": "Premium",
+          "price": "€19",
+          "period": "/Monat",
+          "description": "Unbegrenzte Prüfungen mit detailliertem KI-Feedback.",
+          "feature1": "Unbegrenzte Prüfungen",
+          "feature2": "Alle Niveaustufen (A1–B1)",
+          "feature3": "Detailliertes KI-Feedback",
+          "feature4": "Fortschrittsanalyse",
+          "feature5": "Prioritäts-Support",
+          "cta": "Premium wählen"
+        }
+      }
+    },
+    "faq": {
+      "title": "Häufige Fragen",
+      "items": {
+        "realism": {
+          "q": "Wie realistisch sind die Prüfungen?",
+          "a": "Unsere KI generiert Aufgaben, die exakt dem Format und Schwierigkeitsgrad des offiziellen Goethe-Zertifikats entsprechen. Format, Timing und Bewertungskriterien werden 1:1 nachgebildet."
+        },
+        "levels": {
+          "q": "Welche Niveaustufen werden unterstützt?",
+          "a": "Aktuell unterstützen wir A1 (Start Deutsch 1), A2 (Goethe-Zertifikat A2) und B1 (Goethe-Zertifikat B1). Weitere Stufen sind in Planung."
+        },
+        "aiScoring": {
+          "q": "Wie funktioniert die KI-Bewertung?",
+          "a": "Lesen und Hören werden automatisch bewertet. Für Schreiben und Sprechen analysiert die KI Ihre Antworten nach den offiziellen Goethe-Bewertungskriterien und gibt detailliertes Feedback."
+        },
+        "singleModules": {
+          "q": "Kann ich einzelne Module üben?",
+          "a": "Ja, Sie können sowohl eine vollständige Prüfung ablegen als auch einzelne Module (Lesen, Hören, Schreiben oder Sprechen) separat üben."
+        },
+        "microphone": {
+          "q": "Brauche ich ein Mikrofon für das Sprechen-Modul?",
+          "a": "Ja, für das Sprechen-Modul benötigen Sie ein Mikrofon. Die meisten Laptops und Smartphones haben ein eingebautes Mikrofon, das ausreicht."
+        }
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Anmelden",
+      "welcome": "Willkommen bei DeutschTest.pro",
+      "googleButton": "Mit Google anmelden",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "ihre@email.de",
+      "passwordLabel": "Passwort",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Anmelden",
+      "submitting": "Anmelden…",
+      "noAccount": "Noch kein Konto?",
+      "registerLink": "Registrieren",
+      "loadingFallback": "Wird geladen…"
+    },
+    "register": {
+      "title": "Registrieren",
+      "subtitle": "Erstellen Sie Ihr DeutschTest.pro Konto",
+      "googleButton": "Mit Google registrieren",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "ihre.email@example.com",
+      "passwordLabel": "Passwort",
+      "passwordPlaceholder": "Mindestens 8 Zeichen",
+      "passwordHint": "Sie erhalten anschließend eine E-Mail zur Bestätigung Ihrer Adresse.",
+      "submitButton": "Registrieren",
+      "submitting": "Registrieren…",
+      "hasAccount": "Bereits ein Konto?",
+      "loginLink": "Anmelden",
+      "successTitle": "Bestätigung erforderlich",
+      "successBody": "Wir haben eine Bestätigungs-E-Mail an <email>{email}</email> gesendet. Bitte öffnen Sie den Link in der Nachricht, um Ihr Konto zu aktivieren.",
+      "successBonus": "Nach der Bestätigung erhalten Sie <strong>3 Module gratis</strong> zum Ausprobieren. Prüfen Sie auch den Spam-Ordner.",
+      "successLoginLink": "Zur Anmeldung",
+      "errors": {
+        "passwordTooShort": "Passwort muss mindestens 8 Zeichen enthalten.",
+        "captchaRequired": "Bitte bestätigen Sie das Captcha.",
+        "registrationFailed": "Registrierung fehlgeschlagen",
+        "network": "Netzwerkfehler. Bitte versuchen Sie es erneut."
+      }
+    }
+  },
+  "pricing": {
+    "header": {
+      "loginLink": "Anmelden"
+    },
+    "title": "Tests kaufen",
+    "subtitle": "Wählen Sie das passende Paket für Ihre Prüfungsvorbereitung. Jeder Test enthält alle Module: Lesen, Hören, Schreiben, Sprechen.",
+    "freeAvailable": "Sie haben noch einen <strong>kostenlosen Test</strong> verfügbar!",
+    "freeAvailableCta": "Jetzt kostenlos testen →",
+    "paidAvailable": "{count, plural, one {Sie haben <strong># Test</strong> verfügbar.} other {Sie haben <strong># Tests</strong> verfügbar.}}",
+    "paidAvailableCta": "Test starten →",
+    "packages": {
+      "single": {
+        "name": "1 Test",
+        "priceNote": "einmalig",
+        "feature1": "1 vollständige Prüfung",
+        "feature2": "Alle 4 Module",
+        "feature3": "KI-Bewertung & Feedback"
+      },
+      "pack5": {
+        "name": "5 Tests",
+        "priceNote": "Sparpaket",
+        "badge": "Beliebt",
+        "feature1": "5 vollständige Prüfungen",
+        "feature2": "Alle 4 Module",
+        "feature3": "KI-Bewertung & Feedback",
+        "feature4": "Fortschrittsanalyse"
+      },
+      "pack10": {
+        "name": "10 Tests",
+        "priceNote": "Bestes Angebot",
+        "badge": "-34%",
+        "feature1": "10 vollständige Prüfungen",
+        "feature2": "Alle 4 Module",
+        "feature3": "KI-Bewertung & Feedback",
+        "feature4": "Fortschrittsanalyse",
+        "feature5": "Prioritäts-Support"
+      }
+    },
+    "ctaBuy": "Kaufen (bald verfügbar)",
+    "footnote": "Sichere Bezahlung. Alle Preise inkl. MwSt. Tests sind 30 Tage gültig."
+  }
+}
