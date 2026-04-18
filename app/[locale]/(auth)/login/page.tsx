@@ -188,9 +188,10 @@ export default function LoginPage() {
 }
 
 function LoginFallback() {
+  const t = useTranslations('auth.login')
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FAFAF7]">
-      <div className="text-sm text-[#6B6560]">Wird geladen…</div>
+      <div className="text-sm text-[#6B6560]">{t('loadingFallback')}</div>
     </div>
   )
 }
