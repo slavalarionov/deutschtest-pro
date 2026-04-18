@@ -2,14 +2,16 @@
 
 import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 import { createClient } from '@/lib/supabase/client'
 import { Link } from '@/i18n/routing'
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher'
 
 export default function RegisterPage() {
   const t = useTranslations('auth.register')
   const tCommon = useTranslations('common')
+  const locale = useLocale()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -53,7 +55,7 @@ export default function RegisterPage() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, turnstileToken }),
+        body: JSON.stringify({ email, password, turnstileToken, preferredLanguage: locale }),
       })
       const data = await res.json()
 
@@ -124,6 +126,9 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-bg px-4">
+      <div className="absolute right-4 top-4 sm:right-8 sm:top-6">
+        <LanguageSwitcher />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}

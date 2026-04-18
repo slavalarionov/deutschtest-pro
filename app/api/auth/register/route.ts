@@ -12,6 +12,7 @@ const bodySchema = z.object({
   email: z.string().email(),
   password: z.string().min(8, 'Passwort muss mindestens 8 Zeichen enthalten'),
   turnstileToken: z.string().optional(),
+  preferredLanguage: z.enum(['de', 'ru', 'en', 'tr']).optional(),
 })
 
 function registerJson(body: object, init?: ResponseInit) {
@@ -74,7 +75,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { email: rawEmail, password, turnstileToken } = parsed.data
+    const { email: rawEmail, password, turnstileToken, preferredLanguage } = parsed.data
 
     const captchaOk = await verifyTurnstile(turnstileToken, ip)
     if (!captchaOk) {
@@ -117,6 +118,9 @@ export async function POST(req: NextRequest) {
       password,
       options: {
         emailRedirectTo: `${baseUrl}/auth/callback`,
+        data: {
+          preferred_language: preferredLanguage ?? 'de',
+        },
       },
     })
 
