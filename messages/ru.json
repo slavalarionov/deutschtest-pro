@@ -1,1 +1,756 @@
-{}
+{
+  "common": {
+    "appName": "DeutschTest.pro",
+    "appNameHighlight": ".pro",
+    "loading": "Загрузка…",
+    "or": "Или"
+  },
+  "nav": {
+    "login": "Войти",
+    "register": "Регистрация",
+    "dashboard": "Мой кабинет",
+    "logout": "Выйти",
+    "greeting": "Привет, <name>{email}</name>!"
+  },
+  "modules": {
+    "lesen": "Lesen",
+    "horen": "Hören",
+    "schreiben": "Schreiben",
+    "sprechen": "Sprechen"
+  },
+  "landing": {
+    "metadata": {
+      "title": "DeutschTest.pro — AI-симулятор Goethe-Zertifikat",
+      "description": "Готовьтесь к Goethe-Zertifikat на экзаменах, которые генерирует ИИ. Lesen, Hören, Schreiben, Sprechen — всё на одной платформе."
+    },
+    "hero": {
+      "badge": "Подготовка к экзамену с ИИ",
+      "titlePart1": "Сдайте",
+      "titleHighlight": "Goethe-Zertifikat",
+      "titlePart2": "с первого раза",
+      "subtitle": "Реалистичная симуляция экзамена: задания от ИИ, автоматическая проверка и подробная обратная связь.",
+      "subtitleGuest": "Зарегистрируйтесь и получите бесплатный тест.",
+      "subtitleFreeAvailable": "Вас ждёт бесплатный пробный тест.",
+      "subtitlePaidTests": "{count, plural, one {У вас доступен # тест.} few {У вас доступно # теста.} many {У вас доступно # тестов.} other {У вас доступно # теста.}}",
+      "subtitleModules": "Кредиты модулей: {count} (1 кредит на модуль)",
+      "ctaRegister": "Зарегистрироваться и попробовать",
+      "ctaSelectModule": "Выбрать модуль",
+      "ctaStart": "Начать тест — {level}",
+      "ctaBuy": "Купить тесты",
+      "ctaGenerating": "ИИ генерирует экзамен…",
+      "levels": {
+        "a1": "Start Deutsch 1",
+        "a2": "Goethe-Zertifikat A2",
+        "b1": "Goethe-Zertifikat B1"
+      },
+      "modules": {
+        "lesen": "Lesen",
+        "horen": "Hören",
+        "schreiben": "Schreiben",
+        "sprechen": "Sprechen",
+        "durationLesen": "65 мин",
+        "durationHoren": "40 мин",
+        "durationSchreiben": "60 мин",
+        "durationSprechen": "15 мин"
+      },
+      "modulesHint": "💡 Выберите модуль для целевой тренировки. 1 кредит = 1 модуль.",
+      "buyPrompt": "Вы уже использовали бесплатный тест. Купите ещё, чтобы продолжить.",
+      "loadingHint": "Генерируем модуль — подождите немного…",
+      "errors": {
+        "noCredits": "У вас закончились кредиты модулей. Купите ещё, пожалуйста.",
+        "insufficientBalanceFallback": "Недостаточно кредитов модулей.",
+        "generateFailed": "Не удалось сгенерировать экзамен. Попробуйте чуть позже."
+      },
+      "stats": {
+        "levels": "Уровни",
+        "modules": "Модули",
+        "aiLabel": "ИИ",
+        "ai": "проверка"
+      }
+    },
+    "features": {
+      "title": "Все четыре модуля. Одна платформа.",
+      "subtitle": "Каждый модуль точно следует формату Goethe-Zertifikat.",
+      "items": {
+        "lesen": {
+          "title": "Lesen",
+          "description": "Тексты для чтения от ИИ с вопросами на выбор ответа и «верно/неверно» — как в настоящем Goethe-Zertifikat."
+        },
+        "horen": {
+          "title": "Hören",
+          "description": "Профессионально озвученные аудио с реалистичными голосами. Без перемотки — как на настоящем экзамене."
+        },
+        "schreiben": {
+          "title": "Schreiben",
+          "description": "Письменные задания с проверкой ИИ по официальным критериям: выполнение задания, связность, словарный запас, грамматика."
+        },
+        "sprechen": {
+          "title": "Sprechen",
+          "description": "Устный экзамен с записью голоса и анализом ИИ. Оцениваются произношение, беглость и грамматика."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Простые тарифы",
+      "subtitle": "Начните бесплатно, перейдёте на платный, когда будете готовы.",
+      "plans": {
+        "probe": {
+          "name": "Пробный",
+          "price": "Бесплатно",
+          "period": "",
+          "description": "Попробуйте платформу на одном бесплатном пробном экзамене.",
+          "feature1": "1 пробный экзамен (все модули)",
+          "feature2": "Проверка ИИ",
+          "feature3": "Базовая обратная связь",
+          "cta": "Начать бесплатно"
+        },
+        "premium": {
+          "name": "Premium",
+          "price": "€19",
+          "period": "/мес",
+          "description": "Неограниченные экзамены с подробной обратной связью от ИИ.",
+          "feature1": "Неограниченные экзамены",
+          "feature2": "Все уровни (A1–B1)",
+          "feature3": "Подробная обратная связь от ИИ",
+          "feature4": "Анализ прогресса",
+          "feature5": "Приоритетная поддержка",
+          "cta": "Выбрать Premium"
+        }
+      }
+    },
+    "faq": {
+      "title": "Частые вопросы",
+      "items": {
+        "realism": {
+          "q": "Насколько реалистичны экзамены?",
+          "a": "Наш ИИ генерирует задания, которые точно соответствуют формату и уровню сложности официального Goethe-Zertifikat. Формат, тайминг и критерии оценивания воспроизводятся один в один."
+        },
+        "levels": {
+          "q": "Какие уровни поддерживаются?",
+          "a": "Сейчас поддерживаются A1 (Start Deutsch 1), A2 (Goethe-Zertifikat A2) и B1 (Goethe-Zertifikat B1). Остальные уровни в планах."
+        },
+        "aiScoring": {
+          "q": "Как работает проверка ИИ?",
+          "a": "Lesen и Hören проверяются автоматически. Для Schreiben и Sprechen ИИ анализирует ваши ответы по официальным критериям Goethe и даёт подробную обратную связь."
+        },
+        "singleModules": {
+          "q": "Можно ли тренировать отдельные модули?",
+          "a": "Да, можно сдать полный экзамен или отдельно тренировать каждый модуль (Lesen, Hören, Schreiben или Sprechen)."
+        },
+        "microphone": {
+          "q": "Нужен ли микрофон для модуля Sprechen?",
+          "a": "Да, для Sprechen нужен микрофон. У большинства ноутбуков и смартфонов он встроен — этого достаточно."
+        }
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Вход",
+      "welcome": "С возвращением в DeutschTest.pro",
+      "googleButton": "Войти через Google",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "you@email.com",
+      "passwordLabel": "Пароль",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Войти",
+      "submitting": "Входим…",
+      "noAccount": "Ещё нет аккаунта?",
+      "registerLink": "Зарегистрироваться",
+      "loadingFallback": "Загрузка…"
+    },
+    "register": {
+      "title": "Регистрация",
+      "subtitle": "Создайте аккаунт DeutschTest.pro",
+      "googleButton": "Зарегистрироваться через Google",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "your.email@example.com",
+      "passwordLabel": "Пароль",
+      "passwordPlaceholder": "Минимум 8 символов",
+      "passwordHint": "Мы отправим письмо для подтверждения адреса.",
+      "submitButton": "Зарегистрироваться",
+      "submitting": "Регистрируем…",
+      "hasAccount": "Уже есть аккаунт?",
+      "loginLink": "Войти",
+      "successTitle": "Нужно подтвердить адрес",
+      "successBody": "Мы отправили письмо на <strong>{email}</strong>. Откройте ссылку из письма, чтобы активировать аккаунт.",
+      "successBonus": "После подтверждения вы получите <strong>3 модуля бесплатно</strong> для пробы. Загляните и в папку «Спам».",
+      "successLoginLink": "К входу",
+      "errors": {
+        "passwordTooShort": "Пароль должен быть минимум 8 символов.",
+        "captchaRequired": "Подтвердите капчу, пожалуйста.",
+        "registrationFailed": "Регистрация не удалась",
+        "network": "Ошибка сети. Попробуйте ещё раз."
+      }
+    }
+  },
+  "pricing": {
+    "header": {
+      "loginLink": "Войти"
+    },
+    "title": "Купить тесты",
+    "subtitle": "Выберите пакет для подготовки к экзамену. Каждый тест включает все модули: Lesen, Hören, Schreiben, Sprechen.",
+    "freeAvailable": "У вас ещё есть <strong>бесплатный тест</strong>!",
+    "freeAvailableCta": "Пройти бесплатно →",
+    "paidAvailable": "{count, plural, one {У вас доступен <strong># тест</strong>.} few {У вас доступно <strong># теста</strong>.} many {У вас доступно <strong># тестов</strong>.} other {У вас доступно <strong># теста</strong>.}}",
+    "paidAvailableCta": "Начать тест →",
+    "packages": {
+      "single": {
+        "name": "1 тест",
+        "priceNote": "разово",
+        "feature1": "1 полный экзамен",
+        "feature2": "Все 4 модуля",
+        "feature3": "Проверка ИИ и обратная связь"
+      },
+      "pack5": {
+        "name": "5 тестов",
+        "priceNote": "Выгодно",
+        "badge": "Популярно",
+        "feature1": "5 полных экзаменов",
+        "feature2": "Все 4 модуля",
+        "feature3": "Проверка ИИ и обратная связь",
+        "feature4": "Анализ прогресса"
+      },
+      "pack10": {
+        "name": "10 тестов",
+        "priceNote": "Лучшая цена",
+        "badge": "−34%",
+        "feature1": "10 полных экзаменов",
+        "feature2": "Все 4 модуля",
+        "feature3": "Проверка ИИ и обратная связь",
+        "feature4": "Анализ прогресса",
+        "feature5": "Приоритетная поддержка"
+      }
+    },
+    "ctaBuy": "Купить (скоро)",
+    "footnote": "Безопасная оплата. Все цены указаны с НДС. Тесты действительны 30 дней."
+  },
+  "dashboard": {
+    "shell": {
+      "openMenu": "Открыть меню",
+      "closeMenu": "Закрыть меню",
+      "backHome": "← На главную",
+      "logout": "Выйти",
+      "nav": {
+        "dashboard": "Дашборд",
+        "history": "История",
+        "progress": "Прогресс",
+        "recommendations": "Рекомендации",
+        "payments": "Оплата",
+        "settings": "Настройки"
+      }
+    },
+    "overview": {
+      "title": "С возвращением",
+      "subtitle": "Ваш личный кабинет — статистика и новые экзамены.",
+      "metrics": {
+        "modulesTaken": "Модулей пройдено",
+        "averageScore": "Средний балл",
+        "bestScore": "Лучший результат",
+        "lastModule": "Последний модуль",
+        "credits": "Доступные кредиты"
+      },
+      "outOf100": "из 100",
+      "noAttempts": "Пока нет попыток",
+      "adminMode": "Режим админа",
+      "creditHint": "1 кредит = 1 модуль"
+    },
+    "launcher": {
+      "title": "Начать новый тест",
+      "subtitle": "Выберите уровень и модуль — 1 кредит за модуль.",
+      "levelLabel": "Уровень",
+      "moduleLabel": "Модуль",
+      "chooseModule": "Выберите модуль",
+      "startButton": "Начать — {level}",
+      "generating": "ИИ генерирует экзамен…",
+      "buyModules": "Купить модули",
+      "adminUnlimited": "Режим админа — без ограничений",
+      "creditsAvailable": "Доступно кредитов: {count}",
+      "insufficientBalance": "Недостаточно кредитов модулей.",
+      "generateFailed": "Не удалось сгенерировать экзамен. Попробуйте чуть позже.",
+      "levels": {
+        "a1": "Start Deutsch 1",
+        "a2": "Goethe-Zertifikat A2",
+        "b1": "Goethe-Zertifikat B1"
+      },
+      "modules": {
+        "lesen": "Lesen",
+        "horen": "Hören",
+        "schreiben": "Schreiben",
+        "sprechen": "Sprechen"
+      },
+      "durations": {
+        "lesen": "65 мин",
+        "horen": "40 мин",
+        "schreiben": "60 мин",
+        "sprechen": "15 мин"
+      }
+    },
+    "history": {
+      "title": "История",
+      "subtitle": "Все пройденные модули с фильтрами по уровню, модулю и дате.",
+      "filters": {
+        "level": "Уровень",
+        "module": "Модуль",
+        "dateFrom": "С",
+        "dateTo": "По",
+        "allLevels": "Все уровни",
+        "allModules": "Все модули",
+        "reset": "Сбросить фильтры"
+      },
+      "table": {
+        "date": "Дата",
+        "level": "Уровень",
+        "module": "Модуль",
+        "score": "Балл",
+        "status": "Статус",
+        "detailsLink": "Подробнее →"
+      },
+      "empty": {
+        "withFilters": "Под фильтры ничего не подходит.",
+        "withFiltersHint": "Измените фильтры или сбросьте их.",
+        "noAttempts": "Вы ещё не проходили модули",
+        "noAttemptsHint": "Запустите модуль с дашборда.",
+        "toDashboard": "К дашборду"
+      },
+      "status": {
+        "free": "Бесплатно",
+        "paid": "Платно"
+      },
+      "errors": {
+        "loadFailed": "Не удалось загрузить историю.",
+        "network": "Ошибка сети при загрузке истории."
+      }
+    },
+    "testDetail": {
+      "backToHistory": "← Назад к истории",
+      "backToHistoryButton": "Назад к истории",
+      "toHistory": "К обзору истории",
+      "certificateHeading": "Goethe-Zertifikat {level} — {module}",
+      "outOf100": "из 100 баллов",
+      "passed": "Сдан ✅",
+      "failed": "Не сдан ❌",
+      "submittedAt": "Отправлено {date} · {status}",
+      "retakeModule": "Пройти заново",
+      "errors": {
+        "forbidden": "У вас нет доступа к этому модулю.",
+        "notSubmitted": "Этот модуль ещё не отправлен.",
+        "notFound": "Модуль не найден."
+      },
+      "lesenHoren": {
+        "summary": "{module} — итог",
+        "correct": "верно",
+        "wrong": "неверно",
+        "total": "всего",
+        "allAnswers": "Все ответы",
+        "yourAnswerLabel": "Ваш:",
+        "correctAnswerLabel": "Верный:",
+        "taskLabel": "Задание {id}",
+        "allCorrect": "Все ответы верны — отлично!",
+        "noDetails": "Подробные ответы не сохранены."
+      },
+      "schreiben": {
+        "task": "Задание",
+        "criteria": "Оценка по критериям",
+        "aiFeedback": "Обратная связь ИИ",
+        "noFeedback": "Подробной обратной связи нет.",
+        "taskFulfillment": "Выполнение задания",
+        "coherence": "Связность",
+        "vocabulary": "Словарный запас",
+        "grammar": "Грамматика"
+      },
+      "sprechen": {
+        "tasks": "Задания",
+        "teilLabel": "Teil {n} · {type}",
+        "criteria": "Оценка по критериям",
+        "aiFeedback": "Обратная связь ИИ",
+        "noFeedback": "Подробной обратной связи нет.",
+        "taskFulfillment": "Выполнение задания",
+        "fluency": "Беглость",
+        "vocabulary": "Словарный запас",
+        "grammar": "Грамматика",
+        "pronunciation": "Произношение"
+      }
+    },
+    "progress": {
+      "title": "Прогресс",
+      "subtitle": "Графическая динамика ваших результатов во времени, по модулям.",
+      "empty": {
+        "title": "Пройдите минимум 2 модуля, чтобы увидеть прогресс",
+        "completed": "Уже пройдено: {count}",
+        "toDashboard": "К дашборду"
+      },
+      "errors": {
+        "loadFailed": "Не удалось загрузить данные прогресса.",
+        "network": "Ошибка сети при загрузке прогресса."
+      },
+      "stats": {
+        "trendLabel": "Тренд за последний месяц",
+        "strongestModule": "Сильнейший модуль",
+        "weakestModule": "Проблемный модуль",
+        "trend": {
+          "improving": "Растёт",
+          "stable": "Стабильно",
+          "declining": "Снижается"
+        },
+        "noPrevMonth": "Данных за прошлый месяц пока нет",
+        "noChange": "Без изменений",
+        "deltaPositive": "+{delta} баллов к прошлому месяцу",
+        "deltaNegative": "{delta} баллов к прошлому месяцу",
+        "avgLine": "Ср. {avg} · {attempts, plural, one {# модуль} few {# модуля} many {# модулей} other {# модуля}}"
+      },
+      "charts": {
+        "scoreTime": {
+          "title": "Балл по времени",
+          "subtitle": "Все модули вместе, по дате завершения.",
+          "pointsLabel": "Баллы"
+        },
+        "byModule": {
+          "title": "Разбивка по модулям",
+          "subtitle": "Каждая линия — результаты одного модуля."
+        },
+        "byLevel": {
+          "title": "Среднее по уровню",
+          "subtitle": "Средний балл по всем модулям для каждого уровня.",
+          "row": "{score} · {attempts, plural, one {# модуль} few {# модуля} many {# модулей} other {# модуля}}"
+        }
+      }
+    },
+    "recommendations": {
+      "title": "Рекомендации",
+      "subtitle": "Персональные советы по учёбе на основе ваших пройденных модулей.",
+      "loading": "Загружаем рекомендации…",
+      "refreshing": "Генерируем новые рекомендации…",
+      "refreshButton": "Обновить рекомендации",
+      "refreshingButton": "Обновляем…",
+      "retry": "Попробовать снова",
+      "empty": {
+        "title": "Пройдите хотя бы один модуль, чтобы получить персональные рекомендации",
+        "hint": "Как только вы завершите модуль, мы проанализируем результаты и составим персональный план учёбы.",
+        "toDashboard": "К дашборду"
+      },
+      "sections": {
+        "overall": "Общая оценка",
+        "strengths": "Сильные стороны",
+        "weaknesses": "Слабые места",
+        "studyPlan": "Ваш план учёбы",
+        "motivation": "Мотивация"
+      },
+      "modulesCount": "{count, plural, one {учтён # модуль} few {учтено # модуля} many {учтено # модулей} other {учтено # модуля}}",
+      "cachedAt": "Сохранено {date}",
+      "generatedAt": "Создано {date}",
+      "errors": {
+        "loadFailed": "Не удалось загрузить рекомендации.",
+        "network": "Ошибка сети при загрузке рекомендаций."
+      }
+    },
+    "payments": {
+      "title": "Оплата",
+      "subtitle": "Ваш баланс, варианты покупки и история оплат.",
+      "currentBalance": "Текущий баланс",
+      "balanceUnlimited": "Без ограничений",
+      "balanceUnit": "{count, plural, one {модуль} few {модуля} many {модулей} other {модуля}}",
+      "adminHint": "Режим админа — без лимитов.",
+      "creditExplanation": "1 кредит соответствует одному модулю экзамена (Lesen, Hören, Schreiben или Sprechen).",
+      "buyTitle": "Купить модули",
+      "buyHint": "Выберите пакет — купленные модули можно тратить на любой из четырёх: Lesen, Hören, Schreiben, Sprechen.",
+      "viewPackages": "Посмотреть пакеты",
+      "historyTitle": "История оплат",
+      "historyEmpty": "Пока нет оплат",
+      "historyHint": "История оплат появится, когда подключим систему платежей."
+    },
+    "settings": {
+      "title": "Настройки",
+      "subtitle": "Профиль, пароль и управление аккаунтом.",
+      "profile": {
+        "title": "Профиль",
+        "emailLabel": "E-mail",
+        "emailHint": "E-mail пока изменить нельзя.",
+        "nameLabel": "Имя",
+        "namePlaceholder": "Как к вам обращаться?",
+        "saveButton": "Сохранить",
+        "saving": "Сохраняем…",
+        "saved": "Имя сохранено.",
+        "saveFailed": "Не удалось сохранить.",
+        "network": "Ошибка сети."
+      },
+      "password": {
+        "title": "Сменить пароль",
+        "externalTitle": "Пароль",
+        "externalText": "Вы вошли через внешнего провайдера (например, Google). Пароль управляется на стороне провайдера.",
+        "currentLabel": "Текущий пароль",
+        "newLabel": "Новый пароль",
+        "newHint": "Минимум 8 символов.",
+        "confirmLabel": "Подтвердите новый пароль",
+        "changeButton": "Сменить пароль",
+        "saving": "Сохраняем…",
+        "updated": "Пароль обновлён.",
+        "tooShort": "Новый пароль должен быть минимум 8 символов.",
+        "mismatch": "Пароли не совпадают.",
+        "changeFailed": "Не удалось сменить пароль.",
+        "network": "Ошибка сети."
+      },
+      "delete": {
+        "title": "Удалить аккаунт",
+        "hint": "Ваш аккаунт и все связанные данные будут безвозвратно удалены.",
+        "button": "Удалить аккаунт",
+        "modalTitle": "Удалить аккаунт",
+        "modalBody": "Напишите нам на <email>contact@deutschtest.pro</email>, чтобы удалить аккаунт.",
+        "modalHint": "Мы подтверждаем удаление вручную, чтобы не потерять данные из-за случайных запросов.",
+        "close": "Закрыть"
+      }
+    },
+    "placeholder": {
+      "soon": "Этот раздел скоро появится.",
+      "soonHint": "Мы работаем над следующей версией кабинета."
+    }
+  },
+  "exam": {
+    "shell": {
+      "loading": "Загружаем экзамен…",
+      "notFound": "Сессия не найдена",
+      "back": "Назад",
+      "certificate": "Goethe-Zertifikat {level}"
+    },
+    "timer": {
+      "warning5Minutes": "Осталось 5 минут!",
+      "warning60Seconds": "Осталось 60 секунд!",
+      "dismiss": "ОК",
+      "timeUpTitle": "Время вышло",
+      "timeUpMessage": "Ваши ответы отправляются автоматически.",
+      "redirecting": "Перенаправляем…"
+    },
+    "answerSheet": {
+      "title": "Лист ответов"
+    },
+    "audio": {
+      "play": "Воспроизвести",
+      "pause": "Пауза",
+      "loading": "Загрузка",
+      "startRecording": "Начать запись",
+      "stopRecording": "Остановить запись",
+      "error": "Ошибка",
+      "scriptHeader": "Аудио {id} — {count, plural, one {# прослушивание} few {# прослушивания} many {# прослушиваний} other {# прослушивания}}"
+    },
+    "modules": {
+      "shared": {
+        "back": "← Назад",
+        "next": "Далее →",
+        "submitAll": "Отправить ответы",
+        "submitting": "Проверяем…",
+        "toResults": "К результатам",
+        "example": "Пример",
+        "gapLabel": "Пропуск ({id})",
+        "taskNumber": "Задание {id}",
+        "teilLabel": "Teil {n}"
+      },
+      "lesen": {
+        "loading": "Загружаем модуль Lesen…",
+        "moduleTitle": "Модуль Lesen",
+        "moduleHint": "65 минут — 5 частей — 30 заданий",
+        "teil1": {
+          "title": "Teil 1",
+          "desc": "Прочитайте текст и задания. Утверждения верны или неверны?",
+          "tag": "Пост в блоге"
+        },
+        "teil2": {
+          "title": "Teil 2",
+          "desc": "Прочитайте текст и задания. Выберите правильный ответ: a, b или c.",
+          "tag": "Газетная статья"
+        },
+        "teil3": {
+          "title": "Teil 3",
+          "desc": "Прочитайте текст и задания. Выберите Ja или Nein.",
+          "tag": "Правила / регламент"
+        },
+        "teil4": {
+          "title": "Teil 4",
+          "desc": "Прочитайте тексты и ситуации. Какой текст подходит?",
+          "tag": "Объявления"
+        },
+        "teil5": {
+          "title": "Teil 5",
+          "desc": "Прочитайте текст и выберите подходящее слово для каждого пропуска.",
+          "tag": "Текст с пропусками",
+          "exampleLabel": "Пример — пропуск (0)"
+        },
+        "answers": {
+          "richtig": "Richtig",
+          "falsch": "Falsch",
+          "ja": "Ja",
+          "nein": "Nein"
+        }
+      },
+      "horen": {
+        "loading": "Загружаем модуль Hören…",
+        "moduleTitle": "Модуль Hören",
+        "moduleHint": "40 минут — 4 части — 20 заданий",
+        "teil1": {
+          "title": "Teil 1",
+          "desc": "Вы услышите пять коротких текстов. Каждый текст прозвучит дважды. Верно или неверно?",
+          "tag": "Объявления"
+        },
+        "teil2": {
+          "title": "Teil 2",
+          "desc": "Вы услышите разговор. Текст прозвучит один раз. Выберите a, b или c.",
+          "tag": "Интервью"
+        },
+        "teil3": {
+          "title": "Teil 3",
+          "desc": "Вы услышите разговор. Текст прозвучит один раз. Верно или неверно?",
+          "tag": "Бытовая беседа"
+        },
+        "teil4": {
+          "title": "Teil 4",
+          "desc": "Вы услышите пять коротких разговоров. Каждый текст прозвучит дважды. Верно или неверно?",
+          "tag": "Разговоры"
+        },
+        "answers": {
+          "richtig": "Richtig",
+          "falsch": "Falsch"
+        }
+      },
+      "schreiben": {
+        "loading": "Загружаем модуль Schreiben…",
+        "moduleTitle": "Модуль Schreiben",
+        "moduleHint": "60 минут — письменная часть",
+        "task": "Задание",
+        "requiredPoints": "Напишите о следующих пунктах:",
+        "yourText": "Ваш текст",
+        "textPlaceholder": "Пишите свой текст здесь...",
+        "wordCount": "{count} / ~{target} слов",
+        "wordCountFinal": "{count, plural, one {# слово} few {# слова} many {# слов} other {# слова}}",
+        "wordHint": {
+          "empty": "Начните писать…",
+          "low": "Продолжайте!",
+          "almost": "Почти достаточно слов.",
+          "enough": "Хорошая длина!"
+        },
+        "submitButton": "Отправить текст",
+        "submitting": "Оцениваем…",
+        "outOf100": "из 100 баллов",
+        "aiFeedback": "Обратная связь ИИ",
+        "errors": {
+          "scoring": "Не удалось оценить",
+          "network": "Ошибка сети"
+        },
+        "criteria": {
+          "taskFulfillment": "Выполнение задания",
+          "coherence": "Связность",
+          "vocabulary": "Словарный запас",
+          "grammar": "Грамматика"
+        }
+      },
+      "sprechen": {
+        "loading": "Загружаем модуль Sprechen…",
+        "moduleTitle": "Модуль Sprechen",
+        "moduleHint": "Устный экзамен — 3 части",
+        "slides": "Слайды",
+        "pointsLabel": "Темы для разговора",
+        "clickToStart": "Нажмите кнопку, чтобы начать запись.",
+        "startRecording": "Начать запись",
+        "stopRecording": "Остановить запись",
+        "recording": "Идёт запись…",
+        "processing": {
+          "transcribing": "Распознаём речь…",
+          "scoring": "ИИ оценивает ваш ответ…",
+          "stepTranscribing": "Автоматическая транскрипция…",
+          "stepScoring": "ИИ оценивает ваш текст…",
+          "stepFinalizing": "Почти готово…"
+        },
+        "transcript": "Ваша транскрипция",
+        "outOf100": "из 100 баллов",
+        "averagePer100": "/ 100 ср.",
+        "aiFeedback": "Обратная связь ИИ",
+        "toResults": "К результатам",
+        "errors": {
+          "transcribe": "Не удалось распознать речь",
+          "scoring": "Не удалось оценить",
+          "micDenied": "Доступ к микрофону запрещён",
+          "network": "Ошибка сети",
+          "saveFailed": "Не удалось сохранить",
+          "aggregate": "Нет записей, которые можно оценить — повторите части с ошибкой."
+        },
+        "teil": {
+          "planning": {
+            "title": "Teil 1 — Совместное планирование",
+            "desc": "Обсудите пункты ниже и спланируйте вместе.",
+            "tag": "~3 минуты"
+          },
+          "presentation": {
+            "title": "Teil 2 — Презентация темы",
+            "desc": "Сделайте короткую презентацию по тезисам со слайдов.",
+            "tag": "~3 минуты"
+          },
+          "reaction": {
+            "title": "Teil 3 — Реакция на презентацию",
+            "desc": "Ответьте на вопрос и обоснуйте своё мнение.",
+            "tag": "~2 минуты"
+          }
+        },
+        "criteria": {
+          "taskFulfillment": "Выполнение задания",
+          "fluency": "Беглость",
+          "vocabulary": "Словарный запас",
+          "grammar": "Грамматика",
+          "pronunciation": "Произношение"
+        }
+      }
+    }
+  },
+  "results": {
+    "title": "Результаты",
+    "loading": "Загружаем результаты…",
+    "notFound": "Результаты не найдены",
+    "notSubmitted": "Экзамен ещё не отправлен.",
+    "toHome": "На главную",
+    "toDashboard": "К дашборду",
+    "retakeModule": "Пройти заново",
+    "certificateHeading": "Goethe-Zertifikat {level} — {module}",
+    "outOf100": "из 100 баллов",
+    "passed": "Сдан ✅",
+    "failed": "Не сдан ❌",
+    "submittedAt": "Отправлено {date}",
+    "errors": {
+      "loadFailed": "Не удалось загрузить результаты.",
+      "network": "Ошибка сети при загрузке результатов."
+    },
+    "lesenHoren": {
+      "title": "{module} — подробные результаты",
+      "correct": "верно",
+      "wrong": "неверно",
+      "total": "всего",
+      "wrongAnswers": "Неверные ответы",
+      "taskLabel": "Задание {id}",
+      "yourAnswerLabel": "Ваш:",
+      "correctAnswerLabel": "Верный:"
+    },
+    "schreiben": {
+      "title": "Schreiben — оценка",
+      "aiFeedback": "Обратная связь ИИ",
+      "taskFulfillment": "Выполнение задания",
+      "coherence": "Связность",
+      "vocabulary": "Словарный запас",
+      "grammar": "Грамматика"
+    },
+    "sprechen": {
+      "title": "Sprechen — оценка",
+      "aiFeedback": "Обратная связь ИИ",
+      "taskFulfillment": "Выполнение задания",
+      "fluency": "Беглость",
+      "vocabulary": "Словарный запас",
+      "grammar": "Грамматика",
+      "pronunciation": "Произношение"
+    },
+    "retakeModal": {
+      "title": "Пройти модуль заново",
+      "body": "Вы запускаете новый экзамен {module} с полностью новыми заданиями. За это с баланса спишется <b>1 модуль</b>.",
+      "balance": "Текущий баланс: <b>{current, plural, one {# модуль} few {# модуля} many {# модулей} other {# модуля}}</b> → после запуска: <b>{next, plural, one {# модуль} few {# модуля} many {# модулей} other {# модуля}}</b>",
+      "cancel": "Отмена",
+      "confirm": "Да, начать",
+      "confirming": "Запускаем…",
+      "errorFallback": "Ошибка при создании нового экзамена",
+      "errorNetwork": "Ошибка сети"
+    }
+  }
+}
