@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface ExamTimerDisplayProps {
   timeLeft: number
@@ -28,6 +29,7 @@ export function ExamTimerDisplay({ timeLeft }: ExamTimerDisplayProps) {
 }
 
 export function TimerWarningBanner({ timeLeft }: { timeLeft: number }) {
+  const t = useTranslations('exam.timer')
   const [dismissed, setDismissed] = useState(false)
   const [shownWarning, setShownWarning] = useState<'5min' | '1min' | null>(null)
 
@@ -59,14 +61,14 @@ export function TimerWarningBanner({ timeLeft }: { timeLeft: number }) {
           <polyline points="12,6 12,12 16,14" />
         </svg>
         <span className="text-sm font-semibold">
-          {is1Min ? 'Noch 60 Sekunden!' : 'Noch 5 Minuten!'}
+          {is1Min ? t('warning60Seconds') : t('warning5Minutes')}
         </span>
       </div>
       <button
         onClick={() => setDismissed(true)}
         className="text-xs font-medium opacity-70 hover:opacity-100"
       >
-        OK
+        {t('dismiss')}
       </button>
     </div>
   )

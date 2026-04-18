@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useExamStore } from '@/store/examStore'
 import { LesenModule } from '@/components/modules/LesenModule'
 import { SchreibenModule } from '@/components/modules/SchreibenModule'
@@ -11,16 +12,18 @@ interface ExamShellProps {
   sessionId: string
 }
 
-const MODULE_LABELS: Record<string, string> = {
-  lesen: 'Lesen',
-  schreiben: 'Schreiben',
-  horen: 'Hören',
-  sprechen: 'Sprechen',
-}
+type ExamModuleId = 'lesen' | 'horen' | 'schreiben' | 'sprechen'
 
-const VALID_MODULES = new Set(['lesen', 'horen', 'schreiben', 'sprechen'])
+const VALID_MODULES = new Set<ExamModuleId>([
+  'lesen',
+  'horen',
+  'schreiben',
+  'sprechen',
+])
 
 export function ExamShell({ sessionId }: ExamShellProps) {
+  const t = useTranslations('exam.shell')
+  const tModules = useTranslations('modules')
   const { session, setSession } = useExamStore()
 
   const [loading, setLoading] = useState(true)
@@ -56,7 +59,7 @@ export function ExamShell({ sessionId }: ExamShellProps) {
       <div className="flex min-h-screen items-center justify-center bg-brand-bg">
         <div className="text-center">
           <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-brand-gold border-t-transparent" />
-          <p className="text-sm text-brand-muted">Prüfung wird geladen…</p>
+          <p className="text-sm text-brand-muted">{t('loading')}</p>
         </div>
       </div>
     )
@@ -66,20 +69,24 @@ export function ExamShell({ sessionId }: ExamShellProps) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-brand-bg">
         <div className="rounded-xl bg-brand-white p-8 text-center shadow-card">
-          <p className="mb-4 text-brand-red">{error || 'Session nicht gefunden'}</p>
+          <p className="mb-4 text-brand-red">{error || t('notFound')}</p>
           <a
             href="/"
             className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
           >
-            Zurück
+            {t('back')}
           </a>
         </div>
       </div>
     )
   }
 
-  const activeModule = VALID_MODULES.has(session.mode) ? session.mode : 'lesen'
-  const moduleLabel = MODULE_LABELS[activeModule] || activeModule
+  const activeModule: ExamModuleId = VALID_MODULES.has(
+    session.mode as ExamModuleId
+  )
+    ? (session.mode as ExamModuleId)
+    : 'lesen'
+  const moduleLabel = tModules(activeModule)
 
   return (
     <div className="min-h-screen bg-brand-bg">
@@ -91,7 +98,7 @@ export function ExamShell({ sessionId }: ExamShellProps) {
             </a>
             <span className="text-brand-border">|</span>
             <span className="text-sm font-semibold text-brand-text">
-              Goethe-Zertifikat {session.level}
+              {t('certificate', { level: session.level })}
             </span>
             <span className="rounded-full bg-brand-surface px-2.5 py-0.5 text-xs font-medium text-brand-muted">
               {moduleLabel}

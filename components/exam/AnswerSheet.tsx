@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useExamStore } from '@/store/examStore'
 
 interface AnswerSheetProps {
@@ -8,12 +9,13 @@ interface AnswerSheetProps {
 }
 
 export function AnswerSheet({ questions, options }: AnswerSheetProps) {
+  const t = useTranslations('exam.answerSheet')
   const { answers, setAnswer } = useExamStore()
 
   return (
     <div className="rounded-xl bg-brand-white p-6 shadow-soft">
       <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-brand-muted">
-        Antwortbogen
+        {t('title')}
       </h3>
 
       <div className="space-y-3">

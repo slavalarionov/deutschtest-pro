@@ -1,11 +1,14 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
 interface TimeUpOverlayProps {
   /** Optional extra line under the main message */
   detail?: string
 }
 
 export function TimeUpOverlay({ detail }: TimeUpOverlayProps) {
+  const t = useTranslations('exam.timer')
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="mx-4 max-w-md rounded-2xl bg-brand-white p-8 text-center shadow-xl">
@@ -15,10 +18,10 @@ export function TimeUpOverlay({ detail }: TimeUpOverlayProps) {
             <polyline points="12,6 12,12 16,14" />
           </svg>
         </div>
-        <h2 className="mb-2 text-xl font-bold text-brand-text">Zeit ist um</h2>
-        <p className="mb-4 text-sm text-brand-muted">
-          Ihre Antworten werden automatisch gesendet.
-        </p>
+        <h2 className="mb-2 text-xl font-bold text-brand-text">
+          {t('timeUpTitle')}
+        </h2>
+        <p className="mb-4 text-sm text-brand-muted">{t('timeUpMessage')}</p>
         {detail && <p className="mb-4 text-xs text-brand-muted">{detail}</p>}
         <div className="mx-auto h-1.5 w-32 overflow-hidden rounded-full bg-brand-surface">
           <div className="h-full animate-progress rounded-full bg-brand-gold" />
