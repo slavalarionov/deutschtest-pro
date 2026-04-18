@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useExamStore } from '@/store/examStore'
 import { ExamTimerDisplay, TimerWarningBanner } from '@/components/exam/ExamTimerDisplay'
 import { TimeUpOverlay } from '@/components/exam/TimeUpOverlay'
@@ -19,10 +20,13 @@ import type {
 } from '@/types/exam'
 
 const TOTAL_TIME = 65 * 60
-const TEIL_LABELS = ['Teil 1', 'Teil 2', 'Teil 3', 'Teil 4', 'Teil 5'] as const
+const TEIL_KEYS = ['teil1', 'teil2', 'teil3', 'teil4', 'teil5'] as const
 
 export function LesenModule() {
   const router = useRouter()
+  const t = useTranslations('exam.modules.lesen')
+  const tShared = useTranslations('exam.modules.shared')
+  const tTimer = useTranslations('exam.timer')
   const { session, answers, setAnswer } = useExamStore()
   const [currentTeil, setCurrentTeil] = useState(0)
   const [timeLeft, setTimeLeft] = useState(TOTAL_TIME)
@@ -50,13 +54,13 @@ export function LesenModule() {
       const data = await res.json()
       if (data.success) {
         setResults({ score: data.scores.lesen, details: data.details, summary: data.summary })
-        setPostSubmit({ href: `/exam/${session.id}/results`, label: 'Zu den Ergebnissen' })
+        setPostSubmit({ href: `/exam/${session.id}/results`, label: tShared('toResults') })
         setSubmitted(true)
       }
     } catch { /* silent */ } finally {
       setSubmitting(false)
     }
-  }, [session, answers, submitted])
+  }, [session, answers, submitted, tShared])
 
   useEffect(() => {
     if (submitted || timeLeft <= 0) {
@@ -66,33 +70,33 @@ export function LesenModule() {
       }
       return
     }
-    const t = setInterval(() => setTimeLeft((p) => p - 1), 1000)
-    return () => clearInterval(t)
+    const timer = setInterval(() => setTimeLeft((p) => p - 1), 1000)
+    return () => clearInterval(timer)
   }, [timeLeft, submitted, handleSubmit])
 
   useEffect(() => {
     if (!timeUp || !submitted || !postSubmit) return
-    const t = setTimeout(() => router.push(postSubmit.href), 2600)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => router.push(postSubmit.href), 2600)
+    return () => clearTimeout(timer)
   }, [timeUp, submitted, postSubmit, router])
 
   if (!lesen) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-brand-muted">Lesen-Modul wird geladen…</p>
+        <p className="text-brand-muted">{t('loading')}</p>
       </div>
     )
   }
 
   return (
     <div className="mx-auto max-w-4xl space-y-5">
-      {timeUp && session && <TimeUpOverlay detail={postSubmit ? 'Sie werden weitergeleitet…' : undefined} />}
+      {timeUp && session && <TimeUpOverlay detail={postSubmit ? tTimer('redirecting') : undefined} />}
 
       {/* Header with timer */}
       <div className="flex items-center justify-between rounded-xl bg-brand-white p-4 shadow-soft">
         <div>
-          <h2 className="text-lg font-semibold text-brand-text">Modul Lesen</h2>
-          <p className="text-xs text-brand-muted">65 Minuten — 5 Teile — 30 Aufgaben</p>
+          <h2 className="text-lg font-semibold text-brand-text">{t('moduleTitle')}</h2>
+          <p className="text-xs text-brand-muted">{t('moduleHint')}</p>
         </div>
         <ExamTimerDisplay timeLeft={timeLeft} />
       </div>
@@ -101,7 +105,7 @@ export function LesenModule() {
 
       {/* Teil navigation */}
       <div className="flex gap-1.5 rounded-xl bg-brand-white p-1.5 shadow-soft">
-        {TEIL_LABELS.map((label, i) => (
+        {TEIL_KEYS.map((key, i) => (
           <button
             key={i}
             onClick={() => setCurrentTeil(i)}
@@ -111,7 +115,7 @@ export function LesenModule() {
                 : 'text-brand-muted hover:bg-brand-surface'
             }`}
           >
-            {label}
+            {t(`${key}.title`)}
           </button>
         ))}
       </div>
@@ -130,7 +134,7 @@ export function LesenModule() {
           disabled={currentTeil === 0}
           className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-brand-text transition hover:bg-brand-surface disabled:opacity-30"
         >
-          ← Zurück
+          {tShared('back')}
         </button>
 
         {submitted && results ? (
@@ -145,7 +149,7 @@ export function LesenModule() {
               disabled={submitting}
               className="rounded-lg bg-brand-gold px-6 py-2 text-sm font-semibold text-white transition hover:bg-brand-gold-dark disabled:opacity-70"
             >
-              {submitting ? 'Wird geprüft…' : 'Alle Antworten abgeben'}
+              {submitting ? tShared('submitting') : tShared('submitAll')}
             </button>
           ) : null
         )}
@@ -155,7 +159,7 @@ export function LesenModule() {
           disabled={currentTeil === 4}
           className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-brand-text transition hover:bg-brand-surface disabled:opacity-30"
         >
-          Weiter →
+          {tShared('next')}
         </button>
       </div>
 
@@ -198,12 +202,13 @@ function AnswerBadge({ isCorrect }: { isCorrect: boolean }) {
 // ============================================================
 
 function Teil1View({ data, answers, setAnswer, submitted, results }: TeilViewProps & { data: LesenTeil1 }) {
-  const example = data.tasks.find((t) => t.isExample)
-  const tasks = data.tasks.filter((t) => !t.isExample)
+  const t = useTranslations('exam.modules.lesen.teil1')
+  const example = data.tasks.find((task) => task.isExample)
+  const tasks = data.tasks.filter((task) => !task.isExample)
 
   return (
     <div className="space-y-4">
-      <TeilHeader title="Teil 1" desc="Lesen Sie den Text und die Aufgaben. Sind die Aussagen richtig oder falsch?" tag="Blogbeitrag" />
+      <TeilHeader title={t('title')} desc={t('desc')} tag={t('tag')} />
       <TextBlock text={data.text} />
       {example && <ExampleRF task={example} />}
       {tasks.map((task) => (
@@ -218,16 +223,18 @@ function Teil1View({ data, answers, setAnswer, submitted, results }: TeilViewPro
 // ============================================================
 
 function Teil2View({ data, answers, setAnswer, submitted, results }: TeilViewProps & { data: LesenTeil2 }) {
-  const example = data.tasks.find((t: LesenMCTask) => t.isExample)
-  const tasks = data.tasks.filter((t: LesenMCTask) => !t.isExample)
+  const t = useTranslations('exam.modules.lesen.teil2')
+  const tShared = useTranslations('exam.modules.shared')
+  const example = data.tasks.find((task: LesenMCTask) => task.isExample)
+  const tasks = data.tasks.filter((task: LesenMCTask) => !task.isExample)
 
   return (
     <div className="space-y-4">
-      <TeilHeader title="Teil 2" desc="Lesen Sie den Text und die Aufgaben. Wählen Sie die richtige Antwort a, b oder c." tag="Zeitungsartikel" />
+      <TeilHeader title={t('title')} desc={t('desc')} tag={t('tag')} />
       <TextBlock text={data.text} />
       {example && (
         <div className="rounded-xl border-2 border-dashed border-brand-border bg-brand-surface/50 p-5">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">Beispiel</div>
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">{tShared('example')}</div>
           <p className="mb-2 text-sm font-medium text-brand-text">{example.question}</p>
           <div className="flex gap-2">
             {(['a', 'b', 'c'] as const).map((opt) => (
@@ -281,21 +288,24 @@ function Teil2View({ data, answers, setAnswer, submitted, results }: TeilViewPro
 // ============================================================
 
 function Teil3View({ data, answers, setAnswer, submitted, results }: TeilViewProps & { data: LesenTeil3 }) {
-  const example = data.tasks.find((t) => t.isExample)
-  const tasks = data.tasks.filter((t) => !t.isExample)
+  const t = useTranslations('exam.modules.lesen.teil3')
+  const tShared = useTranslations('exam.modules.shared')
+  const tAnswers = useTranslations('exam.modules.lesen.answers')
+  const example = data.tasks.find((task) => task.isExample)
+  const tasks = data.tasks.filter((task) => !task.isExample)
 
   return (
     <div className="space-y-4">
-      <TeilHeader title="Teil 3" desc="Lesen Sie den Text und die Aufgaben. Wählen Sie Ja oder Nein." tag="Regeln / Ordnung" />
+      <TeilHeader title={t('title')} desc={t('desc')} tag={t('tag')} />
       <TextBlock text={data.text} />
       {example && (
         <div className="rounded-xl border-2 border-dashed border-brand-border bg-brand-surface/50 p-5">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">Beispiel</div>
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">{tShared('example')}</div>
           <div className="flex items-start justify-between gap-4">
             <p className="text-sm text-brand-text"><span className="mr-2 font-semibold text-brand-muted">0</span>{example.statement}</p>
             <div className="flex shrink-0 gap-2">
-              <span className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${example.answer === 'ja' ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>Ja</span>
-              <span className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${example.answer === 'nein' ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>Nein</span>
+              <span className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${example.answer === 'ja' ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>{tAnswers('ja')}</span>
+              <span className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${example.answer === 'nein' ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>{tAnswers('nein')}</span>
             </div>
           </div>
         </div>
@@ -320,7 +330,7 @@ function Teil3View({ data, answers, setAnswer, submitted, results }: TeilViewPro
                         ? submitted && detail ? (detail.isCorrect ? 'border-green-500 bg-green-500 text-white' : 'border-red-500 bg-red-500 text-white') : 'border-brand-gold bg-brand-gold text-white'
                         : submitted && detail && detail.correctAnswer === opt ? 'border-green-500 bg-green-50 text-green-700' : 'border-brand-border text-brand-text hover:border-brand-gold/50'
                     } ${submitted ? 'cursor-default' : ''}`}
-                  >{opt === 'ja' ? 'Ja' : 'Nein'}</button>
+                  >{tAnswers(opt)}</button>
                 ))}
               </div>
             </div>
@@ -336,28 +346,30 @@ function Teil3View({ data, answers, setAnswer, submitted, results }: TeilViewPro
 // ============================================================
 
 function Teil4View({ data, answers, setAnswer, submitted, results }: TeilViewProps & { data: LesenTeil4 }) {
+  const t = useTranslations('exam.modules.lesen.teil4')
+  const tShared = useTranslations('exam.modules.shared')
   const example = data.situations?.find((s: LesenTeil4Situation) => s.isExample)
   const situations = data.situations?.filter((s: LesenTeil4Situation) => !s.isExample) ?? []
-  const textOptions = data.texts?.map((t) => String(t.id)) ?? []
+  const textOptions = data.texts?.map((text) => String(text.id)) ?? []
 
   return (
     <div className="space-y-4">
-      <TeilHeader title="Teil 4" desc="Lesen Sie die Texte und die Situationen. Welcher Text passt?" tag="Anzeigen / Aushänge" />
+      <TeilHeader title={t('title')} desc={t('desc')} tag={t('tag')} />
 
       <div className="grid gap-3 sm:grid-cols-2">
-        {data.texts?.map((t) => (
-          <div key={String(t.id)} className="rounded-xl bg-brand-white p-4 shadow-soft">
+        {data.texts?.map((text) => (
+          <div key={String(text.id)} className="rounded-xl bg-brand-white p-4 shadow-soft">
             <span className="mb-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-gold/10 text-xs font-bold text-brand-gold-dark">
-              {String(t.id).toUpperCase()}
+              {String(text.id).toUpperCase()}
             </span>
-            <p className="mt-2 text-sm leading-relaxed text-brand-text">{t.text}</p>
+            <p className="mt-2 text-sm leading-relaxed text-brand-text">{text.text}</p>
           </div>
         ))}
       </div>
 
       {example && (
         <div className="rounded-xl border-2 border-dashed border-brand-border bg-brand-surface/50 p-5">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">Beispiel</div>
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">{tShared('example')}</div>
           <p className="text-sm text-brand-text">{example.situation}</p>
           <span className="mt-2 inline-block rounded-lg border border-brand-gold bg-brand-gold/10 px-3 py-1 text-xs font-semibold text-brand-gold-dark">
             → {String(example.answer).toUpperCase()}
@@ -399,17 +411,19 @@ function Teil4View({ data, answers, setAnswer, submitted, results }: TeilViewPro
 // ============================================================
 
 function Teil5View({ data, answers, setAnswer, submitted, results }: TeilViewProps & { data: LesenTeil5 }) {
+  const t = useTranslations('exam.modules.lesen.teil5')
+  const tShared = useTranslations('exam.modules.shared')
   const example = data.gaps?.find((g: LesenGap) => g.isExample)
   const gaps = data.gaps?.filter((g: LesenGap) => !g.isExample) ?? []
 
   return (
     <div className="space-y-4">
-      <TeilHeader title="Teil 5" desc="Lesen Sie den Text und wählen Sie das richtige Wort für jede Lücke." tag="Lückentext" />
+      <TeilHeader title={t('title')} desc={t('desc')} tag={t('tag')} />
       <TextBlock text={data.text} />
 
       {example && (
         <div className="rounded-xl border-2 border-dashed border-brand-border bg-brand-surface/50 p-5">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">Beispiel — Lücke (0)</div>
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">{t('exampleLabel')}</div>
           <div className="flex gap-2">
             {(['a', 'b', 'c'] as const).map((opt) => (
               <span key={opt} className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${opt === example.answer ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>
@@ -428,7 +442,7 @@ function Teil5View({ data, answers, setAnswer, submitted, results }: TeilViewPro
           <div key={gap.id} className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
             <p className="mb-3 text-sm font-medium text-brand-text">
               <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-surface text-xs font-semibold text-brand-muted">{gap.id}</span>
-              Lücke ({gap.id})
+              {tShared('gapLabel', { id: gap.id })}
               {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
             </p>
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -478,14 +492,16 @@ function TextBlock({ text }: { text: string }) {
 }
 
 function ExampleRF({ task }: { task: LesenTask }) {
+  const tShared = useTranslations('exam.modules.shared')
+  const tAnswers = useTranslations('exam.modules.lesen.answers')
   return (
     <div className="rounded-xl border-2 border-dashed border-brand-border bg-brand-surface/50 p-5">
-      <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">Beispiel</div>
+      <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">{tShared('example')}</div>
       <div className="flex items-start justify-between gap-4">
         <p className="text-sm text-brand-text"><span className="mr-2 font-semibold text-brand-muted">0</span>{task.statement}</p>
         <div className="flex shrink-0 gap-2">
-          <span className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${task.answer === 'richtig' ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>Richtig</span>
-          <span className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${task.answer === 'falsch' ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>Falsch</span>
+          <span className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${task.answer === 'richtig' ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>{tAnswers('richtig')}</span>
+          <span className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${task.answer === 'falsch' ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>{tAnswers('falsch')}</span>
         </div>
       </div>
     </div>
@@ -495,6 +511,7 @@ function ExampleRF({ task }: { task: LesenTask }) {
 function RFRow({ task, prefix, answers, setAnswer, submitted, results }: {
   task: LesenTask; prefix: string
 } & TeilViewProps) {
+  const tAnswers = useTranslations('exam.modules.lesen.answers')
   const key = `${prefix}_${task.id}`
   const userAnswer = answers[key] as string | undefined
   const detail = results?.details[key]
@@ -515,7 +532,7 @@ function RFRow({ task, prefix, answers, setAnswer, submitted, results }: {
                   ? submitted && detail ? (detail.isCorrect ? 'border-green-500 bg-green-500 text-white' : 'border-red-500 bg-red-500 text-white') : 'border-brand-gold bg-brand-gold text-white'
                   : submitted && detail && detail.correctAnswer === opt ? 'border-green-500 bg-green-50 text-green-700' : 'border-brand-border text-brand-text hover:border-brand-gold/50'
               } ${submitted ? 'cursor-default' : ''}`}
-            >{opt === 'richtig' ? 'Richtig' : 'Falsch'}</button>
+            >{tAnswers(opt)}</button>
           ))}
         </div>
       </div>

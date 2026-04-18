@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useExamStore } from '@/store/examStore'
 import type { SprechenContent, SprechenTask, SprechenFeedback } from '@/types/exam'
 
@@ -9,24 +10,6 @@ const TEIL_TIMES: Record<SprechenTask['type'], number> = {
   planning: 3 * 60,
   presentation: 3 * 60,
   reaction: 2 * 60,
-}
-
-const TEIL_META: Record<SprechenTask['type'], { title: string; desc: string; tag: string }> = {
-  planning: {
-    title: 'Teil 1 — Gemeinsam etwas planen',
-    desc: 'Sprechen Sie über die Punkte unten und planen Sie gemeinsam.',
-    tag: '~3 Minuten',
-  },
-  presentation: {
-    title: 'Teil 2 — Ein Thema präsentieren',
-    desc: 'Halten Sie eine kurze Präsentation anhand der Folien-Stichpunkte.',
-    tag: '~3 Minuten',
-  },
-  reaction: {
-    title: 'Teil 3 — Auf eine Präsentation reagieren',
-    desc: 'Reagieren Sie auf die Frage und begründen Sie Ihre Meinung.',
-    tag: '~2 Minuten',
-  },
 }
 
 interface TeilResult {
@@ -61,6 +44,8 @@ function aggregateSprechenFeedback(
 
 export function SprechenModule() {
   const router = useRouter()
+  const t = useTranslations('exam.modules.sprechen')
+  const tShared = useTranslations('exam.modules.shared')
   const { session } = useExamStore()
   const sprechen = session?.content.sprechen as SprechenContent | undefined
 
@@ -83,7 +68,7 @@ export function SprechenModule() {
     if (!agg) {
       if (!aggregateFailed.current) {
         aggregateFailed.current = true
-        setFinalizeError('Keine auswertbaren Aufnahmen — bitte wiederholen Sie die Teile mit Fehler.')
+        setFinalizeError(t('errors.aggregate'))
       }
       return
     }
@@ -100,23 +85,23 @@ export function SprechenModule() {
         })
         const data = await res.json()
         if (data.success) {
-          setPostSubmit({ href: `/exam/${session.id}/results`, label: 'Zu den Ergebnissen' })
+          setPostSubmit({ href: `/exam/${session.id}/results`, label: tShared('toResults') })
           setFinalizeDone(true)
         } else {
-          setFinalizeError(data.error || 'Speichern fehlgeschlagen')
+          setFinalizeError(data.error || t('errors.saveFailed'))
           finalizeStarted.current = false
         }
       } catch {
-        setFinalizeError('Netzwerkfehler')
+        setFinalizeError(t('errors.network'))
         finalizeStarted.current = false
       }
     })()
-  }, [allDone, session, teilResults, taskCount])
+  }, [allDone, session, teilResults, taskCount, t, tShared])
 
   if (!sprechen) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-brand-muted">Sprechen-Modul wird geladen…</p>
+        <p className="text-brand-muted">{t('loading')}</p>
       </div>
     )
   }
@@ -130,10 +115,8 @@ export function SprechenModule() {
       {/* Header */}
       <div className="flex items-center justify-between rounded-xl bg-brand-white p-4 shadow-soft">
         <div>
-          <h2 className="text-lg font-semibold text-brand-text">Modul Sprechen</h2>
-          <p className="text-xs text-brand-muted">
-            Mündliche Prüfung — 3 Teile
-          </p>
+          <h2 className="text-lg font-semibold text-brand-text">{t('moduleTitle')}</h2>
+          <p className="text-xs text-brand-muted">{t('moduleHint')}</p>
         </div>
         <div className="flex items-center gap-2">
           {tasks.map((_, i) => (
@@ -155,7 +138,7 @@ export function SprechenModule() {
 
       {/* Teil navigation */}
       <div className="flex gap-1.5 rounded-xl bg-brand-white p-1.5 shadow-soft">
-        {tasks.map((t, i) => (
+        {tasks.map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrentTeil(i)}
@@ -167,7 +150,7 @@ export function SprechenModule() {
                   : 'text-brand-muted hover:bg-brand-surface'
             }`}
           >
-            Teil {i + 1}
+            {tShared('teilLabel', { n: i + 1 })}
           </button>
         ))}
       </div>
@@ -195,7 +178,7 @@ export function SprechenModule() {
           disabled={currentTeil === 0}
           className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-brand-text transition hover:bg-brand-surface disabled:opacity-30"
         >
-          ← Zurück
+          {tShared('back')}
         </button>
 
         {allDone && (
@@ -207,7 +190,7 @@ export function SprechenModule() {
           disabled={currentTeil === tasks.length - 1}
           className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-brand-text transition hover:bg-brand-surface disabled:opacity-30"
         >
-          Weiter →
+          {tShared('next')}
         </button>
       </div>
 
@@ -239,7 +222,10 @@ interface TeilRecordingViewProps {
 }
 
 function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) {
-  const meta = TEIL_META[task.type]
+  const t = useTranslations('exam.modules.sprechen')
+  const title = t(`teil.${task.type}.title`)
+  const desc = t(`teil.${task.type}.desc`)
+  const tag = t(`teil.${task.type}.tag`)
   const maxTime = TEIL_TIMES[task.type]
 
   const [phase, setPhase] = useState<'ready' | 'recording' | 'processing'>('ready')
@@ -271,7 +257,7 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
     setProcessingProgress(0)
 
     try {
-      setProcessingStep('Sprache wird erkannt…')
+      setProcessingStep(t('processing.transcribing'))
       setProcessingProgress(15)
 
       const formData = new FormData()
@@ -284,14 +270,14 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
       const transcribeData = await transcribeRes.json()
 
       if (!transcribeData.success || !transcribeData.transcript) {
-        onComplete({ transcript: '', feedback: null, error: 'Transkription fehlgeschlagen' })
+        onComplete({ transcript: '', feedback: null, error: t('errors.transcribe') })
         return
       }
 
       const transcript: string = transcribeData.transcript
       setProcessingProgress(50)
 
-      setProcessingStep('KI bewertet Ihre Antwort…')
+      setProcessingStep(t('processing.scoring'))
       setProcessingProgress(60)
 
       const scoreRes = await fetch('/api/sprechen/score', {
@@ -309,7 +295,7 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
       setProcessingProgress(95)
 
       if (!scoreData.success) {
-        onComplete({ transcript, feedback: null, error: 'Bewertung fehlgeschlagen' })
+        onComplete({ transcript, feedback: null, error: t('errors.scoring') })
         return
       }
 
@@ -324,16 +310,16 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
         error: null,
       })
     } catch {
-      onComplete({ transcript: '', feedback: null, error: 'Netzwerkfehler' })
+      onComplete({ transcript: '', feedback: null, error: t('errors.network') })
     }
-  }, [task, level, onComplete])
+  }, [task, level, onComplete, t])
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop()
     }
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop())
+      streamRef.current.getTracks().forEach((tr) => tr.stop())
       streamRef.current = null
     }
     cleanup()
@@ -383,9 +369,9 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
         })
       }, 1000)
     } catch {
-      onComplete({ transcript: '', feedback: null, error: 'Mikrofon-Zugriff verweigert' })
+      onComplete({ transcript: '', feedback: null, error: t('errors.micDenied') })
     }
-  }, [maxTime, stopRecording, processAudio, onComplete])
+  }, [maxTime, stopRecording, processAudio, onComplete, t])
 
   useEffect(() => {
     return cleanup
@@ -402,11 +388,11 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
       <div className="rounded-xl bg-brand-white p-6 shadow-soft">
         <div className="mb-4 flex items-start justify-between">
           <div>
-            <h3 className="text-base font-semibold text-brand-text">{meta.title}</h3>
-            <p className="mt-1 text-sm text-brand-muted">{meta.desc}</p>
+            <h3 className="text-base font-semibold text-brand-text">{title}</h3>
+            <p className="mt-1 text-sm text-brand-muted">{desc}</p>
           </div>
           <span className="rounded bg-brand-surface px-2.5 py-0.5 text-xs font-medium text-brand-muted">
-            {meta.tag}
+            {tag}
           </span>
         </div>
 
@@ -418,7 +404,7 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
         {/* Points */}
         <div className="rounded-lg bg-brand-surface p-4">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">
-            {task.type === 'presentation' ? 'Folien' : 'Gesprächspunkte'}
+            {task.type === 'presentation' ? t('slides') : t('pointsLabel')}
           </p>
           <ul className="space-y-1.5">
             {task.points.map((point, i) => (
@@ -437,9 +423,7 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
       <div className="rounded-xl bg-brand-white p-6 shadow-soft">
         {phase === 'ready' && (
           <div className="text-center">
-            <p className="mb-4 text-sm text-brand-muted">
-              Klicken Sie auf die Taste, um die Aufnahme zu starten.
-            </p>
+            <p className="mb-4 text-sm text-brand-muted">{t('clickToStart')}</p>
             <button
               onClick={startRecording}
               className="inline-flex items-center gap-3 rounded-xl bg-brand-gold px-8 py-3 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
@@ -449,7 +433,7 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
                 <line x1="12" x2="12" y1="19" y2="22" />
               </svg>
-              Aufnahme starten
+              {t('startRecording')}
             </button>
           </div>
         )}
@@ -476,7 +460,7 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-red opacity-75" />
                 <span className="relative inline-flex h-3 w-3 rounded-full bg-brand-red" />
               </span>
-              <span className="text-sm font-medium text-brand-red">Aufnahme läuft…</span>
+              <span className="text-sm font-medium text-brand-red">{t('recording')}</span>
             </div>
 
             <button
@@ -486,7 +470,7 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <rect x="6" y="6" width="12" height="12" rx="2" />
               </svg>
-              Aufnahme beenden
+              {t('stopRecording')}
             </button>
           </div>
         )}
@@ -571,6 +555,15 @@ function AudioVisualizer({ analyser }: { analyser: AnalyserNode | null }) {
 // ─── Processing state with progress ───
 
 function ProcessingView({ step, progress }: { step: string; progress: number }) {
+  const t = useTranslations('exam.modules.sprechen.processing')
+
+  const substep =
+    progress < 50
+      ? t('stepTranscribing')
+      : progress < 95
+        ? t('stepScoring')
+        : t('stepFinalizing')
+
   return (
     <div className="flex flex-col items-center gap-4 py-6">
       {/* Animated spinner */}
@@ -600,13 +593,7 @@ function ProcessingView({ step, progress }: { step: string; progress: number }) 
 
       <div className="text-center">
         <p className="text-sm font-semibold text-brand-text">{step}</p>
-        <p className="mt-1 text-xs text-brand-muted">
-          {progress < 50
-            ? 'Automatische Transkription…'
-            : progress < 95
-              ? 'KI-Bewertung Ihres Textes…'
-              : 'Fast fertig…'}
-        </p>
+        <p className="mt-1 text-xs text-brand-muted">{substep}</p>
       </div>
 
       {/* Progress bar */}
@@ -628,7 +615,8 @@ interface TeilResultViewProps {
 }
 
 function TeilResultView({ task, result }: TeilResultViewProps) {
-  const meta = TEIL_META[task.type]
+  const t = useTranslations('exam.modules.sprechen')
+  const title = t(`teil.${task.type}.title`)
   const { feedback, transcript, error } = result
 
   return (
@@ -637,7 +625,7 @@ function TeilResultView({ task, result }: TeilResultViewProps) {
       <div className="rounded-xl bg-brand-white p-6 shadow-soft">
         <div className="mb-2 flex items-center gap-2">
           <span className="text-green-600">✓</span>
-          <h3 className="text-base font-semibold text-brand-text">{meta.title}</h3>
+          <h3 className="text-base font-semibold text-brand-text">{title}</h3>
         </div>
         <p className="text-sm text-brand-muted">{task.topic}</p>
       </div>
@@ -645,7 +633,7 @@ function TeilResultView({ task, result }: TeilResultViewProps) {
       {/* Transcript */}
       {transcript && (
         <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-          <h4 className="mb-3 text-sm font-semibold text-brand-muted">Ihre Transkription</h4>
+          <h4 className="mb-3 text-sm font-semibold text-brand-muted">{t('transcript')}</h4>
           <div className="rounded-lg bg-brand-bg p-4">
             <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-text italic">
               &ldquo;{transcript}&rdquo;
@@ -663,20 +651,20 @@ function TeilResultView({ task, result }: TeilResultViewProps) {
           {/* Score */}
           <div className="rounded-xl bg-brand-white p-6 text-center shadow-soft">
             <div className="mb-1 text-5xl font-bold text-brand-text">{feedback.score}</div>
-            <p className="text-sm text-brand-muted">von 100 Punkten</p>
+            <p className="text-sm text-brand-muted">{t('outOf100')}</p>
           </div>
 
           {/* Criteria */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {([
-              ['Aufgabenerfüllung', feedback.criteria.taskFulfillment],
-              ['Flüssigkeit', feedback.criteria.fluency],
-              ['Wortschatz', feedback.criteria.vocabulary],
-              ['Grammatik', feedback.criteria.grammar],
-              ['Aussprache', feedback.criteria.pronunciation],
-            ] as const).map(([label, score]) => (
-              <div key={label} className="rounded-xl bg-brand-white p-4 shadow-soft">
-                <p className="text-xs font-medium text-brand-muted">{label}</p>
+              ['taskFulfillment', feedback.criteria.taskFulfillment],
+              ['fluency', feedback.criteria.fluency],
+              ['vocabulary', feedback.criteria.vocabulary],
+              ['grammar', feedback.criteria.grammar],
+              ['pronunciation', feedback.criteria.pronunciation],
+            ] as const).map(([key, score]) => (
+              <div key={key} className="rounded-xl bg-brand-white p-4 shadow-soft">
+                <p className="text-xs font-medium text-brand-muted">{t(`criteria.${key}`)}</p>
                 <div className="mt-1 flex items-end gap-1">
                   <span className="text-2xl font-bold text-brand-text">{score}</span>
                   <span className="mb-0.5 text-xs text-brand-muted">/ 20</span>
@@ -693,7 +681,7 @@ function TeilResultView({ task, result }: TeilResultViewProps) {
 
           {/* Comment */}
           <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-            <h4 className="mb-3 text-sm font-semibold text-brand-text">KI-Feedback</h4>
+            <h4 className="mb-3 text-sm font-semibold text-brand-text">{t('aiFeedback')}</h4>
             <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">
               {feedback.comment}
             </p>
@@ -713,6 +701,7 @@ function TotalScore({
   results: Record<number, TeilResult>
   tasks: SprechenTask[]
 }) {
+  const t = useTranslations('exam.modules.sprechen')
   let totalScore = 0
   let count = 0
 
@@ -729,7 +718,7 @@ function TotalScore({
   return (
     <div className="text-center">
       <span className="text-2xl font-bold text-brand-text">{avg}</span>
-      <span className="ml-1 text-sm text-brand-muted">/ 100 Ø</span>
+      <span className="ml-1 text-sm text-brand-muted">{t('averagePer100')}</span>
     </div>
   )
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useExamStore } from '@/store/examStore'
 import { ExamTimerDisplay, TimerWarningBanner } from '@/components/exam/ExamTimerDisplay'
 import { TimeUpOverlay } from '@/components/exam/TimeUpOverlay'
@@ -14,17 +15,13 @@ import type {
 } from '@/types/exam'
 
 const TOTAL_TIME = 40 * 60
-const TEIL_LABELS = ['Teil 1', 'Teil 2', 'Teil 3', 'Teil 4'] as const
-
-const TEIL_META = [
-  { title: 'Teil 1', desc: 'Sie hören fünf kurze Texte. Sie hören jeden Text zweimal. Richtig oder falsch?', tag: 'Durchsagen' },
-  { title: 'Teil 2', desc: 'Sie hören ein Gespräch. Sie hören den Text einmal. Wählen Sie a, b oder c.', tag: 'Interview' },
-  { title: 'Teil 3', desc: 'Sie hören ein Gespräch. Sie hören den Text einmal. Richtig oder falsch?', tag: 'Alltagsgespräch' },
-  { title: 'Teil 4', desc: 'Sie hören fünf kurze Gespräche. Sie hören jeden Text zweimal. Richtig oder falsch?', tag: 'Gespräche' },
-]
+const TEIL_KEYS = ['teil1', 'teil2', 'teil3', 'teil4'] as const
 
 export function HorenModule() {
   const router = useRouter()
+  const t = useTranslations('exam.modules.horen')
+  const tShared = useTranslations('exam.modules.shared')
+  const tTimer = useTranslations('exam.timer')
   const { session, answers, setAnswer } = useExamStore()
   const [currentTeil, setCurrentTeil] = useState(0)
   const [timeLeft, setTimeLeft] = useState(TOTAL_TIME)
@@ -52,13 +49,13 @@ export function HorenModule() {
       const data = await res.json()
       if (data.success) {
         setResults({ score: data.scores.horen, details: data.details, summary: data.summary })
-        setPostSubmit({ href: `/exam/${session.id}/results`, label: 'Zu den Ergebnissen' })
+        setPostSubmit({ href: `/exam/${session.id}/results`, label: tShared('toResults') })
         setSubmitted(true)
       }
     } catch { /* silent */ } finally {
       setSubmitting(false)
     }
-  }, [session, answers, submitted])
+  }, [session, answers, submitted, tShared])
 
   useEffect(() => {
     if (submitted || timeLeft <= 0) {
@@ -68,34 +65,35 @@ export function HorenModule() {
       }
       return
     }
-    const t = setInterval(() => setTimeLeft((p) => p - 1), 1000)
-    return () => clearInterval(t)
+    const timer = setInterval(() => setTimeLeft((p) => p - 1), 1000)
+    return () => clearInterval(timer)
   }, [timeLeft, submitted, handleSubmit])
 
   useEffect(() => {
     if (!timeUp || !submitted || !postSubmit) return
-    const t = setTimeout(() => router.push(postSubmit.href), 2600)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => router.push(postSubmit.href), 2600)
+    return () => clearTimeout(timer)
   }, [timeUp, submitted, postSubmit, router])
 
   if (!horen) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-brand-muted">Hören-Modul wird geladen…</p>
+        <p className="text-brand-muted">{t('loading')}</p>
       </div>
     )
   }
 
   const teile = [horen.teil1, horen.teil2, horen.teil3, horen.teil4]
+  const activeKey = TEIL_KEYS[currentTeil]
 
   return (
     <div className="mx-auto max-w-4xl space-y-5">
-      {timeUp && session && <TimeUpOverlay detail={postSubmit ? 'Sie werden weitergeleitet…' : undefined} />}
+      {timeUp && session && <TimeUpOverlay detail={postSubmit ? tTimer('redirecting') : undefined} />}
 
       <div className="flex items-center justify-between rounded-xl bg-brand-white p-4 shadow-soft">
         <div>
-          <h2 className="text-lg font-semibold text-brand-text">Modul Hören</h2>
-          <p className="text-xs text-brand-muted">40 Minuten — 4 Teile — 20 Aufgaben</p>
+          <h2 className="text-lg font-semibold text-brand-text">{t('moduleTitle')}</h2>
+          <p className="text-xs text-brand-muted">{t('moduleHint')}</p>
         </div>
         <ExamTimerDisplay timeLeft={timeLeft} />
       </div>
@@ -103,7 +101,7 @@ export function HorenModule() {
       {!submitted && <TimerWarningBanner timeLeft={timeLeft} />}
 
       <div className="flex gap-1.5 rounded-xl bg-brand-white p-1.5 shadow-soft">
-        {TEIL_LABELS.map((label, i) => (
+        {TEIL_KEYS.map((key, i) => (
           <button
             key={i}
             onClick={() => setCurrentTeil(i)}
@@ -113,14 +111,16 @@ export function HorenModule() {
                 : 'text-brand-muted hover:bg-brand-surface'
             }`}
           >
-            {label}
+            {t(`${key}.title`)}
           </button>
         ))}
       </div>
 
       <HorenTeilView
         teil={teile[currentTeil]}
-        meta={TEIL_META[currentTeil]}
+        title={t(`${activeKey}.title`)}
+        desc={t(`${activeKey}.desc`)}
+        tag={t(`${activeKey}.tag`)}
         answers={answers}
         setAnswer={setAnswer}
         submitted={submitted}
@@ -133,7 +133,7 @@ export function HorenModule() {
           disabled={currentTeil === 0}
           className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-brand-text transition hover:bg-brand-surface disabled:opacity-30"
         >
-          ← Zurück
+          {tShared('back')}
         </button>
 
         {submitted && results ? (
@@ -148,7 +148,7 @@ export function HorenModule() {
               disabled={submitting}
               className="rounded-lg bg-brand-gold px-6 py-2 text-sm font-semibold text-white transition hover:bg-brand-gold-dark disabled:opacity-70"
             >
-              {submitting ? 'Wird geprüft…' : 'Alle Antworten abgeben'}
+              {submitting ? tShared('submitting') : tShared('submitAll')}
             </button>
           ) : null
         )}
@@ -158,7 +158,7 @@ export function HorenModule() {
           disabled={currentTeil === 3}
           className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-brand-text transition hover:bg-brand-surface disabled:opacity-30"
         >
-          Weiter →
+          {tShared('next')}
         </button>
       </div>
 
@@ -202,23 +202,27 @@ function AnswerBadge({ isCorrect }: { isCorrect: boolean }) {
 
 function HorenTeilView({
   teil,
-  meta,
+  title,
+  desc,
+  tag,
   answers,
   setAnswer,
   submitted,
   results,
 }: TeilViewProps & {
   teil: HorenTeil
-  meta: { title: string; desc: string; tag: string }
+  title: string
+  desc: string
+  tag: string
 }) {
   return (
     <div className="space-y-4">
       <div className="rounded-xl bg-brand-white p-5 shadow-soft">
         <div className="flex items-center gap-3">
-          <h3 className="text-lg font-semibold text-brand-text">{meta.title}</h3>
-          <span className="rounded bg-brand-surface px-2 py-0.5 text-xs font-medium text-brand-muted">{meta.tag}</span>
+          <h3 className="text-lg font-semibold text-brand-text">{title}</h3>
+          <span className="rounded bg-brand-surface px-2 py-0.5 text-xs font-medium text-brand-muted">{tag}</span>
         </div>
-        <p className="mt-1 text-sm text-brand-muted">{meta.desc}</p>
+        <p className="mt-1 text-sm text-brand-muted">{desc}</p>
       </div>
 
       {teil.scripts.map((script) => (
@@ -246,12 +250,14 @@ function ScriptBlock({
   submitted,
   results,
 }: TeilViewProps & { script: HorenScript }) {
+  const tAudio = useTranslations('exam.audio')
+
   return (
     <div className="space-y-3">
       <div className="rounded-xl bg-brand-white p-5 shadow-soft">
         <div className="mb-3 flex items-center justify-between">
           <span className="text-xs font-medium text-brand-muted">
-            Audio {script.id} — {script.playCount === 1 ? '1× abspielen' : `${script.playCount}× abspielen`}
+            {tAudio('scriptHeader', { id: script.id, count: script.playCount })}
           </span>
         </div>
         <HorenAudioPlayer script={script} />
@@ -273,6 +279,7 @@ function ScriptBlock({
 // ============================================================
 
 function HorenAudioPlayer({ script }: { script: HorenScript }) {
+  const tAudio = useTranslations('exam.audio')
   const audioRef = useRef<HTMLAudioElement>(null)
   const shouldAutoPlay = useRef(false)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
@@ -398,7 +405,7 @@ function HorenAudioPlayer({ script }: { script: HorenScript }) {
               ? 'bg-brand-gold text-white hover:bg-brand-gold-dark'
               : 'cursor-not-allowed bg-brand-border text-brand-muted'
         }`}
-        aria-label={loading ? 'Wird geladen' : isPlaying ? 'Pause' : 'Abspielen'}
+        aria-label={loading ? tAudio('loading') : isPlaying ? tAudio('pause') : tAudio('play')}
       >
         {loading ? (
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -427,7 +434,7 @@ function HorenAudioPlayer({ script }: { script: HorenScript }) {
         {playCount}/{script.playCount}
       </span>
 
-      {error && <span className="text-xs text-brand-red">Fehler</span>}
+      {error && <span className="text-xs text-brand-red">{tAudio('error')}</span>}
     </div>
   )
 }
@@ -437,6 +444,7 @@ function HorenAudioPlayer({ script }: { script: HorenScript }) {
 // ============================================================
 
 function HorenRFRow({ task, answers, setAnswer, submitted, results }: TeilViewProps & { task: HorenTaskRF }) {
+  const tAnswers = useTranslations('exam.modules.horen.answers')
   const key = `h_${task.id}`
   const userAnswer = answers[key] as string | undefined
   const detail = results?.details[key]
@@ -465,7 +473,7 @@ function HorenRFRow({ task, answers, setAnswer, submitted, results }: TeilViewPr
                     : 'border-brand-border text-brand-text hover:border-brand-gold/50'
               } ${submitted ? 'cursor-default' : ''}`}
             >
-              {opt === 'richtig' ? 'Richtig' : 'Falsch'}
+              {tAnswers(opt)}
             </button>
           ))}
         </div>

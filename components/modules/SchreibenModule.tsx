@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useExamStore } from '@/store/examStore'
 import { ExamTimerDisplay, TimerWarningBanner } from '@/components/exam/ExamTimerDisplay'
 import { TimeUpOverlay } from '@/components/exam/TimeUpOverlay'
@@ -11,6 +12,9 @@ const SCHREIBEN_TIME = 60 * 60
 
 export function SchreibenModule() {
   const router = useRouter()
+  const t = useTranslations('exam.modules.schreiben')
+  const tShared = useTranslations('exam.modules.shared')
+  const tTimer = useTranslations('exam.timer')
   const { session } = useExamStore()
   const [text, setText] = useState('')
   const [timeLeft, setTimeLeft] = useState(SCHREIBEN_TIME)
@@ -49,17 +53,17 @@ export function SchreibenModule() {
       const data = await res.json()
       if (data.success && data.feedback) {
         setFeedback(data.feedback)
-        setPostSubmit({ href: `/exam/${session.id}/results`, label: 'Zu den Ergebnissen' })
+        setPostSubmit({ href: `/exam/${session.id}/results`, label: tShared('toResults') })
         setSubmitted(true)
       } else {
-        setError(data.error || 'Scoring failed')
+        setError(data.error || t('errors.scoring'))
       }
     } catch {
-      setError('Network error')
+      setError(t('errors.network'))
     } finally {
       setSubmitting(false)
     }
-  }, [session, task, text, submitted])
+  }, [session, task, text, submitted, t, tShared])
 
   useEffect(() => {
     if (submitted || timeLeft <= 0) {
@@ -69,35 +73,44 @@ export function SchreibenModule() {
       }
       return
     }
-    const t = setInterval(() => setTimeLeft((p) => p - 1), 1000)
-    return () => clearInterval(t)
+    const timer = setInterval(() => setTimeLeft((p) => p - 1), 1000)
+    return () => clearInterval(timer)
   }, [timeLeft, submitted, handleSubmit])
 
   useEffect(() => {
     if (!timeUp || !submitted || !postSubmit) return
-    const t = setTimeout(() => router.push(postSubmit.href), 2600)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => router.push(postSubmit.href), 2600)
+    return () => clearTimeout(timer)
   }, [timeUp, submitted, postSubmit, router])
 
   if (!task) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-brand-muted">Schreiben-Modul wird geladen…</p>
+        <p className="text-brand-muted">{t('loading')}</p>
       </div>
     )
   }
 
   const targetWords = task.wordCount || 80
 
+  const hintKey =
+    wordCount === 0
+      ? 'empty'
+      : wordCount < targetWords * 0.5
+        ? 'low'
+        : wordCount < targetWords
+          ? 'almost'
+          : 'enough'
+
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      {timeUp && session && <TimeUpOverlay detail={postSubmit ? 'Sie werden weitergeleitet…' : undefined} />}
+      {timeUp && session && <TimeUpOverlay detail={postSubmit ? tTimer('redirecting') : undefined} />}
 
       {/* Header */}
       <div className="flex items-center justify-between rounded-xl bg-brand-white p-4 shadow-soft">
         <div>
-          <h2 className="text-lg font-semibold text-brand-text">Modul Schreiben</h2>
-          <p className="text-xs text-brand-muted">60 Minuten — Schriftlicher Ausdruck</p>
+          <h2 className="text-lg font-semibold text-brand-text">{t('moduleTitle')}</h2>
+          <p className="text-xs text-brand-muted">{t('moduleHint')}</p>
         </div>
         <ExamTimerDisplay timeLeft={timeLeft} />
       </div>
@@ -107,7 +120,7 @@ export function SchreibenModule() {
       {/* Task card */}
       <div className="rounded-xl bg-brand-white p-6 shadow-soft">
         <span className="mb-3 inline-block rounded bg-brand-surface px-2.5 py-0.5 text-xs font-medium text-brand-muted">
-          Aufgabe
+          {t('task')}
         </span>
 
         {task.context && (
@@ -121,7 +134,7 @@ export function SchreibenModule() {
         {task.requiredPoints && task.requiredPoints.length > 0 && (
           <div className="rounded-lg bg-brand-surface p-4">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">
-              Schreiben Sie etwas zu folgenden Punkten:
+              {t('requiredPoints')}
             </p>
             <ul className="space-y-1">
               {task.requiredPoints.map((point, i) => (
@@ -139,32 +152,24 @@ export function SchreibenModule() {
       {!submitted ? (
         <div className="rounded-xl bg-brand-white p-6 shadow-soft">
           <div className="mb-3 flex items-center justify-between">
-            <label className="text-sm font-medium text-brand-text">Ihr Text</label>
+            <label className="text-sm font-medium text-brand-text">{t('yourText')}</label>
             <span className={`text-xs font-medium tabular-nums ${
               wordCount >= targetWords ? 'text-green-600' : wordCount >= targetWords * 0.5 ? 'text-brand-gold' : 'text-brand-muted'
             }`}>
-              {wordCount} / ~{targetWords} Wörter
+              {t('wordCount', { count: wordCount, target: targetWords })}
             </span>
           </div>
 
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Schreiben Sie hier Ihren Text..."
+            placeholder={t('textPlaceholder')}
             rows={12}
             className="w-full resize-none rounded-lg border border-brand-border bg-brand-bg p-4 text-sm leading-relaxed text-brand-text outline-none transition placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-1 focus:ring-brand-gold"
           />
 
           <div className="mt-4 flex items-center justify-between">
-            <p className="text-xs text-brand-muted">
-              {wordCount === 0
-                ? 'Beginnen Sie zu schreiben…'
-                : wordCount < targetWords * 0.5
-                  ? 'Schreiben Sie weiter!'
-                  : wordCount < targetWords
-                    ? 'Fast genug Wörter.'
-                    : 'Gute Länge!'}
-            </p>
+            <p className="text-xs text-brand-muted">{t(`wordHint.${hintKey}`)}</p>
             <button
               onClick={handleSubmit}
               disabled={wordCount < 5 || submitting}
@@ -177,10 +182,10 @@ export function SchreibenModule() {
               {submitting ? (
                 <span className="flex items-center gap-2">
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Wird bewertet…
+                  {t('submitting')}
                 </span>
               ) : (
-                'Text abgeben'
+                t('submitButton')
               )}
             </button>
           </div>
@@ -190,11 +195,11 @@ export function SchreibenModule() {
         <div className="space-y-4">
           {/* Submitted text preview */}
           <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-            <h3 className="mb-3 text-sm font-semibold text-brand-muted">Ihr Text</h3>
+            <h3 className="mb-3 text-sm font-semibold text-brand-muted">{t('yourText')}</h3>
             <div className="rounded-lg bg-brand-bg p-4">
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-text">{text}</p>
             </div>
-            <p className="mt-2 text-xs text-brand-muted">{wordCount} Wörter</p>
+            <p className="mt-2 text-xs text-brand-muted">{t('wordCountFinal', { count: wordCount })}</p>
           </div>
 
           {error && (
@@ -206,19 +211,19 @@ export function SchreibenModule() {
               {/* Score */}
               <div className="rounded-xl bg-brand-white p-6 text-center shadow-soft">
                 <div className="mb-1 text-5xl font-bold text-brand-text">{feedback.score}</div>
-                <p className="text-sm text-brand-muted">von 100 Punkten</p>
+                <p className="text-sm text-brand-muted">{t('outOf100')}</p>
               </div>
 
               {/* Criteria breakdown */}
               <div className="grid grid-cols-2 gap-3">
                 {([
-                  ['Aufgabenerfüllung', feedback.criteria.taskFulfillment],
-                  ['Kohärenz', feedback.criteria.coherence],
-                  ['Wortschatz', feedback.criteria.vocabulary],
-                  ['Grammatik', feedback.criteria.grammar],
-                ] as const).map(([label, score]) => (
-                  <div key={label} className="rounded-xl bg-brand-white p-4 shadow-soft">
-                    <p className="text-xs font-medium text-brand-muted">{label}</p>
+                  ['taskFulfillment', feedback.criteria.taskFulfillment],
+                  ['coherence', feedback.criteria.coherence],
+                  ['vocabulary', feedback.criteria.vocabulary],
+                  ['grammar', feedback.criteria.grammar],
+                ] as const).map(([key, score]) => (
+                  <div key={key} className="rounded-xl bg-brand-white p-4 shadow-soft">
+                    <p className="text-xs font-medium text-brand-muted">{t(`criteria.${key}`)}</p>
                     <div className="mt-1 flex items-end gap-1">
                       <span className="text-2xl font-bold text-brand-text">{score}</span>
                       <span className="mb-0.5 text-xs text-brand-muted">/ 25</span>
@@ -235,7 +240,7 @@ export function SchreibenModule() {
 
               {/* AI comment */}
               <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-                <h3 className="mb-3 text-sm font-semibold text-brand-text">KI-Feedback</h3>
+                <h3 className="mb-3 text-sm font-semibold text-brand-text">{t('aiFeedback')}</h3>
                 <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">
                   {feedback.comment}
                 </p>
