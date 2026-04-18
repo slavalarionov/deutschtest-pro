@@ -10,7 +10,7 @@
     "register": "Registrieren",
     "dashboard": "Mein Konto",
     "logout": "Abmelden",
-    "greeting": "Hallo, {email}!"
+    "greeting": "Hallo, <name>{email}</name>!"
   },
   "landing": {
     "metadata": {

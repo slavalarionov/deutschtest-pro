@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { Link, useRouter } from '@/i18n/routing'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 
@@ -11,6 +11,7 @@ interface AuthNavProps {
 
 export function AuthNav({ userEmail }: AuthNavProps) {
   const router = useRouter()
+  const t = useTranslations('nav')
 
   async function handleLogout() {
     const supabase = createClient()
@@ -22,13 +23,18 @@ export function AuthNav({ userEmail }: AuthNavProps) {
     return (
       <div className="flex items-center gap-3">
         <span className="hidden text-sm text-brand-muted sm:inline">
-          Hallo, <span className="font-medium text-brand-text">{userEmail}</span>!
+          {t.rich('greeting', {
+            email: userEmail,
+            name: (chunks) => (
+              <span className="font-medium text-brand-text">{chunks}</span>
+            ),
+          })}
         </span>
         <Link
           href="/dashboard"
           className="rounded-lg bg-brand-gold px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark"
         >
-          Mein Konto
+          {t('dashboard')}
         </Link>
         <motion.button
           whileHover={{ scale: 1.02 }}
@@ -36,7 +42,7 @@ export function AuthNav({ userEmail }: AuthNavProps) {
           onClick={handleLogout}
           className="rounded-lg border border-brand-border bg-brand-white px-4 py-2 text-sm font-medium text-brand-text shadow-soft transition hover:border-brand-gold/40"
         >
-          Abmelden
+          {t('logout')}
         </motion.button>
       </div>
     )
@@ -48,13 +54,13 @@ export function AuthNav({ userEmail }: AuthNavProps) {
         href="/login"
         className="rounded-lg border border-brand-border bg-brand-white px-4 py-2 text-sm font-medium text-brand-text shadow-soft transition hover:border-brand-gold/40"
       >
-        Anmelden
+        {t('login')}
       </Link>
       <Link
         href="/register"
         className="rounded-lg bg-brand-gold px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark"
       >
-        Registrieren
+        {t('register')}
       </Link>
     </div>
   )
