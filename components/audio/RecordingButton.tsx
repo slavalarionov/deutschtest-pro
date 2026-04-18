@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface RecordingButtonProps {
   onRecordingComplete: (audioBlob: Blob) => void
@@ -11,6 +12,7 @@ export function RecordingButton({
   onRecordingComplete,
   maxDuration = 120,
 }: RecordingButtonProps) {
+  const t = useTranslations('exam.audio')
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
   const timerRef = useRef<NodeJS.Timeout | null>(null)
@@ -77,7 +79,7 @@ export function RecordingButton({
             ? 'animate-pulse bg-brand-red text-white'
             : 'bg-brand-gold text-white hover:bg-brand-gold-dark'
         }`}
-        aria-label={isRecording ? 'Aufnahme stoppen' : 'Aufnahme starten'}
+        aria-label={isRecording ? t('stopRecording') : t('startRecording')}
       >
         {isRecording ? (
           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">

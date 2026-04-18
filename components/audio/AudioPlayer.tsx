@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface AudioPlayerProps {
   src: string
@@ -12,6 +13,7 @@ interface AudioPlayerProps {
  * Mirrors real Goethe exam conditions where rewinding is not permitted.
  */
 export function AudioPlayer({ src, maxPlays }: AudioPlayerProps) {
+  const t = useTranslations('exam.audio')
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [playCount, setPlayCount] = useState(0)
@@ -62,7 +64,7 @@ export function AudioPlayer({ src, maxPlays }: AudioPlayerProps) {
             ? 'bg-brand-gold text-white hover:bg-brand-gold-dark'
             : 'cursor-not-allowed bg-brand-border text-brand-muted'
         }`}
-        aria-label={isPlaying ? 'Pause' : 'Play'}
+        aria-label={isPlaying ? t('pause') : t('play')}
       >
         {isPlaying ? (
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
