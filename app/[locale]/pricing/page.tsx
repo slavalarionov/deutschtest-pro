@@ -1,48 +1,25 @@
-import { getTranslations } from 'next-intl/server'
+import { getFormatter, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/routing'
 import { createClient } from '@/lib/supabase/server'
 import { checkUserCanTakeTest } from '@/lib/exam/limits'
+import {
+  PRICING_PACKAGES,
+  currencyForLocale,
+  fractionDigitsForAmount,
+} from '@/lib/pricing'
+import type { Locale } from '@/i18n/request'
 
-type PackageKey = 'single' | 'pack5' | 'pack10'
-
-interface PricingPackage {
-  key: PackageKey
-  price: string
-  originalPrice?: string
-  featureCount: number
-  highlighted: boolean
-  hasBadge: boolean
-}
-
-const packages: PricingPackage[] = [
-  {
-    key: 'single',
-    price: '150',
-    featureCount: 3,
-    highlighted: false,
-    hasBadge: false,
-  },
-  {
-    key: 'pack5',
-    price: '599',
-    originalPrice: '750',
-    featureCount: 4,
-    highlighted: true,
-    hasBadge: true,
-  },
-  {
-    key: 'pack10',
-    price: '990',
-    originalPrice: '1500',
-    featureCount: 5,
-    highlighted: false,
-    hasBadge: true,
-  },
-]
-
-export default async function PricingPage() {
+export default async function PricingPage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>
+}) {
+  const { locale } = await params
   const t = await getTranslations('pricing')
   const tCommon = await getTranslations('common')
+  const format = await getFormatter()
+
+  const currency = currencyForLocale(locale)
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -121,8 +98,26 @@ export default async function PricingPage() {
           )}
 
           <div className="grid gap-6 sm:grid-cols-3">
-            {packages.map((pkg) => {
+            {PRICING_PACKAGES.map((pkg) => {
               const ns = `packages.${pkg.key}`
+              const price = pkg.prices[currency]
+              const originalPrice = pkg.originalPrices[currency]
+              const priceStr = format.number(price, {
+                style: 'currency',
+                currency,
+                minimumFractionDigits: fractionDigitsForAmount(price, currency),
+                maximumFractionDigits: fractionDigitsForAmount(price, currency),
+              })
+              const originalPriceStr =
+                originalPrice != null
+                  ? format.number(originalPrice, {
+                      style: 'currency',
+                      currency,
+                      minimumFractionDigits: fractionDigitsForAmount(originalPrice, currency),
+                      maximumFractionDigits: fractionDigitsForAmount(originalPrice, currency),
+                    })
+                  : null
+
               return (
                 <div
                   key={pkg.key}
@@ -143,15 +138,14 @@ export default async function PricingPage() {
                   </h3>
 
                   <div className="mb-1">
-                    {pkg.originalPrice && (
+                    {originalPriceStr && (
                       <span className="mr-2 text-sm text-brand-muted line-through">
-                        {pkg.originalPrice} &#8381;
+                        {originalPriceStr}
                       </span>
                     )}
                     <span className="text-3xl font-bold text-brand-text">
-                      {pkg.price}
+                      {priceStr}
                     </span>
-                    <span className="ml-1 text-sm text-brand-muted">&#8381;</span>
                   </div>
 
                   <p className="mb-6 text-xs text-brand-muted">
@@ -186,6 +180,20 @@ export default async function PricingPage() {
               )
             })}
           </div>
+
+          {!user && (
+            <div className="mx-auto mt-10 max-w-2xl rounded-xl border border-green-200 bg-green-50 px-6 py-5 text-center">
+              <p className="text-sm font-medium text-green-900">
+                {t('freeTrial.title')}
+              </p>
+              <Link
+                href="/register"
+                className="mt-3 inline-block rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+              >
+                {t('freeTrial.cta')}
+              </Link>
+            </div>
+          )}
 
           <p className="mt-8 text-center text-xs text-brand-muted">
             {t('footnote')}

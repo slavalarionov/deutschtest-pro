@@ -92,30 +92,39 @@
     },
     "pricing": {
       "title": "Простые тарифы",
-      "subtitle": "Начните бесплатно, перейдёте на платный, когда будете готовы.",
-      "plans": {
-        "probe": {
-          "name": "Пробный",
-          "price": "Бесплатно",
-          "period": "",
-          "description": "Попробуйте платформу на одном бесплатном пробном экзамене.",
-          "feature1": "1 пробный экзамен (все модули)",
-          "feature2": "Проверка ИИ",
-          "feature3": "Базовая обратная связь",
-          "cta": "Начать бесплатно"
+      "subtitle": "Выберите пакет модулей и тратьте их на любой из четырёх типов: Lesen, Hören, Schreiben, Sprechen.",
+      "packages": {
+        "starter": {
+          "name": "Starter",
+          "priceNote": "10 модулей",
+          "feature1": "10 модулей на выбор",
+          "feature2": "Lesen, Hören, Schreiben, Sprechen",
+          "feature3": "Проверка ИИ и обратная связь"
         },
-        "premium": {
-          "name": "Premium",
-          "price": "€19",
-          "period": "/мес",
-          "description": "Неограниченные экзамены с подробной обратной связью от ИИ.",
-          "feature1": "Неограниченные экзамены",
-          "feature2": "Все уровни (A1–B1)",
-          "feature3": "Подробная обратная связь от ИИ",
+        "standard": {
+          "name": "Standard",
+          "priceNote": "20 модулей",
+          "badge": "Популярно",
+          "feature1": "20 модулей на выбор",
+          "feature2": "Lesen, Hören, Schreiben, Sprechen",
+          "feature3": "Проверка ИИ и обратная связь",
+          "feature4": "Анализ прогресса"
+        },
+        "intensive": {
+          "name": "Intensive",
+          "priceNote": "40 модулей",
+          "badge": "−15%",
+          "feature1": "40 модулей на выбор",
+          "feature2": "Lesen, Hören, Schreiben, Sprechen",
+          "feature3": "Проверка ИИ и обратная связь",
           "feature4": "Анализ прогресса",
-          "feature5": "Приоритетная поддержка",
-          "cta": "Выбрать Premium"
+          "feature5": "Приоритетная поддержка"
         }
+      },
+      "ctaBuy": "Выбрать пакет",
+      "freeTrial": {
+        "title": "3 бесплатных модуля при регистрации — попробуйте любой модуль без риска.",
+        "cta": "Начать бесплатно"
       }
     },
     "faq": {
@@ -188,42 +197,46 @@
     "header": {
       "loginLink": "Войти"
     },
-    "title": "Купить тесты",
-    "subtitle": "Выберите пакет для подготовки к экзамену. Каждый тест включает все модули: Lesen, Hören, Schreiben, Sprechen.",
-    "freeAvailable": "У вас ещё есть <strong>бесплатный тест</strong>!",
+    "title": "Купить пакет модулей",
+    "subtitle": "Выберите пакет модулей. Модули — универсальные кредиты: тратятся на любой из четырёх типов — Lesen, Hören, Schreiben, Sprechen.",
+    "freeAvailable": "У вас ещё есть <strong>бесплатный модуль</strong>!",
     "freeAvailableCta": "Пройти бесплатно →",
-    "paidAvailable": "{count, plural, one {У вас доступен <strong># тест</strong>.} few {У вас доступно <strong># теста</strong>.} many {У вас доступно <strong># тестов</strong>.} other {У вас доступно <strong># теста</strong>.}}",
-    "paidAvailableCta": "Начать тест →",
+    "paidAvailable": "{count, plural, one {У вас доступен <strong># модуль</strong>.} few {У вас доступно <strong># модуля</strong>.} many {У вас доступно <strong># модулей</strong>.} other {У вас доступно <strong># модуля</strong>.}}",
+    "paidAvailableCta": "Начать модуль →",
     "packages": {
-      "single": {
-        "name": "1 тест",
-        "priceNote": "разово",
-        "feature1": "1 полный экзамен",
-        "feature2": "Все 4 модуля",
+      "starter": {
+        "name": "Starter",
+        "priceNote": "10 модулей",
+        "feature1": "10 модулей на выбор",
+        "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "Проверка ИИ и обратная связь"
       },
-      "pack5": {
-        "name": "5 тестов",
-        "priceNote": "Выгодно",
+      "standard": {
+        "name": "Standard",
+        "priceNote": "20 модулей",
         "badge": "Популярно",
-        "feature1": "5 полных экзаменов",
-        "feature2": "Все 4 модуля",
+        "feature1": "20 модулей на выбор",
+        "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "Проверка ИИ и обратная связь",
         "feature4": "Анализ прогресса"
       },
-      "pack10": {
-        "name": "10 тестов",
-        "priceNote": "Лучшая цена",
-        "badge": "−34%",
-        "feature1": "10 полных экзаменов",
-        "feature2": "Все 4 модуля",
+      "intensive": {
+        "name": "Intensive",
+        "priceNote": "40 модулей",
+        "badge": "−15%",
+        "feature1": "40 модулей на выбор",
+        "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "Проверка ИИ и обратная связь",
         "feature4": "Анализ прогресса",
         "feature5": "Приоритетная поддержка"
       }
     },
     "ctaBuy": "Купить (скоро)",
-    "footnote": "Безопасная оплата. Все цены указаны с НДС. Тесты действительны 30 дней."
+    "freeTrial": {
+      "title": "3 бесплатных модуля при регистрации — попробуйте любой модуль без риска.",
+      "cta": "Начать бесплатно"
+    },
+    "footnote": "Безопасная оплата. Все цены указаны с НДС. Модули действительны 30 дней с момента покупки."
   },
   "dashboard": {
     "shell": {

@@ -92,30 +92,39 @@
     },
     "pricing": {
       "title": "Basit fiyatlandırma",
-      "subtitle": "Ücretsiz başlayın, hazır olduğunuzda yükseltin.",
-      "plans": {
-        "probe": {
-          "name": "Deneme",
-          "price": "Ücretsiz",
-          "period": "",
-          "description": "Platformu bir ücretsiz deneme sınavıyla keşfedin.",
-          "feature1": "1 deneme sınavı (tüm modüller)",
-          "feature2": "AI değerlendirme",
-          "feature3": "Temel geri bildirim",
-          "cta": "Ücretsiz başla"
+      "subtitle": "Bir modül paketi seçin ve kredilerinizi dört modül tipinden herhangi birinde kullanın: Lesen, Hören, Schreiben, Sprechen.",
+      "packages": {
+        "starter": {
+          "name": "Starter",
+          "priceNote": "10 modül",
+          "feature1": "İstediğiniz 10 modül",
+          "feature2": "Lesen, Hören, Schreiben, Sprechen",
+          "feature3": "AI değerlendirme ve geri bildirim"
         },
-        "premium": {
-          "name": "Premium",
-          "price": "€19",
-          "period": "/ay",
-          "description": "Ayrıntılı AI geri bildirimiyle sınırsız sınav.",
-          "feature1": "Sınırsız sınav",
-          "feature2": "Tüm seviyeler (A1–B1)",
-          "feature3": "Ayrıntılı AI geri bildirim",
+        "standard": {
+          "name": "Standard",
+          "priceNote": "20 modül",
+          "badge": "Popüler",
+          "feature1": "İstediğiniz 20 modül",
+          "feature2": "Lesen, Hören, Schreiben, Sprechen",
+          "feature3": "AI değerlendirme ve geri bildirim",
+          "feature4": "İlerleme analizi"
+        },
+        "intensive": {
+          "name": "Intensive",
+          "priceNote": "40 modül",
+          "badge": "−15%",
+          "feature1": "İstediğiniz 40 modül",
+          "feature2": "Lesen, Hören, Schreiben, Sprechen",
+          "feature3": "AI değerlendirme ve geri bildirim",
           "feature4": "İlerleme analizi",
-          "feature5": "Öncelikli destek",
-          "cta": "Premium'a geç"
+          "feature5": "Öncelikli destek"
         }
+      },
+      "ctaBuy": "Paket seç",
+      "freeTrial": {
+        "title": "Kayıt olunca 3 ücretsiz modül — herhangi bir modülü risksiz deneyin.",
+        "cta": "Ücretsiz başla"
       }
     },
     "faq": {
@@ -188,42 +197,46 @@
     "header": {
       "loginLink": "Giriş yap"
     },
-    "title": "Test satın al",
-    "subtitle": "Sınav hazırlığınız için uygun paketi seçin. Her test tüm modülleri içerir: Lesen, Hören, Schreiben, Sprechen.",
-    "freeAvailable": "Hâlâ bir <strong>ücretsiz testiniz</strong> var!",
+    "title": "Modül paketi satın al",
+    "subtitle": "Bir modül paketi seçin. Modüller evrensel kredilerdir — dört tipin herhangi birinde kullanabilirsiniz: Lesen, Hören, Schreiben, Sprechen.",
+    "freeAvailable": "Hâlâ bir <strong>ücretsiz modülünüz</strong> var!",
     "freeAvailableCta": "Şimdi ücretsiz dene →",
-    "paidAvailable": "{count, plural, other {<strong># test</strong> kullanıma hazır.}}",
-    "paidAvailableCta": "Testi başlat →",
+    "paidAvailable": "{count, plural, other {<strong># modül</strong> kullanıma hazır.}}",
+    "paidAvailableCta": "Modülü başlat →",
     "packages": {
-      "single": {
-        "name": "1 test",
-        "priceNote": "tek seferlik",
-        "feature1": "1 tam sınav",
-        "feature2": "4 modülün tamamı",
+      "starter": {
+        "name": "Starter",
+        "priceNote": "10 modül",
+        "feature1": "İstediğiniz 10 modül",
+        "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "AI değerlendirme ve geri bildirim"
       },
-      "pack5": {
-        "name": "5 test",
-        "priceNote": "Avantajlı paket",
+      "standard": {
+        "name": "Standard",
+        "priceNote": "20 modül",
         "badge": "Popüler",
-        "feature1": "5 tam sınav",
-        "feature2": "4 modülün tamamı",
+        "feature1": "İstediğiniz 20 modül",
+        "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "AI değerlendirme ve geri bildirim",
         "feature4": "İlerleme analizi"
       },
-      "pack10": {
-        "name": "10 test",
-        "priceNote": "En iyi teklif",
-        "badge": "-34%",
-        "feature1": "10 tam sınav",
-        "feature2": "4 modülün tamamı",
+      "intensive": {
+        "name": "Intensive",
+        "priceNote": "40 modül",
+        "badge": "−15%",
+        "feature1": "İstediğiniz 40 modül",
+        "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "AI değerlendirme ve geri bildirim",
         "feature4": "İlerleme analizi",
         "feature5": "Öncelikli destek"
       }
     },
     "ctaBuy": "Satın al (yakında)",
-    "footnote": "Güvenli ödeme. Tüm fiyatlara KDV dahildir. Testler 30 gün geçerlidir."
+    "freeTrial": {
+      "title": "Kayıt olunca 3 ücretsiz modül — herhangi bir modülü risksiz deneyin.",
+      "cta": "Ücretsiz başla"
+    },
+    "footnote": "Güvenli ödeme. Tüm fiyatlara KDV dahildir. Modüller satın alma tarihinden itibaren 30 gün geçerlidir."
   },
   "dashboard": {
     "shell": {

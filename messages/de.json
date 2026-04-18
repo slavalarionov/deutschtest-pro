@@ -92,30 +92,39 @@
     },
     "pricing": {
       "title": "Einfache Preisgestaltung",
-      "subtitle": "Starten Sie kostenlos, upgraden Sie wenn Sie bereit sind.",
-      "plans": {
-        "probe": {
-          "name": "Probe",
-          "price": "Kostenlos",
-          "period": "",
-          "description": "Testen Sie die Plattform mit einem kostenlosen Probeexamen.",
-          "feature1": "1 Probeexamen (alle Module)",
-          "feature2": "KI-Bewertung",
-          "feature3": "Grundlegendes Feedback",
-          "cta": "Kostenlos starten"
+      "subtitle": "Wählen Sie ein Paket mit Modul-Guthaben und setzen Sie es flexibel für Lesen, Hören, Schreiben oder Sprechen ein.",
+      "packages": {
+        "starter": {
+          "name": "Starter",
+          "priceNote": "10 Module",
+          "feature1": "10 beliebige Module",
+          "feature2": "Lesen, Hören, Schreiben, Sprechen",
+          "feature3": "KI-Bewertung & Feedback"
         },
-        "premium": {
-          "name": "Premium",
-          "price": "€19",
-          "period": "/Monat",
-          "description": "Unbegrenzte Prüfungen mit detailliertem KI-Feedback.",
-          "feature1": "Unbegrenzte Prüfungen",
-          "feature2": "Alle Niveaustufen (A1–B1)",
-          "feature3": "Detailliertes KI-Feedback",
+        "standard": {
+          "name": "Standard",
+          "priceNote": "20 Module",
+          "badge": "Beliebt",
+          "feature1": "20 beliebige Module",
+          "feature2": "Lesen, Hören, Schreiben, Sprechen",
+          "feature3": "KI-Bewertung & Feedback",
+          "feature4": "Fortschrittsanalyse"
+        },
+        "intensive": {
+          "name": "Intensive",
+          "priceNote": "40 Module",
+          "badge": "−15%",
+          "feature1": "40 beliebige Module",
+          "feature2": "Lesen, Hören, Schreiben, Sprechen",
+          "feature3": "KI-Bewertung & Feedback",
           "feature4": "Fortschrittsanalyse",
-          "feature5": "Prioritäts-Support",
-          "cta": "Premium wählen"
+          "feature5": "Prioritäts-Support"
         }
+      },
+      "ctaBuy": "Paket wählen",
+      "freeTrial": {
+        "title": "3 Module gratis bei der Registrierung — probieren Sie jedes Modul risikofrei aus.",
+        "cta": "Kostenlos starten"
       }
     },
     "faq": {
@@ -188,42 +197,46 @@
     "header": {
       "loginLink": "Anmelden"
     },
-    "title": "Tests kaufen",
-    "subtitle": "Wählen Sie das passende Paket für Ihre Prüfungsvorbereitung. Jeder Test enthält alle Module: Lesen, Hören, Schreiben, Sprechen.",
-    "freeAvailable": "Sie haben noch einen <strong>kostenlosen Test</strong> verfügbar!",
+    "title": "Modul-Pakete kaufen",
+    "subtitle": "Wählen Sie ein Paket mit Modul-Guthaben. Die Module sind universell: Sie setzen sie für Lesen, Hören, Schreiben oder Sprechen frei ein.",
+    "freeAvailable": "Sie haben noch ein <strong>kostenloses Modul</strong> verfügbar!",
     "freeAvailableCta": "Jetzt kostenlos testen →",
-    "paidAvailable": "{count, plural, one {Sie haben <strong># Test</strong> verfügbar.} other {Sie haben <strong># Tests</strong> verfügbar.}}",
-    "paidAvailableCta": "Test starten →",
+    "paidAvailable": "{count, plural, one {Sie haben <strong># Modul</strong> verfügbar.} other {Sie haben <strong># Module</strong> verfügbar.}}",
+    "paidAvailableCta": "Modul starten →",
     "packages": {
-      "single": {
-        "name": "1 Test",
-        "priceNote": "einmalig",
-        "feature1": "1 vollständige Prüfung",
-        "feature2": "Alle 4 Module",
+      "starter": {
+        "name": "Starter",
+        "priceNote": "10 Module",
+        "feature1": "10 beliebige Module",
+        "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "KI-Bewertung & Feedback"
       },
-      "pack5": {
-        "name": "5 Tests",
-        "priceNote": "Sparpaket",
+      "standard": {
+        "name": "Standard",
+        "priceNote": "20 Module",
         "badge": "Beliebt",
-        "feature1": "5 vollständige Prüfungen",
-        "feature2": "Alle 4 Module",
+        "feature1": "20 beliebige Module",
+        "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "KI-Bewertung & Feedback",
         "feature4": "Fortschrittsanalyse"
       },
-      "pack10": {
-        "name": "10 Tests",
-        "priceNote": "Bestes Angebot",
-        "badge": "-34%",
-        "feature1": "10 vollständige Prüfungen",
-        "feature2": "Alle 4 Module",
+      "intensive": {
+        "name": "Intensive",
+        "priceNote": "40 Module",
+        "badge": "−15%",
+        "feature1": "40 beliebige Module",
+        "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "KI-Bewertung & Feedback",
         "feature4": "Fortschrittsanalyse",
         "feature5": "Prioritäts-Support"
       }
     },
     "ctaBuy": "Kaufen (bald verfügbar)",
-    "footnote": "Sichere Bezahlung. Alle Preise inkl. MwSt. Tests sind 30 Tage gültig."
+    "freeTrial": {
+      "title": "3 Module gratis bei der Registrierung — probieren Sie jedes Modul risikofrei aus.",
+      "cta": "Kostenlos starten"
+    },
+    "footnote": "Sichere Bezahlung. Alle Preise inkl. MwSt. Module sind 30 Tage ab Kauf gültig."
   },
   "dashboard": {
     "shell": {

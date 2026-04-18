@@ -92,30 +92,39 @@
     },
     "pricing": {
       "title": "Simple pricing",
-      "subtitle": "Start free, upgrade when you're ready.",
-      "plans": {
-        "probe": {
-          "name": "Trial",
-          "price": "Free",
-          "period": "",
-          "description": "Try the platform with one free trial exam.",
-          "feature1": "1 trial exam (all modules)",
-          "feature2": "AI scoring",
-          "feature3": "Basic feedback",
-          "cta": "Start free"
+      "subtitle": "Pick a module pack and spend your credits on any of the four types: Lesen, Hören, Schreiben, Sprechen.",
+      "packages": {
+        "starter": {
+          "name": "Starter",
+          "priceNote": "10 modules",
+          "feature1": "10 modules, any type",
+          "feature2": "Lesen, Hören, Schreiben, Sprechen",
+          "feature3": "AI scoring & feedback"
         },
-        "premium": {
-          "name": "Premium",
-          "price": "€19",
-          "period": "/month",
-          "description": "Unlimited exams with detailed AI feedback.",
-          "feature1": "Unlimited exams",
-          "feature2": "All levels (A1–B1)",
-          "feature3": "Detailed AI feedback",
+        "standard": {
+          "name": "Standard",
+          "priceNote": "20 modules",
+          "badge": "Popular",
+          "feature1": "20 modules, any type",
+          "feature2": "Lesen, Hören, Schreiben, Sprechen",
+          "feature3": "AI scoring & feedback",
+          "feature4": "Progress analytics"
+        },
+        "intensive": {
+          "name": "Intensive",
+          "priceNote": "40 modules",
+          "badge": "−15%",
+          "feature1": "40 modules, any type",
+          "feature2": "Lesen, Hören, Schreiben, Sprechen",
+          "feature3": "AI scoring & feedback",
           "feature4": "Progress analytics",
-          "feature5": "Priority support",
-          "cta": "Go Premium"
+          "feature5": "Priority support"
         }
+      },
+      "ctaBuy": "Pick a pack",
+      "freeTrial": {
+        "title": "3 free modules when you sign up — try any module risk-free.",
+        "cta": "Start free"
       }
     },
     "faq": {
@@ -188,42 +197,46 @@
     "header": {
       "loginLink": "Log in"
     },
-    "title": "Buy tests",
-    "subtitle": "Pick the right pack for your exam prep. Every test includes all modules: Lesen, Hören, Schreiben, Sprechen.",
-    "freeAvailable": "You still have a <strong>free test</strong> available!",
+    "title": "Buy module pack",
+    "subtitle": "Pick a module pack. Modules are universal credits — spend them on any of the four types: Lesen, Hören, Schreiben, Sprechen.",
+    "freeAvailable": "You still have a <strong>free module</strong> available!",
     "freeAvailableCta": "Take it free now →",
-    "paidAvailable": "{count, plural, one {You have <strong># test</strong> available.} other {You have <strong># tests</strong> available.}}",
-    "paidAvailableCta": "Start test →",
+    "paidAvailable": "{count, plural, one {You have <strong># module</strong> available.} other {You have <strong># modules</strong> available.}}",
+    "paidAvailableCta": "Start module →",
     "packages": {
-      "single": {
-        "name": "1 test",
-        "priceNote": "one-time",
-        "feature1": "1 full exam",
-        "feature2": "All 4 modules",
+      "starter": {
+        "name": "Starter",
+        "priceNote": "10 modules",
+        "feature1": "10 modules, any type",
+        "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "AI scoring & feedback"
       },
-      "pack5": {
-        "name": "5 tests",
-        "priceNote": "Save pack",
+      "standard": {
+        "name": "Standard",
+        "priceNote": "20 modules",
         "badge": "Popular",
-        "feature1": "5 full exams",
-        "feature2": "All 4 modules",
+        "feature1": "20 modules, any type",
+        "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "AI scoring & feedback",
         "feature4": "Progress analytics"
       },
-      "pack10": {
-        "name": "10 tests",
-        "priceNote": "Best deal",
-        "badge": "-34%",
-        "feature1": "10 full exams",
-        "feature2": "All 4 modules",
+      "intensive": {
+        "name": "Intensive",
+        "priceNote": "40 modules",
+        "badge": "−15%",
+        "feature1": "40 modules, any type",
+        "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "AI scoring & feedback",
         "feature4": "Progress analytics",
         "feature5": "Priority support"
       }
     },
     "ctaBuy": "Buy (coming soon)",
-    "footnote": "Secure checkout. All prices include VAT. Tests are valid for 30 days."
+    "freeTrial": {
+      "title": "3 free modules when you sign up — try any module risk-free.",
+      "cta": "Start free"
+    },
+    "footnote": "Secure checkout. All prices include VAT. Modules are valid for 30 days after purchase."
   },
   "dashboard": {
     "shell": {
