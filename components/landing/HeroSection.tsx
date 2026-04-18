@@ -2,30 +2,18 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/routing'
 import type { ExamLevel, ExamModule } from '@/types/exam'
 
-const LEVELS: { value: ExamLevel; label: string; desc: string }[] = [
-  { value: 'A1', label: 'A1', desc: 'Start Deutsch 1' },
-  { value: 'A2', label: 'A2', desc: 'Goethe-Zertifikat A2' },
-  { value: 'B1', label: 'B1', desc: 'Goethe-Zertifikat B1' },
+const LEVELS: ExamLevel[] = ['A1', 'A2', 'B1']
+const MODULES: { id: ExamModule; icon: string }[] = [
+  { id: 'lesen', icon: '📖' },
+  { id: 'horen', icon: '🎧' },
+  { id: 'schreiben', icon: '✍️' },
+  { id: 'sprechen', icon: '🗣' },
 ]
-
-const MODULE_OPTIONS: {
-  id: ExamModule
-  name: string
-  duration: string
-  icon: string
-}[] = [
-  { id: 'lesen', name: 'Lesen', duration: '65 Min', icon: '📖' },
-  { id: 'horen', name: 'Hören', duration: '40 Min', icon: '🎧' },
-  { id: 'schreiben', name: 'Schreiben', duration: '60 Min', icon: '✍️' },
-  { id: 'sprechen', name: 'Sprechen', duration: '15 Min', icon: '🗣' },
-]
-
-const GENERIC_GENERATE_FAIL =
-  'Die Prüfung konnte nicht generiert werden. Bitte versuchen Sie es etwas später erneut.'
 
 interface HeroSectionProps {
   isLoggedIn: boolean
@@ -43,12 +31,15 @@ export function HeroSection({
   isAdmin,
 }: HeroSectionProps) {
   const router = useRouter()
+  const t = useTranslations('landing.hero')
   const [selectedLevel, setSelectedLevel] = useState<ExamLevel>('B1')
   const [selectedModule, setSelectedModule] = useState<ExamModule | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   /** API `error` string for dev-only under the German message (screenshots / debugging). */
   const [errorDetail, setErrorDetail] = useState<string | null>(null)
+
+  const genericGenerateFail = t('errors.generateFailed')
 
   async function handleStartExam() {
     if (!isLoggedIn) {
@@ -62,9 +53,7 @@ export function HeroSection({
       !isAdmin && !freeTestAvailable && paidTestsCount === 0
 
     if (mustPrepayModules && modulesBalance < 1) {
-      setError(
-        'Sie haben keine Modul-Credits mehr. Bitte kaufen Sie weitere Credits.'
-      )
+      setError(t('errors.noCredits'))
       return
     }
 
@@ -95,7 +84,7 @@ export function HeroSection({
       if (res.status === 403) {
         setLoading(false)
         if (data.code === 'insufficient_balance') {
-          setError(String(data.error ?? 'Nicht genug Modul-Credits.'))
+          setError(String(data.error ?? t('errors.insufficientBalanceFallback')))
         } else {
           router.push(String(data.redirect ?? '/pricing'))
         }
@@ -106,7 +95,7 @@ export function HeroSection({
         const code = data.code
         const apiError = typeof data.error === 'string' ? data.error : undefined
         console.error('[exam/generate] non-OK response', { status: res.status, code, error: apiError })
-        setError(GENERIC_GENERATE_FAIL)
+        setError(genericGenerateFail)
         setErrorDetail(apiError ?? null)
         setLoading(false)
         return
@@ -116,7 +105,7 @@ export function HeroSection({
         const code = data.code
         const apiError = typeof data.error === 'string' ? data.error : undefined
         console.error('[exam/generate] unexpected body', { code, error: apiError, success: data.success })
-        setError(GENERIC_GENERATE_FAIL)
+        setError(genericGenerateFail)
         setErrorDetail(apiError ?? null)
         setLoading(false)
         return
@@ -126,7 +115,7 @@ export function HeroSection({
       setLoading(false)
     } catch (err) {
       console.error('[exam/generate] fetch failed', err)
-      setError(GENERIC_GENERATE_FAIL)
+      setError(genericGenerateFail)
       setErrorDetail(err instanceof Error ? err.message : String(err))
       setLoading(false)
     }
@@ -134,21 +123,19 @@ export function HeroSection({
 
   function getCtaLabel(): string {
     if (loading) return ''
-    if (!isLoggedIn) return 'Kostenlos registrieren & testen'
-    if (!selectedModule) return 'Modul wählen'
+    if (!isLoggedIn) return t('ctaRegister')
+    if (!selectedModule) return t('ctaSelectModule')
     if (freeTestAvailable || paidTestsCount > 0 || modulesBalance > 0) {
-      return `Test starten — ${selectedLevel}`
+      return t('ctaStart', { level: selectedLevel })
     }
-    return 'Tests kaufen'
+    return t('ctaBuy')
   }
 
   function getSubtitle(): string {
-    if (!isLoggedIn) return 'Registrieren Sie sich und erhalten Sie einen kostenlosen Test.'
-    if (freeTestAvailable) return 'Ihr kostenloser Probetest wartet auf Sie.'
-    if (paidTestsCount > 0) return `Sie haben ${paidTestsCount} ${paidTestsCount === 1 ? 'Test' : 'Tests'} verfügbar.`
-    if (modulesBalance > 0) {
-      return `Modul-Credits: ${modulesBalance} (1 Credit pro Modul)`
-    }
+    if (!isLoggedIn) return t('subtitleGuest')
+    if (freeTestAvailable) return t('subtitleFreeAvailable')
+    if (paidTestsCount > 0) return t('subtitlePaidTests', { count: paidTestsCount })
+    if (modulesBalance > 0) return t('subtitleModules', { count: modulesBalance })
     return ''
   }
 
@@ -157,8 +144,12 @@ export function HeroSection({
   const showBuyButton =
     isLoggedIn && !isAdmin && !freeTestAvailable && paidTestsCount === 0 && modulesBalance === 0
 
-  const loadingHint =
-    loading ? 'Modul wird generiert — bitte einen Moment warten…' : null
+  const loadingHint = loading ? t('loadingHint') : null
+  const levelDescKey: Record<ExamLevel, string> = {
+    A1: 'a1',
+    A2: 'a2',
+    B1: 'b1',
+  }
 
   return (
     <section className="relative overflow-hidden bg-brand-bg px-4 py-24 sm:py-32">
@@ -169,18 +160,17 @@ export function HeroSection({
           transition={{ duration: 0.6 }}
         >
           <span className="mb-4 inline-block rounded-full bg-brand-surface px-4 py-1.5 text-xs font-medium tracking-wide text-brand-muted">
-            KI-gestützte Prüfungsvorbereitung
+            {t('badge')}
           </span>
 
           <h1 className="mb-6 text-4xl font-bold leading-tight text-brand-text sm:text-5xl lg:text-6xl">
-            Bestehen Sie das{' '}
-            <span className="text-brand-gold">Goethe-Zertifikat</span>{' '}
-            beim ersten Versuch
+            {t('titlePart1')}{' '}
+            <span className="text-brand-gold">{t('titleHighlight')}</span>{' '}
+            {t('titlePart2')}
           </h1>
 
           <p className="mx-auto mb-4 max-w-2xl text-lg text-brand-muted">
-            Realistische Prüfungssimulation mit KI-generierten Aufgaben,
-            automatischer Bewertung und detailliertem Feedback.
+            {t('subtitle')}
           </p>
 
           {getSubtitle() && (
@@ -194,29 +184,34 @@ export function HeroSection({
               <div className="mx-auto mb-4 flex max-w-sm justify-center gap-3">
                 {LEVELS.map((lvl) => (
                   <button
-                    key={lvl.value}
+                    key={lvl}
                     type="button"
-                    onClick={() => setSelectedLevel(lvl.value)}
+                    onClick={() => setSelectedLevel(lvl)}
                     disabled={loading}
                     className={`flex-1 rounded-xl border-2 px-4 py-3 transition ${
-                      selectedLevel === lvl.value
+                      selectedLevel === lvl
                         ? 'border-brand-gold bg-brand-gold/5 shadow-soft'
                         : 'border-brand-border bg-brand-white hover:border-brand-gold/40'
                     }`}
                   >
                     <span
-                      className={`block text-lg font-bold ${selectedLevel === lvl.value ? 'text-brand-gold-dark' : 'text-brand-text'}`}
+                      className={`block text-lg font-bold ${selectedLevel === lvl ? 'text-brand-gold-dark' : 'text-brand-text'}`}
                     >
-                      {lvl.label}
+                      {lvl}
                     </span>
-                    <span className="block text-[11px] text-brand-muted">{lvl.desc}</span>
+                    <span className="block text-[11px] text-brand-muted">
+                      {t(`levels.${levelDescKey[lvl]}`)}
+                    </span>
                   </button>
                 ))}
               </div>
 
               <div className="mx-auto mb-4 grid max-w-lg grid-cols-1 gap-2 sm:grid-cols-2">
-                {MODULE_OPTIONS.map((mod) => {
+                {MODULES.map((mod) => {
                   const checked = selectedModule === mod.id
+                  const nameKey = `modules.${mod.id}` as const
+                  const durKey =
+                    `modules.duration${mod.id.charAt(0).toUpperCase()}${mod.id.slice(1)}` as const
                   return (
                     <button
                       key={mod.id}
@@ -231,8 +226,8 @@ export function HeroSection({
                     >
                       <div className="flex-1">
                         <span className="text-lg">{mod.icon}</span>{' '}
-                        <span className="font-semibold text-brand-text">{mod.name}</span>
-                        <span className="mt-0.5 block text-xs text-brand-muted">{mod.duration}</span>
+                        <span className="font-semibold text-brand-text">{t(nameKey)}</span>
+                        <span className="mt-0.5 block text-xs text-brand-muted">{t(durKey)}</span>
                       </div>
                     </button>
                   )
@@ -240,7 +235,7 @@ export function HeroSection({
               </div>
 
               <p className="mx-auto mb-6 max-w-xl text-sm text-brand-muted">
-                💡 Wählen Sie ein Modul für ein gezieltes Training. 1 Credit = 1 Modul.
+                {t('modulesHint')}
               </p>
             </>
           )}
@@ -249,13 +244,13 @@ export function HeroSection({
             {showBuyButton ? (
               <div className="flex flex-col items-center gap-3">
                 <p className="max-w-md text-sm text-brand-muted">
-                  Sie haben bereits Ihren kostenlosen Test verwendet. Kaufen Sie weitere Tests, um fortzufahren.
+                  {t('buyPrompt')}
                 </p>
                 <Link
                   href="/pricing"
                   className="rounded-lg bg-brand-gold px-8 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark"
                 >
-                  Tests kaufen
+                  {t('ctaBuy')}
                 </Link>
               </div>
             ) : (
@@ -268,7 +263,7 @@ export function HeroSection({
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    KI generiert Prüfung…
+                    {t('ctaGenerating')}
                   </span>
                 ) : (
                   getCtaLabel()
@@ -297,17 +292,17 @@ export function HeroSection({
         >
           <div>
             <span className="block text-2xl font-bold text-brand-text">A1–B1</span>
-            Niveaustufen
+            {t('stats.levels')}
           </div>
           <div className="h-8 w-px bg-brand-border" />
           <div>
             <span className="block text-2xl font-bold text-brand-text">4</span>
-            Module
+            {t('stats.modules')}
           </div>
           <div className="h-8 w-px bg-brand-border" />
           <div>
-            <span className="block text-2xl font-bold text-brand-text">KI</span>
-            Bewertung
+            <span className="block text-2xl font-bold text-brand-text">{t('stats.aiLabel')}</span>
+            {t('stats.ai')}
           </div>
         </motion.div>
       </div>

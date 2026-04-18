@@ -1,3 +1,5 @@
+import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { HeroSection } from '@/components/landing/HeroSection'
 import { FeaturesSection } from '@/components/landing/FeaturesSection'
 import { PricingSection } from '@/components/landing/PricingSection'
@@ -5,6 +7,18 @@ import { FaqSection } from '@/components/landing/FaqSection'
 import { AuthNav } from '@/components/auth/AuthNav'
 import { createClient } from '@/lib/supabase/server'
 import { checkUserCanTakeTest } from '@/lib/exam/limits'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string }
+}): Promise<Metadata> {
+  const t = await getTranslations({ locale: params.locale, namespace: 'landing.metadata' })
+  return {
+    title: t('title'),
+    description: t('description'),
+  }
+}
 
 export default async function HomePage() {
   const supabase = await createClient()
