@@ -2,6 +2,31 @@ import { createServerClient } from '@supabase/ssr'
 import type { User } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 
+export async function getPreferredLanguage(
+  request: NextRequest,
+  userId: string,
+): Promise<string | null> {
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value
+        },
+        set() {},
+        remove() {},
+      },
+    },
+  )
+  const { data } = await supabase
+    .from('profiles')
+    .select('preferred_language')
+    .eq('id', userId)
+    .single()
+  return data?.preferred_language ?? null
+}
+
 export async function updateSession(
   request: NextRequest
 ): Promise<{ response: NextResponse; user: User | null }> {

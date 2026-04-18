@@ -1,26 +1,38 @@
 import createIntlMiddleware from 'next-intl/middleware'
 import { NextResponse, type NextRequest } from 'next/server'
 import { locales, defaultLocale } from './i18n/request'
-import { updateSession } from './lib/supabase/middleware'
+import { updateSession, getPreferredLanguage } from './lib/supabase/middleware'
 
 const intlMiddleware = createIntlMiddleware({
   locales: locales as unknown as string[],
   defaultLocale,
   localePrefix: 'as-needed',
-  localeDetection: false,
+  localeDetection: true,
 })
 
 const LOCALE_PREFIX_RE = /^\/(de|ru|en|tr)(?=\/|$)/
+const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365
+const SUPPORTED = locales as readonly string[]
 
 function stripLocalePrefix(pathname: string): string {
   return pathname.replace(LOCALE_PREFIX_RE, '') || '/'
 }
 
+function hasLocalePrefix(pathname: string): boolean {
+  return LOCALE_PREFIX_RE.test(pathname)
+}
+
+function buildLocalizedUrl(request: NextRequest, locale: string): URL {
+  const u = new URL(request.url)
+  const suffix = u.pathname === '/' ? '' : u.pathname
+  u.pathname = `/${locale}${suffix}`
+  return u
+}
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Admin and API routes bypass i18n middleware entirely.
-  // They still need Supabase session refresh for auth cookies.
+  // Admin and API bypass i18n entirely. They still need Supabase session refresh.
   if (pathname.startsWith('/api') || pathname.startsWith('/admin')) {
     const { response, user } = await updateSession(request)
 
@@ -33,19 +45,43 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // Run next-intl first — it may rewrite (via x-middleware-rewrite) or redirect.
+  // Refresh Supabase session first, so we know the user when deciding on locale redirects.
+  const { response: supabaseResponse, user } = await updateSession(request)
+
+  // Authed user on a path without locale prefix → redirect to /{preferred}/... if preference
+  // is not the default. If URL already has a locale prefix, we treat that as the user's
+  // explicit choice for this navigation and do NOT redirect (may be intentional session choice).
+  if (user && !hasLocalePrefix(pathname)) {
+    const preferred = await getPreferredLanguage(request, user.id)
+    if (preferred && preferred !== defaultLocale && SUPPORTED.includes(preferred)) {
+      const redirectUrl = buildLocalizedUrl(request, preferred)
+      const res = NextResponse.redirect(redirectUrl)
+      // Carry over refreshed Supabase auth cookies so the redirect lands authed.
+      supabaseResponse.cookies.getAll().forEach((c) => {
+        res.cookies.set(c)
+      })
+      // Align NEXT_LOCALE cookie with DB preference so subsequent requests skip the lookup.
+      res.cookies.set('NEXT_LOCALE', preferred, {
+        maxAge: COOKIE_MAX_AGE_SECONDS,
+        path: '/',
+        sameSite: 'lax',
+      })
+      return res
+    }
+  }
+
+  // Run next-intl middleware — for guests it handles Accept-Language detection and cookie,
+  // for authed users (past the redirect above) it just confirms routing.
   const intlResponse = intlMiddleware(request)
 
-  // If next-intl issued a redirect, honor it immediately.
   if (intlResponse.headers.has('location')) {
+    // next-intl issued a redirect (e.g. guest Accept-Language detection). Preserve its
+    // response (includes NEXT_LOCALE cookie it sets).
     return intlResponse
   }
 
-  // Then refresh Supabase session. Its response carries updated auth cookies.
-  const { response: supabaseResponse, user } = await updateSession(request)
-
-  // Propagate next-intl routing headers (x-middleware-rewrite / x-middleware-next)
-  // onto the Supabase response so Next.js still routes the request under [locale].
+  // Propagate next-intl routing headers onto the Supabase response so Next.js still routes
+  // the request under [locale].
   intlResponse.headers.forEach((value, key) => {
     if (key.startsWith('x-middleware-') || key.startsWith('x-next-intl')) {
       supabaseResponse.headers.set(key, value)
