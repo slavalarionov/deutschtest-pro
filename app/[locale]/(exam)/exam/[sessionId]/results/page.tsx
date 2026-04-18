@@ -1,7 +1,9 @@
 'use client'
 
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/routing'
 import { RetakeModuleModal } from '@/components/exam/RetakeModuleModal'
 
 interface ModuleScores {
@@ -37,13 +39,6 @@ interface ResultsData {
   modulesBalance: number
 }
 
-const MODULE_LABELS: Record<string, string> = {
-  lesen: 'Lesen',
-  horen: 'Hören',
-  schreiben: 'Schreiben',
-  sprechen: 'Sprechen',
-}
-
 const VALID_MODULES = new Set(['lesen', 'horen', 'schreiben', 'sprechen'])
 
 function ProgressBar({ value, max }: { value: number; max: number }) {
@@ -59,6 +54,9 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
 export default function ResultsPage() {
   const params = useParams<{ sessionId: string }>()
   const router = useRouter()
+  const locale = useLocale()
+  const t = useTranslations('results')
+  const tModules = useTranslations('modules')
   const [data, setData] = useState<ResultsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -72,23 +70,23 @@ export default function ResultsPage() {
         if (json.success) {
           setData(json)
         } else {
-          setError(json.error || 'Ergebnisse konnten nicht geladen werden.')
+          setError(json.error || t('errors.loadFailed'))
         }
       } catch {
-        setError('Netzwerkfehler beim Laden der Ergebnisse.')
+        setError(t('errors.network'))
       } finally {
         setLoading(false)
       }
     }
     load()
-  }, [params.sessionId])
+  }, [params.sessionId, t])
 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-brand-bg">
         <div className="text-center">
           <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-brand-gold border-t-transparent" />
-          <p className="text-sm text-brand-muted">Ergebnisse werden geladen…</p>
+          <p className="text-sm text-brand-muted">{t('loading')}</p>
         </div>
       </div>
     )
@@ -98,13 +96,13 @@ export default function ResultsPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-brand-bg px-4">
         <div className="max-w-md rounded-xl bg-brand-white p-8 text-center shadow-soft">
-          <p className="mb-4 text-lg font-semibold text-brand-text">Keine Ergebnisse gefunden</p>
-          <p className="mb-6 text-sm text-brand-muted">{error || 'Die Prüfung wurde noch nicht abgegeben.'}</p>
+          <p className="mb-4 text-lg font-semibold text-brand-text">{t('notFound')}</p>
+          <p className="mb-6 text-sm text-brand-muted">{error || t('notSubmitted')}</p>
           <button
             onClick={() => router.push('/')}
             className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
           >
-            Zur Startseite
+            {t('toHome')}
           </button>
         </div>
       </div>
@@ -113,6 +111,7 @@ export default function ResultsPage() {
 
   const { scores, aiFeedback, level, mode } = data
   const activeModule = VALID_MODULES.has(mode) ? mode : 'lesen'
+  const moduleLabel = tModules(activeModule as 'lesen' | 'horen' | 'schreiben' | 'sprechen')
   const score = scores ? (scores as Record<string, number>)[activeModule] : undefined
   const passed = score !== undefined && score >= 60
 
@@ -122,19 +121,21 @@ export default function ResultsPage() {
         {/* Header */}
         <div className="mb-8 rounded-2xl bg-brand-white p-8 text-center shadow-soft">
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-muted">
-            Goethe-Zertifikat {level} — {MODULE_LABELS[activeModule] || activeModule}
+            {t('certificateHeading', { level, module: moduleLabel })}
           </p>
           <div className="mb-2 text-7xl font-bold text-brand-text">{score ?? '—'}</div>
-          <p className="text-sm text-brand-muted">von 100 Punkten</p>
+          <p className="text-sm text-brand-muted">{t('outOf100')}</p>
           {score !== undefined && <ProgressBar value={score} max={100} />}
           {score !== undefined && (
             <p className={`mt-4 text-lg font-bold ${passed ? 'text-green-700' : 'text-brand-red'}`}>
-              {passed ? 'Bestanden ✅' : 'Nicht bestanden ❌'}
+              {passed ? t('passed') : t('failed')}
             </p>
           )}
           {data.submittedAt && (
             <p className="mt-4 text-xs text-brand-muted">
-              Abgegeben am {new Date(data.submittedAt).toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' })}
+              {t('submittedAt', {
+                date: new Date(data.submittedAt).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' }),
+              })}
             </p>
           )}
         </div>
@@ -144,7 +145,7 @@ export default function ResultsPage() {
           const fb = (aiFeedback as Record<string, unknown>)[activeModule]
           if (!fb) return null
           if (activeModule === 'lesen' || activeModule === 'horen') {
-            return <LesenHorenDetails module={activeModule} feedback={fb as LesenHorenFeedback} />
+            return <LesenHorenDetails moduleLabel={moduleLabel} feedback={fb as LesenHorenFeedback} />
           }
           if (activeModule === 'schreiben') {
             return <SchreibenDetails feedback={fb as SchreibenFeedback} />
@@ -163,7 +164,7 @@ export default function ResultsPage() {
               onClick={() => router.push('/dashboard')}
               className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
             >
-              Zum Dashboard
+              {t('toDashboard')}
             </button>
             <button
               type="button"
@@ -176,7 +177,7 @@ export default function ResultsPage() {
               }}
               className="rounded-lg border border-brand-border bg-brand-white px-6 py-2.5 text-sm font-semibold text-brand-text transition hover:bg-brand-surface"
             >
-              Modul wiederholen
+              {t('retakeModule')}
             </button>
           </div>
         </div>
@@ -187,14 +188,15 @@ export default function ResultsPage() {
         onClose={() => setRetakeModalOpen(false)}
         originalSessionId={params.sessionId}
         module={activeModule as 'lesen' | 'horen' | 'schreiben' | 'sprechen'}
-        moduleLabel={MODULE_LABELS[activeModule] || activeModule}
+        moduleLabel={moduleLabel}
         modulesBalance={data?.modulesBalance ?? 0}
       />
     </div>
   )
 }
 
-function LesenHorenDetails({ module, feedback }: { module: string; feedback: LesenHorenFeedback }) {
+function LesenHorenDetails({ moduleLabel, feedback }: { moduleLabel: string; feedback: LesenHorenFeedback }) {
+  const t = useTranslations('results.lesenHoren')
   if (!feedback.details || !feedback.summary) return null
 
   const wrongAnswers = Object.entries(feedback.details).filter(([, d]) => !d.isCorrect)
@@ -202,33 +204,33 @@ function LesenHorenDetails({ module, feedback }: { module: string; feedback: Les
   return (
     <div className="mb-6 rounded-xl bg-brand-white p-6 shadow-soft">
       <h3 className="mb-4 text-base font-semibold text-brand-text">
-        {MODULE_LABELS[module]} — Detailergebnisse
+        {t('title', { module: moduleLabel })}
       </h3>
       <div className="mb-4 flex items-center gap-4">
         <div className="rounded-lg bg-green-50 px-4 py-2">
           <span className="text-lg font-bold text-green-700">{feedback.summary.correct}</span>
-          <span className="ml-1 text-xs text-green-600">richtig</span>
+          <span className="ml-1 text-xs text-green-600">{t('correct')}</span>
         </div>
         <div className="rounded-lg bg-red-50 px-4 py-2">
           <span className="text-lg font-bold text-brand-red">{feedback.summary.total - feedback.summary.correct}</span>
-          <span className="ml-1 text-xs text-red-600">falsch</span>
+          <span className="ml-1 text-xs text-red-600">{t('wrong')}</span>
         </div>
         <div className="rounded-lg bg-brand-surface px-4 py-2">
           <span className="text-lg font-bold text-brand-text">{feedback.summary.total}</span>
-          <span className="ml-1 text-xs text-brand-muted">gesamt</span>
+          <span className="ml-1 text-xs text-brand-muted">{t('total')}</span>
         </div>
       </div>
 
       {wrongAnswers.length > 0 && (
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">Falsche Antworten</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">{t('wrongAnswers')}</p>
           <div className="space-y-2">
             {wrongAnswers.map(([id, detail]) => (
               <div key={id} className="flex items-center justify-between rounded-lg bg-red-50/50 px-4 py-2.5">
-                <span className="text-xs font-medium text-brand-text">Aufgabe {id}</span>
+                <span className="text-xs font-medium text-brand-text">{t('taskLabel', { id })}</span>
                 <div className="flex gap-3 text-xs">
-                  <span className="text-red-600">Ihre: <strong>{detail.userAnswer || '—'}</strong></span>
-                  <span className="text-green-600">Richtig: <strong>{detail.correctAnswer}</strong></span>
+                  <span className="text-red-600">{t('yourAnswerLabel')} <strong>{detail.userAnswer || '—'}</strong></span>
+                  <span className="text-green-600">{t('correctAnswerLabel')} <strong>{detail.correctAnswer}</strong></span>
                 </div>
               </div>
             ))}
@@ -240,21 +242,22 @@ function LesenHorenDetails({ module, feedback }: { module: string; feedback: Les
 }
 
 function SchreibenDetails({ feedback }: { feedback: SchreibenFeedback }) {
+  const t = useTranslations('results.schreiben')
   const criteria = [
-    ['Aufgabenerfüllung', feedback.criteria.taskFulfillment, 25],
-    ['Kohärenz', feedback.criteria.coherence, 25],
-    ['Wortschatz', feedback.criteria.vocabulary, 25],
-    ['Grammatik', feedback.criteria.grammar, 25],
+    ['taskFulfillment', feedback.criteria.taskFulfillment, 25],
+    ['coherence', feedback.criteria.coherence, 25],
+    ['vocabulary', feedback.criteria.vocabulary, 25],
+    ['grammar', feedback.criteria.grammar, 25],
   ] as const
 
   return (
     <div className="mb-6 space-y-4">
       <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-        <h3 className="mb-4 text-base font-semibold text-brand-text">Schreiben — Bewertung</h3>
+        <h3 className="mb-4 text-base font-semibold text-brand-text">{t('title')}</h3>
         <div className="grid grid-cols-2 gap-3">
-          {criteria.map(([label, score, max]) => (
-            <div key={label} className="rounded-lg bg-brand-bg p-4">
-              <p className="text-xs font-medium text-brand-muted">{label}</p>
+          {criteria.map(([key, score, max]) => (
+            <div key={key} className="rounded-lg bg-brand-bg p-4">
+              <p className="text-xs font-medium text-brand-muted">{t(key)}</p>
               <div className="mt-1 flex items-end gap-1">
                 <span className="text-2xl font-bold text-brand-text">{score}</span>
                 <span className="mb-0.5 text-xs text-brand-muted">/ {max}</span>
@@ -266,7 +269,7 @@ function SchreibenDetails({ feedback }: { feedback: SchreibenFeedback }) {
       </div>
       {feedback.comment && (
         <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-          <h4 className="mb-3 text-sm font-semibold text-brand-text">KI-Feedback</h4>
+          <h4 className="mb-3 text-sm font-semibold text-brand-text">{t('aiFeedback')}</h4>
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">{feedback.comment}</p>
         </div>
       )}
@@ -275,22 +278,23 @@ function SchreibenDetails({ feedback }: { feedback: SchreibenFeedback }) {
 }
 
 function SprechenDetails({ feedback }: { feedback: SprechenFeedback }) {
+  const t = useTranslations('results.sprechen')
   const criteria = [
-    ['Aufgabenerfüllung', feedback.criteria.taskFulfillment, 20],
-    ['Flüssigkeit', feedback.criteria.fluency, 20],
-    ['Wortschatz', feedback.criteria.vocabulary, 20],
-    ['Grammatik', feedback.criteria.grammar, 20],
-    ['Aussprache', feedback.criteria.pronunciation, 20],
+    ['taskFulfillment', feedback.criteria.taskFulfillment, 20],
+    ['fluency', feedback.criteria.fluency, 20],
+    ['vocabulary', feedback.criteria.vocabulary, 20],
+    ['grammar', feedback.criteria.grammar, 20],
+    ['pronunciation', feedback.criteria.pronunciation, 20],
   ] as const
 
   return (
     <div className="mb-6 space-y-4">
       <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-        <h3 className="mb-4 text-base font-semibold text-brand-text">Sprechen — Bewertung</h3>
+        <h3 className="mb-4 text-base font-semibold text-brand-text">{t('title')}</h3>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {criteria.map(([label, score, max]) => (
-            <div key={label} className="rounded-lg bg-brand-bg p-4">
-              <p className="text-xs font-medium text-brand-muted">{label}</p>
+          {criteria.map(([key, score, max]) => (
+            <div key={key} className="rounded-lg bg-brand-bg p-4">
+              <p className="text-xs font-medium text-brand-muted">{t(key)}</p>
               <div className="mt-1 flex items-end gap-1">
                 <span className="text-2xl font-bold text-brand-text">{score}</span>
                 <span className="mb-0.5 text-xs text-brand-muted">/ {max}</span>
@@ -302,7 +306,7 @@ function SprechenDetails({ feedback }: { feedback: SprechenFeedback }) {
       </div>
       {feedback.comment && (
         <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-          <h4 className="mb-3 text-sm font-semibold text-brand-text">KI-Feedback</h4>
+          <h4 className="mb-3 text-sm font-semibold text-brand-text">{t('aiFeedback')}</h4>
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">{feedback.comment}</p>
         </div>
       )}

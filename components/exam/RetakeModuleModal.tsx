@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useRouter } from '@/i18n/routing'
 
 interface RetakeModuleModalProps {
   open: boolean
@@ -21,6 +22,7 @@ export function RetakeModuleModal({
   modulesBalance,
 }: RetakeModuleModalProps) {
   const router = useRouter()
+  const t = useTranslations('results.retakeModal')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -41,13 +43,13 @@ export function RetakeModuleModal({
         return
       }
       if (!data.success) {
-        setError(data.error || 'Fehler beim Erstellen der neuen Prüfung')
+        setError(data.error || t('errorFallback'))
         setLoading(false)
         return
       }
       router.push(`/exam/${data.newSessionId}`)
     } catch {
-      setError('Netzwerkfehler')
+      setError(t('errorNetwork'))
       setLoading(false)
     }
   }
@@ -55,16 +57,19 @@ export function RetakeModuleModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-xl bg-brand-white p-6 shadow-xl">
-        <h3 className="mb-3 text-lg font-semibold text-brand-text">
-          Modul erneut absolvieren
-        </h3>
+        <h3 className="mb-3 text-lg font-semibold text-brand-text">{t('title')}</h3>
         <p className="mb-4 text-sm text-brand-muted">
-          Sie starten eine neue {moduleLabel}-Prüfung mit komplett neuen Aufgaben.
-          Dafür wird <strong>1 Modul</strong> von Ihrem Guthaben abgezogen.
+          {t.rich('body', {
+            module: moduleLabel,
+            b: (chunks) => <strong>{chunks}</strong>,
+          })}
         </p>
         <p className="mb-5 text-sm text-brand-text">
-          Aktuelles Guthaben: <strong>{modulesBalance} Module</strong> → nach dem
-          Start: <strong>{modulesBalance - 1} Module</strong>
+          {t.rich('balance', {
+            current: modulesBalance,
+            next: modulesBalance - 1,
+            b: (chunks) => <strong>{chunks}</strong>,
+          })}
         </p>
         {error && <p className="mb-3 text-sm text-brand-red">{error}</p>}
         <div className="flex justify-end gap-3">
@@ -74,7 +79,7 @@ export function RetakeModuleModal({
             disabled={loading}
             className="rounded-lg border border-brand-border bg-brand-white px-4 py-2 text-sm font-semibold text-brand-text hover:bg-brand-surface"
           >
-            Abbrechen
+            {t('cancel')}
           </button>
           <button
             type="button"
@@ -82,7 +87,7 @@ export function RetakeModuleModal({
             disabled={loading}
             className="rounded-lg bg-brand-gold px-4 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark disabled:opacity-50"
           >
-            {loading ? 'Wird gestartet…' : 'Ja, starten'}
+            {loading ? t('confirming') : t('confirm')}
           </button>
         </div>
       </div>
