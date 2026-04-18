@@ -6,6 +6,7 @@ import type { ExamLevel, SchreibenContent } from '@/types/exam'
 import { createServerClient } from '@/lib/supabase-server'
 import { deductModuleBalanceIfNeeded } from '@/lib/billing'
 import type { Json } from '@/types/supabase'
+import type { Locale } from '@/i18n/request'
 
 const submitLesenSchema = z.object({
   sessionId: z.string().min(1),
@@ -181,11 +182,20 @@ async function handleSchreibenSubmit(
     return NextResponse.json({ success: false, error: 'Task not found' }, { status: 404 })
   }
 
+  const supabase = createServerClient()
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('preferred_language')
+    .eq('id', stored.userId)
+    .maybeSingle()
+  const language = (profile?.preferred_language ?? 'de') as Locale
+
   const feedback = await scoreSchreiben(
     stored.level as ExamLevel,
     task.prompt + (task.context ? `\n\nKontext: ${task.context}` : ''),
     task.requiredPoints || [],
-    userText
+    userText,
+    language
   )
 
   await afterModuleSubmit(stored, { schreiben: feedback.score }, { schreiben: feedback })
