@@ -207,9 +207,18 @@ Du erstellst ausschließlich Aufgaben im offiziellen Prüfungsformat.
 Verwende ausschließlich das bereitgestellte Tool, um deine Antwort zu strukturieren.
 Achte besonders auf authentisches, natürliches Deutsch — typografische Anführungszeichen („…") sind erwünscht im Inhalt der Texte.`
 
-const SYSTEM_PROMPT_TOOL_SCORE = `Du bist ein offizieller Prüfer für das Goethe-Zertifikat.
-Du bewertest Antworten von Prüflingen fair, aber streng — wie ein echter Goethe-Prüfer.
-Verwende ausschließlich das bereitgestellte Tool, um deine Bewertung zu strukturieren.`
+function buildScoringSystemPrompt(module: 'Schreiben' | 'Sprechen', language: Locale): string {
+  return `You are an official Goethe-Zertifikat examiner evaluating a student's ${module} response. Score fairly but strictly — like a real Goethe examiner. Respond exclusively via the provided tool (valid JSON matching the schema).
+
+CRITICAL OUTPUT LANGUAGE: ${LANGUAGE_NAME[language]} (code: "${language}")
+- All descriptive text in the \`comment\` field must be in ${LANGUAGE_NAME[language]}.
+- "de" → German, "ru" → Russian, "en" → English, "tr" → Turkish.
+
+KEEP IN GERMAN regardless of output language (Goethe exam terminology):
+Lesen, Hören, Schreiben, Sprechen, Teil 1-5, A1, A2, B1, Goethe-Zertifikat, DeutschTest.pro, Aufgabenerfüllung, Kohärenz, Wortschatz, Grammatik, Flüssigkeit, Aussprache, Anrede, Grußformel, Betreff, and any direct quotes from the student's text/transcript.
+
+Tone: friendly, educational, specific. Point out both strengths and areas for improvement.`
+}
 
 // --- Zod schemas ---
 
@@ -524,11 +533,12 @@ export async function scoreSchreiben(
   level: ExamLevel,
   task: string,
   requiredPoints: string[],
-  userText: string
+  userText: string,
+  language: Locale
 ): Promise<SchreibenFeedback> {
   return generateWithTool({
-    systemPrompt: SYSTEM_PROMPT_TOOL_SCORE,
-    userPrompt: await buildSchreibenScorePrompt(level, task, requiredPoints, userText),
+    systemPrompt: buildScoringSystemPrompt('Schreiben', language),
+    userPrompt: await buildSchreibenScorePrompt(level, task, requiredPoints, userText, language),
     toolName: 'submit_schreiben_score',
     toolDescription: 'Reicht die Bewertung des Schreiben-Textes nach Goethe-Kriterien ein.',
     schema: schreibenFeedbackSchema,
@@ -801,11 +811,12 @@ export async function scoreSprechen(
   transcript: string,
   taskType: string,
   taskTopic: string,
-  taskPoints: string[]
+  taskPoints: string[],
+  language: Locale
 ): Promise<SprechenFeedback> {
   return generateWithTool({
-    systemPrompt: SYSTEM_PROMPT_TOOL_SCORE,
-    userPrompt: await buildSprechenScorePrompt(level, taskType, taskTopic, taskPoints, transcript),
+    systemPrompt: buildScoringSystemPrompt('Sprechen', language),
+    userPrompt: await buildSprechenScorePrompt(level, taskType, taskTopic, taskPoints, transcript, language),
     toolName: 'submit_sprechen_score',
     toolDescription: 'Reicht die Bewertung der mündlichen Leistung nach Goethe-Kriterien ein.',
     schema: sprechenFeedbackSchema,
