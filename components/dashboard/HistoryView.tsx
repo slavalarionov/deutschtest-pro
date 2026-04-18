@@ -1,19 +1,13 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/routing'
 import type {
   HistoryItem,
   HistoryLevel,
   HistoryModule,
 } from '@/lib/dashboard/history'
-
-const MODULE_LABELS: Record<HistoryModule, string> = {
-  lesen: 'Lesen',
-  horen: 'Hören',
-  schreiben: 'Schreiben',
-  sprechen: 'Sprechen',
-}
 
 const LEVEL_OPTIONS: HistoryLevel[] = ['A1', 'A2', 'B1']
 const MODULE_OPTIONS: HistoryModule[] = ['lesen', 'horen', 'schreiben', 'sprechen']
@@ -48,22 +42,30 @@ function ScoreBadge({ score }: { score: number }) {
   )
 }
 
-function StatusBadge({ isFreeTest }: { isFreeTest: boolean }) {
+function StatusBadge({
+  isFreeTest,
+  label,
+}: {
+  isFreeTest: boolean
+  label: string
+}) {
   if (isFreeTest) {
     return (
       <span className="inline-flex items-center rounded-md bg-brand-surface px-2 py-0.5 text-xs font-medium text-brand-muted">
-        Kostenlos
+        {label}
       </span>
     )
   }
   return (
     <span className="inline-flex items-center rounded-md bg-brand-gold/10 px-2 py-0.5 text-xs font-medium text-brand-gold-dark">
-      Bezahlt
+      {label}
     </span>
   )
 }
 
 export function HistoryView() {
+  const t = useTranslations('dashboard.history')
+  const tModules = useTranslations('modules')
   const [items, setItems] = useState<HistoryItem[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -93,7 +95,7 @@ export function HistoryView() {
         const json = await res.json()
         if (!active) return
         if (!res.ok || !json.success) {
-          setError(json.error || 'Verlauf konnte nicht geladen werden.')
+          setError(json.error || t('errors.loadFailed'))
           setItems([])
           return
         }
@@ -101,7 +103,7 @@ export function HistoryView() {
       })
       .catch(() => {
         if (!active) return
-        setError('Netzwerkfehler beim Laden des Verlaufs.')
+        setError(t('errors.network'))
         setItems([])
       })
       .finally(() => {
@@ -111,7 +113,7 @@ export function HistoryView() {
     return () => {
       active = false
     }
-  }, [queryString])
+  }, [queryString, t])
 
   const hasFilters =
     moduleFilter !== 'all' || levelFilter !== 'all' || fromDate || toDate
@@ -126,17 +128,15 @@ export function HistoryView() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-brand-text">Verlauf</h1>
-        <p className="mt-1 text-sm text-brand-muted">
-          Alle abgeschlossenen Module mit Filtern nach Niveau, Modul und Datum.
-        </p>
+        <h1 className="text-2xl font-bold text-brand-text">{t('title')}</h1>
+        <p className="mt-1 text-sm text-brand-muted">{t('subtitle')}</p>
       </div>
 
       <div className="rounded-2xl bg-brand-white p-5 shadow-soft">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-brand-muted">
-              Niveau
+              {t('filters.level')}
             </label>
             <select
               value={levelFilter}
@@ -145,7 +145,7 @@ export function HistoryView() {
               }
               className="w-full rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm text-brand-text focus:border-brand-gold focus:outline-none"
             >
-              <option value="all">Alle Niveaus</option>
+              <option value="all">{t('filters.allLevels')}</option>
               {LEVEL_OPTIONS.map((lvl) => (
                 <option key={lvl} value={lvl}>
                   {lvl}
@@ -156,7 +156,7 @@ export function HistoryView() {
 
           <div>
             <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-brand-muted">
-              Modul
+              {t('filters.module')}
             </label>
             <select
               value={moduleFilter}
@@ -165,10 +165,10 @@ export function HistoryView() {
               }
               className="w-full rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm text-brand-text focus:border-brand-gold focus:outline-none"
             >
-              <option value="all">Alle Module</option>
+              <option value="all">{t('filters.allModules')}</option>
               {MODULE_OPTIONS.map((m) => (
                 <option key={m} value={m}>
-                  {MODULE_LABELS[m]}
+                  {tModules(m)}
                 </option>
               ))}
             </select>
@@ -176,7 +176,7 @@ export function HistoryView() {
 
           <div>
             <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-brand-muted">
-              Von
+              {t('filters.dateFrom')}
             </label>
             <input
               type="date"
@@ -188,7 +188,7 @@ export function HistoryView() {
 
           <div>
             <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-brand-muted">
-              Bis
+              {t('filters.dateTo')}
             </label>
             <input
               type="date"
@@ -206,7 +206,7 @@ export function HistoryView() {
               onClick={resetFilters}
               className="text-xs font-medium text-brand-muted hover:text-brand-text"
             >
-              Filter zurücksetzen
+              {t('filters.reset')}
             </button>
           </div>
         )}
@@ -228,21 +228,19 @@ export function HistoryView() {
         {!loading && !error && items && items.length === 0 && (
           <div className="px-6 py-16 text-center">
             <p className="text-sm font-medium text-brand-text">
-              {hasFilters
-                ? 'Keine Module entsprechen den Filtern.'
-                : 'Sie haben noch keine Module absolviert'}
+              {hasFilters ? t('empty.withFilters') : t('empty.noAttempts')}
             </p>
             <p className="mt-2 text-xs text-brand-muted">
               {hasFilters
-                ? 'Ändern Sie die Filter oder setzen Sie sie zurück.'
-                : 'Starten Sie ein Modul über das Dashboard.'}
+                ? t('empty.withFiltersHint')
+                : t('empty.noAttemptsHint')}
             </p>
             {!hasFilters && (
               <Link
                 href="/dashboard"
                 className="mt-6 inline-block rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark"
               >
-                Zum Dashboard
+                {t('empty.toDashboard')}
               </Link>
             )}
           </div>
@@ -253,11 +251,11 @@ export function HistoryView() {
             <table className="w-full text-sm">
               <thead className="border-b border-brand-border bg-brand-surface/50 text-left text-xs uppercase tracking-wider text-brand-muted">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Datum</th>
-                  <th className="px-4 py-3 font-medium">Niveau</th>
-                  <th className="px-4 py-3 font-medium">Modul</th>
-                  <th className="px-4 py-3 font-medium">Punkte</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">{t('table.date')}</th>
+                  <th className="px-4 py-3 font-medium">{t('table.level')}</th>
+                  <th className="px-4 py-3 font-medium">{t('table.module')}</th>
+                  <th className="px-4 py-3 font-medium">{t('table.score')}</th>
+                  <th className="px-4 py-3 font-medium">{t('table.status')}</th>
                   <th className="px-4 py-3 font-medium"></th>
                 </tr>
               </thead>
@@ -276,20 +274,27 @@ export function HistoryView() {
                       </span>
                     </td>
                     <td className="px-4 py-3 font-medium text-brand-text">
-                      {MODULE_LABELS[item.module]}
+                      {tModules(item.module)}
                     </td>
                     <td className="px-4 py-3">
                       <ScoreBadge score={item.score} />
                     </td>
                     <td className="px-4 py-3">
-                      <StatusBadge isFreeTest={item.isFreeTest} />
+                      <StatusBadge
+                        isFreeTest={item.isFreeTest}
+                        label={
+                          item.isFreeTest
+                            ? t('status.free')
+                            : t('status.paid')
+                        }
+                      />
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link
                         href={`/dashboard/test/${item.attemptId}`}
                         className="text-xs font-semibold text-brand-gold-dark hover:underline"
                       >
-                        Details →
+                        {t('table.detailsLink')}
                       </Link>
                     </td>
                   </tr>

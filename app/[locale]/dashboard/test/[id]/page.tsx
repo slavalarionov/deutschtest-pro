@@ -1,4 +1,5 @@
-import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
+import { Link } from '@/i18n/routing'
 import { createClient } from '@/lib/supabase/server'
 import { loadTestDetails } from '@/lib/dashboard/test-details'
 import { getModulesBalance } from '@/lib/billing'
@@ -19,18 +20,19 @@ export default async function TestDetailsPage({
   // Layout already redirects if no user; keep TS happy.
   if (!user) return null
 
-  const [result, modulesBalance] = await Promise.all([
+  const [result, modulesBalance, t] = await Promise.all([
     loadTestDetails(user.id, params.id),
     getModulesBalance(user.id),
+    getTranslations('dashboard.testDetail'),
   ])
 
   if (!result.ok) {
     const message =
       result.reason === 'forbidden'
-        ? 'Sie haben keinen Zugriff auf dieses Modul.'
+        ? t('errors.forbidden')
         : result.reason === 'not_submitted'
-          ? 'Dieses Modul wurde noch nicht abgeschlossen.'
-          : 'Modul nicht gefunden.'
+          ? t('errors.notSubmitted')
+          : t('errors.notFound')
 
     return (
       <div className="mx-auto max-w-3xl">
@@ -38,7 +40,7 @@ export default async function TestDetailsPage({
           href="/dashboard/history"
           className="text-sm text-brand-muted hover:text-brand-text"
         >
-          ← Zurück zum Verlauf
+          {t('backToHistory')}
         </Link>
         <div className="mt-6 rounded-2xl bg-brand-white p-10 text-center shadow-soft">
           <p className="text-sm font-medium text-brand-text">{message}</p>
@@ -46,7 +48,7 @@ export default async function TestDetailsPage({
             href="/dashboard/history"
             className="mt-6 inline-block rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark"
           >
-            Zur Verlaufsübersicht
+            {t('toHistory')}
           </Link>
         </div>
       </div>

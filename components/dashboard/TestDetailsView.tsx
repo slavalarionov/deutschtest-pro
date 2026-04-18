@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { Link, useRouter } from '@/i18n/routing'
 import { useState } from 'react'
 import { RetakeModuleModal } from '@/components/exam/RetakeModuleModal'
 import type {
@@ -14,13 +14,6 @@ import type {
   SprechenContent,
   SprechenFeedback,
 } from '@/types/exam'
-
-const MODULE_LABELS: Record<TestDetails['module'], string> = {
-  lesen: 'Lesen',
-  horen: 'Hören',
-  schreiben: 'Schreiben',
-  sprechen: 'Sprechen',
-}
 
 function formatDate(iso: string): string {
   try {
@@ -60,7 +53,15 @@ export function TestDetailsView({
   modulesBalance,
 }: TestDetailsViewProps) {
   const router = useRouter()
+  const t = useTranslations('dashboard.testDetail')
+  const tHistory = useTranslations('dashboard.history')
+  const tModules = useTranslations('modules')
   const [retakeOpen, setRetakeOpen] = useState(false)
+
+  const moduleLabel = tModules(details.module)
+  const statusLabel = details.isFreeTest
+    ? tHistory('status.free')
+    : tHistory('status.paid')
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -69,36 +70,40 @@ export function TestDetailsView({
           href="/dashboard/history"
           className="text-sm text-brand-muted hover:text-brand-text"
         >
-          ← Zurück zum Verlauf
+          {t('backToHistory')}
         </Link>
       </div>
 
       <div className="rounded-2xl bg-brand-white p-8 text-center shadow-soft">
         <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-muted">
-          Goethe-Zertifikat {details.level} — {MODULE_LABELS[details.module]}
+          {t('certificateHeading', {
+            level: details.level,
+            module: moduleLabel,
+          })}
         </p>
         <div className="mb-2 text-6xl font-bold text-brand-text">
           {details.score}
         </div>
-        <p className="text-sm text-brand-muted">von 100 Punkten</p>
+        <p className="text-sm text-brand-muted">{t('outOf100')}</p>
         <ProgressBar value={details.score} max={100} />
         <p
           className={`mt-4 text-lg font-bold ${
             details.passed ? 'text-green-700' : 'text-brand-red'
           }`}
         >
-          {details.passed ? 'Bestanden ✅' : 'Nicht bestanden ❌'}
+          {details.passed ? t('passed') : t('failed')}
         </p>
         <p className="mt-4 text-xs text-brand-muted">
-          Abgegeben am {formatDate(details.submittedAt)}
-          {' · '}
-          {details.isFreeTest ? 'Kostenlos' : 'Bezahlt'}
+          {t('submittedAt', {
+            date: formatDate(details.submittedAt),
+            status: statusLabel,
+          })}
         </p>
       </div>
 
       {(details.module === 'lesen' || details.module === 'horen') && (
         <LesenHorenSection
-          module={details.module}
+          moduleLabel={moduleLabel}
           feedback={details.feedback}
         />
       )}
@@ -122,7 +127,7 @@ export function TestDetailsView({
           href="/dashboard/history"
           className="rounded-lg border border-brand-border bg-brand-white px-6 py-2.5 text-sm font-semibold text-brand-text transition hover:bg-brand-surface"
         >
-          Zurück zum Verlauf
+          {t('backToHistoryButton')}
         </Link>
         <button
           type="button"
@@ -135,7 +140,7 @@ export function TestDetailsView({
           }}
           className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
         >
-          Modul wiederholen
+          {t('retakeModule')}
         </button>
       </div>
 
@@ -144,7 +149,7 @@ export function TestDetailsView({
         onClose={() => setRetakeOpen(false)}
         originalSessionId={details.sessionId}
         module={details.module}
-        moduleLabel={MODULE_LABELS[details.module]}
+        moduleLabel={moduleLabel}
         modulesBalance={modulesBalance}
       />
     </div>
@@ -152,18 +157,18 @@ export function TestDetailsView({
 }
 
 function LesenHorenSection({
-  module,
+  moduleLabel,
   feedback,
 }: {
-  module: 'lesen' | 'horen'
+  moduleLabel: string
   feedback: LesenHorenAttemptFeedback | null
 }) {
+  const t = useTranslations('dashboard.testDetail.lesenHoren')
+
   if (!feedback || !feedback.details || !feedback.summary) {
     return (
       <div className="rounded-2xl bg-brand-white p-6 text-center shadow-soft">
-        <p className="text-sm text-brand-muted">
-          Keine detaillierten Antworten gespeichert.
-        </p>
+        <p className="text-sm text-brand-muted">{t('noDetails')}</p>
       </div>
     )
   }
@@ -175,33 +180,33 @@ function LesenHorenSection({
     <div className="space-y-4">
       <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
         <h3 className="mb-4 text-base font-semibold text-brand-text">
-          {MODULE_LABELS[module]} — Zusammenfassung
+          {t('summary', { module: moduleLabel })}
         </h3>
         <div className="flex flex-wrap items-center gap-3">
           <div className="rounded-lg bg-green-50 px-4 py-2">
             <span className="text-lg font-bold text-green-700">
               {feedback.summary.correct}
             </span>
-            <span className="ml-1 text-xs text-green-600">richtig</span>
+            <span className="ml-1 text-xs text-green-600">{t('correct')}</span>
           </div>
           <div className="rounded-lg bg-red-50 px-4 py-2">
             <span className="text-lg font-bold text-brand-red">
               {feedback.summary.total - feedback.summary.correct}
             </span>
-            <span className="ml-1 text-xs text-red-600">falsch</span>
+            <span className="ml-1 text-xs text-red-600">{t('wrong')}</span>
           </div>
           <div className="rounded-lg bg-brand-surface px-4 py-2">
             <span className="text-lg font-bold text-brand-text">
               {feedback.summary.total}
             </span>
-            <span className="ml-1 text-xs text-brand-muted">gesamt</span>
+            <span className="ml-1 text-xs text-brand-muted">{t('total')}</span>
           </div>
         </div>
       </div>
 
       <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
         <h3 className="mb-4 text-base font-semibold text-brand-text">
-          Alle Antworten
+          {t('allAnswers')}
         </h3>
         <div className="space-y-2">
           {entries.map(([id, detail]) => (
@@ -212,7 +217,7 @@ function LesenHorenSection({
               }`}
             >
               <span className="text-xs font-medium text-brand-text">
-                Aufgabe {id}
+                {t('taskLabel', { id })}
               </span>
               <div className="flex flex-wrap gap-3 text-xs">
                 <span
@@ -220,12 +225,13 @@ function LesenHorenSection({
                     detail.isCorrect ? 'text-green-700' : 'text-red-600'
                   }
                 >
-                  Ihre:{' '}
+                  {t('yourAnswerLabel')}{' '}
                   <strong>{detail.userAnswer || '—'}</strong>
                 </span>
                 {!detail.isCorrect && (
                   <span className="text-green-700">
-                    Richtig: <strong>{detail.correctAnswer}</strong>
+                    {t('correctAnswerLabel')}{' '}
+                    <strong>{detail.correctAnswer}</strong>
                   </span>
                 )}
               </div>
@@ -234,7 +240,7 @@ function LesenHorenSection({
         </div>
         {wrong.length === 0 && (
           <p className="mt-4 text-center text-xs text-green-700">
-            Alle Antworten richtig — super!
+            {t('allCorrect')}
           </p>
         )}
       </div>
@@ -249,12 +255,13 @@ function SchreibenSection({
   feedback: SchreibenFeedback | null
   content: SchreibenContent | null
 }) {
+  const t = useTranslations('dashboard.testDetail.schreiben')
   const criteria = feedback
     ? ([
-        ['Aufgabenerfüllung', feedback.criteria.taskFulfillment, 25],
-        ['Kohärenz', feedback.criteria.coherence, 25],
-        ['Wortschatz', feedback.criteria.vocabulary, 25],
-        ['Grammatik', feedback.criteria.grammar, 25],
+        [t('taskFulfillment'), feedback.criteria.taskFulfillment, 25],
+        [t('coherence'), feedback.criteria.coherence, 25],
+        [t('vocabulary'), feedback.criteria.vocabulary, 25],
+        [t('grammar'), feedback.criteria.grammar, 25],
       ] as const)
     : []
 
@@ -263,7 +270,7 @@ function SchreibenSection({
       {content?.tasks?.[0] && (
         <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
           <h3 className="mb-3 text-base font-semibold text-brand-text">
-            Aufgabe
+            {t('task')}
           </h3>
           <p className="mb-3 text-sm font-medium text-brand-text">
             {content.tasks[0].situation}
@@ -285,7 +292,7 @@ function SchreibenSection({
         <>
           <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
             <h3 className="mb-4 text-base font-semibold text-brand-text">
-              Bewertung nach Kriterien
+              {t('criteria')}
             </h3>
             <div className="grid grid-cols-2 gap-3">
               {criteria.map(([label, score, max]) => (
@@ -310,7 +317,7 @@ function SchreibenSection({
           {feedback.comment && (
             <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
               <h4 className="mb-3 text-sm font-semibold text-brand-text">
-                KI-Feedback
+                {t('aiFeedback')}
               </h4>
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">
                 {feedback.comment}
@@ -320,9 +327,7 @@ function SchreibenSection({
         </>
       ) : (
         <div className="rounded-2xl bg-brand-white p-6 text-center shadow-soft">
-          <p className="text-sm text-brand-muted">
-            Kein detailliertes Feedback verfügbar.
-          </p>
+          <p className="text-sm text-brand-muted">{t('noFeedback')}</p>
         </div>
       )}
     </div>
@@ -336,13 +341,14 @@ function SprechenSection({
   feedback: SprechenFeedback | null
   content: SprechenContent | null
 }) {
+  const t = useTranslations('dashboard.testDetail.sprechen')
   const criteria = feedback
     ? ([
-        ['Aufgabenerfüllung', feedback.criteria.taskFulfillment, 20],
-        ['Flüssigkeit', feedback.criteria.fluency, 20],
-        ['Wortschatz', feedback.criteria.vocabulary, 20],
-        ['Grammatik', feedback.criteria.grammar, 20],
-        ['Aussprache', feedback.criteria.pronunciation, 20],
+        [t('taskFulfillment'), feedback.criteria.taskFulfillment, 20],
+        [t('fluency'), feedback.criteria.fluency, 20],
+        [t('vocabulary'), feedback.criteria.vocabulary, 20],
+        [t('grammar'), feedback.criteria.grammar, 20],
+        [t('pronunciation'), feedback.criteria.pronunciation, 20],
       ] as const)
     : []
 
@@ -351,13 +357,13 @@ function SprechenSection({
       {content?.tasks && content.tasks.length > 0 && (
         <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
           <h3 className="mb-3 text-base font-semibold text-brand-text">
-            Aufgaben
+            {t('tasks')}
           </h3>
           <div className="space-y-3">
             {content.tasks.map((task, idx) => (
               <div key={task.id} className="rounded-lg bg-brand-bg p-4">
                 <p className="text-xs font-medium uppercase tracking-wider text-brand-muted">
-                  Teil {idx + 1} · {task.type}
+                  {t('teilLabel', { n: idx + 1, type: task.type })}
                 </p>
                 <p className="mt-1 text-sm font-medium text-brand-text">
                   {task.topic}
@@ -379,7 +385,7 @@ function SprechenSection({
         <>
           <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
             <h3 className="mb-4 text-base font-semibold text-brand-text">
-              Bewertung nach Kriterien
+              {t('criteria')}
             </h3>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {criteria.map(([label, score, max]) => (
@@ -404,7 +410,7 @@ function SprechenSection({
           {feedback.comment && (
             <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
               <h4 className="mb-3 text-sm font-semibold text-brand-text">
-                KI-Feedback
+                {t('aiFeedback')}
               </h4>
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">
                 {feedback.comment}
@@ -414,9 +420,7 @@ function SprechenSection({
         </>
       ) : (
         <div className="rounded-2xl bg-brand-white p-6 text-center shadow-soft">
-          <p className="text-sm text-brand-muted">
-            Kein detailliertes Feedback verfügbar.
-          </p>
+          <p className="text-sm text-brand-muted">{t('noFeedback')}</p>
         </div>
       )}
     </div>
