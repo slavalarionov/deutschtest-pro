@@ -1,1 +1,756 @@
-{}
+{
+  "common": {
+    "appName": "DeutschTest.pro",
+    "appNameHighlight": ".pro",
+    "loading": "Yükleniyor…",
+    "or": "Veya"
+  },
+  "nav": {
+    "login": "Giriş yap",
+    "register": "Kayıt ol",
+    "dashboard": "Hesabım",
+    "logout": "Çıkış yap",
+    "greeting": "Merhaba, <name>{email}</name>!"
+  },
+  "modules": {
+    "lesen": "Lesen",
+    "horen": "Hören",
+    "schreiben": "Schreiben",
+    "sprechen": "Sprechen"
+  },
+  "landing": {
+    "metadata": {
+      "title": "DeutschTest.pro — Goethe-Zertifikat için yapay zekâ simülatörü",
+      "description": "Yapay zekâ tarafından üretilen sınavlarla Goethe-Zertifikat'a hazırlanın. Lesen, Hören, Schreiben, Sprechen — hepsi tek platformda."
+    },
+    "hero": {
+      "badge": "Yapay zekâ destekli sınav hazırlığı",
+      "titlePart1": "İlk denemede",
+      "titleHighlight": "Goethe-Zertifikat",
+      "titlePart2": "'ı geçin",
+      "subtitle": "Yapay zekâ tarafından üretilen görevler, otomatik değerlendirme ve ayrıntılı geri bildirimle gerçekçi sınav simülasyonu.",
+      "subtitleGuest": "Kayıt olun ve ücretsiz testinizi alın.",
+      "subtitleFreeAvailable": "Ücretsiz deneme testiniz sizi bekliyor.",
+      "subtitlePaidTests": "{count, plural, other {# test kullanıma hazır.}}",
+      "subtitleModules": "Modül kredisi: {count} (modül başına 1 kredi)",
+      "ctaRegister": "Ücretsiz kayıt ol ve dene",
+      "ctaSelectModule": "Modül seç",
+      "ctaStart": "Testi başlat — {level}",
+      "ctaBuy": "Test satın al",
+      "ctaGenerating": "Yapay zekâ sınav üretiyor…",
+      "levels": {
+        "a1": "Start Deutsch 1",
+        "a2": "Goethe-Zertifikat A2",
+        "b1": "Goethe-Zertifikat B1"
+      },
+      "modules": {
+        "lesen": "Lesen",
+        "horen": "Hören",
+        "schreiben": "Schreiben",
+        "sprechen": "Sprechen",
+        "durationLesen": "65 dk",
+        "durationHoren": "40 dk",
+        "durationSchreiben": "60 dk",
+        "durationSprechen": "15 dk"
+      },
+      "modulesHint": "💡 Odaklı pratik için tek bir modül seçin. 1 kredi = 1 modül.",
+      "buyPrompt": "Ücretsiz testinizi zaten kullandınız. Devam etmek için yeni test satın alın.",
+      "loadingHint": "Modül hazırlanıyor — biraz bekleyin…",
+      "errors": {
+        "noCredits": "Modül krediniz kalmadı. Lütfen yeni kredi satın alın.",
+        "insufficientBalanceFallback": "Yeterli modül kredisi yok.",
+        "generateFailed": "Sınav üretilemedi. Biraz sonra tekrar deneyin."
+      },
+      "stats": {
+        "levels": "Seviyeler",
+        "modules": "Modüller",
+        "aiLabel": "AI",
+        "ai": "değerlendirme"
+      }
+    },
+    "features": {
+      "title": "Dört modül. Tek platform.",
+      "subtitle": "Her modül Goethe-Zertifikat formatını birebir takip eder.",
+      "items": {
+        "lesen": {
+          "title": "Lesen",
+          "description": "Yapay zekâ tarafından üretilen okuma metinleri, çoktan seçmeli ve doğru/yanlış görevlerle — gerçek Goethe-Zertifikat gibi."
+        },
+        "horen": {
+          "title": "Hören",
+          "description": "Profesyonel seslendirmeyle hazırlanmış dinleme metinleri, gerçekçi seslerle. Geri sarma yok — tıpkı gerçek sınavdaki gibi."
+        },
+        "schreiben": {
+          "title": "Schreiben",
+          "description": "Resmi kriterlere göre AI değerlendirmesiyle yazma görevleri: görev yerine getirme, tutarlılık, kelime dağarcığı, dil bilgisi."
+        },
+        "sprechen": {
+          "title": "Sprechen",
+          "description": "Ses kaydı ve AI analiziyle sözlü sınav. Telaffuz, akıcılık ve dil bilgisi değerlendirilir."
+        }
+      }
+    },
+    "pricing": {
+      "title": "Basit fiyatlandırma",
+      "subtitle": "Ücretsiz başlayın, hazır olduğunuzda yükseltin.",
+      "plans": {
+        "probe": {
+          "name": "Deneme",
+          "price": "Ücretsiz",
+          "period": "",
+          "description": "Platformu bir ücretsiz deneme sınavıyla keşfedin.",
+          "feature1": "1 deneme sınavı (tüm modüller)",
+          "feature2": "AI değerlendirme",
+          "feature3": "Temel geri bildirim",
+          "cta": "Ücretsiz başla"
+        },
+        "premium": {
+          "name": "Premium",
+          "price": "€19",
+          "period": "/ay",
+          "description": "Ayrıntılı AI geri bildirimiyle sınırsız sınav.",
+          "feature1": "Sınırsız sınav",
+          "feature2": "Tüm seviyeler (A1–B1)",
+          "feature3": "Ayrıntılı AI geri bildirim",
+          "feature4": "İlerleme analizi",
+          "feature5": "Öncelikli destek",
+          "cta": "Premium'a geç"
+        }
+      }
+    },
+    "faq": {
+      "title": "Sık sorulan sorular",
+      "items": {
+        "realism": {
+          "q": "Sınavlar ne kadar gerçekçi?",
+          "a": "Yapay zekâmız, resmi Goethe-Zertifikat formatına ve zorluk düzeyine birebir uygun görevler üretir. Format, süre ve değerlendirme kriterleri 1:1 yeniden oluşturulur."
+        },
+        "levels": {
+          "q": "Hangi seviyeler destekleniyor?",
+          "a": "Şu anda A1 (Start Deutsch 1), A2 (Goethe-Zertifikat A2) ve B1 (Goethe-Zertifikat B1) destekleniyor. Diğer seviyeler yolda."
+        },
+        "aiScoring": {
+          "q": "AI değerlendirme nasıl çalışıyor?",
+          "a": "Lesen ve Hören otomatik değerlendirilir. Schreiben ve Sprechen için yapay zekâ, yanıtlarınızı resmi Goethe kriterlerine göre analiz eder ve ayrıntılı geri bildirim verir."
+        },
+        "singleModules": {
+          "q": "Modülleri tek tek çalışabilir miyim?",
+          "a": "Evet — tüm sınavı bir seferde girebilir ya da her modülü (Lesen, Hören, Schreiben veya Sprechen) ayrı ayrı çalışabilirsiniz."
+        },
+        "microphone": {
+          "q": "Sprechen modülü için mikrofon gerekiyor mu?",
+          "a": "Evet, Sprechen modülü için mikrofon gerekli. Çoğu dizüstü ve telefonun dahili mikrofonu yeterli olur."
+        }
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Giriş yap",
+      "welcome": "DeutschTest.pro'ya tekrar hoş geldiniz",
+      "googleButton": "Google ile giriş yap",
+      "emailLabel": "E-posta",
+      "emailPlaceholder": "siz@email.com",
+      "passwordLabel": "Şifre",
+      "passwordPlaceholder": "••••••••",
+      "submitButton": "Giriş yap",
+      "submitting": "Giriş yapılıyor…",
+      "noAccount": "Hesabınız yok mu?",
+      "registerLink": "Kayıt ol",
+      "loadingFallback": "Yükleniyor…"
+    },
+    "register": {
+      "title": "Kayıt ol",
+      "subtitle": "DeutschTest.pro hesabınızı oluşturun",
+      "googleButton": "Google ile kayıt ol",
+      "emailLabel": "E-posta",
+      "emailPlaceholder": "sizin.email@example.com",
+      "passwordLabel": "Şifre",
+      "passwordPlaceholder": "En az 8 karakter",
+      "passwordHint": "Adresinizi doğrulamak için bir e-posta göndereceğiz.",
+      "submitButton": "Kayıt ol",
+      "submitting": "Kaydediliyor…",
+      "hasAccount": "Zaten hesabınız var mı?",
+      "loginLink": "Giriş yap",
+      "successTitle": "Doğrulama gerekli",
+      "successBody": "<strong>{email}</strong> adresine bir doğrulama e-postası gönderdik. Hesabınızı aktifleştirmek için mesajdaki bağlantıya tıklayın.",
+      "successBonus": "Doğrulamadan sonra denemek için <strong>3 ücretsiz modül</strong> alacaksınız. Spam klasörünü de kontrol edin.",
+      "successLoginLink": "Girişe git",
+      "errors": {
+        "passwordTooShort": "Şifre en az 8 karakter olmalı.",
+        "captchaRequired": "Lütfen captcha'yı tamamlayın.",
+        "registrationFailed": "Kayıt başarısız",
+        "network": "Ağ hatası. Lütfen tekrar deneyin."
+      }
+    }
+  },
+  "pricing": {
+    "header": {
+      "loginLink": "Giriş yap"
+    },
+    "title": "Test satın al",
+    "subtitle": "Sınav hazırlığınız için uygun paketi seçin. Her test tüm modülleri içerir: Lesen, Hören, Schreiben, Sprechen.",
+    "freeAvailable": "Hâlâ bir <strong>ücretsiz testiniz</strong> var!",
+    "freeAvailableCta": "Şimdi ücretsiz dene →",
+    "paidAvailable": "{count, plural, other {<strong># test</strong> kullanıma hazır.}}",
+    "paidAvailableCta": "Testi başlat →",
+    "packages": {
+      "single": {
+        "name": "1 test",
+        "priceNote": "tek seferlik",
+        "feature1": "1 tam sınav",
+        "feature2": "4 modülün tamamı",
+        "feature3": "AI değerlendirme ve geri bildirim"
+      },
+      "pack5": {
+        "name": "5 test",
+        "priceNote": "Avantajlı paket",
+        "badge": "Popüler",
+        "feature1": "5 tam sınav",
+        "feature2": "4 modülün tamamı",
+        "feature3": "AI değerlendirme ve geri bildirim",
+        "feature4": "İlerleme analizi"
+      },
+      "pack10": {
+        "name": "10 test",
+        "priceNote": "En iyi teklif",
+        "badge": "-34%",
+        "feature1": "10 tam sınav",
+        "feature2": "4 modülün tamamı",
+        "feature3": "AI değerlendirme ve geri bildirim",
+        "feature4": "İlerleme analizi",
+        "feature5": "Öncelikli destek"
+      }
+    },
+    "ctaBuy": "Satın al (yakında)",
+    "footnote": "Güvenli ödeme. Tüm fiyatlara KDV dahildir. Testler 30 gün geçerlidir."
+  },
+  "dashboard": {
+    "shell": {
+      "openMenu": "Menüyü aç",
+      "closeMenu": "Menüyü kapat",
+      "backHome": "← Anasayfaya",
+      "logout": "Çıkış yap",
+      "nav": {
+        "dashboard": "Panel",
+        "history": "Geçmiş",
+        "progress": "İlerleme",
+        "recommendations": "Öneriler",
+        "payments": "Ödemeler",
+        "settings": "Ayarlar"
+      }
+    },
+    "overview": {
+      "title": "Tekrar hoş geldiniz",
+      "subtitle": "Kişisel öğrenme alanınız — istatistikler ve yeni sınavlar.",
+      "metrics": {
+        "modulesTaken": "Tamamlanan modül",
+        "averageScore": "Ortalama puan",
+        "bestScore": "En iyi sonuç",
+        "lastModule": "Son modül",
+        "credits": "Mevcut kredi"
+      },
+      "outOf100": "/ 100",
+      "noAttempts": "Henüz deneme yok",
+      "adminMode": "Admin modu",
+      "creditHint": "1 kredi = 1 modül"
+    },
+    "launcher": {
+      "title": "Yeni test başlat",
+      "subtitle": "Seviye ve modül seçin — modül başına 1 kredi.",
+      "levelLabel": "Seviye",
+      "moduleLabel": "Modül",
+      "chooseModule": "Modül seç",
+      "startButton": "Başlat — {level}",
+      "generating": "Yapay zekâ sınav üretiyor…",
+      "buyModules": "Modül satın al",
+      "adminUnlimited": "Admin modu — sınırsız",
+      "creditsAvailable": "Mevcut kredi: {count}",
+      "insufficientBalance": "Yeterli modül kredisi yok.",
+      "generateFailed": "Sınav üretilemedi. Biraz sonra tekrar deneyin.",
+      "levels": {
+        "a1": "Start Deutsch 1",
+        "a2": "Goethe-Zertifikat A2",
+        "b1": "Goethe-Zertifikat B1"
+      },
+      "modules": {
+        "lesen": "Lesen",
+        "horen": "Hören",
+        "schreiben": "Schreiben",
+        "sprechen": "Sprechen"
+      },
+      "durations": {
+        "lesen": "65 dk",
+        "horen": "40 dk",
+        "schreiben": "60 dk",
+        "sprechen": "15 dk"
+      }
+    },
+    "history": {
+      "title": "Geçmiş",
+      "subtitle": "Seviye, modül ve tarih filtreleriyle tamamlanan tüm modüller.",
+      "filters": {
+        "level": "Seviye",
+        "module": "Modül",
+        "dateFrom": "Başlangıç",
+        "dateTo": "Bitiş",
+        "allLevels": "Tüm seviyeler",
+        "allModules": "Tüm modüller",
+        "reset": "Filtreleri sıfırla"
+      },
+      "table": {
+        "date": "Tarih",
+        "level": "Seviye",
+        "module": "Modül",
+        "score": "Puan",
+        "status": "Durum",
+        "detailsLink": "Ayrıntılar →"
+      },
+      "empty": {
+        "withFilters": "Filtrelere uyan modül yok.",
+        "withFiltersHint": "Filtreleri değiştirin ya da sıfırlayın.",
+        "noAttempts": "Henüz modül tamamlamadınız",
+        "noAttemptsHint": "Panelden bir modül başlatın.",
+        "toDashboard": "Panele git"
+      },
+      "status": {
+        "free": "Ücretsiz",
+        "paid": "Ödemeli"
+      },
+      "errors": {
+        "loadFailed": "Geçmiş yüklenemedi.",
+        "network": "Geçmiş yüklenirken ağ hatası."
+      }
+    },
+    "testDetail": {
+      "backToHistory": "← Geçmişe dön",
+      "backToHistoryButton": "Geçmişe dön",
+      "toHistory": "Geçmiş özetine",
+      "certificateHeading": "Goethe-Zertifikat {level} — {module}",
+      "outOf100": "/ 100 puan",
+      "passed": "Geçildi ✅",
+      "failed": "Geçilemedi ❌",
+      "submittedAt": "{date} tarihinde teslim edildi · {status}",
+      "retakeModule": "Modülü tekrar yap",
+      "errors": {
+        "forbidden": "Bu modüle erişiminiz yok.",
+        "notSubmitted": "Bu modül henüz tamamlanmadı.",
+        "notFound": "Modül bulunamadı."
+      },
+      "lesenHoren": {
+        "summary": "{module} — özet",
+        "correct": "doğru",
+        "wrong": "yanlış",
+        "total": "toplam",
+        "allAnswers": "Tüm yanıtlar",
+        "yourAnswerLabel": "Sizin:",
+        "correctAnswerLabel": "Doğru:",
+        "taskLabel": "Görev {id}",
+        "allCorrect": "Tüm yanıtlar doğru — harika!",
+        "noDetails": "Ayrıntılı yanıt kaydedilmedi."
+      },
+      "schreiben": {
+        "task": "Görev",
+        "criteria": "Kriterlere göre değerlendirme",
+        "aiFeedback": "AI geri bildirimi",
+        "noFeedback": "Ayrıntılı geri bildirim yok.",
+        "taskFulfillment": "Görevin yerine getirilmesi",
+        "coherence": "Tutarlılık",
+        "vocabulary": "Kelime dağarcığı",
+        "grammar": "Dil bilgisi"
+      },
+      "sprechen": {
+        "tasks": "Görevler",
+        "teilLabel": "Teil {n} · {type}",
+        "criteria": "Kriterlere göre değerlendirme",
+        "aiFeedback": "AI geri bildirimi",
+        "noFeedback": "Ayrıntılı geri bildirim yok.",
+        "taskFulfillment": "Görevin yerine getirilmesi",
+        "fluency": "Akıcılık",
+        "vocabulary": "Kelime dağarcığı",
+        "grammar": "Dil bilgisi",
+        "pronunciation": "Telaffuz"
+      }
+    },
+    "progress": {
+      "title": "İlerleme",
+      "subtitle": "Zaman içindeki sonuçlarınızın modül bazında grafik analizi.",
+      "empty": {
+        "title": "İlerlemenizi görmek için en az 2 modül tamamlayın",
+        "completed": "Şimdiye kadar: {count}",
+        "toDashboard": "Panele git"
+      },
+      "errors": {
+        "loadFailed": "İlerleme verileri yüklenemedi.",
+        "network": "İlerleme verileri yüklenirken ağ hatası."
+      },
+      "stats": {
+        "trendLabel": "Son ay eğilimi",
+        "strongestModule": "En güçlü modül",
+        "weakestModule": "Zayıf modül",
+        "trend": {
+          "improving": "Yükseliyor",
+          "stable": "İstikrarlı",
+          "declining": "Düşüyor"
+        },
+        "noPrevMonth": "Önceki aya ait veri yok",
+        "noChange": "Değişim yok",
+        "deltaPositive": "+{delta} puan — önceki aya göre",
+        "deltaNegative": "{delta} puan — önceki aya göre",
+        "avgLine": "Ort. {avg} · {attempts, plural, other {# modül}}"
+      },
+      "charts": {
+        "scoreTime": {
+          "title": "Zamana göre puan",
+          "subtitle": "Tamamlanma tarihine göre tüm modüller birleştirildi.",
+          "pointsLabel": "Puan"
+        },
+        "byModule": {
+          "title": "Modül bazında dağılım",
+          "subtitle": "Her çizgi bir modülün sonuçlarını gösterir."
+        },
+        "byLevel": {
+          "title": "Seviyeye göre ortalama",
+          "subtitle": "Her seviye için tüm modüllerin ortalama puanı.",
+          "row": "{score} · {attempts, plural, other {# modül}}"
+        }
+      }
+    },
+    "recommendations": {
+      "title": "Öneriler",
+      "subtitle": "Önceki modüllerinize dayalı kişisel çalışma ipuçları.",
+      "loading": "Öneriler yükleniyor…",
+      "refreshing": "Yeni öneriler oluşturuluyor…",
+      "refreshButton": "Önerileri yenile",
+      "refreshingButton": "Yenileniyor…",
+      "retry": "Tekrar dene",
+      "empty": {
+        "title": "Kişisel öneri alabilmek için en az bir modül tamamlayın",
+        "hint": "Bir modülü bitirdikten sonra sonuçlarınızı analiz edip size özel bir çalışma planı hazırlarız.",
+        "toDashboard": "Panele git"
+      },
+      "sections": {
+        "overall": "Genel değerlendirme",
+        "strengths": "Güçlü yönler",
+        "weaknesses": "Zayıf yönler",
+        "studyPlan": "Çalışma planınız",
+        "motivation": "Motivasyon"
+      },
+      "modulesCount": "{count, plural, other {# modül}} dikkate alındı",
+      "cachedAt": "{date} tarihinde kaydedildi",
+      "generatedAt": "{date} tarihinde oluşturuldu",
+      "errors": {
+        "loadFailed": "Öneriler yüklenemedi.",
+        "network": "Öneriler yüklenirken ağ hatası."
+      }
+    },
+    "payments": {
+      "title": "Ödemeler",
+      "subtitle": "Bakiyeniz, satın alma seçenekleri ve ödeme geçmişi.",
+      "currentBalance": "Mevcut bakiye",
+      "balanceUnlimited": "Sınırsız",
+      "balanceUnit": "{count, plural, other {modül}}",
+      "adminHint": "Admin modu — limit yok.",
+      "creditExplanation": "1 kredi, bir sınav modülüne karşılık gelir (Lesen, Hören, Schreiben veya Sprechen).",
+      "buyTitle": "Modül satın al",
+      "buyHint": "Bir paket seçin — satın alınan modüller Lesen, Hören, Schreiben ve Sprechen arasında serbestçe kullanılabilir.",
+      "viewPackages": "Paketleri gör",
+      "historyTitle": "Ödeme geçmişi",
+      "historyEmpty": "Henüz ödeme yok",
+      "historyHint": "Ödeme sistemi devreye girdiğinde geçmiş burada görünecek."
+    },
+    "settings": {
+      "title": "Ayarlar",
+      "subtitle": "Profil, şifre ve hesap yönetimi.",
+      "profile": {
+        "title": "Profil",
+        "emailLabel": "E-posta",
+        "emailHint": "E-posta şu anda değiştirilemiyor.",
+        "nameLabel": "İsim",
+        "namePlaceholder": "Size nasıl hitap edelim?",
+        "saveButton": "Kaydet",
+        "saving": "Kaydediliyor…",
+        "saved": "İsim kaydedildi.",
+        "saveFailed": "Kaydedilemedi.",
+        "network": "Ağ hatası."
+      },
+      "password": {
+        "title": "Şifreyi değiştir",
+        "externalTitle": "Şifre",
+        "externalText": "Harici bir sağlayıcıyla (örn. Google) giriş yaptınız. Şifre, o sağlayıcıda yönetilir.",
+        "currentLabel": "Mevcut şifre",
+        "newLabel": "Yeni şifre",
+        "newHint": "En az 8 karakter.",
+        "confirmLabel": "Yeni şifreyi doğrula",
+        "changeButton": "Şifreyi değiştir",
+        "saving": "Kaydediliyor…",
+        "updated": "Şifre güncellendi.",
+        "tooShort": "Yeni şifre en az 8 karakter olmalı.",
+        "mismatch": "Şifreler eşleşmiyor.",
+        "changeFailed": "Şifre değiştirilemedi.",
+        "network": "Ağ hatası."
+      },
+      "delete": {
+        "title": "Hesabı sil",
+        "hint": "Hesabınız ve tüm ilgili veriler kalıcı olarak silinir.",
+        "button": "Hesabı sil",
+        "modalTitle": "Hesabı sil",
+        "modalBody": "Hesabınızı silmek için lütfen <email>contact@deutschtest.pro</email> adresine yazın.",
+        "modalHint": "Kazara gelen istekleri önlemek için silme işlemini elle onaylıyoruz.",
+        "close": "Kapat"
+      }
+    },
+    "placeholder": {
+      "soon": "Bu bölüm yakında geliyor.",
+      "soonHint": "Hesabınızın bir sonraki aşaması üzerinde çalışıyoruz."
+    }
+  },
+  "exam": {
+    "shell": {
+      "loading": "Sınav yükleniyor…",
+      "notFound": "Oturum bulunamadı",
+      "back": "Geri",
+      "certificate": "Goethe-Zertifikat {level}"
+    },
+    "timer": {
+      "warning5Minutes": "5 dakika kaldı!",
+      "warning60Seconds": "60 saniye kaldı!",
+      "dismiss": "Tamam",
+      "timeUpTitle": "Süre doldu",
+      "timeUpMessage": "Yanıtlarınız otomatik olarak gönderiliyor.",
+      "redirecting": "Yönlendiriliyorsunuz…"
+    },
+    "answerSheet": {
+      "title": "Cevap kâğıdı"
+    },
+    "audio": {
+      "play": "Oynat",
+      "pause": "Duraklat",
+      "loading": "Yükleniyor",
+      "startRecording": "Kaydı başlat",
+      "stopRecording": "Kaydı durdur",
+      "error": "Hata",
+      "scriptHeader": "Ses {id} — {count, plural, other {# oynatma}}"
+    },
+    "modules": {
+      "shared": {
+        "back": "← Geri",
+        "next": "İleri →",
+        "submitAll": "Tüm yanıtları gönder",
+        "submitting": "Kontrol ediliyor…",
+        "toResults": "Sonuçlara git",
+        "example": "Örnek",
+        "gapLabel": "Boşluk ({id})",
+        "taskNumber": "Görev {id}",
+        "teilLabel": "Teil {n}"
+      },
+      "lesen": {
+        "loading": "Lesen modülü yükleniyor…",
+        "moduleTitle": "Lesen modülü",
+        "moduleHint": "65 dakika — 5 bölüm — 30 görev",
+        "teil1": {
+          "title": "Teil 1",
+          "desc": "Metni ve görevleri okuyun. İfadeler doğru mu yanlış mı?",
+          "tag": "Blog yazısı"
+        },
+        "teil2": {
+          "title": "Teil 2",
+          "desc": "Metni ve görevleri okuyun. Doğru yanıtı seçin: a, b veya c.",
+          "tag": "Gazete makalesi"
+        },
+        "teil3": {
+          "title": "Teil 3",
+          "desc": "Metni ve görevleri okuyun. Ja veya Nein seçin.",
+          "tag": "Kurallar / yönetmelik"
+        },
+        "teil4": {
+          "title": "Teil 4",
+          "desc": "Metinleri ve durumları okuyun. Hangi metin uyuyor?",
+          "tag": "İlanlar / duyurular"
+        },
+        "teil5": {
+          "title": "Teil 5",
+          "desc": "Metni okuyun ve her boşluk için doğru kelimeyi seçin.",
+          "tag": "Boşluk doldurma",
+          "exampleLabel": "Örnek — boşluk (0)"
+        },
+        "answers": {
+          "richtig": "Richtig",
+          "falsch": "Falsch",
+          "ja": "Ja",
+          "nein": "Nein"
+        }
+      },
+      "horen": {
+        "loading": "Hören modülü yükleniyor…",
+        "moduleTitle": "Hören modülü",
+        "moduleHint": "40 dakika — 4 bölüm — 20 görev",
+        "teil1": {
+          "title": "Teil 1",
+          "desc": "Beş kısa metin duyacaksınız. Her metin iki kez çalınır. Doğru mu yanlış mı?",
+          "tag": "Anonslar"
+        },
+        "teil2": {
+          "title": "Teil 2",
+          "desc": "Bir konuşma duyacaksınız. Metin bir kez çalınır. a, b veya c'yi seçin.",
+          "tag": "Röportaj"
+        },
+        "teil3": {
+          "title": "Teil 3",
+          "desc": "Bir konuşma duyacaksınız. Metin bir kez çalınır. Doğru mu yanlış mı?",
+          "tag": "Günlük konuşma"
+        },
+        "teil4": {
+          "title": "Teil 4",
+          "desc": "Beş kısa konuşma duyacaksınız. Her metin iki kez çalınır. Doğru mu yanlış mı?",
+          "tag": "Konuşmalar"
+        },
+        "answers": {
+          "richtig": "Richtig",
+          "falsch": "Falsch"
+        }
+      },
+      "schreiben": {
+        "loading": "Schreiben modülü yükleniyor…",
+        "moduleTitle": "Schreiben modülü",
+        "moduleHint": "60 dakika — yazılı anlatım",
+        "task": "Görev",
+        "requiredPoints": "Şu noktalar hakkında yazın:",
+        "yourText": "Metniniz",
+        "textPlaceholder": "Metninizi buraya yazın...",
+        "wordCount": "{count} / ~{target} kelime",
+        "wordCountFinal": "{count, plural, other {# kelime}}",
+        "wordHint": {
+          "empty": "Yazmaya başlayın…",
+          "low": "Yazmaya devam edin!",
+          "almost": "Neredeyse yeterli.",
+          "enough": "İyi bir uzunluk!"
+        },
+        "submitButton": "Metni gönder",
+        "submitting": "Değerlendiriliyor…",
+        "outOf100": "/ 100 puan",
+        "aiFeedback": "AI geri bildirimi",
+        "errors": {
+          "scoring": "Değerlendirme başarısız",
+          "network": "Ağ hatası"
+        },
+        "criteria": {
+          "taskFulfillment": "Görevin yerine getirilmesi",
+          "coherence": "Tutarlılık",
+          "vocabulary": "Kelime dağarcığı",
+          "grammar": "Dil bilgisi"
+        }
+      },
+      "sprechen": {
+        "loading": "Sprechen modülü yükleniyor…",
+        "moduleTitle": "Sprechen modülü",
+        "moduleHint": "Sözlü sınav — 3 bölüm",
+        "slides": "Slaytlar",
+        "pointsLabel": "Konuşma noktaları",
+        "clickToStart": "Kaydı başlatmak için butona tıklayın.",
+        "startRecording": "Kaydı başlat",
+        "stopRecording": "Kaydı durdur",
+        "recording": "Kayıt alınıyor…",
+        "processing": {
+          "transcribing": "Konuşma tanınıyor…",
+          "scoring": "AI yanıtınızı değerlendiriyor…",
+          "stepTranscribing": "Otomatik transkripsiyon…",
+          "stepScoring": "Metniniz AI tarafından değerlendiriliyor…",
+          "stepFinalizing": "Neredeyse bitti…"
+        },
+        "transcript": "Transkripsiyonunuz",
+        "outOf100": "/ 100 puan",
+        "averagePer100": "/ 100 ort.",
+        "aiFeedback": "AI geri bildirimi",
+        "toResults": "Sonuçlara git",
+        "errors": {
+          "transcribe": "Transkripsiyon başarısız",
+          "scoring": "Değerlendirme başarısız",
+          "micDenied": "Mikrofon erişimi reddedildi",
+          "network": "Ağ hatası",
+          "saveFailed": "Kaydedilemedi",
+          "aggregate": "Değerlendirilebilir kayıt yok — hatalı bölümleri tekrar deneyin."
+        },
+        "teil": {
+          "planning": {
+            "title": "Teil 1 — Birlikte plan yapma",
+            "desc": "Aşağıdaki noktalar üzerinde konuşun ve birlikte plan yapın.",
+            "tag": "~3 dakika"
+          },
+          "presentation": {
+            "title": "Teil 2 — Bir konuyu sunma",
+            "desc": "Slayt maddelerine dayalı kısa bir sunum yapın.",
+            "tag": "~3 dakika"
+          },
+          "reaction": {
+            "title": "Teil 3 — Sunuma tepki verme",
+            "desc": "Soruya yanıt verin ve görüşünüzü gerekçelendirin.",
+            "tag": "~2 dakika"
+          }
+        },
+        "criteria": {
+          "taskFulfillment": "Görevin yerine getirilmesi",
+          "fluency": "Akıcılık",
+          "vocabulary": "Kelime dağarcığı",
+          "grammar": "Dil bilgisi",
+          "pronunciation": "Telaffuz"
+        }
+      }
+    }
+  },
+  "results": {
+    "title": "Sonuçlar",
+    "loading": "Sonuçlar yükleniyor…",
+    "notFound": "Sonuç bulunamadı",
+    "notSubmitted": "Sınav henüz teslim edilmedi.",
+    "toHome": "Anasayfaya",
+    "toDashboard": "Panele git",
+    "retakeModule": "Modülü tekrar yap",
+    "certificateHeading": "Goethe-Zertifikat {level} — {module}",
+    "outOf100": "/ 100 puan",
+    "passed": "Geçildi ✅",
+    "failed": "Geçilemedi ❌",
+    "submittedAt": "{date} tarihinde teslim edildi",
+    "errors": {
+      "loadFailed": "Sonuçlar yüklenemedi.",
+      "network": "Sonuçlar yüklenirken ağ hatası."
+    },
+    "lesenHoren": {
+      "title": "{module} — ayrıntılı sonuçlar",
+      "correct": "doğru",
+      "wrong": "yanlış",
+      "total": "toplam",
+      "wrongAnswers": "Yanlış yanıtlar",
+      "taskLabel": "Görev {id}",
+      "yourAnswerLabel": "Sizin:",
+      "correctAnswerLabel": "Doğru:"
+    },
+    "schreiben": {
+      "title": "Schreiben — değerlendirme",
+      "aiFeedback": "AI geri bildirimi",
+      "taskFulfillment": "Görevin yerine getirilmesi",
+      "coherence": "Tutarlılık",
+      "vocabulary": "Kelime dağarcığı",
+      "grammar": "Dil bilgisi"
+    },
+    "sprechen": {
+      "title": "Sprechen — değerlendirme",
+      "aiFeedback": "AI geri bildirimi",
+      "taskFulfillment": "Görevin yerine getirilmesi",
+      "fluency": "Akıcılık",
+      "vocabulary": "Kelime dağarcığı",
+      "grammar": "Dil bilgisi",
+      "pronunciation": "Telaffuz"
+    },
+    "retakeModal": {
+      "title": "Modülü tekrar yap",
+      "body": "Tamamen yeni görevlerle yeni bir {module} sınavı başlatıyorsunuz. Bunun için bakiyenizden <b>1 modül</b> düşülür.",
+      "balance": "Mevcut bakiye: <b>{current, plural, other {# modül}}</b> → başlattıktan sonra: <b>{next, plural, other {# modül}}</b>",
+      "cancel": "İptal",
+      "confirm": "Evet, başlat",
+      "confirming": "Başlatılıyor…",
+      "errorFallback": "Yeni sınav oluşturulurken hata",
+      "errorNetwork": "Ağ hatası"
+    }
+  }
+}
