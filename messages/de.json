@@ -12,6 +12,12 @@
     "logout": "Abmelden",
     "greeting": "Hallo, <name>{email}</name>!"
   },
+  "modules": {
+    "lesen": "Lesen",
+    "horen": "Hören",
+    "schreiben": "Schreiben",
+    "sprechen": "Sprechen"
+  },
   "landing": {
     "metadata": {
       "title": "DeutschTest.pro — AI-Simulator Goethe-Zertifikat",
@@ -218,5 +224,533 @@
     },
     "ctaBuy": "Kaufen (bald verfügbar)",
     "footnote": "Sichere Bezahlung. Alle Preise inkl. MwSt. Tests sind 30 Tage gültig."
+  },
+  "dashboard": {
+    "shell": {
+      "openMenu": "Menü öffnen",
+      "closeMenu": "Menü schließen",
+      "backHome": "← Zur Startseite",
+      "logout": "Abmelden",
+      "nav": {
+        "dashboard": "Dashboard",
+        "history": "Verlauf",
+        "progress": "Fortschritt",
+        "recommendations": "Empfehlungen",
+        "payments": "Zahlungen",
+        "settings": "Einstellungen"
+      }
+    },
+    "overview": {
+      "title": "Willkommen zurück",
+      "subtitle": "Ihr persönlicher Lernbereich — Statistik und neue Prüfungen.",
+      "metrics": {
+        "modulesTaken": "Module absolviert",
+        "averageScore": "Durchschnittliche Punktzahl",
+        "bestScore": "Bestes Ergebnis",
+        "lastModule": "Letztes Modul",
+        "credits": "Verfügbare Credits"
+      },
+      "outOf100": "von 100",
+      "noAttempts": "Noch keine Versuche",
+      "adminMode": "Admin-Modus",
+      "creditHint": "1 Credit = 1 Modul"
+    },
+    "launcher": {
+      "title": "Neuen Test starten",
+      "subtitle": "Wählen Sie Niveau und Modul — 1 Credit pro Modul.",
+      "levelLabel": "Niveau",
+      "moduleLabel": "Modul",
+      "chooseModule": "Modul wählen",
+      "startButton": "Starten — {level}",
+      "generating": "KI generiert Prüfung…",
+      "buyModules": "Module kaufen",
+      "adminUnlimited": "Admin-Modus — unbegrenzt",
+      "creditsAvailable": "Verfügbare Credits: {count}",
+      "insufficientBalance": "Nicht genug Modul-Credits.",
+      "generateFailed": "Die Prüfung konnte nicht generiert werden. Bitte versuchen Sie es etwas später erneut.",
+      "levels": {
+        "a1": "Start Deutsch 1",
+        "a2": "Goethe-Zertifikat A2",
+        "b1": "Goethe-Zertifikat B1"
+      },
+      "modules": {
+        "lesen": "Lesen",
+        "horen": "Hören",
+        "schreiben": "Schreiben",
+        "sprechen": "Sprechen"
+      },
+      "durations": {
+        "lesen": "65 Min",
+        "horen": "40 Min",
+        "schreiben": "60 Min",
+        "sprechen": "15 Min"
+      }
+    },
+    "history": {
+      "title": "Verlauf",
+      "subtitle": "Alle abgeschlossenen Module mit Filtern nach Niveau, Modul und Datum.",
+      "filters": {
+        "level": "Niveau",
+        "module": "Modul",
+        "dateFrom": "Von",
+        "dateTo": "Bis",
+        "allLevels": "Alle Niveaus",
+        "allModules": "Alle Module",
+        "reset": "Filter zurücksetzen"
+      },
+      "table": {
+        "date": "Datum",
+        "level": "Niveau",
+        "module": "Modul",
+        "score": "Punkte",
+        "status": "Status",
+        "detailsLink": "Details →"
+      },
+      "empty": {
+        "withFilters": "Keine Module entsprechen den Filtern.",
+        "withFiltersHint": "Ändern Sie die Filter oder setzen Sie sie zurück.",
+        "noAttempts": "Sie haben noch keine Module absolviert",
+        "noAttemptsHint": "Starten Sie ein Modul über das Dashboard.",
+        "toDashboard": "Zum Dashboard"
+      },
+      "status": {
+        "free": "Kostenlos",
+        "paid": "Bezahlt"
+      },
+      "errors": {
+        "loadFailed": "Verlauf konnte nicht geladen werden.",
+        "network": "Netzwerkfehler beim Laden des Verlaufs."
+      }
+    },
+    "testDetail": {
+      "backToHistory": "← Zurück zum Verlauf",
+      "backToHistoryButton": "Zurück zum Verlauf",
+      "toHistory": "Zur Verlaufsübersicht",
+      "certificateHeading": "Goethe-Zertifikat {level} — {module}",
+      "outOf100": "von 100 Punkten",
+      "passed": "Bestanden ✅",
+      "failed": "Nicht bestanden ❌",
+      "submittedAt": "Abgegeben am {date} · {status}",
+      "retakeModule": "Modul wiederholen",
+      "errors": {
+        "forbidden": "Sie haben keinen Zugriff auf dieses Modul.",
+        "notSubmitted": "Dieses Modul wurde noch nicht abgeschlossen.",
+        "notFound": "Modul nicht gefunden."
+      },
+      "lesenHoren": {
+        "summary": "{module} — Zusammenfassung",
+        "correct": "richtig",
+        "wrong": "falsch",
+        "total": "gesamt",
+        "allAnswers": "Alle Antworten",
+        "yourAnswerLabel": "Ihre:",
+        "correctAnswerLabel": "Richtig:",
+        "taskLabel": "Aufgabe {id}",
+        "allCorrect": "Alle Antworten richtig — super!",
+        "noDetails": "Keine detaillierten Antworten gespeichert."
+      },
+      "schreiben": {
+        "task": "Aufgabe",
+        "criteria": "Bewertung nach Kriterien",
+        "aiFeedback": "KI-Feedback",
+        "noFeedback": "Kein detailliertes Feedback verfügbar.",
+        "taskFulfillment": "Aufgabenerfüllung",
+        "coherence": "Kohärenz",
+        "vocabulary": "Wortschatz",
+        "grammar": "Grammatik"
+      },
+      "sprechen": {
+        "tasks": "Aufgaben",
+        "teilLabel": "Teil {n} · {type}",
+        "criteria": "Bewertung nach Kriterien",
+        "aiFeedback": "KI-Feedback",
+        "noFeedback": "Kein detailliertes Feedback verfügbar.",
+        "taskFulfillment": "Aufgabenerfüllung",
+        "fluency": "Flüssigkeit",
+        "vocabulary": "Wortschatz",
+        "grammar": "Grammatik",
+        "pronunciation": "Aussprache"
+      }
+    },
+    "progress": {
+      "title": "Fortschritt",
+      "subtitle": "Graphische Auswertung Ihrer Ergebnisse über die Zeit, nach Modul aufgeschlüsselt.",
+      "empty": {
+        "title": "Absolvieren Sie mindestens 2 Module, um Ihren Fortschritt zu sehen",
+        "completed": "Bereits absolviert: {count}",
+        "toDashboard": "Zum Dashboard"
+      },
+      "errors": {
+        "loadFailed": "Fortschrittsdaten konnten nicht geladen werden.",
+        "network": "Netzwerkfehler beim Laden der Fortschrittsdaten."
+      },
+      "stats": {
+        "trendLabel": "Trend letzter Monat",
+        "strongestModule": "Stärkstes Modul",
+        "weakestModule": "Problemmodul",
+        "trend": {
+          "improving": "Verbessert sich",
+          "stable": "Stabil",
+          "declining": "Verschlechtert sich"
+        },
+        "noPrevMonth": "Noch keine Daten aus dem Vormonat",
+        "noChange": "Keine Veränderung",
+        "deltaPositive": "+{delta} Punkte vs. Vormonat",
+        "deltaNegative": "{delta} Punkte vs. Vormonat",
+        "avgLine": "Ø {avg} · {attempts, plural, one {# Modul} other {# Module}}"
+      },
+      "charts": {
+        "scoreTime": {
+          "title": "Punktzahl über die Zeit",
+          "subtitle": "Alle Module kombiniert, sortiert nach Abschlussdatum.",
+          "pointsLabel": "Punkte"
+        },
+        "byModule": {
+          "title": "Aufschlüsselung nach Modul",
+          "subtitle": "Jede Linie folgt den Ergebnissen eines Moduls."
+        },
+        "byLevel": {
+          "title": "Durchschnitt nach Niveau",
+          "subtitle": "Durchschnittliche Punktzahl über alle Module je Niveau.",
+          "row": "{score} · {attempts, plural, one {# Modul} other {# Module}}"
+        }
+      }
+    },
+    "recommendations": {
+      "title": "Empfehlungen",
+      "subtitle": "Persönliche Lerntipps auf Basis Ihrer bisherigen Module.",
+      "loading": "Empfehlungen werden geladen…",
+      "refreshing": "Neue Empfehlungen werden generiert…",
+      "refreshButton": "Empfehlungen aktualisieren",
+      "refreshingButton": "Wird aktualisiert…",
+      "retry": "Erneut versuchen",
+      "empty": {
+        "title": "Absolvieren Sie mindestens ein Modul, um personalisierte Empfehlungen zu erhalten",
+        "hint": "Sobald Sie ein Modul abgeschlossen haben, analysieren wir Ihre Ergebnisse und erstellen einen persönlichen Lernplan.",
+        "toDashboard": "Zum Dashboard"
+      },
+      "sections": {
+        "overall": "Allgemeine Einschätzung",
+        "strengths": "Stärken",
+        "weaknesses": "Schwächen",
+        "studyPlan": "Ihr Lernplan",
+        "motivation": "Motivation"
+      },
+      "modulesCount": "{count, plural, one {# Modul} other {# Module}} berücksichtigt",
+      "cachedAt": "Gespeichert am {date}",
+      "generatedAt": "Erstellt am {date}",
+      "errors": {
+        "loadFailed": "Empfehlungen konnten nicht geladen werden.",
+        "network": "Netzwerkfehler beim Laden der Empfehlungen."
+      }
+    },
+    "payments": {
+      "title": "Zahlungen",
+      "subtitle": "Ihr Guthaben, Kaufoptionen und Zahlungshistorie.",
+      "currentBalance": "Aktuelles Guthaben",
+      "balanceUnlimited": "Unbegrenzt",
+      "balanceUnit": "{count, plural, one {Modul} other {Module}}",
+      "adminHint": "Admin-Modus — keine Limits.",
+      "creditExplanation": "1 Credit entspricht einem Prüfungsmodul (Lesen, Hören, Schreiben oder Sprechen).",
+      "buyTitle": "Module kaufen",
+      "buyHint": "Wählen Sie ein Paket — gekaufte Module sind frei kombinierbar zwischen Lesen, Hören, Schreiben und Sprechen.",
+      "viewPackages": "Pakete ansehen",
+      "historyTitle": "Zahlungshistorie",
+      "historyEmpty": "Noch keine Zahlungen",
+      "historyHint": "Die Zahlungshistorie wird verfügbar, sobald das Zahlungssystem aktiviert ist."
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "subtitle": "Profil, Passwort und Konto verwalten.",
+      "profile": {
+        "title": "Profil",
+        "emailLabel": "E-Mail",
+        "emailHint": "E-Mail kann derzeit nicht geändert werden.",
+        "nameLabel": "Name",
+        "namePlaceholder": "Wie sollen wir Sie nennen?",
+        "saveButton": "Speichern",
+        "saving": "Wird gespeichert…",
+        "saved": "Name gespeichert.",
+        "saveFailed": "Speichern fehlgeschlagen.",
+        "network": "Netzwerkfehler."
+      },
+      "password": {
+        "title": "Passwort ändern",
+        "externalTitle": "Passwort",
+        "externalText": "Sie haben sich über einen externen Anbieter (z. B. Google) angemeldet. Das Passwort wird beim Anbieter verwaltet.",
+        "currentLabel": "Aktuelles Passwort",
+        "newLabel": "Neues Passwort",
+        "newHint": "Mindestens 8 Zeichen.",
+        "confirmLabel": "Neues Passwort bestätigen",
+        "changeButton": "Passwort ändern",
+        "saving": "Wird gespeichert…",
+        "updated": "Passwort wurde aktualisiert.",
+        "tooShort": "Neues Passwort muss mindestens 8 Zeichen lang sein.",
+        "mismatch": "Passwörter stimmen nicht überein.",
+        "changeFailed": "Passwort konnte nicht geändert werden.",
+        "network": "Netzwerkfehler."
+      },
+      "delete": {
+        "title": "Konto löschen",
+        "hint": "Ihr Konto und alle zugehörigen Daten werden dauerhaft entfernt.",
+        "button": "Konto löschen",
+        "modalTitle": "Konto löschen",
+        "modalBody": "Bitte kontaktieren Sie uns unter <email>contact@deutschtest.pro</email>, um Ihr Konto zu löschen.",
+        "modalHint": "Wir bestätigen die Löschung manuell, um versehentliche Anfragen zu vermeiden.",
+        "close": "Schließen"
+      }
+    },
+    "placeholder": {
+      "soon": "Dieser Bereich wird bald verfügbar sein.",
+      "soonHint": "Wir arbeiten an der nächsten Ausbaustufe Ihres Kontos."
+    }
+  },
+  "exam": {
+    "shell": {
+      "loading": "Prüfung wird geladen…",
+      "notFound": "Session nicht gefunden",
+      "back": "Zurück",
+      "certificate": "Goethe-Zertifikat {level}"
+    },
+    "timer": {
+      "warning5Minutes": "Noch 5 Minuten!",
+      "warning60Seconds": "Noch 60 Sekunden!",
+      "dismiss": "OK",
+      "timeUpTitle": "Zeit ist um",
+      "timeUpMessage": "Ihre Antworten werden automatisch gesendet.",
+      "redirecting": "Sie werden weitergeleitet…"
+    },
+    "answerSheet": {
+      "title": "Antwortbogen"
+    },
+    "audio": {
+      "play": "Abspielen",
+      "pause": "Pause",
+      "loading": "Wird geladen",
+      "startRecording": "Aufnahme starten",
+      "stopRecording": "Aufnahme stoppen",
+      "error": "Fehler",
+      "scriptHeader": "Audio {id} — {count, plural, one {#× abspielen} other {#× abspielen}}"
+    },
+    "modules": {
+      "shared": {
+        "back": "← Zurück",
+        "next": "Weiter →",
+        "submitAll": "Alle Antworten abgeben",
+        "submitting": "Wird geprüft…",
+        "toResults": "Zu den Ergebnissen",
+        "example": "Beispiel",
+        "gapLabel": "Lücke ({id})",
+        "taskNumber": "Aufgabe {id}",
+        "teilLabel": "Teil {n}"
+      },
+      "lesen": {
+        "loading": "Lesen-Modul wird geladen…",
+        "moduleTitle": "Modul Lesen",
+        "moduleHint": "65 Minuten — 5 Teile — 30 Aufgaben",
+        "teil1": {
+          "title": "Teil 1",
+          "desc": "Lesen Sie den Text und die Aufgaben. Sind die Aussagen richtig oder falsch?",
+          "tag": "Blogbeitrag"
+        },
+        "teil2": {
+          "title": "Teil 2",
+          "desc": "Lesen Sie den Text und die Aufgaben. Wählen Sie die richtige Antwort a, b oder c.",
+          "tag": "Zeitungsartikel"
+        },
+        "teil3": {
+          "title": "Teil 3",
+          "desc": "Lesen Sie den Text und die Aufgaben. Wählen Sie Ja oder Nein.",
+          "tag": "Regeln / Ordnung"
+        },
+        "teil4": {
+          "title": "Teil 4",
+          "desc": "Lesen Sie die Texte und die Situationen. Welcher Text passt?",
+          "tag": "Anzeigen / Aushänge"
+        },
+        "teil5": {
+          "title": "Teil 5",
+          "desc": "Lesen Sie den Text und wählen Sie das richtige Wort für jede Lücke.",
+          "tag": "Lückentext",
+          "exampleLabel": "Beispiel — Lücke (0)"
+        },
+        "answers": {
+          "richtig": "Richtig",
+          "falsch": "Falsch",
+          "ja": "Ja",
+          "nein": "Nein"
+        }
+      },
+      "horen": {
+        "loading": "Hören-Modul wird geladen…",
+        "moduleTitle": "Modul Hören",
+        "moduleHint": "40 Minuten — 4 Teile — 20 Aufgaben",
+        "teil1": {
+          "title": "Teil 1",
+          "desc": "Sie hören fünf kurze Texte. Sie hören jeden Text zweimal. Richtig oder falsch?",
+          "tag": "Durchsagen"
+        },
+        "teil2": {
+          "title": "Teil 2",
+          "desc": "Sie hören ein Gespräch. Sie hören den Text einmal. Wählen Sie a, b oder c.",
+          "tag": "Interview"
+        },
+        "teil3": {
+          "title": "Teil 3",
+          "desc": "Sie hören ein Gespräch. Sie hören den Text einmal. Richtig oder falsch?",
+          "tag": "Alltagsgespräch"
+        },
+        "teil4": {
+          "title": "Teil 4",
+          "desc": "Sie hören fünf kurze Gespräche. Sie hören jeden Text zweimal. Richtig oder falsch?",
+          "tag": "Gespräche"
+        },
+        "answers": {
+          "richtig": "Richtig",
+          "falsch": "Falsch"
+        }
+      },
+      "schreiben": {
+        "loading": "Schreiben-Modul wird geladen…",
+        "moduleTitle": "Modul Schreiben",
+        "moduleHint": "60 Minuten — Schriftlicher Ausdruck",
+        "task": "Aufgabe",
+        "requiredPoints": "Schreiben Sie etwas zu folgenden Punkten:",
+        "yourText": "Ihr Text",
+        "textPlaceholder": "Schreiben Sie hier Ihren Text...",
+        "wordCount": "{count} / ~{target} Wörter",
+        "wordCountFinal": "{count, plural, one {# Wort} other {# Wörter}}",
+        "wordHint": {
+          "empty": "Beginnen Sie zu schreiben…",
+          "low": "Schreiben Sie weiter!",
+          "almost": "Fast genug Wörter.",
+          "enough": "Gute Länge!"
+        },
+        "submitButton": "Text abgeben",
+        "submitting": "Wird bewertet…",
+        "outOf100": "von 100 Punkten",
+        "aiFeedback": "KI-Feedback",
+        "errors": {
+          "scoring": "Bewertung fehlgeschlagen",
+          "network": "Netzwerkfehler"
+        },
+        "criteria": {
+          "taskFulfillment": "Aufgabenerfüllung",
+          "coherence": "Kohärenz",
+          "vocabulary": "Wortschatz",
+          "grammar": "Grammatik"
+        }
+      },
+      "sprechen": {
+        "loading": "Sprechen-Modul wird geladen…",
+        "moduleTitle": "Modul Sprechen",
+        "moduleHint": "Mündliche Prüfung — 3 Teile",
+        "slides": "Folien",
+        "pointsLabel": "Gesprächspunkte",
+        "clickToStart": "Klicken Sie auf die Taste, um die Aufnahme zu starten.",
+        "startRecording": "Aufnahme starten",
+        "stopRecording": "Aufnahme beenden",
+        "recording": "Aufnahme läuft…",
+        "processing": {
+          "transcribing": "Sprache wird erkannt…",
+          "scoring": "KI bewertet Ihre Antwort…",
+          "stepTranscribing": "Automatische Transkription…",
+          "stepScoring": "KI-Bewertung Ihres Textes…",
+          "stepFinalizing": "Fast fertig…"
+        },
+        "transcript": "Ihre Transkription",
+        "outOf100": "von 100 Punkten",
+        "averagePer100": "/ 100 Ø",
+        "aiFeedback": "KI-Feedback",
+        "toResults": "Zu den Ergebnissen",
+        "errors": {
+          "transcribe": "Transkription fehlgeschlagen",
+          "scoring": "Bewertung fehlgeschlagen",
+          "micDenied": "Mikrofon-Zugriff verweigert",
+          "network": "Netzwerkfehler",
+          "saveFailed": "Speichern fehlgeschlagen",
+          "aggregate": "Keine auswertbaren Aufnahmen — bitte wiederholen Sie die Teile mit Fehler."
+        },
+        "teil": {
+          "planning": {
+            "title": "Teil 1 — Gemeinsam etwas planen",
+            "desc": "Sprechen Sie über die Punkte unten und planen Sie gemeinsam.",
+            "tag": "~3 Minuten"
+          },
+          "presentation": {
+            "title": "Teil 2 — Ein Thema präsentieren",
+            "desc": "Halten Sie eine kurze Präsentation anhand der Folien-Stichpunkte.",
+            "tag": "~3 Minuten"
+          },
+          "reaction": {
+            "title": "Teil 3 — Auf eine Präsentation reagieren",
+            "desc": "Reagieren Sie auf die Frage und begründen Sie Ihre Meinung.",
+            "tag": "~2 Minuten"
+          }
+        },
+        "criteria": {
+          "taskFulfillment": "Aufgabenerfüllung",
+          "fluency": "Flüssigkeit",
+          "vocabulary": "Wortschatz",
+          "grammar": "Grammatik",
+          "pronunciation": "Aussprache"
+        }
+      }
+    }
+  },
+  "results": {
+    "title": "Ergebnisse",
+    "loading": "Ergebnisse werden geladen…",
+    "notFound": "Keine Ergebnisse gefunden",
+    "notSubmitted": "Die Prüfung wurde noch nicht abgegeben.",
+    "toHome": "Zur Startseite",
+    "toDashboard": "Zum Dashboard",
+    "retakeModule": "Modul wiederholen",
+    "certificateHeading": "Goethe-Zertifikat {level} — {module}",
+    "outOf100": "von 100 Punkten",
+    "passed": "Bestanden ✅",
+    "failed": "Nicht bestanden ❌",
+    "submittedAt": "Abgegeben am {date}",
+    "errors": {
+      "loadFailed": "Ergebnisse konnten nicht geladen werden.",
+      "network": "Netzwerkfehler beim Laden der Ergebnisse."
+    },
+    "lesenHoren": {
+      "title": "{module} — Detailergebnisse",
+      "correct": "richtig",
+      "wrong": "falsch",
+      "total": "gesamt",
+      "wrongAnswers": "Falsche Antworten",
+      "taskLabel": "Aufgabe {id}",
+      "yourAnswerLabel": "Ihre:",
+      "correctAnswerLabel": "Richtig:"
+    },
+    "schreiben": {
+      "title": "Schreiben — Bewertung",
+      "aiFeedback": "KI-Feedback",
+      "taskFulfillment": "Aufgabenerfüllung",
+      "coherence": "Kohärenz",
+      "vocabulary": "Wortschatz",
+      "grammar": "Grammatik"
+    },
+    "sprechen": {
+      "title": "Sprechen — Bewertung",
+      "aiFeedback": "KI-Feedback",
+      "taskFulfillment": "Aufgabenerfüllung",
+      "fluency": "Flüssigkeit",
+      "vocabulary": "Wortschatz",
+      "grammar": "Grammatik",
+      "pronunciation": "Aussprache"
+    },
+    "retakeModal": {
+      "title": "Modul erneut absolvieren",
+      "body": "Sie starten eine neue {module}-Prüfung mit komplett neuen Aufgaben. Dafür wird <b>1 Modul</b> von Ihrem Guthaben abgezogen.",
+      "balance": "Aktuelles Guthaben: <b>{current, plural, one {# Modul} other {# Module}}</b> → nach dem Start: <b>{next, plural, one {# Modul} other {# Module}}</b>",
+      "cancel": "Abbrechen",
+      "confirm": "Ja, starten",
+      "confirming": "Wird gestartet…",
+      "errorFallback": "Fehler beim Erstellen der neuen Prüfung",
+      "errorNetwork": "Netzwerkfehler"
+    }
   }
 }

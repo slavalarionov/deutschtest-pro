@@ -1,17 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { Link, usePathname, useRouter } from '@/i18n/routing'
 import { createClient } from '@/lib/supabase/client'
 
 const NAV_ITEMS = [
-  { href: '/dashboard', label: 'Dashboard', icon: '🏠' },
-  { href: '/dashboard/history', label: 'Verlauf', icon: '📚' },
-  { href: '/dashboard/progress', label: 'Fortschritt', icon: '📈' },
-  { href: '/dashboard/recommendations', label: 'Empfehlungen', icon: '💡' },
-  { href: '/dashboard/payments', label: 'Zahlungen', icon: '💳' },
-  { href: '/dashboard/settings', label: 'Einstellungen', icon: '⚙️' },
+  { href: '/dashboard', navKey: 'dashboard', icon: '🏠' },
+  { href: '/dashboard/history', navKey: 'history', icon: '📚' },
+  { href: '/dashboard/progress', navKey: 'progress', icon: '📈' },
+  { href: '/dashboard/recommendations', navKey: 'recommendations', icon: '💡' },
+  { href: '/dashboard/payments', navKey: 'payments', icon: '💳' },
+  { href: '/dashboard/settings', navKey: 'settings', icon: '⚙️' },
 ] as const
 
 interface DashboardShellProps {
@@ -22,6 +22,7 @@ interface DashboardShellProps {
 export function DashboardShell({ email, children }: DashboardShellProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const t = useTranslations('dashboard.shell')
   const [open, setOpen] = useState(false)
 
   async function handleLogout() {
@@ -48,7 +49,7 @@ export function DashboardShell({ email, children }: DashboardShellProps) {
           }`}
         >
           <span className="text-base">{item.icon}</span>
-          <span>{item.label}</span>
+          <span>{t(`nav.${item.navKey}`)}</span>
         </Link>
       ))}
     </nav>
@@ -63,7 +64,7 @@ export function DashboardShell({ email, children }: DashboardShellProps) {
         </Link>
         <button
           type="button"
-          aria-label="Menü öffnen"
+          aria-label={t('openMenu')}
           onClick={() => setOpen((v) => !v)}
           className="rounded-md border border-brand-border bg-brand-white px-3 py-1.5 text-sm"
         >
@@ -93,14 +94,14 @@ export function DashboardShell({ email, children }: DashboardShellProps) {
             href="/"
             className="flex items-center gap-2 text-xs text-brand-muted hover:text-brand-text"
           >
-            ← Zur Startseite
+            {t('backHome')}
           </Link>
           <button
             type="button"
             onClick={handleLogout}
             className="text-xs text-brand-muted hover:text-brand-text"
           >
-            Abmelden
+            {t('logout')}
           </button>
         </div>
       </aside>
@@ -109,7 +110,7 @@ export function DashboardShell({ email, children }: DashboardShellProps) {
       {open && (
         <button
           type="button"
-          aria-label="Menü schließen"
+          aria-label={t('closeMenu')}
           onClick={() => setOpen(false)}
           className="fixed inset-0 z-30 bg-black/30 lg:hidden"
         />

@@ -1,30 +1,27 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link, useRouter } from '@/i18n/routing'
 import type { ExamLevel, ExamModule } from '@/types/exam'
 
-const LEVELS: { value: ExamLevel; label: string; desc: string }[] = [
-  { value: 'A1', label: 'A1', desc: 'Start Deutsch 1' },
-  { value: 'A2', label: 'A2', desc: 'Goethe-Zertifikat A2' },
-  { value: 'B1', label: 'B1', desc: 'Goethe-Zertifikat B1' },
+type LevelKey = 'a1' | 'a2' | 'b1'
+
+const LEVELS: { value: ExamLevel; label: string; descKey: LevelKey }[] = [
+  { value: 'A1', label: 'A1', descKey: 'a1' },
+  { value: 'A2', label: 'A2', descKey: 'a2' },
+  { value: 'B1', label: 'B1', descKey: 'b1' },
 ]
 
 const MODULE_OPTIONS: {
   id: ExamModule
-  name: string
-  duration: string
   icon: string
 }[] = [
-  { id: 'lesen', name: 'Lesen', duration: '65 Min', icon: '📖' },
-  { id: 'horen', name: 'Hören', duration: '40 Min', icon: '🎧' },
-  { id: 'schreiben', name: 'Schreiben', duration: '60 Min', icon: '✍️' },
-  { id: 'sprechen', name: 'Sprechen', duration: '15 Min', icon: '🗣' },
+  { id: 'lesen', icon: '📖' },
+  { id: 'horen', icon: '🎧' },
+  { id: 'schreiben', icon: '✍️' },
+  { id: 'sprechen', icon: '🗣' },
 ]
-
-const GENERIC_GENERATE_FAIL =
-  'Die Prüfung konnte nicht generiert werden. Bitte versuchen Sie es etwas später erneut.'
 
 interface ModuleLauncherProps {
   /** Prepaid credits available. When 0 we show a «Module kaufen» CTA instead of «Starten». */
@@ -40,6 +37,7 @@ export function ModuleLauncher({
   defaultLevel = 'B1',
 }: ModuleLauncherProps) {
   const router = useRouter()
+  const t = useTranslations('dashboard.launcher')
   const [selectedLevel, setSelectedLevel] = useState<ExamLevel>(defaultLevel)
   const [selectedModule, setSelectedModule] = useState<ExamModule | null>(null)
   const [loading, setLoading] = useState(false)
@@ -79,7 +77,7 @@ export function ModuleLauncher({
 
       if (res.status === 403) {
         if (data.code === 'insufficient_balance') {
-          setError(String(data.error ?? 'Nicht genug Modul-Credits.'))
+          setError(String(data.error ?? t('insufficientBalance')))
         } else {
           router.push(String(data.redirect ?? '/pricing'))
         }
@@ -88,14 +86,14 @@ export function ModuleLauncher({
       }
 
       if (!res.ok || !data.success || !data.sessionId) {
-        setError(GENERIC_GENERATE_FAIL)
+        setError(t('generateFailed'))
         setLoading(false)
         return
       }
 
       router.push(`/exam/${data.sessionId}`)
     } catch {
-      setError(GENERIC_GENERATE_FAIL)
+      setError(t('generateFailed'))
       setLoading(false)
     }
   }
@@ -103,15 +101,13 @@ export function ModuleLauncher({
   return (
     <div className="rounded-2xl bg-brand-white p-6 shadow-soft sm:p-8">
       <h2 className="mb-1 text-lg font-semibold text-brand-text">
-        Neuen Test starten
+        {t('title')}
       </h2>
-      <p className="mb-6 text-sm text-brand-muted">
-        Wählen Sie Niveau und Modul — 1 Credit pro Modul.
-      </p>
+      <p className="mb-6 text-sm text-brand-muted">{t('subtitle')}</p>
 
       <div className="mb-5">
         <p className="mb-2 text-xs font-medium uppercase tracking-wider text-brand-muted">
-          Niveau
+          {t('levelLabel')}
         </p>
         <div className="flex gap-3">
           {LEVELS.map((lvl) => (
@@ -136,7 +132,7 @@ export function ModuleLauncher({
                 {lvl.label}
               </span>
               <span className="block text-[11px] text-brand-muted">
-                {lvl.desc}
+                {t(`levels.${lvl.descKey}`)}
               </span>
             </button>
           ))}
@@ -145,7 +141,7 @@ export function ModuleLauncher({
 
       <div className="mb-6">
         <p className="mb-2 text-xs font-medium uppercase tracking-wider text-brand-muted">
-          Modul
+          {t('moduleLabel')}
         </p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {MODULE_OPTIONS.map((mod) => {
@@ -165,10 +161,10 @@ export function ModuleLauncher({
                 <span className="text-lg">{mod.icon}</span>
                 <div className="flex-1">
                   <span className="font-semibold text-brand-text">
-                    {mod.name}
+                    {t(`modules.${mod.id}`)}
                   </span>
                   <span className="mt-0.5 block text-xs text-brand-muted">
-                    {mod.duration}
+                    {t(`durations.${mod.id}`)}
                   </span>
                 </div>
               </button>
@@ -188,12 +184,12 @@ export function ModuleLauncher({
             {loading ? (
               <span className="flex items-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                KI generiert Prüfung…
+                {t('generating')}
               </span>
             ) : selectedModule ? (
-              `Starten — ${selectedLevel}`
+              t('startButton', { level: selectedLevel })
             ) : (
-              'Modul wählen'
+              t('chooseModule')
             )}
           </button>
         ) : (
@@ -201,14 +197,14 @@ export function ModuleLauncher({
             href="/pricing"
             className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark"
           >
-            Module kaufen
+            {t('buyModules')}
           </Link>
         )}
 
         <p className="text-xs text-brand-muted">
           {isAdmin
-            ? 'Admin-Modus — unbegrenzt'
-            : `Verfügbare Credits: ${modulesBalance}`}
+            ? t('adminUnlimited')
+            : t('creditsAvailable', { count: modulesBalance })}
         </p>
       </div>
 
