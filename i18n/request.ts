@@ -11,8 +11,18 @@ export default getRequestConfig(async ({ requestLocale }) => {
       ? (requested as Locale)
       : defaultLocale
 
+  const messages = (await import(`../messages/${locale}.json`)).default
+  const fallbackMessages =
+    locale === defaultLocale
+      ? messages
+      : (await import(`../messages/${defaultLocale}.json`)).default
+
   return {
     locale,
-    messages: (await import(`../messages/${locale}.json`)).default,
+    messages: { ...fallbackMessages, ...messages },
+    onError: () => {
+      // Временно для Этапа 2a: словари RU/EN/TR пустые. Тихо падаем обратно на DE.
+    },
+    getMessageFallback: ({ key }) => key,
   }
 })
