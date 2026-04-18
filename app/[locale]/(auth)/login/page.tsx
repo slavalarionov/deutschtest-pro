@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Link } from '@/i18n/routing'
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher'
 
 function LoginForm() {
   const router = useRouter()
@@ -60,6 +61,9 @@ function LoginForm() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-bg px-4">
+      <div className="absolute right-4 top-4 sm:right-8 sm:top-6">
+        <LanguageSwitcher />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}

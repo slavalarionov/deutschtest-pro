@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import { Link, useRouter } from '@/i18n/routing'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher'
 
 interface AuthNavProps {
   userEmail: string | null
@@ -44,6 +45,7 @@ export function AuthNav({ userEmail }: AuthNavProps) {
         >
           {t('logout')}
         </motion.button>
+        <LanguageSwitcher isLoggedIn />
       </div>
     )
   }
@@ -62,6 +64,7 @@ export function AuthNav({ userEmail }: AuthNavProps) {
       >
         {t('register')}
       </Link>
+      <LanguageSwitcher />
     </div>
   )
 }

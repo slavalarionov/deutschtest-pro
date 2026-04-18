@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, usePathname, useRouter } from '@/i18n/routing'
 import { createClient } from '@/lib/supabase/client'
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher'
 
 const NAV_ITEMS = [
   { href: '/dashboard', navKey: 'dashboard', icon: '🏠' },
@@ -89,7 +90,8 @@ export function DashboardShell({ email, children }: DashboardShellProps) {
 
         {navLinks}
 
-        <div className="space-y-2 border-t border-brand-border p-4">
+        <div className="space-y-3 border-t border-brand-border p-4">
+          <LanguageSwitcher isLoggedIn variant="compact" />
           <Link
             href="/"
             className="flex items-center gap-2 text-xs text-brand-muted hover:text-brand-text"
