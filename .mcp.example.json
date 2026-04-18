@@ -1,0 +1,23 @@
+{
+  "_setup": [
+    "Local setup for Supabase MCP server in Claude Code.",
+    "1. Create a Personal Access Token: https://supabase.com/dashboard/account/tokens (name it e.g. 'claude-code-local').",
+    "2. Find your project_ref in the dashboard URL: https://supabase.com/dashboard/project/<PROJECT_REF>.",
+    "3. Add the following exports to ~/.zshrc (or ~/.bashrc) and run 'source ~/.zshrc':",
+    "     export SUPABASE_ACCESS_TOKEN=\"sbp_...\"",
+    "     export SUPABASE_PROJECT_REF=\"xxxxxxxx\"",
+    "4. Copy this file to .mcp.json (it is gitignored): cp .mcp.example.json .mcp.json",
+    "5. Restart Claude Code. On first start the server exposes mcp__supabase__authenticate — call it, open the URL in a browser, pick the organization that owns your project, and finish the OAuth flow. Tools become available automatically.",
+    "6. Verify with mcp__supabase__execute_sql -> SELECT 1.",
+    "Notes: read_only=false enables DDL/migrations. Destructive ops still require explicit chat confirmation per CLAUDE.md. The Bearer PAT in headers is the initial credential; the OAuth grant supersedes it for subsequent calls."
+  ],
+  "mcpServers": {
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=${SUPABASE_PROJECT_REF}&read_only=false",
+      "headers": {
+        "Authorization": "Bearer ${SUPABASE_ACCESS_TOKEN}"
+      }
+    }
+  }
+}
