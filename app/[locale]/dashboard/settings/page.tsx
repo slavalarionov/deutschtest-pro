@@ -31,6 +31,7 @@ export default async function DashboardSettingsPage() {
       email={user.email ?? ''}
       initialName={initialName}
       canChangePassword={hasEmailProvider}
+      memberSince={user.created_at}
     />
   )
 }

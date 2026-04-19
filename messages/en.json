@@ -621,8 +621,17 @@
     "settings": {
       "title": "Settings",
       "subtitle": "Manage profile, password and account.",
+      "eyebrow": "SETTINGS",
+      "headline": {
+        "strong": "Profile.",
+        "muted": "& Security."
+      },
       "profile": {
         "title": "Profile",
+        "eyebrow": "PROFILE",
+        "memberSinceMono": "MEMBER SINCE",
+        "nameEyebrow": "DISPLAY NAME",
+        "savedChip": "Saved",
         "emailLabel": "Email",
         "emailHint": "Email can't be changed right now.",
         "nameLabel": "Name",
@@ -635,6 +644,15 @@
       },
       "password": {
         "title": "Change password",
+        "eyebrow": "PASSWORD",
+        "currentEyebrow": "CURRENT PASSWORD",
+        "newEyebrow": "NEW PASSWORD",
+        "confirmEyebrow": "CONFIRM",
+        "hintMono": "AT LEAST 8 CHARACTERS",
+        "updatedChip": "Updated",
+        "externalEyebrow": "SIGN-IN",
+        "externalLeadV2": "You signed in with an external provider.",
+        "externalHintV2": "Manage your password with that provider.",
         "externalTitle": "Password",
         "externalText": "You signed in with an external provider (like Google). Your password is managed by that provider.",
         "currentLabel": "Current password",
@@ -651,6 +669,10 @@
       },
       "delete": {
         "title": "Delete account",
+        "eyebrow": "DANGER ZONE",
+        "titleV2": "Delete account.",
+        "hintV2": "All data will be permanently removed.",
+        "modalH3": "We'll delete your account manually.",
         "hint": "Your account and all related data will be permanently removed.",
         "button": "Delete account",
         "modalTitle": "Delete account",

@@ -1,74 +1,90 @@
 'use client'
 
-import { useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useEffect, useState } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
+import { formatEditorialMonthYear } from '@/lib/format/date'
 
 interface SettingsViewProps {
   email: string
   initialName: string
   canChangePassword: boolean
+  memberSince: string
 }
 
 export function SettingsView({
   email,
   initialName,
   canChangePassword,
+  memberSince,
 }: SettingsViewProps) {
   const t = useTranslations('dashboard.settings')
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-brand-text">{t('title')}</h1>
-        <p className="mt-1 text-sm text-brand-muted">{t('subtitle')}</p>
+    <div className="mx-auto max-w-4xl px-6 py-10 md:px-10 md:py-14">
+      {/* Header */}
+      <header className="mb-10">
+        <p className="eyebrow">{t('eyebrow')}</p>
+        <h1 className="mt-3 font-display text-6xl leading-[1] tracking-[-0.035em] md:text-7xl">
+          <span className="block text-ink">{t('headline.strong')}</span>
+          <span className="block text-ink-soft">{t('headline.muted')}</span>
+        </h1>
+      </header>
+
+      <div className="space-y-4">
+        <ProfileCard
+          email={email}
+          initialName={initialName}
+          memberSince={memberSince}
+        />
+
+        {canChangePassword ? (
+          <PasswordCard />
+        ) : (
+          <ExternalProviderCard />
+        )}
+
+        <DangerZoneCard />
       </div>
-
-      <ProfileSection email={email} initialName={initialName} />
-
-      {canChangePassword ? (
-        <PasswordSection />
-      ) : (
-        <Card>
-          <h2 className="text-lg font-semibold text-brand-text">
-            {t('password.externalTitle')}
-          </h2>
-          <p className="mt-2 text-sm text-brand-muted">
-            {t('password.externalText')}
-          </p>
-        </Card>
-      )}
-
-      <DeleteAccountSection />
     </div>
   )
 }
 
-function Card({ children }: { children: React.ReactNode }) {
-  return (
-    <section className="rounded-2xl bg-brand-white p-6 shadow-soft">
-      {children}
-    </section>
-  )
-}
+/* ------------------------------------------------------------------ */
+/*  Profile                                                            */
+/* ------------------------------------------------------------------ */
 
-function ProfileSection({
+function ProfileCard({
   email,
   initialName,
+  memberSince,
 }: {
   email: string
   initialName: string
+  memberSince: string
 }) {
   const t = useTranslations('dashboard.settings.profile')
+  const locale = useLocale()
   const [name, setName] = useState(initialName)
   const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState<
-    { kind: 'ok' | 'err'; text: string } | null
-  >(null)
+  const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Clear the "Gespeichert" chip after 2 seconds.
+  useEffect(() => {
+    if (!saved) return
+    const timer = setTimeout(() => setSaved(false), 2000)
+    return () => clearTimeout(timer)
+  }, [saved])
+
+  const displayName = name.trim() || initialName.trim()
+  const initial = (displayName[0] || email[0] || '?').toLocaleUpperCase(locale)
+  const memberSinceLabel = formatEditorialMonthYear(memberSince, locale)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    setMessage(null)
+    setSaved(false)
+    setError(null)
     try {
       const res = await fetch('/api/dashboard/settings', {
         method: 'PATCH',
@@ -77,87 +93,118 @@ function ProfileSection({
       })
       const json = await res.json()
       if (!res.ok || !json.success) {
-        setMessage({
-          kind: 'err',
-          text: json.error || t('saveFailed'),
-        })
+        setError(json.error || t('saveFailed'))
       } else {
-        setMessage({ kind: 'ok', text: t('saved') })
+        setSaved(true)
       }
     } catch {
-      setMessage({ kind: 'err', text: t('network') })
+      setError(t('network'))
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <Card>
-      <h2 className="text-lg font-semibold text-brand-text">{t('title')}</h2>
-      <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-        <Field label={t('emailLabel')}>
-          <input
-            type="email"
-            value={email}
-            readOnly
-            className="w-full cursor-not-allowed rounded-lg border border-brand-border bg-brand-surface px-3 py-2 text-sm text-brand-muted"
-          />
-          <p className="mt-1 text-xs text-brand-muted">{t('emailHint')}</p>
-        </Field>
+    <section className="rounded-rad border border-line bg-card p-8">
+      <p className="eyebrow">{t('eyebrow')}</p>
 
-        <Field label={t('nameLabel')}>
+      {/* Identity row */}
+      <div className="mt-4 flex items-center gap-6">
+        <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-accent-soft">
+          <span className="font-display text-3xl text-accent-ink">
+            {initial}
+          </span>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-display text-2xl tracking-[-0.02em] text-ink">
+            {displayName || email}
+          </p>
+          <p className="mt-1 truncate font-mono text-xs uppercase tracking-wide text-muted">
+            {email} · {t('memberSinceMono')} {memberSinceLabel}
+          </p>
+        </div>
+      </div>
+
+      <div className="my-8 border-t border-line" />
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <label htmlFor="settings-name" className="block">
+          <span className="block font-mono text-[11px] uppercase tracking-wide text-muted">
+            {t('nameEyebrow')}
+          </span>
           <input
+            id="settings-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             maxLength={80}
             placeholder={t('namePlaceholder')}
-            className="w-full rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm text-brand-text focus:border-brand-gold focus:outline-none"
+            className="mt-2 w-full rounded-rad-sm border border-line bg-page px-4 py-3 text-sm text-ink transition-colors placeholder:text-muted focus:border-ink focus:outline-none"
           />
-        </Field>
+        </label>
 
-        {message && (
-          <p
-            className={`text-sm ${
-              message.kind === 'ok' ? 'text-green-600' : 'text-brand-red'
-            }`}
+        <div className="mt-2 flex flex-wrap items-center gap-4">
+          <button
+            type="submit"
+            disabled={saving || name.trim() === initialName.trim()}
+            className="inline-flex items-center gap-2 rounded-rad-pill bg-ink px-6 py-3 text-sm font-medium text-page transition-colors hover:bg-ink-soft disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {message.text}
-          </p>
-        )}
+            {saving ? (
+              <>
+                <Spinner />
+                {t('saving')}
+              </>
+            ) : (
+              t('saveButton')
+            )}
+          </button>
 
-        <button
-          type="submit"
-          disabled={saving || name.trim() === initialName.trim()}
-          className="inline-flex items-center justify-center rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {saving ? t('saving') : t('saveButton')}
-        </button>
+          {saved && (
+            <span className="flex items-center gap-2 text-sm text-ink-soft animate-in fade-in">
+              <span className="h-2 w-2 rounded-full bg-accent" />
+              {t('savedChip')}
+            </span>
+          )}
+
+          {error && <p className="text-sm text-error">{error}</p>}
+        </div>
       </form>
-    </Card>
+    </section>
   )
 }
 
-function PasswordSection() {
+/* ------------------------------------------------------------------ */
+/*  Password                                                           */
+/* ------------------------------------------------------------------ */
+
+function PasswordCard() {
   const t = useTranslations('dashboard.settings.password')
   const [current, setCurrent] = useState('')
   const [next, setNext] = useState('')
   const [confirm, setConfirm] = useState('')
   const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState<
-    { kind: 'ok' | 'err'; text: string } | null
-  >(null)
+  const [updated, setUpdated] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Clear the "Aktualisiert" chip after 2 seconds.
+  useEffect(() => {
+    if (!updated) return
+    const timer = setTimeout(() => setUpdated(false), 2000)
+    return () => clearTimeout(timer)
+  }, [updated])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setMessage(null)
+    setError(null)
+    setUpdated(false)
 
     if (next.length < 8) {
-      setMessage({ kind: 'err', text: t('tooShort') })
+      setError(t('tooShort'))
       return
     }
     if (next !== confirm) {
-      setMessage({ kind: 'err', text: t('mismatch') })
+      setError(t('mismatch'))
       return
     }
 
@@ -173,155 +220,240 @@ function PasswordSection() {
       })
       const json = await res.json()
       if (!res.ok || !json.success) {
-        setMessage({
-          kind: 'err',
-          text: json.error || t('changeFailed'),
-        })
+        setError(json.error || t('changeFailed'))
       } else {
-        setMessage({ kind: 'ok', text: t('updated') })
+        setUpdated(true)
         setCurrent('')
         setNext('')
         setConfirm('')
       }
     } catch {
-      setMessage({ kind: 'err', text: t('network') })
+      setError(t('network'))
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <Card>
-      <h2 className="text-lg font-semibold text-brand-text">{t('title')}</h2>
-      <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-        <Field label={t('currentLabel')}>
-          <input
-            type="password"
-            value={current}
-            onChange={(e) => setCurrent(e.target.value)}
-            autoComplete="current-password"
-            required
-            className="w-full rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm text-brand-text focus:border-brand-gold focus:outline-none"
-          />
-        </Field>
-        <Field label={t('newLabel')}>
-          <input
-            type="password"
-            value={next}
-            onChange={(e) => setNext(e.target.value)}
-            autoComplete="new-password"
-            minLength={8}
-            required
-            className="w-full rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm text-brand-text focus:border-brand-gold focus:outline-none"
-          />
-          <p className="mt-1 text-xs text-brand-muted">{t('newHint')}</p>
-        </Field>
-        <Field label={t('confirmLabel')}>
-          <input
-            type="password"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            autoComplete="new-password"
-            minLength={8}
-            required
-            className="w-full rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm text-brand-text focus:border-brand-gold focus:outline-none"
-          />
-        </Field>
+    <section className="rounded-rad border border-line bg-card p-8">
+      <p className="eyebrow">{t('eyebrow')}</p>
 
-        {message && (
-          <p
-            className={`text-sm ${
-              message.kind === 'ok' ? 'text-green-600' : 'text-brand-red'
-            }`}
-          >
-            {message.text}
-          </p>
+      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+        <PasswordField
+          id="settings-current"
+          label={t('currentEyebrow')}
+          value={current}
+          onChange={setCurrent}
+          autoComplete="current-password"
+          required
+        />
+        <PasswordField
+          id="settings-new"
+          label={t('newEyebrow')}
+          value={next}
+          onChange={setNext}
+          autoComplete="new-password"
+          minLength={8}
+          required
+          hint={t('hintMono')}
+        />
+        <PasswordField
+          id="settings-confirm"
+          label={t('confirmEyebrow')}
+          value={confirm}
+          onChange={setConfirm}
+          autoComplete="new-password"
+          minLength={8}
+          required
+        />
+
+        {error && (
+          <div className="rounded-rad-sm border border-error/20 bg-error-soft p-3 text-sm text-error">
+            {error}
+          </div>
         )}
 
-        <button
-          type="submit"
-          disabled={saving || !current || !next || !confirm}
-          className="inline-flex items-center justify-center rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {saving ? t('saving') : t('changeButton')}
-        </button>
+        <div className="mt-2 flex flex-wrap items-center gap-4">
+          <button
+            type="submit"
+            disabled={saving || !current || !next || !confirm}
+            className="inline-flex items-center gap-2 rounded-rad-pill bg-ink px-6 py-3 text-sm font-medium text-page transition-colors hover:bg-ink-soft disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {saving ? (
+              <>
+                <Spinner />
+                {t('saving')}
+              </>
+            ) : (
+              t('changeButton')
+            )}
+          </button>
+
+          {updated && (
+            <span className="flex items-center gap-2 text-sm text-ink-soft animate-in fade-in">
+              <span className="h-2 w-2 rounded-full bg-accent" />
+              {t('updatedChip')}
+            </span>
+          )}
+        </div>
       </form>
-    </Card>
+    </section>
   )
 }
 
-function DeleteAccountSection() {
+function ExternalProviderCard() {
+  const t = useTranslations('dashboard.settings.password')
+  return (
+    <section className="rounded-rad border border-line bg-card p-8">
+      <p className="eyebrow">{t('externalEyebrow')}</p>
+      <p className="mt-4 text-ink-soft">{t('externalLeadV2')}</p>
+      <p className="mt-2 font-mono text-xs uppercase tracking-wide text-muted">
+        {t('externalHintV2')}
+      </p>
+    </section>
+  )
+}
+
+function PasswordField({
+  id,
+  label,
+  value,
+  onChange,
+  autoComplete,
+  required,
+  minLength,
+  hint,
+}: {
+  id: string
+  label: string
+  value: string
+  onChange: (v: string) => void
+  autoComplete?: string
+  required?: boolean
+  minLength?: number
+  hint?: string
+}) {
+  return (
+    <label htmlFor={id} className="block">
+      <span className="block font-mono text-[11px] uppercase tracking-wide text-muted">
+        {label}
+      </span>
+      <input
+        id={id}
+        type="password"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        autoComplete={autoComplete}
+        required={required}
+        minLength={minLength}
+        className="mt-2 w-full rounded-rad-sm border border-line bg-page px-4 py-3 text-sm text-ink transition-colors placeholder:text-muted focus:border-ink focus:outline-none"
+      />
+      {hint && (
+        <span className="mt-2 block font-mono text-[11px] uppercase tracking-wide text-muted">
+          {hint}
+        </span>
+      )}
+    </label>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Danger zone                                                        */
+/* ------------------------------------------------------------------ */
+
+function DangerZoneCard() {
   const t = useTranslations('dashboard.settings.delete')
   const [showModal, setShowModal] = useState(false)
 
   return (
-    <Card>
-      <h2 className="text-lg font-semibold text-brand-text">{t('title')}</h2>
-      <p className="mt-2 text-sm text-brand-muted">{t('hint')}</p>
-      <button
-        type="button"
-        onClick={() => setShowModal(true)}
-        className="mt-4 inline-flex items-center justify-center rounded-lg border border-brand-red px-5 py-2 text-sm font-semibold text-brand-red hover:bg-brand-red hover:text-white"
-      >
-        {t('button')}
-      </button>
-
-      {showModal && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setShowModal(false)}
-        >
-          <div
-            className="w-full max-w-md rounded-2xl bg-brand-white p-6 shadow-soft"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold text-brand-text">
-              {t('modalTitle')}
-            </h3>
-            <p className="mt-3 text-sm text-brand-text">
-              {t.rich('modalBody', {
-                email: (chunks) => (
-                  <a
-                    href="mailto:contact@deutschtest.pro"
-                    className="font-semibold text-brand-gold hover:text-brand-gold-dark"
-                  >
-                    {chunks}
-                  </a>
-                ),
-              })}
+    <>
+      <section className="rounded-rad border border-line bg-card p-8">
+        <p className="eyebrow">{t('eyebrow')}</p>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="font-display text-xl tracking-[-0.02em] text-ink">
+              {t('titleV2')}
             </p>
-            <p className="mt-2 text-xs text-brand-muted">{t('modalHint')}</p>
-            <div className="mt-5 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="rounded-lg border border-brand-border bg-brand-white px-4 py-2 text-sm font-semibold text-brand-text hover:bg-brand-surface"
-              >
-                {t('close')}
-              </button>
-            </div>
+            <p className="mt-1 text-sm text-ink-soft">{t('hintV2')}</p>
           </div>
+          <button
+            type="button"
+            onClick={() => setShowModal(true)}
+            className="inline-flex items-center rounded-rad-pill border border-error px-6 py-3 text-sm font-medium text-error transition-colors hover:bg-error-soft"
+          >
+            {t('button')}
+          </button>
         </div>
-      )}
-    </Card>
+      </section>
+
+      {showModal && <DeleteModal onClose={() => setShowModal(false)} />}
+    </>
   )
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactNode
-}) {
+function DeleteModal({ onClose }: { onClose: () => void }) {
+  const t = useTranslations('dashboard.settings.delete')
+
   return (
-    <label className="block">
-      <span className="mb-1 block text-xs font-medium uppercase tracking-wider text-brand-muted">
-        {label}
-      </span>
-      {children}
-    </label>
+    <div
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 backdrop-blur-sm"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md rounded-rad border border-line bg-card p-8"
+      >
+        <p className="eyebrow">{t('eyebrow')}</p>
+        <h3 className="mt-2 font-display text-2xl tracking-[-0.02em] text-ink">
+          {t('modalH3')}
+        </h3>
+        <p className="mt-4 text-ink-soft">
+          {t.rich('modalBody', {
+            email: (chunks) => (
+              <a
+                href="mailto:contact@deutschtest.pro"
+                className="font-semibold text-ink underline underline-offset-4 transition-colors hover:text-accent-ink"
+              >
+                {chunks}
+              </a>
+            ),
+          })}
+        </p>
+        <p className="mt-4 font-mono text-xs uppercase tracking-wide text-muted">
+          {t('modalHint')}
+        </p>
+        <div className="mt-8 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex items-center rounded-rad-pill border border-line px-6 py-3 text-sm font-medium text-ink-soft transition-colors hover:text-ink"
+          >
+            {t('close')}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Utilities                                                          */
+/* ------------------------------------------------------------------ */
+
+function Spinner() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-4 w-4 animate-spin"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    >
+      <circle cx="12" cy="12" r="9" className="opacity-25" />
+      <path d="M21 12a9 9 0 0 1-9 9" className="opacity-90" />
+    </svg>
   )
 }

@@ -621,8 +621,17 @@
     "settings": {
       "title": "Ayarlar",
       "subtitle": "Profil, şifre ve hesap yönetimi.",
+      "eyebrow": "AYARLAR",
+      "headline": {
+        "strong": "Profil.",
+        "muted": "& Güvenlik."
+      },
       "profile": {
         "title": "Profil",
+        "eyebrow": "PROFİL",
+        "memberSinceMono": "ÜYE OLDU",
+        "nameEyebrow": "GÖRÜNEN AD",
+        "savedChip": "Kaydedildi",
         "emailLabel": "E-posta",
         "emailHint": "E-posta şu anda değiştirilemiyor.",
         "nameLabel": "İsim",
@@ -635,6 +644,15 @@
       },
       "password": {
         "title": "Şifreyi değiştir",
+        "eyebrow": "PAROLA",
+        "currentEyebrow": "MEVCUT PAROLA",
+        "newEyebrow": "YENİ PAROLA",
+        "confirmEyebrow": "ONAY",
+        "hintMono": "EN AZ 8 KARAKTER",
+        "updatedChip": "Güncellendi",
+        "externalEyebrow": "GİRİŞ",
+        "externalLeadV2": "Harici bir sağlayıcı ile giriş yaptınız.",
+        "externalHintV2": "Parola değişikliği sağlayıcınız tarafında yapılır.",
         "externalTitle": "Şifre",
         "externalText": "Harici bir sağlayıcıyla (örn. Google) giriş yaptınız. Şifre, o sağlayıcıda yönetilir.",
         "currentLabel": "Mevcut şifre",
@@ -651,6 +669,10 @@
       },
       "delete": {
         "title": "Hesabı sil",
+        "eyebrow": "TEHLİKELİ BÖLGE",
+        "titleV2": "Hesabı sil.",
+        "hintV2": "Tüm veriler kalıcı olarak silinecek.",
+        "modalH3": "Hesabınızı manuel olarak sileriz.",
         "hint": "Hesabınız ve tüm ilgili veriler kalıcı olarak silinir.",
         "button": "Hesabı sil",
         "modalTitle": "Hesabı sil",

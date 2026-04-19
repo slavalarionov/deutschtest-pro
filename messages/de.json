@@ -621,8 +621,17 @@
     "settings": {
       "title": "Einstellungen",
       "subtitle": "Profil, Passwort und Konto verwalten.",
+      "eyebrow": "EINSTELLUNGEN",
+      "headline": {
+        "strong": "Profil.",
+        "muted": "& Sicherheit."
+      },
       "profile": {
         "title": "Profil",
+        "eyebrow": "PROFIL",
+        "memberSinceMono": "MITGLIED SEIT",
+        "nameEyebrow": "ANZEIGENAME",
+        "savedChip": "Gespeichert",
         "emailLabel": "E-Mail",
         "emailHint": "E-Mail kann derzeit nicht geändert werden.",
         "nameLabel": "Name",
@@ -635,6 +644,15 @@
       },
       "password": {
         "title": "Passwort ändern",
+        "eyebrow": "PASSWORT",
+        "currentEyebrow": "AKTUELLES PASSWORT",
+        "newEyebrow": "NEUES PASSWORT",
+        "confirmEyebrow": "BESTÄTIGEN",
+        "hintMono": "MINDESTENS 8 ZEICHEN",
+        "updatedChip": "Aktualisiert",
+        "externalEyebrow": "ANMELDUNG",
+        "externalLeadV2": "Sie haben sich über einen externen Anbieter angemeldet.",
+        "externalHintV2": "Passwort-Änderung bei Ihrem Anbieter.",
         "externalTitle": "Passwort",
         "externalText": "Sie haben sich über einen externen Anbieter (z. B. Google) angemeldet. Das Passwort wird beim Anbieter verwaltet.",
         "currentLabel": "Aktuelles Passwort",
@@ -651,6 +669,10 @@
       },
       "delete": {
         "title": "Konto löschen",
+        "eyebrow": "GEFAHRENZONE",
+        "titleV2": "Konto löschen.",
+        "hintV2": "Alle Daten werden dauerhaft entfernt.",
+        "modalH3": "Wir löschen Ihr Konto manuell.",
         "hint": "Ihr Konto und alle zugehörigen Daten werden dauerhaft entfernt.",
         "button": "Konto löschen",
         "modalTitle": "Konto löschen",
