@@ -1,4 +1,4 @@
-import { test, expect, type Page, type Locator } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { stringToBase64URL, createChunks } from '@supabase/ssr'
 
@@ -52,73 +52,20 @@ function installFailFastListeners(page: Page) {
   })
 }
 
-// Выбирает первый доступный (enabled) вариант ответа внутри task-карточки.
-// Task-карточки не имеют data-testid, поэтому ищем по структуре:
-// в LesenModule каждая задача — это div с кнопками ответов (richtig/falsch, ja/nein, a/b/c, A/B/C/...).
-// Кнопки таб-бара и навигации мы исключаем по тексту.
+// Кликает первую доступную кнопку-ответ в каждой task-карточке текущего Teil'а.
+// Task-карточки помечены data-testid="exam-task" (см. components/modules/LesenModule.tsx).
+// Пример (data-testid отсутствует) и уже отправленные (submitted → disabled) — пропускаем.
 async function answerAllTasksInCurrentTeil(page: Page) {
-  // Находим контейнер активного Teil'а — это div со space-y-4, где лежат task-карточки.
-  // Идём по всем кнопкам на странице, которые выглядят как ответы, и фильтруем навигацию/таб-бар.
-  const NAV_TEXTS = [
-    /^← ?Zurück$/i,
-    /^Weiter ?→$/i,
-    /^Alle Antworten abgeben$/i,
-    /^Wird geprüft/i,
-    /^Zu den Ergebnissen$/i,
-    /^Teil ?\d$/i, // таб-бар
-  ]
-
-  // Ждём, пока появится хотя бы один task-level button
-  // (кнопки внутри task-карточек имеют короткие лейблы: «richtig», «falsch», «ja», «nein», «a) …», «A», …).
-  // Проще всего итерироваться по всем button, фильтруя навигацию.
-  const allButtons = page.locator('main button, [class*="max-w-4xl"] button')
-
-  // Fallback: если селектор выше ничего не даёт, берём просто все button в body.
-  const buttons: Locator =
-    (await allButtons.count()) > 0 ? allButtons : page.locator('button')
-
-  const total = await buttons.count()
-  // Группируем кнопки по ближайшему task-контейнеру (rounded-xl p-5 shadow-soft).
-  // Упрощённо: по очереди кликаем первую кнопку каждой уникальной «строки задания».
-  // Для этого собираем xpath родителя уровня task-карточки и отбираем по одной кнопке на родителя.
-  const seenTaskIds = new Set<string>()
-  const answeredContainers = new Set<string>()
-
-  for (let i = 0; i < total; i++) {
-    const btn = buttons.nth(i)
-    const disabled = await btn.isDisabled().catch(() => true)
-    if (disabled) continue
-
-    const text = ((await btn.textContent().catch(() => '')) ?? '').trim()
-    if (!text) continue
-    if (NAV_TEXTS.some((rx) => rx.test(text))) continue
-
-    // Поднимаемся до task-контейнера (ближайший div с rounded-xl).
-    // В Playwright нет прямого «closest», поэтому используем evaluate.
-    const containerKey = await btn
-      .evaluate((el: HTMLElement) => {
-        // Находим ближайшего предка с rounded-xl И с position в документе (для уникальности).
-        let cur: HTMLElement | null = el
-        while (cur && !cur.className?.toString?.().includes('rounded-xl')) {
-          cur = cur.parentElement
-        }
-        if (!cur) return null
-        // Генерируем ключ по относительной позиции в DOM.
-        const rect = cur.getBoundingClientRect()
-        return `${Math.round(rect.top)}-${Math.round(rect.left)}-${Math.round(rect.width)}`
-      })
-      .catch(() => null)
-
-    if (!containerKey) continue
-    if (answeredContainers.has(containerKey)) continue
-
-    // Пытаемся кликнуть. Если не кликается — пропускаем.
+  const tasks = page.getByTestId('exam-task')
+  const count = await tasks.count()
+  for (let i = 0; i < count; i++) {
+    const task = tasks.nth(i)
+    const firstEnabled = task.locator('button:not([disabled])').first()
+    if ((await firstEnabled.count()) === 0) continue
     try {
-      await btn.click({ timeout: 2000 })
-      answeredContainers.add(containerKey)
-      seenTaskIds.add(containerKey)
+      await firstEnabled.click({ timeout: 2000 })
     } catch {
-      // Silent: задача может быть примером или уже отправлена.
+      // Silent: кнопка может быть вне viewport или уже отправлена.
     }
   }
 }
@@ -210,8 +157,8 @@ test.describe('Lesen exam golden path', () => {
       timeout: 60_000,
     })
 
-    // Таймер: mm:ss где-то на странице.
-    const timerLocator = page.locator('text=/\\d{2}:\\d{2}/').first()
+    // Таймер: mm:ss внутри exam-timer.
+    const timerLocator = page.getByTestId('exam-timer')
     await expect(timerLocator).toBeVisible({ timeout: 30_000 })
 
     // Первый Teil — заголовок h3 «Teil 1».
@@ -250,15 +197,11 @@ test.describe('Lesen exam golden path', () => {
       await answerAllTasksInCurrentTeil(page)
 
       if (teil < 4) {
-        // Weiter →
-        const nextBtn = page.getByRole('button', { name: /Weiter/i }).first()
+        const nextBtn = page.getByTestId('nav-weiter')
         await expect(nextBtn).toBeEnabled({ timeout: 5_000 })
         await nextBtn.click()
       } else {
-        // Abgeben: «Alle Antworten abgeben» на последнем Teil'е.
-        const submitBtn = page
-          .getByRole('button', { name: /Alle Antworten abgeben/i })
-          .first()
+        const submitBtn = page.getByTestId('nav-abgeben')
         await expect(submitBtn).toBeVisible({ timeout: 5_000 })
         await expect(submitBtn).toBeEnabled({ timeout: 5_000 })
         await submitBtn.click()
@@ -270,9 +213,7 @@ test.describe('Lesen exam golden path', () => {
     // ────────────────────────────────────────────────────────────────
     // После submit LesenModule показывает кнопку «Zu den Ergebnissen» (setPostSubmit).
     // Переход на /results не всегда автоматический — кликаем кнопку, если она видна.
-    const toResultsBtn = page
-      .getByRole('button', { name: /Zu den Ergebnissen/i })
-      .first()
+    const toResultsBtn = page.getByTestId('nav-to-results')
     const resultsLinkVisible = await toResultsBtn
       .isVisible()
       .catch(() => false)
