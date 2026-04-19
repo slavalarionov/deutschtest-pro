@@ -123,6 +123,7 @@ export function ModuleLauncher({
               <button
                 key={lvl.value}
                 type="button"
+                data-testid={`level-${lvl.descKey}`}
                 onClick={() => setSelectedLevel(lvl.value)}
                 disabled={loading}
                 className={`rounded-rad-sm border p-4 text-left transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
@@ -159,6 +160,7 @@ export function ModuleLauncher({
               <button
                 key={mod.id}
                 type="button"
+                data-testid={`module-${mod.id}`}
                 onClick={() => setSelectedModule(mod.id)}
                 disabled={loading}
                 className={`flex flex-col items-start gap-3 rounded-rad-sm border p-5 text-left transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
@@ -220,6 +222,7 @@ export function ModuleLauncher({
         {hasCredits ? (
           <button
             type="button"
+            data-testid="launch-exam-start"
             onClick={handleStart}
             disabled={loading || !selectedModule}
             className="inline-flex items-center gap-2 rounded-rad-pill bg-ink px-6 py-3 text-sm font-medium text-page transition-colors hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-50"
