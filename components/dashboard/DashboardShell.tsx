@@ -60,7 +60,7 @@ function SidebarIcon({ name, className = 'h-4 w-4' }: { name: IconName; classNam
     settings: (
       <>
         <circle cx="12" cy="12" r="3" />
-        <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" />
+        <path d="M12 2v3 M12 19v3 M4.93 4.93l2.12 2.12 M16.95 16.95l2.12 2.12 M2 12h3 M19 12h3 M4.93 19.07l2.12-2.12 M16.95 7.05l2.12-2.12" />
       </>
     ),
     bolt: (
@@ -117,10 +117,6 @@ const ACCOUNT_ITEMS: readonly NavItem[] = [
   { href: '/dashboard/settings', navKey: 'settings', icon: 'settings' },
 ] as const
 
-// Visual reference only — 20 matches the Standard package size so the pipe
-// renders half-full at the typical restock point. Pure UI, no business logic.
-const CREDITS_PIPE_DENOMINATOR = 20
-
 interface DashboardShellProps {
   email: string
   modulesBalance: number
@@ -142,8 +138,6 @@ export function DashboardShell({ email, modulesBalance, children }: DashboardShe
 
   const isActive = (href: string) =>
     href === '/dashboard' ? pathname === href : pathname.startsWith(href)
-
-  const pipeWidth = Math.min(Math.max(modulesBalance, 0) / CREDITS_PIPE_DENOMINATOR, 1) * 100
 
   const renderNavItem = (item: NavItem) => {
     const active = isActive(item.href)
@@ -203,12 +197,10 @@ export function DashboardShell({ email, modulesBalance, children }: DashboardShe
           {modulesBalance}
           <span className="ml-1 text-sm text-muted">{t('modulesLeft')}</span>
         </div>
-        <div className="mt-2 h-0.5 w-full bg-line">
-          <div
-            className="h-full bg-accent transition-[width] duration-300"
-            style={{ width: `${pipeWidth}%` }}
-          />
-        </div>
+        <div
+          className={`mt-2 h-px w-full ${modulesBalance > 0 ? 'bg-accent-soft' : 'bg-line'}`}
+          aria-hidden="true"
+        />
       </div>
 
       {/* Footer: language, back, logout */}
