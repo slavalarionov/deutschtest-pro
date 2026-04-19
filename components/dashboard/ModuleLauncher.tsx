@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, useRouter } from '@/i18n/routing'
+import { ModuleIcon } from '@/components/dashboard/ModuleIcon'
 import type { ExamLevel, ExamModule } from '@/types/exam'
 
 type LevelKey = 'a1' | 'a2' | 'b1'
@@ -13,14 +14,11 @@ const LEVELS: { value: ExamLevel; label: string; descKey: LevelKey }[] = [
   { value: 'B1', label: 'B1', descKey: 'b1' },
 ]
 
-const MODULE_OPTIONS: {
-  id: ExamModule
-  icon: string
-}[] = [
-  { id: 'lesen', icon: '📖' },
-  { id: 'horen', icon: '🎧' },
-  { id: 'schreiben', icon: '✍️' },
-  { id: 'sprechen', icon: '🗣' },
+const MODULE_OPTIONS: { id: ExamModule }[] = [
+  { id: 'lesen' },
+  { id: 'horen' },
+  { id: 'schreiben' },
+  { id: 'sprechen' },
 ]
 
 interface ModuleLauncherProps {
@@ -44,6 +42,7 @@ export function ModuleLauncher({
   const [error, setError] = useState<string | null>(null)
 
   const hasCredits = isAdmin || modulesBalance > 0
+  const insufficient = error !== null && error === t('insufficientBalance')
 
   async function handleStart() {
     if (!selectedModule) return
@@ -98,74 +97,49 @@ export function ModuleLauncher({
     }
   }
 
-  return (
-    <div className="rounded-2xl bg-brand-white p-6 shadow-soft sm:p-8">
-      <h2 className="mb-1 text-lg font-semibold text-brand-text">
-        {t('title')}
-      </h2>
-      <p className="mb-6 text-sm text-brand-muted">{t('subtitle')}</p>
+  const moduleLabel = selectedModule ? t(`modules.${selectedModule}`) : ''
 
-      <div className="mb-5">
-        <p className="mb-2 text-xs font-medium uppercase tracking-wider text-brand-muted">
-          {t('levelLabel')}
-        </p>
-        <div className="flex gap-3">
-          {LEVELS.map((lvl) => (
-            <button
-              key={lvl.value}
-              type="button"
-              onClick={() => setSelectedLevel(lvl.value)}
-              disabled={loading}
-              className={`flex-1 rounded-xl border-2 px-4 py-3 transition ${
-                selectedLevel === lvl.value
-                  ? 'border-brand-gold bg-brand-gold/5 shadow-soft'
-                  : 'border-brand-border bg-brand-white hover:border-brand-gold/40'
-              }`}
-            >
-              <span
-                className={`block text-base font-bold ${
-                  selectedLevel === lvl.value
-                    ? 'text-brand-gold-dark'
-                    : 'text-brand-text'
-                }`}
-              >
-                {lvl.label}
-              </span>
-              <span className="block text-[11px] text-brand-muted">
-                {t(`levels.${lvl.descKey}`)}
-              </span>
-            </button>
-          ))}
+  return (
+    <div className="rounded-rad border border-line bg-card p-6 sm:p-8">
+      {/* ===== Header ===== */}
+      <div>
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {t('eyebrow')}
         </div>
+        <h3 className="mt-2 font-display text-3xl tracking-[-0.03em] text-ink md:text-4xl">
+          {t('headline')}
+        </h3>
       </div>
 
-      <div className="mb-6">
-        <p className="mb-2 text-xs font-medium uppercase tracking-wider text-brand-muted">
-          {t('moduleLabel')}
-        </p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {MODULE_OPTIONS.map((mod) => {
-            const checked = selectedModule === mod.id
+      {/* ===== Level selector ===== */}
+      <div className="mt-8">
+        <div className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
+          {t('levelLabel')}
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {LEVELS.map((lvl) => {
+            const active = selectedLevel === lvl.value
             return (
               <button
-                key={mod.id}
+                key={lvl.value}
                 type="button"
-                onClick={() => setSelectedModule(mod.id)}
+                onClick={() => setSelectedLevel(lvl.value)}
                 disabled={loading}
-                className={`flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition ${
-                  checked
-                    ? 'border-brand-gold bg-brand-gold/5 shadow-soft'
-                    : 'border-brand-border bg-brand-white hover:border-brand-gold/40'
+                className={`rounded-rad-sm border p-4 text-left transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
+                  active
+                    ? 'border-ink bg-ink text-page'
+                    : 'border-line bg-page text-ink hover:border-ink-soft'
                 }`}
               >
-                <span className="text-lg">{mod.icon}</span>
-                <div className="flex-1">
-                  <span className="font-semibold text-brand-text">
-                    {t(`modules.${mod.id}`)}
-                  </span>
-                  <span className="mt-0.5 block text-xs text-brand-muted">
-                    {t(`durations.${mod.id}`)}
-                  </span>
+                <div
+                  className={`font-mono text-[10px] uppercase tracking-widest ${
+                    active ? 'text-page/70' : 'text-muted'
+                  }`}
+                >
+                  {lvl.label}
+                </div>
+                <div className="mt-2 font-display text-base tracking-[-0.01em]">
+                  {t(`levels.${lvl.descKey}`)}
                 </div>
               </button>
             )
@@ -173,46 +147,116 @@ export function ModuleLauncher({
         </div>
       </div>
 
-      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+      {/* ===== Module selector ===== */}
+      <div className="mt-6">
+        <div className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
+          {t('moduleLabel')}
+        </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {MODULE_OPTIONS.map((mod) => {
+            const active = selectedModule === mod.id
+            return (
+              <button
+                key={mod.id}
+                type="button"
+                onClick={() => setSelectedModule(mod.id)}
+                disabled={loading}
+                className={`flex flex-col items-start gap-3 rounded-rad-sm border p-5 text-left transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
+                  active
+                    ? 'border-ink bg-ink text-page'
+                    : 'border-line bg-page text-ink hover:border-ink-soft'
+                }`}
+              >
+                <ModuleIcon
+                  module={mod.id}
+                  className={`h-6 w-6 ${active ? 'text-page' : 'text-ink'}`}
+                />
+                <div
+                  className={`font-mono text-[10px] uppercase tracking-widest ${
+                    active ? 'text-page/70' : 'text-muted'
+                  }`}
+                >
+                  {t(`durations.${mod.id}`)}
+                </div>
+                <div className="font-display text-xl tracking-[-0.02em]">
+                  {t(`modules.${mod.id}`)}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ===== Error state ===== */}
+      {error && (
+        <div className="mt-6 rounded-rad-sm border border-line bg-surface p-4">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            {t('errorEyebrow')}
+          </div>
+          <p className="mt-2 text-sm text-ink-soft">{error}</p>
+          {insufficient && (
+            <p className="mt-2 text-sm text-ink-soft">
+              {t('insufficientHint')}{' '}
+              <Link
+                href="/pricing"
+                className="underline underline-offset-4 transition-colors hover:text-ink"
+              >
+                {t('shopLink')}
+              </Link>
+              .
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* ===== Footer ===== */}
+      <div className="mt-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {isAdmin
+            ? t('adminUnlimitedMono')
+            : t('creditsVerbose', { count: modulesBalance })}
+        </div>
+
         {hasCredits ? (
           <button
             type="button"
             onClick={handleStart}
             disabled={loading || !selectedModule}
-            className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-rad-pill bg-ink px-6 py-3 text-sm font-medium text-page transition-colors hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? (
-              <span className="flex items-center gap-2">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                {t('generating')}
-              </span>
+              <>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                  className="h-4 w-4 animate-spin"
+                >
+                  <path d="M12 3a9 9 0 0 1 9 9" />
+                  <path d="M12 21a9 9 0 0 1-9-9" opacity="0.35" />
+                </svg>
+                <span>{t('generating')}</span>
+              </>
             ) : selectedModule ? (
-              t('startButton', { level: selectedLevel })
+              <span>
+                {t('startButton', { level: selectedLevel })} {moduleLabel}
+              </span>
             ) : (
-              t('chooseModule')
+              <span>{t('chooseModuleDisabled')}</span>
             )}
           </button>
         ) : (
           <Link
             href="/pricing"
-            className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark"
+            className="inline-flex items-center gap-2 rounded-rad-pill bg-ink px-6 py-3 text-sm font-medium text-page transition-colors hover:bg-ink/90"
           >
             {t('buyModules')}
           </Link>
         )}
-
-        <p className="text-xs text-brand-muted">
-          {isAdmin
-            ? t('adminUnlimited')
-            : t('creditsAvailable', { count: modulesBalance })}
-        </p>
       </div>
-
-      {error && (
-        <p className="mt-4 rounded-lg bg-brand-red/5 px-3 py-2 text-sm text-brand-red">
-          {error}
-        </p>
-      )}
     </div>
   )
 }
