@@ -186,42 +186,28 @@ test.describe('Lesen exam golden path', () => {
     // ────────────────────────────────────────────────────────────────
     // 2. Dashboard → ModuleLauncher → B1 + Lesen + Starten
     // ────────────────────────────────────────────────────────────────
-    // Уровень B1: кнопка в сетке с видимым текстом "B1" (label = value, не зависит от локали).
-    // Используем getByRole для устойчивости к редизайну.
-    const b1Button = page.getByRole('button', { name: /^B1$/ }).first()
+    // Phase 3 редизайн ModuleLauncher: визуальный текст label/description
+    // рендерится внутри <button> разными div'ами, поэтому accessible name
+    // выглядит как "B1\nBeginner" и /^B1$/ не матчит. Используем data-testid
+    // из components/dashboard/ModuleLauncher.tsx — они стабильны к редизайну.
+    const b1Button = page.getByTestId('level-b1')
     await expect(b1Button).toBeVisible({ timeout: 10_000 })
     await b1Button.click()
 
-    // Модуль Lesen: текст «Lesen» в DE/EN/TR. В RU не рендерится (прод без префикса = de).
-    // Ограничиваемся exact-match, чтобы не ловить «Lesen-Modul» в хедере таймера.
-    const lesenButton = page
-      .getByRole('button', { name: /^\s*\d+\s*min\s*Lesen\s*$/i })
-      .first()
-    // Fallback: если durations не матчатся, ищем просто по «Lesen» как кнопку с иконкой.
-    const lesenFallback = page.locator('button').filter({ hasText: /^Lesen$/ })
-    if ((await lesenButton.count()) > 0) {
-      await lesenButton.click()
-    } else if ((await lesenFallback.count()) > 0) {
-      await lesenFallback.first().click()
-    } else {
-      // Последний fallback: любая кнопка, у которой видимый текст включает "Lesen" без суффиксов.
-      await page
-        .locator('button', { hasText: /Lesen/ })
-        .filter({ hasNotText: /Starten|Modul|Zertifikat|abgeben/i })
-        .first()
-        .click()
-    }
+    const lesenButton = page.getByTestId('module-lesen')
+    await expect(lesenButton).toBeVisible({ timeout: 5_000 })
+    await lesenButton.click()
 
-    // Starten — кнопка «Starten — B1 Lesen» (формат из i18n: "Starten — {level}").
-    const startButton = page.getByRole('button', { name: /^Starten/i }).first()
+    const startButton = page.getByTestId('launch-exam-start')
     await expect(startButton).toBeEnabled({ timeout: 5_000 })
     await startButton.click()
 
     // ────────────────────────────────────────────────────────────────
-    // 3. Ждём редирект на /exam/[sessionId] (генерация до 20-30с)
+    // 3. Ждём редирект на /exam/[sessionId] (генерация B1 Lesen — 5 текстов
+    //    + вопросы через Claude, реально 30-60с на холодный кеш).
     // ────────────────────────────────────────────────────────────────
     await page.waitForURL(/\/exam\/[0-9a-f-]{8,}(?!.*\/results)/, {
-      timeout: 30_000,
+      timeout: 60_000,
     })
 
     // Таймер: mm:ss где-то на странице.
