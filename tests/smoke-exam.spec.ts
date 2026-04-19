@@ -1,4 +1,6 @@
 import { test, expect, type Page, type Locator } from '@playwright/test'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { stringToBase64URL, createChunks } from '@supabase/ssr'
 
 /**
  * Smoke-тест golden path прохождения Lesen-экзамена на продакшене.
@@ -22,6 +24,8 @@ import { test, expect, type Page, type Locator } from '@playwright/test'
 
 const EMAIL = process.env.PLAYWRIGHT_TEST_EMAIL
 const PASSWORD = process.env.PLAYWRIGHT_TEST_PASSWORD
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 // Парсит mm:ss → секунды. Возвращает null, если формат не распознан.
 function parseMmSs(text: string): number | null {
@@ -123,33 +127,60 @@ test.describe('Lesen exam golden path', () => {
   test.setTimeout(90_000)
 
   test.skip(
-    !EMAIL || !PASSWORD,
-    'PLAYWRIGHT_TEST_EMAIL/PASSWORD not set, skipping exam smoke',
+    !EMAIL || !PASSWORD || !SUPABASE_URL || !SUPABASE_ANON_KEY,
+    'PLAYWRIGHT_TEST_EMAIL/PASSWORD or NEXT_PUBLIC_SUPABASE_* not set',
   )
 
-  test('B1 Lesen: login → generate → 5 Teils → submit → results', async ({
+  // Логин через Supabase SDK в Node — обход UI-формы, которую в headless
+  // блокирует bot-detection (default form-submit вместо React handler после
+  // клика по кнопке при свежей сессии). Инжектим cookies формата @supabase/ssr
+  // в browser context до первого page.goto, чтобы middleware сразу видел
+  // залогиненного пользователя.
+  test.beforeEach(async ({ context }) => {
+    const supabase = createSupabaseClient(SUPABASE_URL!, SUPABASE_ANON_KEY!)
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: EMAIL!,
+      password: PASSWORD!,
+    })
+    if (error || !data.session) {
+      throw new Error(`SDK auth failed: ${error?.message ?? 'no session'}`)
+    }
+
+    const projectRef = new URL(SUPABASE_URL!).hostname.split('.')[0]
+    const storageKey = `sb-${projectRef}-auth-token`
+    const sessionJson = JSON.stringify({
+      access_token: data.session.access_token,
+      refresh_token: data.session.refresh_token,
+      expires_in: data.session.expires_in,
+      expires_at: data.session.expires_at,
+      token_type: data.session.token_type,
+      user: data.session.user,
+    })
+    const encoded = `base64-${stringToBase64URL(sessionJson)}`
+    const chunks = createChunks(storageKey, encoded)
+
+    await context.addCookies(
+      chunks.map(({ name, value }) => ({
+        name,
+        value,
+        domain: '.deutschtest.pro',
+        path: '/',
+        sameSite: 'Lax' as const,
+        secure: true,
+        expires: Math.floor(Date.now() / 1000) + 34_560_000,
+      })),
+    )
+  })
+
+  test('B1 Lesen: dashboard → generate → 5 Teils → submit → results', async ({
     page,
   }) => {
     installFailFastListeners(page)
 
     // ────────────────────────────────────────────────────────────────
-    // 1. Login
+    // 1. Dashboard (уже залогинены через beforeEach)
     // ────────────────────────────────────────────────────────────────
-    await page.goto('/login', { timeout: 30_000, waitUntil: 'domcontentloaded' })
-
-    const emailInput = page.locator('input[type="email"]').first()
-    const passwordInput = page.locator('input[type="password"]').first()
-    await expect(emailInput).toBeVisible({ timeout: 10_000 })
-    await expect(passwordInput).toBeVisible({ timeout: 10_000 })
-
-    await emailInput.fill(EMAIL!)
-    await passwordInput.fill(PASSWORD!)
-
-    // Кнопка submit — единственная button[type=submit] в форме login.
-    const loginSubmit = page.locator('form button[type="submit"]').first()
-    await loginSubmit.click()
-
-    // Редирект на /dashboard (с/без локали). Ждём, что URL содержит /dashboard.
+    await page.goto('/dashboard', { timeout: 30_000, waitUntil: 'domcontentloaded' })
     await page.waitForURL(/\/dashboard(\/|$|\?)/, { timeout: 10_000 })
 
     // ────────────────────────────────────────────────────────────────
