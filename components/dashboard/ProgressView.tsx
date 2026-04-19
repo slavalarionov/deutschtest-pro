@@ -95,7 +95,7 @@ export function ProgressView() {
       <div className="mx-auto max-w-5xl px-6 py-10">
         <div className="rounded-rad-sm border border-error/20 bg-error-soft p-6">
           <div className="font-mono text-xs uppercase tracking-wider text-error">
-            {t('errorV2.title')}
+            {t('error.title')}
           </div>
           <p className="mt-2 text-sm text-ink-soft">{error}</p>
           <button
@@ -103,7 +103,7 @@ export function ProgressView() {
             onClick={() => setReloadToken((n) => n + 1)}
             className="mt-4 font-mono text-xs uppercase tracking-wider text-accent-ink underline underline-offset-4 hover:no-underline"
           >
-            {t('errorV2.retry')}
+            {t('error.retry')}
           </button>
         </div>
       </div>
@@ -119,14 +119,14 @@ export function ProgressView() {
             {t('chart.emptyTitle')}
           </div>
           <h2 className="mt-4 font-display text-5xl tracking-[-0.03em] leading-none text-ink">
-            {t('emptyV2.title')}
+            {t('empty.title')}
           </h2>
-          <p className="mt-4 text-ink-soft">{t('emptyV2.lead')}</p>
+          <p className="mt-4 text-ink-soft">{t('empty.lead')}</p>
           <Link
             href="/dashboard"
             className="mt-8 inline-flex items-center rounded-rad-pill bg-ink px-6 py-3 font-mono text-xs uppercase tracking-wider text-page hover:opacity-90"
           >
-            {t('emptyV2.cta')}
+            {t('empty.cta')}
           </Link>
         </div>
       </div>
@@ -437,7 +437,7 @@ function ByLevelBlock({
   return (
     <section className="rounded-rad border border-line bg-card p-8">
       <div className="font-mono text-xs uppercase tracking-wider text-muted mb-6">
-        {t('byLevelV2.eyebrow')}
+        {t('byLevel.eyebrow')}
       </div>
       <div className="space-y-4">
         {levels.map((lvl) => (
@@ -455,7 +455,7 @@ function ByLevelBlock({
               {lvl.averageScore}
             </div>
             <div className="font-mono text-xs text-muted whitespace-nowrap">
-              {t('byLevelV2.attempts', { attempts: lvl.attempts })}
+              {t('byLevel.attempts', { attempts: lvl.attempts })}
             </div>
           </div>
         ))}

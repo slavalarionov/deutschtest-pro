@@ -470,47 +470,9 @@
       }
     },
     "progress": {
-      "title": "Прогресс",
-      "subtitle": "Графическая динамика ваших результатов во времени, по модулям.",
-      "empty": {
-        "title": "Пройдите минимум 2 модуля, чтобы увидеть прогресс",
-        "completed": "Уже пройдено: {count}",
-        "toDashboard": "К дашборду"
-      },
       "errors": {
         "loadFailed": "Не удалось загрузить данные прогресса.",
         "network": "Ошибка сети при загрузке прогресса."
-      },
-      "stats": {
-        "trendLabel": "Тренд за последний месяц",
-        "strongestModule": "Сильнейший модуль",
-        "weakestModule": "Проблемный модуль",
-        "trend": {
-          "improving": "Растёт",
-          "stable": "Стабильно",
-          "declining": "Снижается"
-        },
-        "noPrevMonth": "Данных за прошлый месяц пока нет",
-        "noChange": "Без изменений",
-        "deltaPositive": "+{delta} баллов к прошлому месяцу",
-        "deltaNegative": "{delta} баллов к прошлому месяцу",
-        "avgLine": "Ср. {avg} · {attempts, plural, one {# модуль} few {# модуля} many {# модулей} other {# модуля}}"
-      },
-      "charts": {
-        "scoreTime": {
-          "title": "Балл по времени",
-          "subtitle": "Все модули вместе, по дате завершения.",
-          "pointsLabel": "Баллы"
-        },
-        "byModule": {
-          "title": "Разбивка по модулям",
-          "subtitle": "Каждая линия — результаты одного модуля."
-        },
-        "byLevel": {
-          "title": "Среднее по уровню",
-          "subtitle": "Средний балл по всем модулям для каждого уровня.",
-          "row": "{score} · {attempts, plural, one {# модуль} few {# модуля} many {# модулей} other {# модуля}}"
-        }
       },
       "eyebrow": "ПРОГРЕСС",
       "headline": {
@@ -534,21 +496,21 @@
         "noPrev": "Было: —",
         "noDeltaPlaceholder": "—"
       },
-      "byLevelV2": {
+      "tooltip": {
+        "scoreLabel": "БАЛЛЫ"
+      },
+      "byLevel": {
         "eyebrow": "ПО УРОВНЮ",
         "attempts": "× {attempts, plural, one {# модуль} few {# модуля} many {# модулей} other {# модуля}}"
       },
-      "emptyV2": {
+      "empty": {
         "title": "Пока нет прогресса.",
         "lead": "После двух экзаменов здесь появится ваш личный прогресс.",
         "cta": "К панели"
       },
-      "errorV2": {
+      "error": {
         "title": "ОШИБКА",
         "retry": "Попробовать снова"
-      },
-      "tooltip": {
-        "scoreLabel": "БАЛЛЫ"
       }
     },
     "recommendations": {

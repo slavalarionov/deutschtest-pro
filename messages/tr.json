@@ -470,47 +470,9 @@
       }
     },
     "progress": {
-      "title": "İlerleme",
-      "subtitle": "Zaman içindeki sonuçlarınızın modül bazında grafik analizi.",
-      "empty": {
-        "title": "İlerlemenizi görmek için en az 2 modül tamamlayın",
-        "completed": "Şimdiye kadar: {count}",
-        "toDashboard": "Panele git"
-      },
       "errors": {
         "loadFailed": "İlerleme verileri yüklenemedi.",
         "network": "İlerleme verileri yüklenirken ağ hatası."
-      },
-      "stats": {
-        "trendLabel": "Son ay eğilimi",
-        "strongestModule": "En güçlü modül",
-        "weakestModule": "Zayıf modül",
-        "trend": {
-          "improving": "Yükseliyor",
-          "stable": "İstikrarlı",
-          "declining": "Düşüyor"
-        },
-        "noPrevMonth": "Önceki aya ait veri yok",
-        "noChange": "Değişim yok",
-        "deltaPositive": "+{delta} puan — önceki aya göre",
-        "deltaNegative": "{delta} puan — önceki aya göre",
-        "avgLine": "Ort. {avg} · {attempts, plural, other {# modül}}"
-      },
-      "charts": {
-        "scoreTime": {
-          "title": "Zamana göre puan",
-          "subtitle": "Tamamlanma tarihine göre tüm modüller birleştirildi.",
-          "pointsLabel": "Puan"
-        },
-        "byModule": {
-          "title": "Modül bazında dağılım",
-          "subtitle": "Her çizgi bir modülün sonuçlarını gösterir."
-        },
-        "byLevel": {
-          "title": "Seviyeye göre ortalama",
-          "subtitle": "Her seviye için tüm modüllerin ortalama puanı.",
-          "row": "{score} · {attempts, plural, other {# modül}}"
-        }
       },
       "eyebrow": "İLERLEME",
       "headline": {
@@ -534,21 +496,21 @@
         "noPrev": "Önceden: —",
         "noDeltaPlaceholder": "—"
       },
-      "byLevelV2": {
+      "tooltip": {
+        "scoreLabel": "PUAN"
+      },
+      "byLevel": {
         "eyebrow": "SEVİYEYE GÖRE",
         "attempts": "× {attempts, plural, other {# modül}}"
       },
-      "emptyV2": {
+      "empty": {
         "title": "Henüz ilerleme yok.",
         "lead": "İki sınavdan sonra kişisel ilerlemeniz burada görünecek.",
         "cta": "Panele dön"
       },
-      "errorV2": {
+      "error": {
         "title": "HATA",
         "retry": "Tekrar dene"
-      },
-      "tooltip": {
-        "scoreLabel": "PUAN"
       }
     },
     "recommendations": {

@@ -470,47 +470,9 @@
       }
     },
     "progress": {
-      "title": "Fortschritt",
-      "subtitle": "Graphische Auswertung Ihrer Ergebnisse über die Zeit, nach Modul aufgeschlüsselt.",
-      "empty": {
-        "title": "Absolvieren Sie mindestens 2 Module, um Ihren Fortschritt zu sehen",
-        "completed": "Bereits absolviert: {count}",
-        "toDashboard": "Zum Dashboard"
-      },
       "errors": {
         "loadFailed": "Fortschrittsdaten konnten nicht geladen werden.",
         "network": "Netzwerkfehler beim Laden der Fortschrittsdaten."
-      },
-      "stats": {
-        "trendLabel": "Trend letzter Monat",
-        "strongestModule": "Stärkstes Modul",
-        "weakestModule": "Problemmodul",
-        "trend": {
-          "improving": "Verbessert sich",
-          "stable": "Stabil",
-          "declining": "Verschlechtert sich"
-        },
-        "noPrevMonth": "Noch keine Daten aus dem Vormonat",
-        "noChange": "Keine Veränderung",
-        "deltaPositive": "+{delta} Punkte vs. Vormonat",
-        "deltaNegative": "{delta} Punkte vs. Vormonat",
-        "avgLine": "Ø {avg} · {attempts, plural, one {# Modul} other {# Module}}"
-      },
-      "charts": {
-        "scoreTime": {
-          "title": "Punktzahl über die Zeit",
-          "subtitle": "Alle Module kombiniert, sortiert nach Abschlussdatum.",
-          "pointsLabel": "Punkte"
-        },
-        "byModule": {
-          "title": "Aufschlüsselung nach Modul",
-          "subtitle": "Jede Linie folgt den Ergebnissen eines Moduls."
-        },
-        "byLevel": {
-          "title": "Durchschnitt nach Niveau",
-          "subtitle": "Durchschnittliche Punktzahl über alle Module je Niveau.",
-          "row": "{score} · {attempts, plural, one {# Modul} other {# Module}}"
-        }
       },
       "eyebrow": "FORTSCHRITT",
       "headline": {
@@ -534,21 +496,21 @@
         "noPrev": "Vorher: —",
         "noDeltaPlaceholder": "—"
       },
-      "byLevelV2": {
+      "tooltip": {
+        "scoreLabel": "PUNKTE"
+      },
+      "byLevel": {
         "eyebrow": "NACH NIVEAU",
         "attempts": "× {attempts, plural, one {# Modul} other {# Module}}"
       },
-      "emptyV2": {
+      "empty": {
         "title": "Noch keine Fortschritte.",
         "lead": "Nach zwei Prüfungen erscheint hier dein persönlicher Fortschritt.",
         "cta": "Zum Dashboard"
       },
-      "errorV2": {
+      "error": {
         "title": "FEHLER",
         "retry": "Erneut versuchen"
-      },
-      "tooltip": {
-        "scoreLabel": "PUNKTE"
       }
     },
     "recommendations": {

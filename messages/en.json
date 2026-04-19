@@ -470,47 +470,9 @@
       }
     },
     "progress": {
-      "title": "Progress",
-      "subtitle": "Visual breakdown of your results over time, module by module.",
-      "empty": {
-        "title": "Take at least 2 modules to see your progress",
-        "completed": "Taken so far: {count}",
-        "toDashboard": "Go to dashboard"
-      },
       "errors": {
         "loadFailed": "Couldn't load progress data.",
         "network": "Network error while loading progress."
-      },
-      "stats": {
-        "trendLabel": "Trend last month",
-        "strongestModule": "Strongest module",
-        "weakestModule": "Weakest module",
-        "trend": {
-          "improving": "Improving",
-          "stable": "Stable",
-          "declining": "Declining"
-        },
-        "noPrevMonth": "No data from last month yet",
-        "noChange": "No change",
-        "deltaPositive": "+{delta} points vs. last month",
-        "deltaNegative": "{delta} points vs. last month",
-        "avgLine": "Avg {avg} · {attempts, plural, one {# module} other {# modules}}"
-      },
-      "charts": {
-        "scoreTime": {
-          "title": "Score over time",
-          "subtitle": "All modules combined, sorted by completion date.",
-          "pointsLabel": "Points"
-        },
-        "byModule": {
-          "title": "Breakdown by module",
-          "subtitle": "Each line tracks the results of one module."
-        },
-        "byLevel": {
-          "title": "Average by level",
-          "subtitle": "Average score across all modules for each level.",
-          "row": "{score} · {attempts, plural, one {# module} other {# modules}}"
-        }
       },
       "eyebrow": "PROGRESS",
       "headline": {
@@ -534,21 +496,21 @@
         "noPrev": "Before: —",
         "noDeltaPlaceholder": "—"
       },
-      "byLevelV2": {
+      "tooltip": {
+        "scoreLabel": "POINTS"
+      },
+      "byLevel": {
         "eyebrow": "BY LEVEL",
         "attempts": "× {attempts, plural, one {# module} other {# modules}}"
       },
-      "emptyV2": {
+      "empty": {
         "title": "No progress yet.",
         "lead": "After two exams, your personal progress will show up here.",
         "cta": "To dashboard"
       },
-      "errorV2": {
+      "error": {
         "title": "ERROR",
         "retry": "Try again"
-      },
-      "tooltip": {
-        "scoreLabel": "POINTS"
       }
     },
     "recommendations": {
