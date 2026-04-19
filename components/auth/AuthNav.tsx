@@ -23,17 +23,17 @@ export function AuthNav({ userEmail }: AuthNavProps) {
   if (userEmail) {
     return (
       <div className="flex items-center gap-3">
-        <span className="hidden text-sm text-brand-muted sm:inline">
+        <span className="hidden text-sm text-muted sm:inline">
           {t.rich('greeting', {
             email: userEmail,
             name: (chunks) => (
-              <span className="font-medium text-brand-text">{chunks}</span>
+              <span className="font-medium text-ink">{chunks}</span>
             ),
           })}
         </span>
         <Link
           href="/dashboard"
-          className="rounded-lg bg-brand-gold px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark"
+          className="rounded-rad-pill bg-ink px-4 py-2 text-sm font-medium text-page transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
         >
           {t('dashboard')}
         </Link>
@@ -41,7 +41,7 @@ export function AuthNav({ userEmail }: AuthNavProps) {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleLogout}
-          className="rounded-lg border border-brand-border bg-brand-white px-4 py-2 text-sm font-medium text-brand-text shadow-soft transition hover:border-brand-gold/40"
+          className="rounded-rad-pill border border-line bg-card px-4 py-2 text-sm text-ink-soft transition-colors hover:bg-surface hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
         >
           {t('logout')}
         </motion.button>
@@ -54,13 +54,13 @@ export function AuthNav({ userEmail }: AuthNavProps) {
     <div className="flex items-center gap-3">
       <Link
         href="/login"
-        className="rounded-lg border border-brand-border bg-brand-white px-4 py-2 text-sm font-medium text-brand-text shadow-soft transition hover:border-brand-gold/40"
+        className="text-sm text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
       >
         {t('login')}
       </Link>
       <Link
         href="/register"
-        className="rounded-lg bg-brand-gold px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark"
+        className="rounded-rad-pill bg-ink px-4 py-2 text-sm font-medium text-page transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
       >
         {t('register')}
       </Link>
