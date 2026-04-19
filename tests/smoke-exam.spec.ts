@@ -71,7 +71,7 @@ async function answerAllTasksInCurrentTeil(page: Page) {
 }
 
 test.describe('Lesen exam golden path', () => {
-  test.setTimeout(90_000)
+  test.setTimeout(180_000)
 
   test.skip(
     !EMAIL || !PASSWORD || !SUPABASE_URL || !SUPABASE_ANON_KEY,
@@ -209,20 +209,17 @@ test.describe('Lesen exam golden path', () => {
     }
 
     // ────────────────────────────────────────────────────────────────
-    // 6. Редирект на /results или кнопка «Zu den Ergebnissen»
+    // 6. Ждём окончания scoring (20-30с через Claude) и переход на /results.
     // ────────────────────────────────────────────────────────────────
-    // После submit LesenModule показывает кнопку «Zu den Ergebnissen» (setPostSubmit).
-    // Переход на /results не всегда автоматический — кликаем кнопку, если она видна.
+    // После submit LesenModule рендерит кнопку nav-to-results только когда
+    // /api/exam/submit вернулся с ответом. Автоматического редиректа нет —
+    // клик обязателен.
     const toResultsBtn = page.getByTestId('nav-to-results')
-    const resultsLinkVisible = await toResultsBtn
-      .isVisible()
-      .catch(() => false)
-    if (resultsLinkVisible) {
-      await toResultsBtn.click()
-    }
+    await expect(toResultsBtn).toBeVisible({ timeout: 45_000 })
+    await toResultsBtn.click()
 
     await page.waitForURL(/\/exam\/[0-9a-f-]{8,}\/results(\/|$|\?)/, {
-      timeout: 30_000,
+      timeout: 15_000,
     })
 
     // ────────────────────────────────────────────────────────────────
