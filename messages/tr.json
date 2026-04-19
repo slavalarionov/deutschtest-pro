@@ -34,6 +34,7 @@
       "subtitlePaidTests": "{count, plural, other {# test kullanıma hazır.}}",
       "subtitleModules": "Modül kredisi: {count} (modül başına 1 kredi)",
       "ctaRegister": "Ücretsiz kayıt ol ve dene",
+      "ctaDashboard": "Panele git",
       "alreadyRegistered": "Zaten kayıtlı mısın? → Giriş yap",
       "ctaSelectModule": "Modül seç",
       "ctaStart": "Testi başlat — {level}",

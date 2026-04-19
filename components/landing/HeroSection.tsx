@@ -6,9 +6,9 @@ import { Link } from '@/i18n/routing'
 
 interface HeroSectionProps {
   /**
-   * Guests only see this editorial Hero — logged-in users are redirected to
-   * `/dashboard` in `app/[locale]/page.tsx` before render. The prop is kept
-   * for API stability and to toggle the small "already registered" link.
+   * The landing is public for everyone, including authenticated users.
+   * When `true`, the primary CTA switches from "register" to "dashboard"
+   * and the secondary "already registered?" link is hidden.
    */
   isLoggedIn: boolean
 }
@@ -75,10 +75,10 @@ export function HeroSection({ isLoggedIn }: HeroSectionProps) {
           {/* Primary CTA */}
           <div className="mt-8 flex flex-col items-start gap-3 sm:mt-10">
             <Link
-              href="/register"
+              href={isLoggedIn ? '/dashboard' : '/register'}
               className="inline-flex items-center gap-2 rounded-rad-pill bg-ink px-6 py-3.5 text-sm font-medium text-card transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
             >
-              {t('ctaRegister')}
+              {isLoggedIn ? t('ctaDashboard') : t('ctaRegister')}
               <svg
                 aria-hidden="true"
                 width="14"

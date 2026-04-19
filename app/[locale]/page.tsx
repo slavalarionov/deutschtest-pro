@@ -6,7 +6,6 @@ import { PricingSection } from '@/components/landing/PricingSection'
 import { FaqSection } from '@/components/landing/FaqSection'
 import { AuthNav } from '@/components/auth/AuthNav'
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from '@/i18n/routing'
 
 export async function generateMetadata({
   params,
@@ -20,26 +19,20 @@ export async function generateMetadata({
   }
 }
 
-export default async function HomePage({
-  params,
-}: {
-  params: { locale: string }
-}) {
+export default async function HomePage(_: { params: { locale: string } }) {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (user) {
-    redirect({ href: '/dashboard', locale: params.locale })
-  }
+  const isLoggedIn = !!user
 
   return (
     <main className="min-h-screen">
       <header className="absolute right-4 top-4 z-50 sm:right-8 sm:top-6">
-        <AuthNav userEmail={null} />
+        <AuthNav userEmail={user?.email ?? null} />
       </header>
-      <HeroSection isLoggedIn={false} />
+      <HeroSection isLoggedIn={isLoggedIn} />
       <FeaturesSection />
       <PricingSection />
       <FaqSection />

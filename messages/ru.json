@@ -34,6 +34,7 @@
       "subtitlePaidTests": "{count, plural, one {У вас доступен # тест.} few {У вас доступно # теста.} many {У вас доступно # тестов.} other {У вас доступно # теста.}}",
       "subtitleModules": "Кредиты модулей: {count} (1 кредит на модуль)",
       "ctaRegister": "Зарегистрироваться и попробовать",
+      "ctaDashboard": "В личный кабинет",
       "alreadyRegistered": "Уже зарегистрированы? → Войти",
       "ctaSelectModule": "Выбрать модуль",
       "ctaStart": "Начать тест — {level}",
