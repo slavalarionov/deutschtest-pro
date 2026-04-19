@@ -141,27 +141,33 @@
       }
     },
     "faq": {
-      "title": "Häufige Fragen",
+      "eyebrow": "04 — ANTWORTEN",
+      "titleStrong": "Häufige Fragen.",
+      "titleMuted": "Klare Antworten.",
       "items": {
         "realism": {
-          "q": "Wie realistisch sind die Prüfungen?",
-          "a": "Unsere KI generiert Aufgaben, die exakt dem Format und Schwierigkeitsgrad des offiziellen Goethe-Zertifikats entsprechen. Format, Timing und Bewertungskriterien werden 1:1 nachgebildet."
-        },
-        "levels": {
-          "q": "Welche Niveaustufen werden unterstützt?",
-          "a": "Aktuell unterstützen wir A1 (Start Deutsch 1), A2 (Goethe-Zertifikat A2) und B1 (Goethe-Zertifikat B1). Weitere Stufen sind in Planung."
+          "q": "Wie nah ist die Simulation am echten Goethe-Examen?",
+          "a": "Das Format ist 1:1 identisch: dieselben Teile, dieselbe Aufgabenzahl, dieselben Zeitvorgaben, dieselben Bewertungskriterien nach Goethe-Standard. Der Unterschied: Jede Prüfung wird einzigartig per KI generiert — Sie können keine Antworten auswendig lernen, jede Sitzung ist eine neue Vorbereitung."
         },
         "aiScoring": {
-          "q": "Wie funktioniert die KI-Bewertung?",
-          "a": "Lesen und Hören werden automatisch bewertet. Für Schreiben und Sprechen analysiert die KI Ihre Antworten nach den offiziellen Goethe-Bewertungskriterien und gibt detailliertes Feedback."
+          "q": "Wie bewertet die KI Schreiben und Sprechen?",
+          "a": "Nach den offiziellen Goethe-Kriterien: Aufgabenerfüllung, Kohärenz, Wortschatz, Grammatik — und bei Sprechen zusätzlich Flüssigkeit und Aussprache. Sie erhalten einen Score von 0-100, den Vermerk bestanden/nicht bestanden sowie eine detaillierte Diagnose Ihrer Stärken und Schwächen mit konkreten Empfehlungen."
         },
-        "singleModules": {
-          "q": "Kann ich einzelne Module üben?",
-          "a": "Ja, Sie können sowohl eine vollständige Prüfung ablegen als auch einzelne Module (Lesen, Hören, Schreiben oder Sprechen) separat üben."
+        "officialExam": {
+          "q": "Ist Ihr Zertifikat offiziell anerkannt?",
+          "a": "Nein. DeutschTest.pro ist ein Vorbereitungstool, kein akkreditiertes Prüfungszentrum. Das echte Zertifikat bekommen Sie nur beim Goethe-Institut oder einem seiner Partner vor Ort. Wir bereiten Sie so vor, dass Sie dort beim ersten Versuch bestehen."
+        },
+        "modulesPricing": {
+          "q": "Was ist ein Modul und wie funktionieren die Pakete?",
+          "a": "Ein Modul ist ein Prüfungsteil: Lesen, Hören, Schreiben oder Sprechen. Sie wählen selbst, womit Sie üben möchten — zum Beispiel dreimal Sprechen hintereinander, wenn Sie dort am meisten Schwierigkeiten haben. Bei der Registrierung bekommen Sie 3 Module gratis. Danach kaufen Sie Pakete zu 10, 20 oder 40 Modulen, ohne Abo, ohne automatische Verlängerung."
         },
         "microphone": {
-          "q": "Brauche ich ein Mikrofon für das Sprechen-Modul?",
-          "a": "Ja, für das Sprechen-Modul benötigen Sie ein Mikrofon. Die meisten Laptops und Smartphones haben ein eingebautes Mikrofon, das ausreicht."
+          "q": "Was brauche ich technisch, um zu üben?",
+          "a": "Für Lesen, Hören und Schreiben genügt ein Browser auf PC, Laptop, Tablet oder Smartphone. Für Sprechen kommt ein Mikrofon dazu — jedes Laptop-Mikro, jedes Headset oder das eingebaute Smartphone-Mikro reicht völlig aus. Keine Installation, keine App, nichts zu konfigurieren."
+        },
+        "refund": {
+          "q": "Kann ich mein Paket zurückgeben?",
+          "a": "Ja. Wenn Sie ein Paket gekauft, aber noch keine bezahlten Module genutzt haben, erstatten wir Ihnen innerhalb von 14 Tagen den vollen Betrag zurück. Die 3 gratis Module bei der Registrierung zählen nicht als Nutzung. Schreiben Sie einfach eine E-Mail an unseren Support."
         }
       }
     }

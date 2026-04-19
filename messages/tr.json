@@ -141,27 +141,33 @@
       }
     },
     "faq": {
-      "title": "Sık sorulan sorular",
+      "eyebrow": "04 — CEVAPLAR",
+      "titleStrong": "Sık sorulan sorular.",
+      "titleMuted": "Net cevaplar.",
       "items": {
         "realism": {
-          "q": "Sınavlar ne kadar gerçekçi?",
-          "a": "Yapay zekâmız, resmi Goethe-Zertifikat formatına ve zorluk düzeyine birebir uygun görevler üretir. Format, süre ve değerlendirme kriterleri 1:1 yeniden oluşturulur."
-        },
-        "levels": {
-          "q": "Hangi seviyeler destekleniyor?",
-          "a": "Şu anda A1 (Start Deutsch 1), A2 (Goethe-Zertifikat A2) ve B1 (Goethe-Zertifikat B1) destekleniyor. Diğer seviyeler yolda."
+          "q": "Simülatör gerçek Goethe sınavına ne kadar yakın?",
+          "a": "Format birebir aynı: aynı bölümler, aynı soru sayısı, aynı süreler, Goethe standardına göre aynı değerlendirme kriterleri. Fark şu: her sınav yapay zeka tarafından anlık olarak benzersiz üretilir. Cevapları ezberleyemezsiniz — her oturum yeni bir hazırlıktır."
         },
         "aiScoring": {
-          "q": "AI değerlendirme nasıl çalışıyor?",
-          "a": "Lesen ve Hören otomatik değerlendirilir. Schreiben ve Sprechen için yapay zekâ, yanıtlarınızı resmi Goethe kriterlerine göre analiz eder ve ayrıntılı geri bildirim verir."
+          "q": "Yapay zeka yazma ve konuşmayı nasıl değerlendiriyor?",
+          "a": "Resmi Goethe kriterlerine göre: görevin yerine getirilmesi, tutarlılık, kelime dağarcığı, dilbilgisi — konuşma için ayrıca akıcılık ve telaffuz. 0-100 arası puan, bestanden/nicht bestanden değerlendirmesi ve güçlü-zayıf yönlerinizin somut önerilerle ayrıntılı bir analizini alırsınız."
         },
-        "singleModules": {
-          "q": "Modülleri tek tek çalışabilir miyim?",
-          "a": "Evet — tüm sınavı bir seferde girebilir ya da her modülü (Lesen, Hören, Schreiben veya Sprechen) ayrı ayrı çalışabilirsiniz."
+        "officialExam": {
+          "q": "Sertifikanız resmi olarak tanınıyor mu?",
+          "a": "Hayır. DeutschTest.pro bir hazırlık aracıdır, akredite bir sınav merkezi değildir. Gerçek sertifikayı yalnızca Goethe-Institut veya yüz yüze çalışan ortakları verir. Biz sizi oraya ilk denemede başarılı olacak şekilde hazırlıyoruz."
+        },
+        "modulesPricing": {
+          "q": "Modül nedir ve paketler nasıl çalışıyor?",
+          "a": "Modül, sınavın bir bölümüdür: Lesen, Hören, Schreiben veya Sprechen. Neye çalışacağınıza siz karar verirsiniz — örneğin en çok zorlandığınız alan Sprechen ise üst üste üç Sprechen oturumu yapabilirsiniz. Kayıt olurken 3 ücretsiz modül kazanırsınız. Sonrasında 10, 20 veya 40 modüllük paketler satın alırsınız. Abonelik yok, otomatik yenileme yok."
         },
         "microphone": {
-          "q": "Sprechen modülü için mikrofon gerekiyor mu?",
-          "a": "Evet, Sprechen modülü için mikrofon gerekli. Çoğu dizüstü ve telefonun dahili mikrofonu yeterli olur."
+          "q": "Çalışmak için teknik olarak neye ihtiyacım var?",
+          "a": "Lesen, Hören ve Schreiben için bilgisayar, dizüstü, tablet veya telefonunuzdaki herhangi bir tarayıcı yeterli. Sprechen için ayrıca bir mikrofon: dizüstünün dahili mikrofonu, bir kulaklık veya telefonunuzun mikrofonu gayet yeterlidir. Kurulum yok, yapılandırma yok, indirme yok."
+        },
+        "refund": {
+          "q": "Paketimi iade edebilir miyim?",
+          "a": "Evet. Bir paket aldıysanız ama henüz hiçbir ücretli modülü kullanmadıysanız, 14 gün içinde tam ücret iadesi yaparız. Kayıtta aldığınız 3 ücretsiz modül kullanım sayılmaz. Destek ekibimize bir e-posta atmanız yeterli."
         }
       }
     }
