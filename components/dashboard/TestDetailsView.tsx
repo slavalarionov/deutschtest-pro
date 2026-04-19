@@ -4,6 +4,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import { useState } from 'react'
 import { RetakeModuleModal } from '@/components/exam/RetakeModuleModal'
+import { formatEditorialDate } from '@/lib/format/date'
 import type {
   TestDetails,
   LesenHorenAttemptFeedback,
@@ -14,31 +15,6 @@ import type {
   SprechenContent,
   SprechenFeedback,
 } from '@/types/exam'
-
-/**
- * Format `17. April 2026` style date for the test details header.
- * Locale-aware: en-US gets `April 17, 2026`, de/ru/tr use the day-first form.
- */
-function formatLongDate(iso: string, locale: string): string {
-  try {
-    const d = new Date(iso)
-    const intlLocale =
-      locale === 'en'
-        ? 'en-US'
-        : locale === 'ru'
-          ? 'ru-RU'
-          : locale === 'tr'
-            ? 'tr-TR'
-            : 'de-DE'
-    return d.toLocaleDateString(intlLocale, {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    })
-  } catch {
-    return '—'
-  }
-}
 
 /** Flat progress bar on `--line` with an `--accent` fill. No score-gradation. */
 function ProgressBar({ value, max }: { value: number; max: number }) {
@@ -69,7 +45,7 @@ export function TestDetailsView({
   const [retakeOpen, setRetakeOpen] = useState(false)
 
   const moduleLabel = tModules(details.module)
-  const formattedDate = formatLongDate(details.submittedAt, locale)
+  const formattedDate = formatEditorialDate(details.submittedAt, locale)
   const passed = details.passed
 
   return (
@@ -195,6 +171,7 @@ function LesenHorenSection({
   feedback: LesenHorenAttemptFeedback | null
 }) {
   const t = useTranslations('dashboard.testDetail.lesenHoren')
+  const tDetail = useTranslations('dashboard.testDetail')
 
   if (!feedback || !feedback.details || !feedback.summary) {
     return (
@@ -213,7 +190,7 @@ function LesenHorenSection({
       {/* Overview */}
       <div className="rounded-rad border border-line bg-surface p-8">
         <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          ÜBERSICHT
+          {tDetail('overviewEyebrow')}
         </div>
         <div className="mt-4 flex flex-wrap items-end gap-0">
           <StatPill
@@ -245,7 +222,7 @@ function LesenHorenSection({
       {/* All answers */}
       <div className="rounded-rad border border-line bg-card p-8">
         <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          ALLE ANTWORTEN
+          {tDetail('allAnswersEyebrow')}
         </div>
         <div className="mt-4 space-y-3">
           {entries.map(([id, detail], i) => {
@@ -363,7 +340,7 @@ function SchreibenSection({
           {feedback.comment && (
             <div className="rounded-rad border border-line bg-card p-8">
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-                {t('aiFeedback').toUpperCase()}
+                {tDetail('aiFeedbackEyebrow')}
               </div>
               <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-ink">
                 {feedback.comment}
@@ -463,7 +440,7 @@ function SprechenSection({
           {feedback.comment && (
             <div className="rounded-rad border border-line bg-card p-8">
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-                {t('aiFeedback').toUpperCase()}
+                {tDetail('aiFeedbackEyebrow')}
               </div>
               <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-ink">
                 {feedback.comment}

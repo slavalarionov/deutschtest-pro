@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/routing'
+import { formatEditorialDate } from '@/lib/format/date'
 import type {
   HistoryItem,
   HistoryLevel,
@@ -11,25 +12,6 @@ import type {
 
 const LEVEL_OPTIONS: HistoryLevel[] = ['A1', 'A2', 'B1']
 const MODULE_OPTIONS: HistoryModule[] = ['lesen', 'horen', 'schreiben', 'sprechen']
-
-/**
- * Short date format matching the Phase 3 prototype (`17.04.26`).
- * en-US gets `MM/DD/YY`; everybody else uses `DD.MM.YY` via `de-DE` fallback.
- */
-function formatShortDate(iso: string, locale: string): string {
-  try {
-    const d = new Date(iso)
-    const intlLocale =
-      locale === 'en' ? 'en-US' : locale === 'tr' ? 'tr-TR' : 'de-DE'
-    return d.toLocaleDateString(intlLocale, {
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-    })
-  } catch {
-    return '—'
-  }
-}
 
 type ModuleIconName = HistoryModule
 
@@ -311,7 +293,7 @@ export function HistoryView() {
                     >
                       {/* DATUM */}
                       <div className="col-span-2 font-mono text-sm text-ink-soft">
-                        {formatShortDate(item.submittedAt, locale)}
+                        {formatEditorialDate(item.submittedAt, locale)}
                       </div>
 
                       {/* MODUL */}
