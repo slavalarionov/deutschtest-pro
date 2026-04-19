@@ -501,6 +501,44 @@
           "subtitle": "Durchschnittliche Punktzahl über alle Module je Niveau.",
           "row": "{score} · {attempts, plural, one {# Modul} other {# Module}}"
         }
+      },
+      "eyebrow": "FORTSCHRITT",
+      "headline": {
+        "deltaStrong": "{delta, plural, =0 {0 Punkte.} one {# Punkt.} other {# Punkte.}}",
+        "deltaStrongPositive": "+{delta, plural, one {# Punkt.} other {# Punkte.}}",
+        "deltaMuted": "in 12 Wochen.",
+        "fallbackStrong": "Fortschritt.",
+        "fallbackMuted": "Deine Entwicklung."
+      },
+      "chart": {
+        "eyebrow": "Ø PUNKTZAHL · WÖCHENTLICH",
+        "outOf100": "/ 100",
+        "legendYou": "DU",
+        "legendPassLine": "BESTEHEN",
+        "passLabel": "BESTEHEN · 60",
+        "emptyTitle": "KEINE DATEN",
+        "emptyLead": "Nach den ersten Prüfungen erscheint hier dein Fortschritt."
+      },
+      "perModule": {
+        "previousLabel": "Vorher: {prev}",
+        "noPrev": "Vorher: —",
+        "noDeltaPlaceholder": "—"
+      },
+      "byLevelV2": {
+        "eyebrow": "NACH NIVEAU",
+        "attempts": "× {attempts, plural, one {# Modul} other {# Module}}"
+      },
+      "emptyV2": {
+        "title": "Noch keine Fortschritte.",
+        "lead": "Nach zwei Prüfungen erscheint hier dein persönlicher Fortschritt.",
+        "cta": "Zum Dashboard"
+      },
+      "errorV2": {
+        "title": "FEHLER",
+        "retry": "Erneut versuchen"
+      },
+      "tooltip": {
+        "scoreLabel": "PUNKTE"
       }
     },
     "recommendations": {

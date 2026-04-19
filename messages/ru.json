@@ -501,6 +501,44 @@
           "subtitle": "Средний балл по всем модулям для каждого уровня.",
           "row": "{score} · {attempts, plural, one {# модуль} few {# модуля} many {# модулей} other {# модуля}}"
         }
+      },
+      "eyebrow": "ПРОГРЕСС",
+      "headline": {
+        "deltaStrong": "{delta, plural, =0 {0 баллов.} one {# балл.} few {# балла.} many {# баллов.} other {# балла.}}",
+        "deltaStrongPositive": "+{delta, plural, one {# балл.} few {# балла.} many {# баллов.} other {# балла.}}",
+        "deltaMuted": "за 12 недель.",
+        "fallbackStrong": "Прогресс.",
+        "fallbackMuted": "Ваше развитие."
+      },
+      "chart": {
+        "eyebrow": "Ø БАЛЛ · ЕЖЕНЕДЕЛЬНО",
+        "outOf100": "/ 100",
+        "legendYou": "ВЫ",
+        "legendPassLine": "ПРОХОД",
+        "passLabel": "ПРОХОД · 60",
+        "emptyTitle": "НЕТ ДАННЫХ",
+        "emptyLead": "После первых экзаменов здесь появится ваш прогресс."
+      },
+      "perModule": {
+        "previousLabel": "Было: {prev}",
+        "noPrev": "Было: —",
+        "noDeltaPlaceholder": "—"
+      },
+      "byLevelV2": {
+        "eyebrow": "ПО УРОВНЮ",
+        "attempts": "× {attempts, plural, one {# модуль} few {# модуля} many {# модулей} other {# модуля}}"
+      },
+      "emptyV2": {
+        "title": "Пока нет прогресса.",
+        "lead": "После двух экзаменов здесь появится ваш личный прогресс.",
+        "cta": "К панели"
+      },
+      "errorV2": {
+        "title": "ОШИБКА",
+        "retry": "Попробовать снова"
+      },
+      "tooltip": {
+        "scoreLabel": "БАЛЛЫ"
       }
     },
     "recommendations": {

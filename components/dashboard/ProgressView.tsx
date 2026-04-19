@@ -5,72 +5,37 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import {
   CartesianGrid,
-  Legend,
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts'
-import type {
-  ProgressData,
-  ProgressModule,
-  ProgressPoint,
-  Trend,
-} from '@/lib/dashboard/progress'
-
-const MODULE_COLORS: Record<ProgressModule, string> = {
-  lesen: '#C8A84B',
-  horen: '#3B82F6',
-  schreiben: '#10B981',
-  sprechen: '#8B5CF6',
-}
+import type { ProgressData, ProgressModule } from '@/lib/dashboard/progress'
+import {
+  bucketPointsByWeek,
+  computeModuleDeltas,
+  type WeeklyBucket,
+} from '@/lib/dashboard/progress-client'
 
 const MODULES: ProgressModule[] = ['lesen', 'horen', 'schreiben', 'sprechen']
 
-const TREND_CLASSES: Record<Trend, string> = {
-  improving: 'bg-green-50 text-green-700',
-  stable: 'bg-brand-surface text-brand-muted',
-  declining: 'bg-red-50 text-brand-red',
-}
-
-function formatDay(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString('de-DE', {
-      day: '2-digit',
-      month: 'short',
-    })
-  } catch {
-    return '—'
-  }
-}
-
-interface ChartPoint {
-  timestamp: number
-  label: string
-  lesen?: number
-  horen?: number
-  schreiben?: number
-  sprechen?: number
-  all?: number
-}
-
-function buildChartData(points: ProgressPoint[]): ChartPoint[] {
-  return points.map((p) => ({
-    timestamp: new Date(p.submittedAt).getTime(),
-    label: formatDay(p.submittedAt),
-    all: p.score,
-    [p.module]: p.score,
-  }))
+// Hardcoded German labels — per design spec these are not localised.
+const MODULE_LABELS: Record<ProgressModule, string> = {
+  lesen: 'LESEN',
+  horen: 'HÖREN',
+  schreiben: 'SCHREIBEN',
+  sprechen: 'SPRECHEN',
 }
 
 export function ProgressView() {
   const t = useTranslations('dashboard.progress')
-  const tModules = useTranslations('modules')
   const [data, setData] = useState<ProgressData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [reloadToken, setReloadToken] = useState(0)
 
   useEffect(() => {
     let active = true
@@ -98,290 +63,403 @@ export function ProgressView() {
     return () => {
       active = false
     }
-  }, [t])
+  }, [t, reloadToken])
 
-  const chartData = useMemo(
-    () => (data ? buildChartData(data.points) : []),
+  const weeklyBuckets = useMemo<WeeklyBucket[]>(
+    () => (data ? bucketPointsByWeek(data.points, 12) : []),
     [data]
   )
 
-  const activeModules = useMemo(() => {
-    if (!data) return [] as ProgressModule[]
-    return MODULES.filter((m) =>
-      data.moduleAverages.some((avg) => avg.module === m)
-    )
-  }, [data])
+  const moduleDeltas = useMemo(
+    () => (data ? computeModuleDeltas(data.points) : null),
+    [data]
+  )
 
-  const showLevelChart = (data?.levelAverages.length ?? 0) >= 2
+  const nonNullWeekCount = useMemo(
+    () => weeklyBuckets.filter((b) => b.score !== null).length,
+    [weeklyBuckets]
+  )
 
-  return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-brand-text">{t('title')}</h1>
-        <p className="mt-1 text-sm text-brand-muted">{t('subtitle')}</p>
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-5xl px-6 py-10">
+        <div className="flex items-center justify-center rounded-rad border border-line bg-card p-14">
+          <div className="h-6 w-6 animate-spin rounded-rad-pill border-2 border-line border-t-ink" />
+        </div>
       </div>
+    )
+  }
 
-      {loading && (
-        <div className="flex items-center justify-center rounded-2xl bg-brand-white px-6 py-16 shadow-soft">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-gold border-t-transparent" />
+  if (error) {
+    return (
+      <div className="mx-auto max-w-5xl px-6 py-10">
+        <div className="rounded-rad-sm border border-error/20 bg-error-soft p-6">
+          <div className="font-mono text-xs uppercase tracking-wider text-error">
+            {t('errorV2.title')}
+          </div>
+          <p className="mt-2 text-sm text-ink-soft">{error}</p>
+          <button
+            type="button"
+            onClick={() => setReloadToken((n) => n + 1)}
+            className="mt-4 font-mono text-xs uppercase tracking-wider text-accent-ink underline underline-offset-4 hover:no-underline"
+          >
+            {t('errorV2.retry')}
+          </button>
         </div>
-      )}
+      </div>
+    )
+  }
 
-      {!loading && error && (
-        <div className="rounded-2xl bg-brand-white px-6 py-10 text-center shadow-soft">
-          <p className="text-sm text-brand-red">{error}</p>
-        </div>
-      )}
-
-      {!loading && !error && data && data.points.length < 2 && (
-        <div className="rounded-2xl bg-brand-white px-6 py-16 text-center shadow-soft">
-          <p className="text-sm font-medium text-brand-text">
-            {t('empty.title')}
-          </p>
-          <p className="mt-2 text-xs text-brand-muted">
-            {t('empty.completed', { count: data.points.length })}
-          </p>
+  // Hard empty state — fewer than two raw data points.
+  if (!data || data.points.length < 2) {
+    return (
+      <div className="mx-auto max-w-5xl px-6 py-10">
+        <div className="rounded-rad border border-line bg-card p-14 text-center">
+          <div className="font-mono text-xs uppercase tracking-wider text-muted">
+            {t('chart.emptyTitle')}
+          </div>
+          <h2 className="mt-4 font-display text-5xl tracking-[-0.03em] leading-none text-ink">
+            {t('emptyV2.title')}
+          </h2>
+          <p className="mt-4 text-ink-soft">{t('emptyV2.lead')}</p>
           <Link
             href="/dashboard"
-            className="mt-6 inline-block rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark"
+            className="mt-8 inline-flex items-center rounded-rad-pill bg-ink px-6 py-3 font-mono text-xs uppercase tracking-wider text-page hover:opacity-90"
           >
-            {t('empty.toDashboard')}
+            {t('emptyV2.cta')}
           </Link>
         </div>
-      )}
-
-      {!loading && !error && data && data.points.length >= 2 && (
-        <>
-          <StatsRow data={data} />
-
-          <ChartCard
-            title={t('charts.scoreTime.title')}
-            subtitle={t('charts.scoreTime.subtitle')}
-          >
-            <ResponsiveContainer width="100%" height={280}>
-              <LineChart
-                data={chartData}
-                margin={{ top: 10, right: 16, left: 0, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#E0DDD6" />
-                <XAxis
-                  dataKey="label"
-                  stroke="#6B6560"
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis
-                  domain={[0, 100]}
-                  stroke="#6B6560"
-                  tick={{ fontSize: 12 }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: 8,
-                    border: '1px solid #E0DDD6',
-                    fontSize: 12,
-                  }}
-                  formatter={(value) => [
-                    `${value}`,
-                    t('charts.scoreTime.pointsLabel'),
-                  ]}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="all"
-                  stroke="#1A1A1A"
-                  strokeWidth={2}
-                  dot={{ r: 4, fill: '#C8A84B' }}
-                  activeDot={{ r: 6 }}
-                  connectNulls
-                  name={t('charts.scoreTime.pointsLabel')}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          <ChartCard
-            title={t('charts.byModule.title')}
-            subtitle={t('charts.byModule.subtitle')}
-          >
-            <ResponsiveContainer width="100%" height={320}>
-              <LineChart
-                data={chartData}
-                margin={{ top: 10, right: 16, left: 0, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#E0DDD6" />
-                <XAxis
-                  dataKey="label"
-                  stroke="#6B6560"
-                  tick={{ fontSize: 12 }}
-                />
-                <YAxis
-                  domain={[0, 100]}
-                  stroke="#6B6560"
-                  tick={{ fontSize: 12 }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: 8,
-                    border: '1px solid #E0DDD6',
-                    fontSize: 12,
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                {activeModules.map((m) => (
-                  <Line
-                    key={m}
-                    type="monotone"
-                    dataKey={m}
-                    stroke={MODULE_COLORS[m]}
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                    activeDot={{ r: 5 }}
-                    connectNulls
-                    name={tModules(m)}
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          {showLevelChart && (
-            <ChartCard
-              title={t('charts.byLevel.title')}
-              subtitle={t('charts.byLevel.subtitle')}
-            >
-              <div className="space-y-3">
-                {data.levelAverages.map((lvl) => (
-                  <div key={lvl.level} className="space-y-1">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-semibold text-brand-text">
-                        {lvl.level}
-                      </span>
-                      <span className="text-brand-muted">
-                        {t('charts.byLevel.row', {
-                          score: lvl.averageScore,
-                          attempts: lvl.attempts,
-                        })}
-                      </span>
-                    </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-brand-surface">
-                      <div
-                        className="h-full bg-brand-gold"
-                        style={{ width: `${lvl.averageScore}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ChartCard>
-          )}
-        </>
-      )}
-    </div>
-  )
-}
-
-function StatsRow({ data }: { data: ProgressData }) {
-  const t = useTranslations('dashboard.progress.stats')
-  const tModules = useTranslations('modules')
-  const trendClass = TREND_CLASSES[data.monthlyTrend.trend]
-  const trendText = t(`trend.${data.monthlyTrend.trend}`)
-  const delta = data.monthlyTrend.delta
-  const deltaText =
-    delta === null
-      ? t('noPrevMonth')
-      : delta === 0
-        ? t('noChange')
-        : delta > 0
-          ? t('deltaPositive', { delta })
-          : t('deltaNegative', { delta })
-
-  return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-      <StatCard label={t('trendLabel')}>
-        <div className="flex items-center gap-2">
-          <span
-            className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${trendClass}`}
-          >
-            {trendText}
-          </span>
-        </div>
-        <p className="mt-2 text-xs text-brand-muted">{deltaText}</p>
-      </StatCard>
-
-      <StatCard label={t('strongestModule')}>
-        {data.strongestModule ? (
-          <>
-            <p className="text-xl font-bold text-brand-text">
-              {tModules(data.strongestModule.module)}
-            </p>
-            <p className="mt-1 text-xs text-brand-muted">
-              {t('avgLine', {
-                avg: data.strongestModule.averageScore,
-                attempts: data.strongestModule.attempts,
-              })}
-            </p>
-          </>
-        ) : (
-          <p className="text-sm text-brand-muted">—</p>
-        )}
-      </StatCard>
-
-      <StatCard label={t('weakestModule')}>
-        {data.weakestModule ? (
-          <>
-            <p className="text-xl font-bold text-brand-text">
-              {tModules(data.weakestModule.module)}
-            </p>
-            <p className="mt-1 text-xs text-brand-muted">
-              {t('avgLine', {
-                avg: data.weakestModule.averageScore,
-                attempts: data.weakestModule.attempts,
-              })}
-            </p>
-          </>
-        ) : (
-          <p className="text-sm text-brand-muted">—</p>
-        )}
-      </StatCard>
-    </div>
-  )
-}
-
-function StatCard({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="rounded-2xl bg-brand-white p-5 shadow-soft">
-      <p className="text-xs font-medium uppercase tracking-wider text-brand-muted">
-        {label}
-      </p>
-      <div className="mt-3">{children}</div>
-    </div>
-  )
-}
-
-function ChartCard({
-  title,
-  subtitle,
-  children,
-}: {
-  title: string
-  subtitle?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="rounded-2xl bg-brand-white p-5 shadow-soft">
-      <div className="mb-4">
-        <h2 className="text-base font-semibold text-brand-text">{title}</h2>
-        {subtitle && (
-          <p className="mt-0.5 text-xs text-brand-muted">{subtitle}</p>
-        )}
       </div>
-      {children}
+    )
+  }
+
+  const delta = data.monthlyTrend.delta
+  const currentMonthAvg = data.monthlyTrend.currentMonthAverage
+
+  return (
+    <div className="mx-auto max-w-6xl px-6 py-10 space-y-6">
+      <Header delta={delta} />
+
+      <WeeklyChart
+        buckets={weeklyBuckets}
+        hasData={nonNullWeekCount >= 2}
+        currentMonthAverage={currentMonthAvg}
+      />
+
+      {moduleDeltas && <PerModuleGrid deltas={moduleDeltas} />}
+
+      {data.levelAverages.length >= 2 && <ByLevelBlock levels={data.levelAverages} />}
     </div>
+  )
+}
+
+function Header({ delta }: { delta: number | null }) {
+  const t = useTranslations('dashboard.progress')
+
+  if (delta === null) {
+    return (
+      <header>
+        <div className="font-mono text-xs uppercase tracking-wider text-muted mb-3">
+          {t('eyebrow')}
+        </div>
+        <h1 className="font-display text-6xl md:text-7xl tracking-[-0.035em] leading-[1] text-ink">
+          {t('headline.fallbackStrong')}
+          <br />
+          <span className="text-ink-soft">{t('headline.fallbackMuted')}</span>
+        </h1>
+      </header>
+    )
+  }
+
+  const strong =
+    delta > 0
+      ? t('headline.deltaStrongPositive', { delta })
+      : t('headline.deltaStrong', { delta })
+
+  return (
+    <header>
+      <div className="font-mono text-xs uppercase tracking-wider text-muted mb-3">
+        {t('eyebrow')}
+      </div>
+      <h1 className="font-display text-6xl md:text-7xl tracking-[-0.035em] leading-[1] text-ink">
+        {strong}
+        <br />
+        <span className="text-ink-soft">{t('headline.deltaMuted')}</span>
+      </h1>
+    </header>
+  )
+}
+
+interface WeeklyChartProps {
+  buckets: WeeklyBucket[]
+  hasData: boolean
+  currentMonthAverage: number | null
+}
+
+function WeeklyChart({ buckets, hasData, currentMonthAverage }: WeeklyChartProps) {
+  const t = useTranslations('dashboard.progress')
+
+  if (!hasData) {
+    return (
+      <section className="rounded-rad border border-line bg-card p-8">
+        <div className="font-mono text-xs uppercase tracking-wider text-muted">
+          {t('chart.emptyTitle')}
+        </div>
+        <p className="mt-4 text-ink-soft">{t('chart.emptyLead')}</p>
+      </section>
+    )
+  }
+
+  // Find the last non-null bucket index so we can paint that dot accent.
+  let lastIdx = -1
+  for (let i = buckets.length - 1; i >= 0; i--) {
+    if (buckets[i].score !== null) {
+      lastIdx = i
+      break
+    }
+  }
+
+  return (
+    <section className="rounded-rad border border-line bg-card p-8">
+      <div className="flex items-end justify-between mb-6 flex-wrap gap-4">
+        <div>
+          <div className="font-mono text-xs uppercase tracking-wider text-muted">
+            {t('chart.eyebrow')}
+          </div>
+          <div className="mt-1 font-display text-5xl md:text-6xl tracking-[-0.025em] leading-none text-ink">
+            {currentMonthAverage ?? '—'}
+            <span className="text-xl text-muted"> {t('chart.outOf100')}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 font-mono text-xs uppercase tracking-wider text-ink-soft">
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-3 h-0.5 bg-ink" />
+            {t('chart.legendYou')}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-3 border-t border-dashed border-muted" />
+            {t('chart.legendPassLine')}
+          </div>
+        </div>
+      </div>
+
+      <ResponsiveContainer width="100%" height={280}>
+        <LineChart
+          data={buckets}
+          margin={{ top: 10, right: 24, left: 0, bottom: 0 }}
+        >
+          <CartesianGrid strokeDasharray="2 4" stroke="var(--line)" />
+          <XAxis
+            dataKey="week"
+            stroke="var(--muted)"
+            tickLine={false}
+            axisLine={{ stroke: 'var(--line)' }}
+            tick={{
+              fontSize: 10,
+              fontFamily: 'JetBrains Mono, monospace',
+              fill: 'var(--muted)',
+            }}
+          />
+          <YAxis
+            domain={[0, 100]}
+            ticks={[0, 25, 50, 75, 100]}
+            stroke="var(--muted)"
+            tickLine={false}
+            axisLine={{ stroke: 'var(--line)' }}
+            tick={{
+              fontSize: 10,
+              fontFamily: 'JetBrains Mono, monospace',
+              fill: 'var(--muted)',
+            }}
+          />
+          <ReferenceLine
+            y={60}
+            stroke="var(--muted)"
+            strokeDasharray="3 3"
+            label={{
+              value: t('chart.passLabel'),
+              position: 'insideTopRight',
+              fontSize: 10,
+              fontFamily: 'JetBrains Mono, monospace',
+              fill: 'var(--muted)',
+            }}
+          />
+          <Tooltip content={<WeeklyTooltip />} cursor={{ stroke: 'var(--line)' }} />
+          <Line
+            type="monotone"
+            dataKey="score"
+            stroke="var(--ink)"
+            strokeWidth={2}
+            connectNulls={false}
+            dot={(props) => {
+              const { cx, cy, index, payload } = props as {
+                cx: number
+                cy: number
+                index: number
+                payload: WeeklyBucket
+              }
+              if (payload.score === null) {
+                return <g key={`empty-${index}`} />
+              }
+              const isLast = index === lastIdx
+              return (
+                <circle
+                  key={`dot-${index}`}
+                  cx={cx}
+                  cy={cy}
+                  r={isLast ? 5 : 3}
+                  fill={isLast ? 'var(--accent)' : 'var(--ink)'}
+                  stroke="var(--card)"
+                  strokeWidth={2}
+                />
+              )
+            }}
+            activeDot={{
+              r: 6,
+              fill: 'var(--accent)',
+              stroke: 'var(--card)',
+              strokeWidth: 2,
+            }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </section>
+  )
+}
+
+interface TooltipPayloadItem {
+  value: number | null
+  payload: WeeklyBucket
+}
+
+function WeeklyTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean
+  payload?: TooltipPayloadItem[]
+}) {
+  const t = useTranslations('dashboard.progress')
+  if (!active || !payload || payload.length === 0) return null
+  const item = payload[0]
+  if (!item || item.value === null || item.value === undefined) return null
+  return (
+    <div className="rounded-rad-sm border border-line bg-card p-3 shadow-lift">
+      <div className="font-mono text-xs uppercase tracking-wider text-muted">
+        {item.payload.week}
+      </div>
+      <div className="mt-1 font-display text-2xl tracking-[-0.025em] leading-none text-ink">
+        {item.value}
+      </div>
+      <div className="mt-1 font-mono text-[10px] uppercase tracking-wider text-muted">
+        {t('tooltip.scoreLabel')}
+      </div>
+    </div>
+  )
+}
+
+function PerModuleGrid({
+  deltas,
+}: {
+  deltas: Record<ProgressModule, { current: number | null; previous: number | null; delta: number | null }>
+}) {
+  const t = useTranslations('dashboard.progress')
+
+  return (
+    <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {MODULES.map((m) => {
+        const d = deltas[m]
+        const cur = d.current
+        const prev = d.previous
+        const deltaVal = d.delta
+
+        const deltaChip =
+          deltaVal === null
+            ? t('perModule.noDeltaPlaceholder')
+            : deltaVal > 0
+              ? `+${deltaVal}`
+              : `${deltaVal}`
+        const deltaClass =
+          deltaVal === null
+            ? 'text-muted'
+            : deltaVal > 0
+              ? 'text-accent-ink'
+              : deltaVal < 0
+                ? 'text-muted'
+                : 'text-muted'
+
+        const barWidth = cur ?? 0
+        const barFill = cur !== null && cur >= 60 ? 'bg-accent' : 'bg-ink'
+
+        return (
+          <div
+            key={m}
+            className="rounded-rad border border-line bg-card p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <span className="font-mono text-xs uppercase tracking-wider text-muted">
+                {MODULE_LABELS[m]}
+              </span>
+              <span className={`font-mono text-xs ${deltaClass}`}>
+                {deltaChip}
+              </span>
+            </div>
+            <div className="font-display text-5xl tracking-[-0.03em] leading-none text-ink">
+              {cur ?? '—'}
+            </div>
+            <div className="mt-1 font-mono text-xs text-muted">
+              {prev === null
+                ? t('perModule.noPrev')
+                : t('perModule.previousLabel', { prev })}
+            </div>
+            <div className="mt-4 h-2 w-full bg-line rounded-rad-pill overflow-hidden">
+              {cur !== null && (
+                <div
+                  className={`h-full ${barFill}`}
+                  style={{ width: `${barWidth}%` }}
+                />
+              )}
+            </div>
+          </div>
+        )
+      })}
+    </section>
+  )
+}
+
+function ByLevelBlock({
+  levels,
+}: {
+  levels: { level: string; averageScore: number; attempts: number }[]
+}) {
+  const t = useTranslations('dashboard.progress')
+
+  return (
+    <section className="rounded-rad border border-line bg-card p-8">
+      <div className="font-mono text-xs uppercase tracking-wider text-muted mb-6">
+        {t('byLevelV2.eyebrow')}
+      </div>
+      <div className="space-y-4">
+        {levels.map((lvl) => (
+          <div key={lvl.level} className="flex items-center gap-4">
+            <div className="w-12 font-mono text-xs uppercase tracking-wider text-ink">
+              {lvl.level}
+            </div>
+            <div className="flex-1 h-2 bg-line rounded-rad-pill overflow-hidden">
+              <div
+                className={`h-full ${lvl.averageScore >= 60 ? 'bg-accent' : 'bg-ink'}`}
+                style={{ width: `${lvl.averageScore}%` }}
+              />
+            </div>
+            <div className="w-12 text-right font-mono text-sm text-ink">
+              {lvl.averageScore}
+            </div>
+            <div className="font-mono text-xs text-muted whitespace-nowrap">
+              {t('byLevelV2.attempts', { attempts: lvl.attempts })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }

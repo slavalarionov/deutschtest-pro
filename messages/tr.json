@@ -501,6 +501,44 @@
           "subtitle": "Her seviye için tüm modüllerin ortalama puanı.",
           "row": "{score} · {attempts, plural, other {# modül}}"
         }
+      },
+      "eyebrow": "İLERLEME",
+      "headline": {
+        "deltaStrong": "{delta, plural, =0 {0 puan.} other {# puan.}}",
+        "deltaStrongPositive": "+{delta, plural, other {# puan.}}",
+        "deltaMuted": "12 haftada.",
+        "fallbackStrong": "İlerleme.",
+        "fallbackMuted": "Gelişiminiz."
+      },
+      "chart": {
+        "eyebrow": "Ø PUAN · HAFTALIK",
+        "outOf100": "/ 100",
+        "legendYou": "SEN",
+        "legendPassLine": "GEÇER",
+        "passLabel": "GEÇER · 60",
+        "emptyTitle": "VERİ YOK",
+        "emptyLead": "İlk sınavlardan sonra ilerlemeniz burada görünecek."
+      },
+      "perModule": {
+        "previousLabel": "Önceden: {prev}",
+        "noPrev": "Önceden: —",
+        "noDeltaPlaceholder": "—"
+      },
+      "byLevelV2": {
+        "eyebrow": "SEVİYEYE GÖRE",
+        "attempts": "× {attempts, plural, other {# modül}}"
+      },
+      "emptyV2": {
+        "title": "Henüz ilerleme yok.",
+        "lead": "İki sınavdan sonra kişisel ilerlemeniz burada görünecek.",
+        "cta": "Panele dön"
+      },
+      "errorV2": {
+        "title": "HATA",
+        "retry": "Tekrar dene"
+      },
+      "tooltip": {
+        "scoreLabel": "PUAN"
       }
     },
     "recommendations": {

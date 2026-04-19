@@ -501,6 +501,44 @@
           "subtitle": "Average score across all modules for each level.",
           "row": "{score} · {attempts, plural, one {# module} other {# modules}}"
         }
+      },
+      "eyebrow": "PROGRESS",
+      "headline": {
+        "deltaStrong": "{delta, plural, =0 {0 points.} one {# point.} other {# points.}}",
+        "deltaStrongPositive": "+{delta, plural, one {# point.} other {# points.}}",
+        "deltaMuted": "in 12 weeks.",
+        "fallbackStrong": "Progress.",
+        "fallbackMuted": "Your growth."
+      },
+      "chart": {
+        "eyebrow": "Ø SCORE · WEEKLY",
+        "outOf100": "/ 100",
+        "legendYou": "YOU",
+        "legendPassLine": "PASS",
+        "passLabel": "PASS · 60",
+        "emptyTitle": "NO DATA",
+        "emptyLead": "After the first exams, your progress will show up here."
+      },
+      "perModule": {
+        "previousLabel": "Before: {prev}",
+        "noPrev": "Before: —",
+        "noDeltaPlaceholder": "—"
+      },
+      "byLevelV2": {
+        "eyebrow": "BY LEVEL",
+        "attempts": "× {attempts, plural, one {# module} other {# modules}}"
+      },
+      "emptyV2": {
+        "title": "No progress yet.",
+        "lead": "After two exams, your personal progress will show up here.",
+        "cta": "To dashboard"
+      },
+      "errorV2": {
+        "title": "ERROR",
+        "retry": "Try again"
+      },
+      "tooltip": {
+        "scoreLabel": "POINTS"
       }
     },
     "recommendations": {
