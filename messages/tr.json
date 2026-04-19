@@ -557,21 +557,47 @@
       "refreshButton": "Önerileri yenile",
       "refreshingButton": "Yenileniyor…",
       "retry": "Tekrar dene",
-      "empty": {
-        "title": "Kişisel öneri alabilmek için en az bir modül tamamlayın",
-        "hint": "Bir modülü bitirdikten sonra sonuçlarınızı analiz edip size özel bir çalışma planı hazırlarız.",
-        "toDashboard": "Panele git"
-      },
       "sections": {
         "overall": "Genel değerlendirme",
         "strengths": "Güçlü yönler",
         "weaknesses": "Zayıf yönler",
         "studyPlan": "Çalışma planınız",
-        "motivation": "Motivasyon"
+        "motivation": "Motivasyon",
+        "overallEyebrow": "GENEL",
+        "strengthsEyebrow": "GÜÇLÜ YANLAR",
+        "weaknessesEyebrow": "GELİŞİM ALANLARI",
+        "studyPlanEyebrow": "ÇALIŞMA PLANI · {count, plural, other {# ADIM}}",
+        "motivationEyebrow": "MOTİVASYON"
       },
       "modulesCount": "{count, plural, other {# modül}} dikkate alındı",
       "cachedAt": "{date} tarihinde kaydedildi",
       "generatedAt": "{date} tarihinde oluşturuldu",
+      "eyebrow": "ÖNERİLER · YZ EĞİTİM YOLU",
+      "headline": {
+        "strong": "Bugün.",
+        "muted": "Gerçekten yardım eden."
+      },
+      "meta": {
+        "modulesConsidered": "{count, plural, other {# MODÜL DİKKATE ALINDI}}",
+        "generatedAt": "OLUŞTURULDU {date}"
+      },
+      "refresh": {
+        "button": "Yenile",
+        "busy": "Yenileniyor…"
+      },
+      "error": {
+        "eyebrow": "HATA",
+        "retry": "Tekrar dene"
+      },
+      "empty": {
+        "title": "Kişisel öneri alabilmek için en az bir modül tamamlayın",
+        "hint": "Bir modülü bitirdikten sonra sonuçlarınızı analiz edip size özel bir çalışma planı hazırlarız.",
+        "toDashboard": "Panele git",
+        "eyebrowV2": "HENÜZ ÖNERİ YOK",
+        "titleV2": "İlk sınavınızı tamamlayın.",
+        "leadV2": "İlk denemenizi tamamladıktan sonra sonuçlarınızı analiz edip size özel bir eğitim yolu hazırlayacağız.",
+        "ctaV2": "Panele dön"
+      },
       "errors": {
         "loadFailed": "Öneriler yüklenemedi.",
         "network": "Öneriler yüklenirken ağ hatası."

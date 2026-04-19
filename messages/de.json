@@ -557,21 +557,47 @@
       "refreshButton": "Empfehlungen aktualisieren",
       "refreshingButton": "Wird aktualisiert…",
       "retry": "Erneut versuchen",
-      "empty": {
-        "title": "Absolvieren Sie mindestens ein Modul, um personalisierte Empfehlungen zu erhalten",
-        "hint": "Sobald Sie ein Modul abgeschlossen haben, analysieren wir Ihre Ergebnisse und erstellen einen persönlichen Lernplan.",
-        "toDashboard": "Zum Dashboard"
-      },
       "sections": {
         "overall": "Allgemeine Einschätzung",
         "strengths": "Stärken",
         "weaknesses": "Schwächen",
         "studyPlan": "Ihr Lernplan",
-        "motivation": "Motivation"
+        "motivation": "Motivation",
+        "overallEyebrow": "ALLGEMEIN",
+        "strengthsEyebrow": "STÄRKEN",
+        "weaknessesEyebrow": "WACHSTUMSFELDER",
+        "studyPlanEyebrow": "LERNPLAN · {count, plural, one {# SCHRITT} other {# SCHRITTE}}",
+        "motivationEyebrow": "MOTIVATION"
       },
       "modulesCount": "{count, plural, one {# Modul} other {# Module}} berücksichtigt",
       "cachedAt": "Gespeichert am {date}",
       "generatedAt": "Erstellt am {date}",
+      "eyebrow": "EMPFEHLUNGEN · KI-LERNPFAD",
+      "headline": {
+        "strong": "Heute.",
+        "muted": "Was wirklich hilft."
+      },
+      "meta": {
+        "modulesConsidered": "{count, plural, one {# MODUL BERÜCKSICHTIGT} other {# MODULE BERÜCKSICHTIGT}}",
+        "generatedAt": "GENERIERT {date}"
+      },
+      "refresh": {
+        "button": "Aktualisieren",
+        "busy": "Wird aktualisiert…"
+      },
+      "error": {
+        "eyebrow": "FEHLER",
+        "retry": "Erneut versuchen"
+      },
+      "empty": {
+        "title": "Absolvieren Sie mindestens ein Modul, um personalisierte Empfehlungen zu erhalten",
+        "hint": "Sobald Sie ein Modul abgeschlossen haben, analysieren wir Ihre Ergebnisse und erstellen einen persönlichen Lernplan.",
+        "toDashboard": "Zum Dashboard",
+        "eyebrowV2": "NOCH KEINE EMPFEHLUNGEN",
+        "titleV2": "Absolvieren Sie Ihre erste Prüfung.",
+        "leadV2": "Nach Ihrer ersten abgeschlossenen Prüfung erstellen wir auf Basis Ihrer Ergebnisse einen persönlichen Lernpfad.",
+        "ctaV2": "Zum Dashboard"
+      },
       "errors": {
         "loadFailed": "Empfehlungen konnten nicht geladen werden.",
         "network": "Netzwerkfehler beim Laden der Empfehlungen."

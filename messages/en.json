@@ -557,21 +557,47 @@
       "refreshButton": "Refresh recommendations",
       "refreshingButton": "Refreshing…",
       "retry": "Try again",
-      "empty": {
-        "title": "Take at least one module to get personalized recommendations",
-        "hint": "Once you finish a module, we'll analyze your results and put together a personal study plan.",
-        "toDashboard": "Go to dashboard"
-      },
       "sections": {
         "overall": "Overall assessment",
         "strengths": "Strengths",
         "weaknesses": "Weaknesses",
         "studyPlan": "Your study plan",
-        "motivation": "Motivation"
+        "motivation": "Motivation",
+        "overallEyebrow": "OVERALL",
+        "strengthsEyebrow": "STRENGTHS",
+        "weaknessesEyebrow": "AREAS TO GROW",
+        "studyPlanEyebrow": "STUDY PLAN · {count, plural, one {# STEP} other {# STEPS}}",
+        "motivationEyebrow": "MOTIVATION"
       },
       "modulesCount": "{count, plural, one {# module} other {# modules}} considered",
       "cachedAt": "Saved on {date}",
       "generatedAt": "Created on {date}",
+      "eyebrow": "RECOMMENDATIONS · AI STUDY PATH",
+      "headline": {
+        "strong": "Today.",
+        "muted": "What really helps."
+      },
+      "meta": {
+        "modulesConsidered": "{count, plural, one {# MODULE CONSIDERED} other {# MODULES CONSIDERED}}",
+        "generatedAt": "GENERATED {date}"
+      },
+      "refresh": {
+        "button": "Refresh",
+        "busy": "Refreshing…"
+      },
+      "error": {
+        "eyebrow": "ERROR",
+        "retry": "Try again"
+      },
+      "empty": {
+        "title": "Take at least one module to get personalized recommendations",
+        "hint": "Once you finish a module, we'll analyze your results and put together a personal study plan.",
+        "toDashboard": "Go to dashboard",
+        "eyebrowV2": "NO RECOMMENDATIONS YET",
+        "titleV2": "Finish your first exam.",
+        "leadV2": "After your first completed attempt we'll analyze your results and build a personal study path.",
+        "ctaV2": "To dashboard"
+      },
       "errors": {
         "loadFailed": "Couldn't load recommendations.",
         "network": "Network error while loading recommendations."
