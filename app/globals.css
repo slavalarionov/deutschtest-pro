@@ -2,28 +2,91 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   Phase 3 Redesign — design tokens
+   Single source of truth for the new design system. Keep in sync with
+   tailwind.config.ts (color keys reference these variables).
+   Mirror of docs/design-tokens.css from the Claude Design bundle.
+   ========================================================================== */
+
 @layer base {
   :root {
+    /* ---------- Geometry ---------- */
+    --radius: 20px;
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-pill: 999px;
+
+    /* ---------- Accent (single hue, modulated) ---------- */
+    --accent-h: 255;
+    --accent:      oklch(0.58 0.17 var(--accent-h));
+    --accent-soft: oklch(0.94 0.04 var(--accent-h));
+    --accent-ink:  oklch(0.38 0.14 var(--accent-h));
+
+    /* ---------- Surface ladder (light) ---------- */
+    --bg:        oklch(0.985 0.003 250);
+    --surface:   oklch(0.975 0.004 250);
+    --card:      #ffffff;
+
+    /* ---------- Ink ladder ---------- */
+    --ink:       oklch(0.17 0.012 260);
+    --ink-soft:  oklch(0.32 0.012 260);
+    --muted:     oklch(0.54 0.008 260);
+
+    /* ---------- Lines ---------- */
+    --line:      oklch(0.92 0.004 260);
+    --line-soft: oklch(0.955 0.003 260);
+
+    /* ---------- Type scale ---------- */
+    --fs-mono-cap:   11px;
+    --fs-xs:         12px;
+    --fs-sm:         14px;
+    --fs-base:       16px;
+    --fs-lg:         18px;
+    --fs-2xl:        24px;
+    --fs-display-s:  32px;
+    --fs-display-m:  48px;
+    --fs-display-l:  64px;
+    --fs-display-xl: 96px;
+
+    /* ---------- Shadows ---------- */
+    --shadow-lift: 0 8px 28px -10px rgba(0, 0, 0, 0.08), 0 1px 0 rgba(0, 0, 0, 0.02);
+    --shadow-pop:  0 30px 80px -30px rgba(0, 0, 0, 0.25);
+
+    /* ==========================================================================
+       @deprecated Legacy shadcn-style HSL variables.
+       Unused by current components, kept until pre-Phase 3 leftovers are
+       cleared in the last screen migration.
+       ========================================================================== */
     --background: 45 20% 97%;
     --foreground: 0 0% 10%;
-    --card: 38 18% 93%;
-    --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
     --primary: 42 52% 54%;
     --primary-foreground: 0 0% 100%;
     --secondary: 38 18% 93%;
     --secondary-foreground: 0 0% 10%;
-    --muted: 30 5% 40%;
     --muted-foreground: 30 5% 40%;
-    --accent: 42 52% 54%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 70% 33%;
     --destructive-foreground: 0 0% 100%;
     --border: 38 12% 86%;
     --input: 38 12% 86%;
     --ring: 42 52% 54%;
-    --radius: 0.5rem;
+  }
+
+  /* Dark theme — opt-in via data-theme="dark" on <html>. Tokens are wired
+     but no UI is dark-theme ready yet; used for preview/smoke only. */
+  [data-theme="dark"] {
+    --bg:          oklch(0.13 0.01 260);
+    --surface:     oklch(0.16 0.012 260);
+    --card:        oklch(0.185 0.013 260);
+    --ink:         oklch(0.97 0.004 250);
+    --ink-soft:    oklch(0.85 0.006 250);
+    --muted:       oklch(0.65 0.01 260);
+    --line:        oklch(0.27 0.013 260);
+    --line-soft:   oklch(0.22 0.012 260);
+    --accent-soft: oklch(0.28 0.09 var(--accent-h));
+    --accent-ink:  oklch(0.78 0.14 var(--accent-h));
   }
 }
 
@@ -38,8 +101,45 @@
   }
 }
 
+/* ==========================================================================
+   Phase 3 typography utilities
+   Use on new components only. Existing screens keep their current classes
+   until migrated.
+   ========================================================================== */
+
+@layer components {
+  /* Small uppercase mono caption — "01 — MODULE", "LATIN SMALL LETTER SHARP S" */
+  .eyebrow {
+    font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+    font-size: var(--fs-mono-cap);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+  }
+
+  .font-display-tight {
+    font-family: var(--font-display), 'Inter Tight', system-ui, sans-serif;
+    letter-spacing: -0.035em;
+  }
+
+  /* Display scale (pair with font-display) */
+  .h-display-xl { font-size: var(--fs-display-xl); line-height: 0.95; letter-spacing: -0.045em; font-weight: 400; }
+  .h-display-l  { font-size: var(--fs-display-l);  line-height: 1.0;  letter-spacing: -0.04em;  font-weight: 400; }
+  .h-display-m  { font-size: var(--fs-display-m);  line-height: 1.0;  letter-spacing: -0.035em; font-weight: 500; }
+  .h-display-s  { font-size: var(--fs-display-s);  line-height: 1.1;  letter-spacing: -0.025em; font-weight: 500; }
+
+  /* Body scale */
+  .t-lead    { font-size: var(--fs-lg);   line-height: 1.5;  color: var(--ink-soft); }
+  .t-body    { font-size: var(--fs-base); line-height: 1.55; color: var(--ink-soft); }
+  .t-small   { font-size: var(--fs-sm);   line-height: 1.5; }
+  .t-caption { font-size: var(--fs-xs);   color: var(--muted); }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
+
+/* Selection follows accent */
+::selection { background: var(--accent-soft); color: var(--accent-ink); }
