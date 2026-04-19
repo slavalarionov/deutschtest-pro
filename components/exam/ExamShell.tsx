@@ -89,7 +89,7 @@ export function ExamShell({ sessionId }: ExamShellProps) {
   const moduleLabel = tModules(activeModule)
 
   return (
-    <div className="min-h-screen bg-brand-bg">
+    <div data-testid="exam-shell" className="min-h-screen bg-brand-bg">
       <header className="sticky top-0 z-50 border-b border-brand-border bg-brand-white/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">

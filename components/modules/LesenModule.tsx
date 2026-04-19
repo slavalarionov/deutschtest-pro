@@ -98,7 +98,9 @@ export function LesenModule() {
           <h2 className="text-lg font-semibold text-brand-text">{t('moduleTitle')}</h2>
           <p className="text-xs text-brand-muted">{t('moduleHint')}</p>
         </div>
-        <ExamTimerDisplay timeLeft={timeLeft} />
+        <div data-testid="exam-timer">
+          <ExamTimerDisplay timeLeft={timeLeft} />
+        </div>
       </div>
 
       {!submitted && <TimerWarningBanner timeLeft={timeLeft} />}
@@ -108,6 +110,7 @@ export function LesenModule() {
         {TEIL_KEYS.map((key, i) => (
           <button
             key={i}
+            data-testid={`teil-tab-${i + 1}`}
             onClick={() => setCurrentTeil(i)}
             className={`flex-1 rounded-lg py-2 text-xs font-semibold transition ${
               currentTeil === i
@@ -130,6 +133,7 @@ export function LesenModule() {
       {/* Navigation + Submit */}
       <div className="flex items-center justify-between rounded-xl bg-brand-white p-4 shadow-soft">
         <button
+          data-testid="nav-zurueck"
           onClick={() => setCurrentTeil(Math.max(0, currentTeil - 1))}
           disabled={currentTeil === 0}
           className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-brand-text transition hover:bg-brand-surface disabled:opacity-30"
@@ -145,6 +149,7 @@ export function LesenModule() {
         ) : (
           currentTeil === 4 ? (
             <button
+              data-testid="nav-abgeben"
               onClick={handleSubmit}
               disabled={submitting}
               className="rounded-lg bg-brand-gold px-6 py-2 text-sm font-semibold text-white transition hover:bg-brand-gold-dark disabled:opacity-70"
@@ -155,6 +160,7 @@ export function LesenModule() {
         )}
 
         <button
+          data-testid="nav-weiter"
           onClick={() => setCurrentTeil(Math.min(4, currentTeil + 1))}
           disabled={currentTeil === 4}
           className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-brand-text transition hover:bg-brand-surface disabled:opacity-30"
@@ -167,6 +173,7 @@ export function LesenModule() {
         <div className="flex justify-center">
           <button
             type="button"
+            data-testid="nav-to-results"
             onClick={() => router.push(postSubmit.href)}
             className="rounded-lg bg-brand-gold px-8 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark"
           >
@@ -250,7 +257,7 @@ function Teil2View({ data, answers, setAnswer, submitted, results }: TeilViewPro
         const userAnswer = answers[key] as string | undefined
         const detail = results?.details[key]
         return (
-          <div key={task.id} className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
+          <div key={task.id} data-testid="exam-task" className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
             <p className="mb-3 text-sm font-medium text-brand-text">
               <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-surface text-xs font-semibold text-brand-muted">{task.id}</span>
               {task.question}
@@ -260,6 +267,7 @@ function Teil2View({ data, answers, setAnswer, submitted, results }: TeilViewPro
               {(['a', 'b', 'c'] as const).map((opt) => (
                 <button
                   key={opt}
+                  data-testid={`answer-option-${key}-${opt}`}
                   onClick={() => !submitted && setAnswer(key, opt)}
                   disabled={submitted}
                   className={`flex-1 rounded-lg border px-3 py-2 text-left text-xs font-medium transition ${
@@ -315,7 +323,7 @@ function Teil3View({ data, answers, setAnswer, submitted, results }: TeilViewPro
         const userAnswer = answers[key] as string | undefined
         const detail = results?.details[key]
         return (
-          <div key={task.id} className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
+          <div key={task.id} data-testid="exam-task" className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
             <div className="flex items-start justify-between gap-4">
               <p className="text-sm leading-relaxed text-brand-text">
                 <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-surface text-xs font-semibold text-brand-muted">{task.id}</span>
@@ -324,7 +332,7 @@ function Teil3View({ data, answers, setAnswer, submitted, results }: TeilViewPro
               </p>
               <div className="flex shrink-0 gap-2">
                 {(['ja', 'nein'] as const).map((opt) => (
-                  <button key={opt} onClick={() => !submitted && setAnswer(key, opt)} disabled={submitted}
+                  <button key={opt} data-testid={`answer-${opt}-${key}`} onClick={() => !submitted && setAnswer(key, opt)} disabled={submitted}
                     className={`rounded-lg border px-4 py-1.5 text-xs font-semibold capitalize transition ${
                       userAnswer === opt
                         ? submitted && detail ? (detail.isCorrect ? 'border-green-500 bg-green-500 text-white' : 'border-red-500 bg-red-500 text-white') : 'border-brand-gold bg-brand-gold text-white'
@@ -382,7 +390,7 @@ function Teil4View({ data, answers, setAnswer, submitted, results }: TeilViewPro
         const userAnswer = answers[key] as string | undefined
         const detail = results?.details[key]
         return (
-          <div key={s.id} className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
+          <div key={s.id} data-testid="exam-task" className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
             <p className="mb-3 text-sm text-brand-text">
               <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-surface text-xs font-semibold text-brand-muted">{s.id}</span>
               {s.situation}
@@ -390,7 +398,7 @@ function Teil4View({ data, answers, setAnswer, submitted, results }: TeilViewPro
             </p>
             <div className="flex flex-wrap gap-2">
               {textOptions.map((opt) => (
-                <button key={opt} onClick={() => !submitted && setAnswer(key, opt)} disabled={submitted}
+                <button key={opt} data-testid={`answer-option-${key}-${opt}`} onClick={() => !submitted && setAnswer(key, opt)} disabled={submitted}
                   className={`rounded-lg border px-3 py-1.5 text-xs font-semibold uppercase transition ${
                     userAnswer === opt
                       ? submitted && detail ? (detail.isCorrect ? 'border-green-500 bg-green-500 text-white' : 'border-red-500 bg-red-500 text-white') : 'border-brand-gold bg-brand-gold text-white'
@@ -439,7 +447,7 @@ function Teil5View({ data, answers, setAnswer, submitted, results }: TeilViewPro
         const userAnswer = answers[key] as string | undefined
         const detail = results?.details[key]
         return (
-          <div key={gap.id} className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
+          <div key={gap.id} data-testid="exam-task" className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
             <p className="mb-3 text-sm font-medium text-brand-text">
               <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-surface text-xs font-semibold text-brand-muted">{gap.id}</span>
               {tShared('gapLabel', { id: gap.id })}
@@ -447,7 +455,7 @@ function Teil5View({ data, answers, setAnswer, submitted, results }: TeilViewPro
             </p>
             <div className="flex flex-col gap-2 sm:flex-row">
               {(['a', 'b', 'c'] as const).map((opt) => (
-                <button key={opt} onClick={() => !submitted && setAnswer(key, opt)} disabled={submitted}
+                <button key={opt} data-testid={`answer-option-${key}-${opt}`} onClick={() => !submitted && setAnswer(key, opt)} disabled={submitted}
                   className={`flex-1 rounded-lg border px-3 py-2 text-left text-xs font-medium transition ${
                     userAnswer === opt
                       ? submitted && detail ? (detail.isCorrect ? 'border-green-500 bg-green-500 text-white' : 'border-red-500 bg-red-500 text-white') : 'border-brand-gold bg-brand-gold text-white'
@@ -517,7 +525,7 @@ function RFRow({ task, prefix, answers, setAnswer, submitted, results }: {
   const detail = results?.details[key]
 
   return (
-    <div className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
+    <div data-testid="exam-task" className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
       <div className="flex items-start justify-between gap-4">
         <p className="text-sm leading-relaxed text-brand-text">
           <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-surface text-xs font-semibold text-brand-muted">{task.id}</span>
@@ -526,7 +534,7 @@ function RFRow({ task, prefix, answers, setAnswer, submitted, results }: {
         </p>
         <div className="flex shrink-0 gap-2">
           {(['richtig', 'falsch'] as const).map((opt) => (
-            <button key={opt} onClick={() => !submitted && setAnswer(key, opt)} disabled={submitted}
+            <button key={opt} data-testid={`answer-${opt}-${key}`} onClick={() => !submitted && setAnswer(key, opt)} disabled={submitted}
               className={`rounded-lg border px-4 py-1.5 text-xs font-semibold capitalize transition ${
                 userAnswer === opt
                   ? submitted && detail ? (detail.isCorrect ? 'border-green-500 bg-green-500 text-white' : 'border-red-500 bg-red-500 text-white') : 'border-brand-gold bg-brand-gold text-white'
