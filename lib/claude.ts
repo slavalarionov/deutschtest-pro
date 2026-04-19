@@ -222,18 +222,26 @@ Tone: friendly, educational, specific. Point out both strengths and areas for im
 
 // --- Zod schemas ---
 
+// Claude sometimes returns isExample: null for non-example tasks instead of
+// omitting the field or sending false. nullish() + transform normalizes
+// null/undefined → false so validation doesn't fail all 3 retries.
+const isExampleField = z
+  .boolean()
+  .nullish()
+  .transform((v) => v ?? false)
+
 const rfTaskSchema = z.object({
   id: z.number(),
   statement: z.string().min(5),
   answer: z.enum(['richtig', 'falsch']),
-  isExample: z.boolean().optional(),
+  isExample: isExampleField,
 })
 
 const jnTaskSchema = z.object({
   id: z.number(),
   statement: z.string().min(5),
   answer: z.enum(['ja', 'nein']),
-  isExample: z.boolean().optional(),
+  isExample: isExampleField,
 })
 
 const mcTaskSchema = z.object({
@@ -245,7 +253,7 @@ const mcTaskSchema = z.object({
     c: z.string().min(1),
   }),
   answer: z.enum(['a', 'b', 'c']),
-  isExample: z.boolean().optional(),
+  isExample: isExampleField,
 })
 
 const teil1Schema = z.object({
@@ -269,7 +277,7 @@ const teil4Schema = z.object({
     id: z.number(),
     situation: z.string().min(10),
     answer: z.string(),
-    isExample: z.boolean().optional(),
+    isExample: isExampleField,
   })).min(7).max(11),
 })
 
@@ -283,7 +291,7 @@ const teil5Schema = z.object({
       c: z.string().min(1),
     }),
     answer: z.enum(['a', 'b', 'c']),
-    isExample: z.boolean().optional(),
+    isExample: isExampleField,
   })).min(5).max(8),
 })
 
