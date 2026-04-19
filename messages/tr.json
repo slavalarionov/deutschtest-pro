@@ -279,6 +279,35 @@
     "overview": {
       "title": "Tekrar hoş geldiniz",
       "subtitle": "Kişisel öğrenme alanınız — istatistikler ve yeni sınavlar.",
+      "eyebrow": "GENEL BAKIŞ",
+      "greeting": "İyi günler, <name></name>.",
+      "leadWithAttempts": "{total, plural, one {# modül} other {# modül}} ortalaması — {avg}. Tempoyu koruyun.",
+      "leadEmpty": "İlk modülünüzü tamamlayın, ardından nelere odaklanmanız gerektiğini gösterelim.",
+      "ctaStart": "Sınavı başlat",
+      "stats": {
+        "absolviert": "TAMAMLANDI",
+        "durchschnitt": "ORTALAMA",
+        "bestesErgebnis": "EN İYİ",
+        "credits": "KREDİLER"
+      },
+      "chartPreviewTitle": "İlerleme · son 12 sınav",
+      "chartEmpty": "Henüz sınav yok. İlk testinizi başlatın.",
+      "recommendationsPreviewTitle": "AI önerileri",
+      "recommendationsAll": "Tüm öneriler →",
+      "recommendationsEmpty": "Öneriler ilk sınavınızdan sonra görünür.",
+      "historyPreviewTitle": "Geçmiş",
+      "historyPreviewAll": "Tümünü gör →",
+      "historyEmpty": "Henüz sınav yok.",
+      "historyStart": "İlk testi başlat →",
+      "statusBestanden": "Geçti",
+      "statusNicht": "Kalındı",
+      "tableCols": {
+        "datum": "TARİH",
+        "modul": "MODÜL",
+        "niveau": "SEVİYE",
+        "punktzahl": "PUAN",
+        "status": "DURUM"
+      },
       "metrics": {
         "modulesTaken": "Tamamlanan modül",
         "averageScore": "Ortalama puan",

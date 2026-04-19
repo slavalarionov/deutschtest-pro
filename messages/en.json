@@ -279,6 +279,35 @@
     "overview": {
       "title": "Welcome back",
       "subtitle": "Your personal learning space — stats and new exams.",
+      "eyebrow": "OVERVIEW",
+      "greeting": "Good afternoon, <name></name>.",
+      "leadWithAttempts": "Average across {total, plural, one {# module} other {# modules}} — {avg}. Keep the pace.",
+      "leadEmpty": "Run your first module and we'll start pointing you at what to work on.",
+      "ctaStart": "Start exam",
+      "stats": {
+        "absolviert": "COMPLETED",
+        "durchschnitt": "AVERAGE",
+        "bestesErgebnis": "BEST",
+        "credits": "CREDITS"
+      },
+      "chartPreviewTitle": "Progress · last 12 exams",
+      "chartEmpty": "No exams yet. Start your first test.",
+      "recommendationsPreviewTitle": "AI recommendations",
+      "recommendationsAll": "All recommendations →",
+      "recommendationsEmpty": "Recommendations appear after your first exam.",
+      "historyPreviewTitle": "History",
+      "historyPreviewAll": "View all →",
+      "historyEmpty": "No exams yet.",
+      "historyStart": "Run your first test →",
+      "statusBestanden": "Passed",
+      "statusNicht": "Not passed",
+      "tableCols": {
+        "datum": "DATE",
+        "modul": "MODULE",
+        "niveau": "LEVEL",
+        "punktzahl": "SCORE",
+        "status": "STATUS"
+      },
       "metrics": {
         "modulesTaken": "Modules taken",
         "averageScore": "Average score",

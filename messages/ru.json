@@ -279,6 +279,35 @@
     "overview": {
       "title": "С возвращением",
       "subtitle": "Ваш личный кабинет — статистика и новые экзамены.",
+      "eyebrow": "ОБЗОР",
+      "greeting": "Добрый день, <name></name>.",
+      "leadWithAttempts": "Средний балл за {total, plural, one {# модуль} few {# модуля} many {# модулей} other {# модулей}} — {avg}. Продолжайте в том же темпе.",
+      "leadEmpty": "Пройдите первый модуль — и мы подскажем, над чем работать дальше.",
+      "ctaStart": "Начать экзамен",
+      "stats": {
+        "absolviert": "ПРОЙДЕНО",
+        "durchschnitt": "СРЕДНИЙ",
+        "bestesErgebnis": "ЛУЧШИЙ",
+        "credits": "КРЕДИТЫ"
+      },
+      "chartPreviewTitle": "Прогресс · последние 12 экзаменов",
+      "chartEmpty": "Пока нет экзаменов. Начните первый тест.",
+      "recommendationsPreviewTitle": "ИИ-рекомендации",
+      "recommendationsAll": "Все рекомендации →",
+      "recommendationsEmpty": "Рекомендации появятся после первого экзамена.",
+      "historyPreviewTitle": "История",
+      "historyPreviewAll": "Все записи →",
+      "historyEmpty": "Пока нет экзаменов.",
+      "historyStart": "Начать первый тест →",
+      "statusBestanden": "Сдан",
+      "statusNicht": "Не сдан",
+      "tableCols": {
+        "datum": "ДАТА",
+        "modul": "МОДУЛЬ",
+        "niveau": "УРОВЕНЬ",
+        "punktzahl": "БАЛЛ",
+        "status": "СТАТУС"
+      },
       "metrics": {
         "modulesTaken": "Модулей пройдено",
         "averageScore": "Средний балл",

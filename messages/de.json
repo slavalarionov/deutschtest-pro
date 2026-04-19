@@ -279,6 +279,35 @@
     "overview": {
       "title": "Willkommen zurück",
       "subtitle": "Ihr persönlicher Lernbereich — Statistik und neue Prüfungen.",
+      "eyebrow": "ÜBERSICHT",
+      "greeting": "Guten Tag, <name></name>.",
+      "leadWithAttempts": "Durchschnitt über {total, plural, one {# Modul} other {# Module}} — {avg}. Halten Sie das Tempo.",
+      "leadEmpty": "Starten Sie Ihr erstes Modul — wir zeigen Ihnen anschließend, woran Sie arbeiten sollten.",
+      "ctaStart": "Prüfung starten",
+      "stats": {
+        "absolviert": "ABSOLVIERT",
+        "durchschnitt": "DURCHSCHNITT",
+        "bestesErgebnis": "BESTES ERGEBNIS",
+        "credits": "CREDITS"
+      },
+      "chartPreviewTitle": "Fortschritt · letzte 12 Prüfungen",
+      "chartEmpty": "Noch keine Prüfungen. Starten Sie Ihren ersten Test.",
+      "recommendationsPreviewTitle": "KI-Empfehlungen",
+      "recommendationsAll": "Alle Empfehlungen →",
+      "recommendationsEmpty": "Empfehlungen erscheinen nach Ihrer ersten Prüfung.",
+      "historyPreviewTitle": "Verlauf",
+      "historyPreviewAll": "Alle anzeigen →",
+      "historyEmpty": "Noch keine Prüfungen.",
+      "historyStart": "Ersten Test starten →",
+      "statusBestanden": "Bestanden",
+      "statusNicht": "Nicht bestanden",
+      "tableCols": {
+        "datum": "DATUM",
+        "modul": "MODUL",
+        "niveau": "NIVEAU",
+        "punktzahl": "PUNKTZAHL",
+        "status": "STATUS"
+      },
       "metrics": {
         "modulesTaken": "Module absolviert",
         "averageScore": "Durchschnittliche Punktzahl",
