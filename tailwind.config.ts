@@ -20,6 +20,8 @@ const config: Config = {
         accent: 'var(--accent)',
         'accent-soft': 'var(--accent-soft)',
         'accent-ink': 'var(--accent-ink)',
+        error: 'var(--error)',
+        'error-soft': 'var(--error-soft)',
         surface: 'var(--surface)',
         card: 'var(--card)',
         page: 'var(--bg)',

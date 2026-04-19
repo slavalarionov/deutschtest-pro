@@ -22,6 +22,10 @@
     --accent-soft: oklch(0.94 0.04 var(--accent-h));
     --accent-ink:  oklch(0.38 0.14 var(--accent-h));
 
+    /* ---------- Error (cool red — matches cobalt neighbour, not warm) ---------- */
+    --error:       oklch(0.52 0.17 22);
+    --error-soft:  oklch(0.95 0.03 22);
+
     /* ---------- Surface ladder (light) ---------- */
     --bg:        oklch(0.985 0.003 250);
     --surface:   oklch(0.975 0.004 250);
@@ -87,6 +91,8 @@
     --line-soft:   oklch(0.22 0.012 260);
     --accent-soft: oklch(0.28 0.09 var(--accent-h));
     --accent-ink:  oklch(0.78 0.14 var(--accent-h));
+    --error:       oklch(0.62 0.17 22);
+    --error-soft:  oklch(0.28 0.09 22);
   }
 }
 
