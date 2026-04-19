@@ -17,9 +17,9 @@ import { stringToBase64URL, createChunks } from '@supabase/ssr'
  *   - PLAYWRIGHT_TEST_PASSWORD
  * Если не заданы — тест скипается.
  *
- * Локаль прода без префикса = de (defaultLocale, localePrefix='as-needed'),
- * поэтому кнопки: «Starten — B1», «Weiter →», «← Zurück», «Alle Antworten abgeben»,
- * «Bestanden» / «Nicht bestanden».
+ * Логин через Supabase SDK (Turnstile и hydration race в headless).
+ * Страница результатов рендерится на preferred_language юзера — тест
+ * читает статус через data-testid, не матчит текст.
  */
 
 const EMAIL = process.env.PLAYWRIGHT_TEST_EMAIL
@@ -223,21 +223,21 @@ test.describe('Lesen exam golden path', () => {
     })
 
     // ────────────────────────────────────────────────────────────────
-    // 7. Страница результатов: score 0-100 + Bestanden/Nicht bestanden
+    // 7. Страница результатов: score 0-100 + статус (pass/fail)
     // ────────────────────────────────────────────────────────────────
-    // Ждём, пока исчезнет loader и появится либо score, либо «Nicht bestanden».
-    await expect(
-      page.locator('text=/Bestanden|Nicht bestanden/').first(),
-    ).toBeVisible({ timeout: 20_000 })
+    // Тест не проверяет значения (сдал/не сдал зависит от ответов), только
+    // что элементы отрендерились. data-testid вместо текста — устойчиво к
+    // локали (аккаунт может быть ru/de/en/tr).
+    const statusEl = page.getByTestId('result-status')
+    await expect(statusEl).toBeVisible({ timeout: 15_000 })
+    const passedAttr = await statusEl.getAttribute('data-passed')
+    expect(passedAttr).toMatch(/^(true|false)$/)
 
-    const bodyText = (await page.locator('body').textContent()) ?? ''
-
-    // Проверяем число 0-100 (score).
-    // Ищем изолированное число: либо 0-99 из одной-двух цифр, либо 100.
-    const scoreMatch = bodyText.match(/\b(100|[0-9]{1,2})\b/)
-    expect(scoreMatch, 'no score number (0-100) found on results page').not.toBeNull()
-
-    // И статус.
-    expect(bodyText).toMatch(/Bestanden|Nicht bestanden/)
+    const scoreEl = page.getByTestId('result-score-value')
+    await expect(scoreEl).toBeVisible({ timeout: 5_000 })
+    const scoreText = (await scoreEl.textContent()) ?? ''
+    const score = Number(scoreText.replace(/\D/g, ''))
+    expect(score).toBeGreaterThanOrEqual(0)
+    expect(score).toBeLessThanOrEqual(100)
   })
 })

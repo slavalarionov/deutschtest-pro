@@ -123,11 +123,20 @@ export default function ResultsPage() {
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-muted">
             {t('certificateHeading', { level, module: moduleLabel })}
           </p>
-          <div className="mb-2 text-7xl font-bold text-brand-text">{score ?? '—'}</div>
+          <div
+            data-testid="result-score-value"
+            className="mb-2 text-7xl font-bold text-brand-text"
+          >
+            {score ?? '—'}
+          </div>
           <p className="text-sm text-brand-muted">{t('outOf100')}</p>
           {score !== undefined && <ProgressBar value={score} max={100} />}
           {score !== undefined && (
-            <p className={`mt-4 text-lg font-bold ${passed ? 'text-green-700' : 'text-brand-red'}`}>
+            <p
+              data-testid="result-status"
+              data-passed={passed ? 'true' : 'false'}
+              className={`mt-4 text-lg font-bold ${passed ? 'text-green-700' : 'text-brand-red'}`}
+            >
               {passed ? t('passed') : t('failed')}
             </p>
           )}
