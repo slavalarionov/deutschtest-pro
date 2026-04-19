@@ -532,10 +532,6 @@
         "modalHint": "Wir bestätigen die Löschung manuell, um versehentliche Anfragen zu vermeiden.",
         "close": "Schließen"
       }
-    },
-    "placeholder": {
-      "soon": "Dieser Bereich wird bald verfügbar sein.",
-      "soonHint": "Wir arbeiten an der nächsten Ausbaustufe Ihres Kontos."
     }
   },
   "exam": {

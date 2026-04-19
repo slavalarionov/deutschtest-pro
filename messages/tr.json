@@ -532,10 +532,6 @@
         "modalHint": "Kazara gelen istekleri önlemek için silme işlemini elle onaylıyoruz.",
         "close": "Kapat"
       }
-    },
-    "placeholder": {
-      "soon": "Bu bölüm yakında geliyor.",
-      "soonHint": "Hesabınızın bir sonraki aşaması üzerinde çalışıyoruz."
     }
   },
   "exam": {

@@ -532,10 +532,6 @@
         "modalHint": "We confirm deletions manually to prevent accidental requests.",
         "close": "Close"
       }
-    },
-    "placeholder": {
-      "soon": "This section is coming soon.",
-      "soonHint": "We're working on the next stage of your account."
     }
   },
   "exam": {
