@@ -103,6 +103,7 @@
       }
     },
     "pricing": {
+      "eyebrow": "03 — PREISE",
       "title": "Einfache Preisgestaltung",
       "subtitle": "Wählen Sie ein Paket mit Modul-Guthaben und setzen Sie es flexibel für Lesen, Hören, Schreiben oder Sprechen ein.",
       "packages": {

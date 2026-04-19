@@ -103,6 +103,7 @@
       }
     },
     "pricing": {
+      "eyebrow": "03 — PRICING",
       "title": "Simple pricing",
       "subtitle": "Pick a module pack and spend your credits on any of the four types: Lesen, Hören, Schreiben, Sprechen.",
       "packages": {

@@ -103,6 +103,7 @@
       }
     },
     "pricing": {
+      "eyebrow": "03 — FİYATLAR",
       "title": "Basit fiyatlandırma",
       "subtitle": "Bir modül paketi seçin ve kredilerinizi dört modül tipinden herhangi birinde kullanın: Lesen, Hören, Schreiben, Sprechen.",
       "packages": {

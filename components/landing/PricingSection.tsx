@@ -1,33 +1,63 @@
-'use client'
-
-import { motion } from 'framer-motion'
-import { useFormatter, useLocale, useTranslations } from 'next-intl'
+import { getFormatter, getLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/routing'
 import {
   PRICING_PACKAGES,
   currencyForLocale,
   fractionDigitsForAmount,
 } from '@/lib/pricing'
+import type { Locale } from '@/i18n/request'
 
-export function PricingSection() {
-  const t = useTranslations('landing.pricing')
-  const locale = useLocale()
-  const format = useFormatter()
+/**
+ * Landing · Pricing section (Phase 3 editorial redesign).
+ *
+ * Ports the `LandingPricing` section from docs/Redesign.html (lines 484-528):
+ * three-column editorial grid, Standard package rendered as featured card
+ * with inverted palette (`bg-ink text-card`), large display typography for
+ * the price, checkmark feature list, and a free-tier CTA block below.
+ *
+ * Contract with `lib/pricing.ts` and the existing i18n keys stays 1:1 —
+ * only the visual layer is rewritten. Purchase buttons are disabled until
+ * Robokassa is wired up (see `pricing.ctaBuy` copy "Kaufen (bald verfügbar)").
+ *
+ * Server Component — no client hooks. Currency formatting goes through
+ * `getFormatter` from `next-intl/server`, so the price reads locale-correct:
+ * `7,20 €` (de/tr), `€7.20` (en), `400 ₽` (ru).
+ */
+export async function PricingSection() {
+  const locale = (await getLocale()) as Locale
+  const t = await getTranslations('landing.pricing')
+  const tPricing = await getTranslations('pricing')
+  const format = await getFormatter()
   const currency = currencyForLocale(locale)
 
+  // `pricing.ctaBuy` reads "Kaufen (bald verfügbar)" / "Buy (coming soon)" /
+  // "Купить (скоро)" — repurposed as the tooltip on the disabled CTA so the
+  // user knows payments are not live yet. Avoids adding a new i18n key.
+  const comingSoonTitle = tPricing('ctaBuy')
+
   return (
-    <section id="pricing" className="bg-brand-bg px-4 py-20">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-12 text-center">
-          <h2 className="mb-3 text-3xl font-bold text-brand-text">
-            {t('title')}
-          </h2>
-          <p className="text-brand-muted">{t('subtitle')}</p>
+    <section
+      id="pricing"
+      className="bg-page px-4 py-20 sm:px-6 sm:py-24 lg:px-10 lg:py-32"
+    >
+      <div className="mx-auto max-w-7xl">
+        {/* Section header */}
+        <div className="mb-10 flex flex-col gap-6 sm:mb-14 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
+          <div>
+            <div className="eyebrow mb-3">{t('eyebrow')}</div>
+            <h2 className="font-display text-4xl leading-none tracking-tighter text-ink sm:text-5xl lg:text-[64px]">
+              {t('title')}
+            </h2>
+          </div>
+          <p className="max-w-sm text-sm leading-relaxed text-ink-soft lg:text-right">
+            {t('subtitle')}
+          </p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-3">
-          {PRICING_PACKAGES.map((pkg, i) => {
-            const ns = `packages.${pkg.key}`
+        {/* Pricing grid */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {PRICING_PACKAGES.map((pkg) => {
+            const ns = `packages.${pkg.key}` as const
             const price = pkg.prices[currency]
             const originalPrice = pkg.originalPrices[currency]
             const priceStr = format.number(price, {
@@ -46,87 +76,187 @@ export function PricingSection() {
                   })
                 : null
 
-            return (
-              <motion.div
-                key={pkg.key}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className={`relative rounded-xl p-8 ${
-                  pkg.highlighted
-                    ? 'border-2 border-brand-gold bg-brand-white shadow-card'
-                    : 'border border-brand-border bg-brand-white'
-                }`}
-              >
-                {pkg.hasBadge && (
-                  <span className="absolute -top-3 right-4 rounded-full bg-brand-gold px-3 py-0.5 text-xs font-bold text-white">
-                    {t(`${ns}.badge`)}
-                  </span>
-                )}
+            const featured = pkg.highlighted
 
-                <h3 className="mb-1 text-lg font-semibold text-brand-text">
-                  {t(`${ns}.name`)}
-                </h3>
-                <div className="mb-1">
-                  {originalPriceStr && (
-                    <span className="mr-2 text-sm text-brand-muted line-through">
-                      {originalPriceStr}
+            return (
+              <article
+                key={pkg.key}
+                className={[
+                  'flex flex-col rounded-rad p-8',
+                  featured
+                    ? 'border border-ink bg-ink text-card'
+                    : 'border border-line bg-card text-ink',
+                ].join(' ')}
+              >
+                {/* Top row: package name + badge */}
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-display text-xl tracking-tight">
+                    {t(`${ns}.name`)}
+                  </span>
+                  {pkg.hasBadge && (
+                    <span
+                      className={[
+                        'rounded-rad-pill px-3 py-1 text-[11px] font-medium uppercase tracking-wide',
+                        featured
+                          ? 'bg-accent-soft text-accent-ink'
+                          : 'border border-line-soft bg-surface text-ink-soft',
+                      ].join(' ')}
+                    >
+                      {t(`${ns}.badge`)}
                     </span>
                   )}
-                  <span className="text-3xl font-bold text-brand-text">
-                    {priceStr}
-                  </span>
                 </div>
-                <p className="mb-6 text-xs text-brand-muted">
-                  {t(`${ns}.priceNote`)}
-                </p>
-                <ul className="mb-8 space-y-2">
-                  {Array.from({ length: pkg.featureCount }, (_, idx) => idx + 1).map(
-                    (n) => (
-                      <li
-                        key={n}
-                        className="flex items-start gap-2 text-sm text-brand-text"
-                      >
-                        <span className="mt-0.5 text-brand-gold">✓</span>
-                        {t(`${ns}.feature${n}`)}
-                      </li>
-                    )
+
+                {/* Price block */}
+                <div className="mt-6">
+                  {originalPriceStr && (
+                    <div
+                      className={[
+                        'font-mono text-xs line-through',
+                        featured ? 'text-card/50' : 'text-muted',
+                      ].join(' ')}
+                    >
+                      {originalPriceStr}
+                    </div>
                   )}
+                  <div
+                    className="font-display leading-none"
+                    style={{ fontSize: 72, letterSpacing: '-0.04em' }}
+                  >
+                    {priceStr}
+                  </div>
+                  <div
+                    className={[
+                      'mt-2 text-sm',
+                      featured ? 'text-card/70' : 'text-ink-soft',
+                    ].join(' ')}
+                  >
+                    {t(`${ns}.priceNote`)}
+                  </div>
+                </div>
+
+                {/* Features list */}
+                <ul className="mt-8 flex-1 space-y-3">
+                  {Array.from({ length: pkg.featureCount }, (_, idx) => idx + 1).map((n) => (
+                    <li
+                      key={n}
+                      className={[
+                        'flex items-start gap-3 text-sm',
+                        featured ? 'text-card/80' : 'text-ink-soft',
+                      ].join(' ')}
+                    >
+                      <CheckIcon
+                        className={featured ? 'text-card/70' : 'text-ink'}
+                      />
+                      <span>{t(`${ns}.feature${n}`)}</span>
+                    </li>
+                  ))}
                 </ul>
-                <Link
-                  href="/pricing"
-                  className={`block w-full rounded-lg py-2.5 text-center text-sm font-medium transition ${
-                    pkg.highlighted
-                      ? 'bg-brand-gold text-white hover:bg-brand-gold-dark'
-                      : 'border border-brand-border bg-brand-bg text-brand-text hover:bg-brand-surface'
-                  }`}
+
+                {/* CTA — disabled until Robokassa is wired */}
+                <button
+                  type="button"
+                  disabled
+                  aria-disabled="true"
+                  title={comingSoonTitle}
+                  className={[
+                    'mt-8 inline-flex items-center justify-center gap-2 rounded-rad-pill px-6 py-3 text-sm font-medium transition-opacity',
+                    'disabled:cursor-not-allowed disabled:opacity-60',
+                    featured
+                      ? 'bg-card text-ink'
+                      : 'bg-ink text-card',
+                  ].join(' ')}
                 >
                   {t('ctaBuy')}
-                </Link>
-              </motion.div>
+                  <ArrowIcon />
+                </button>
+              </article>
             )
           })}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="mx-auto mt-10 max-w-2xl rounded-xl border border-green-200 bg-green-50 px-6 py-5 text-center"
-        >
-          <p className="text-sm font-medium text-green-900">
-            {t('freeTrial.title')}
-          </p>
+        {/* Free-tier CTA block */}
+        <div className="mx-auto mt-10 flex max-w-3xl flex-col items-start gap-4 rounded-rad border border-dashed border-line bg-card p-6 sm:mt-14 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div className="flex items-start gap-4">
+            <span
+              aria-hidden="true"
+              className="mt-0.5 flex h-9 w-9 flex-none items-center justify-center rounded-rad-pill bg-accent-soft text-accent-ink"
+            >
+              <SparkIcon />
+            </span>
+            <p className="text-sm leading-relaxed text-ink">
+              {t('freeTrial.title')}
+            </p>
+          </div>
           <Link
             href="/register"
-            className="mt-3 inline-block rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+            className="inline-flex flex-none items-center gap-2 rounded-rad-pill bg-ink px-5 py-2.5 text-sm font-medium text-card transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
           >
             {t('freeTrial.cta')}
+            <ArrowIcon />
           </Link>
-        </motion.div>
+        </div>
       </div>
     </section>
+  )
+}
+
+/* ---------- Inline icons (no new dependency) ---------- */
+
+function CheckIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden="true"
+      className={`mt-0.5 flex-none ${className}`}
+    >
+      <path
+        d="M4 10.5l3.5 3.5L16 6"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function ArrowIcon() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M5 10h10M11 6l4 4-4 4"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function SparkIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M10 2l1.8 5.2L17 9l-5.2 1.8L10 16l-1.8-5.2L3 9l5.2-1.8L10 2z"
+        fill="currentColor"
+      />
+    </svg>
   )
 }

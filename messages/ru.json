@@ -103,6 +103,7 @@
       }
     },
     "pricing": {
+      "eyebrow": "03 — ЦЕНЫ",
       "title": "Простые тарифы",
       "subtitle": "Выберите пакет модулей и тратьте их на любой из четырёх типов: Lesen, Hören, Schreiben, Sprechen.",
       "packages": {
