@@ -22,7 +22,7 @@ function LoginForm() {
   const safeNext =
     rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
       ? rawNext
-      : '/'
+      : '/dashboard'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

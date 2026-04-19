@@ -52,7 +52,7 @@ export async function GET(request: Request) {
   const safeNext =
     rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//')
       ? rawNext
-      : '/'
+      : '/dashboard'
 
   return NextResponse.redirect(new URL(safeNext, requestUrl.origin))
 }
