@@ -606,9 +606,6 @@
       "timeUpMessage": "Your answers are being submitted automatically.",
       "redirecting": "Redirecting…"
     },
-    "answerSheet": {
-      "title": "Answer sheet"
-    },
     "audio": {
       "play": "Play",
       "pause": "Pause",

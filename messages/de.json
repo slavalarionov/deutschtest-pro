@@ -606,9 +606,6 @@
       "timeUpMessage": "Ihre Antworten werden automatisch gesendet.",
       "redirecting": "Sie werden weitergeleitet…"
     },
-    "answerSheet": {
-      "title": "Antwortbogen"
-    },
     "audio": {
       "play": "Abspielen",
       "pause": "Pause",
