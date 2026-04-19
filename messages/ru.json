@@ -354,6 +354,9 @@
     "history": {
       "title": "История",
       "subtitle": "Все пройденные модули с фильтрами по уровню, модулю и дате.",
+      "eyebrow": "ИСТОРИЯ",
+      "titleCount": "{count, plural, one {# модуль} few {# модуля} many {# модулей} other {# модулей}}.",
+      "titleSubline": "Каждая попытка на счету.",
       "filters": {
         "level": "Уровень",
         "module": "Модуль",
@@ -361,7 +364,13 @@
         "dateTo": "По",
         "allLevels": "Все уровни",
         "allModules": "Все модули",
-        "reset": "Сбросить фильтры"
+        "reset": "Сбросить фильтры",
+        "columnsEyebrow": {
+          "stufe": "УРОВЕНЬ",
+          "modul": "МОДУЛЬ",
+          "von": "С",
+          "bis": "ПО"
+        }
       },
       "table": {
         "date": "Дата",
@@ -369,7 +378,9 @@
         "module": "Модуль",
         "score": "Балл",
         "status": "Статус",
-        "detailsLink": "Подробнее →"
+        "detailsLink": "Подробнее →",
+        "statusBestanden": "Сдано",
+        "statusNichtBestanden": "Не сдано"
       },
       "empty": {
         "withFilters": "Под фильтры ничего не подходит.",
@@ -392,15 +403,23 @@
       "backToHistoryButton": "Назад к истории",
       "toHistory": "К обзору истории",
       "certificateHeading": "Goethe-Zertifikat {level} — {module}",
+      "eyebrow": "СЕРТИФИКАТ · GOETHE {level}",
+      "resultEyebrow": "РЕЗУЛЬТАТ",
+      "criteriaEyebrow": "ОЦЕНКА ПО КРИТЕРИЯМ",
       "outOf100": "из 100 баллов",
-      "passed": "Сдан ✅",
-      "failed": "Не сдан ❌",
+      "passed": "Сдано",
+      "failed": "Не сдано",
       "submittedAt": "Отправлено {date} · {status}",
       "retakeModule": "Пройти заново",
+      "retakeDisabled": "Нет модулей",
+      "buyModules": "Купить модули",
       "errors": {
         "forbidden": "У вас нет доступа к этому модулю.",
         "notSubmitted": "Этот модуль ещё не отправлен.",
-        "notFound": "Модуль не найден."
+        "notFound": "Модуль не найден.",
+        "forbiddenEyebrow": "ДОСТУП ЗАПРЕЩЁН",
+        "notSubmittedEyebrow": "НЕ ЗАВЕРШЕНО",
+        "notFoundEyebrow": "НЕ НАЙДЕНО"
       },
       "lesenHoren": {
         "summary": "{module} — итог",

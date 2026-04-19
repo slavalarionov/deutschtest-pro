@@ -354,6 +354,9 @@
     "history": {
       "title": "History",
       "subtitle": "All completed modules, filtered by level, module and date.",
+      "eyebrow": "HISTORY",
+      "titleCount": "{count, plural, one {# module} other {# modules}}.",
+      "titleSubline": "Every attempt counts.",
       "filters": {
         "level": "Level",
         "module": "Module",
@@ -361,7 +364,13 @@
         "dateTo": "To",
         "allLevels": "All levels",
         "allModules": "All modules",
-        "reset": "Reset filters"
+        "reset": "Reset filters",
+        "columnsEyebrow": {
+          "stufe": "LEVEL",
+          "modul": "MODULE",
+          "von": "FROM",
+          "bis": "TO"
+        }
       },
       "table": {
         "date": "Date",
@@ -369,7 +378,9 @@
         "module": "Module",
         "score": "Score",
         "status": "Status",
-        "detailsLink": "Details →"
+        "detailsLink": "Details →",
+        "statusBestanden": "Passed",
+        "statusNichtBestanden": "Not passed"
       },
       "empty": {
         "withFilters": "No modules match your filters.",
@@ -392,15 +403,23 @@
       "backToHistoryButton": "Back to history",
       "toHistory": "Go to history",
       "certificateHeading": "Goethe-Zertifikat {level} — {module}",
+      "eyebrow": "CERTIFICATE · GOETHE {level}",
+      "resultEyebrow": "RESULT",
+      "criteriaEyebrow": "CRITERIA-BASED SCORING",
       "outOf100": "out of 100 points",
-      "passed": "Passed ✅",
-      "failed": "Not passed ❌",
+      "passed": "Passed",
+      "failed": "Not passed",
       "submittedAt": "Submitted on {date} · {status}",
       "retakeModule": "Retake module",
+      "retakeDisabled": "No modules left",
+      "buyModules": "Buy modules",
       "errors": {
         "forbidden": "You don't have access to this module.",
         "notSubmitted": "This module hasn't been submitted yet.",
-        "notFound": "Module not found."
+        "notFound": "Module not found.",
+        "forbiddenEyebrow": "ACCESS DENIED",
+        "notSubmittedEyebrow": "NOT COMPLETED",
+        "notFoundEyebrow": "NOT FOUND"
       },
       "lesenHoren": {
         "summary": "{module} — summary",

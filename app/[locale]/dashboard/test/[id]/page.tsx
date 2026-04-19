@@ -34,19 +34,29 @@ export default async function TestDetailsPage({
           ? t('errors.notSubmitted')
           : t('errors.notFound')
 
+    const eyebrow =
+      result.reason === 'forbidden'
+        ? t('errors.forbiddenEyebrow')
+        : result.reason === 'not_submitted'
+          ? t('errors.notSubmittedEyebrow')
+          : t('errors.notFoundEyebrow')
+
     return (
       <div className="mx-auto max-w-3xl">
         <Link
           href="/dashboard/history"
-          className="text-sm text-brand-muted hover:text-brand-text"
+          className="text-sm text-ink-soft transition-colors hover:text-ink"
         >
           {t('backToHistory')}
         </Link>
-        <div className="mt-6 rounded-2xl bg-brand-white p-10 text-center shadow-soft">
-          <p className="text-sm font-medium text-brand-text">{message}</p>
+        <div className="mt-10 rounded-rad border border-line bg-card p-14 text-center">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            {eyebrow}
+          </div>
+          <h1 className="mt-3 font-display text-4xl text-ink">{message}</h1>
           <Link
             href="/dashboard/history"
-            className="mt-6 inline-block rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark"
+            className="mt-6 inline-flex items-center gap-2 rounded-rad-pill bg-ink px-6 py-3 text-sm font-medium text-page transition-colors hover:bg-ink/90"
           >
             {t('toHistory')}
           </Link>

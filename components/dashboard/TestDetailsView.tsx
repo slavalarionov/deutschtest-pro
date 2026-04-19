@@ -1,7 +1,7 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
-import { Link, useRouter } from '@/i18n/routing'
+import { useTranslations, useLocale } from 'next-intl'
+import { Link } from '@/i18n/routing'
 import { useState } from 'react'
 import { RetakeModuleModal } from '@/components/exam/RetakeModuleModal'
 import type {
@@ -15,28 +15,38 @@ import type {
   SprechenFeedback,
 } from '@/types/exam'
 
-function formatDate(iso: string): string {
+/**
+ * Format `17. April 2026` style date for the test details header.
+ * Locale-aware: en-US gets `April 17, 2026`, de/ru/tr use the day-first form.
+ */
+function formatLongDate(iso: string, locale: string): string {
   try {
-    return new Date(iso).toLocaleString('de-DE', {
-      day: '2-digit',
-      month: 'short',
+    const d = new Date(iso)
+    const intlLocale =
+      locale === 'en'
+        ? 'en-US'
+        : locale === 'ru'
+          ? 'ru-RU'
+          : locale === 'tr'
+            ? 'tr-TR'
+            : 'de-DE'
+    return d.toLocaleDateString(intlLocale, {
+      day: 'numeric',
+      month: 'long',
       year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     })
   } catch {
     return '—'
   }
 }
 
+/** Flat progress bar on `--line` with an `--accent` fill. No score-gradation. */
 function ProgressBar({ value, max }: { value: number; max: number }) {
-  const pct = max > 0 ? (value / max) * 100 : 0
-  const color =
-    pct >= 75 ? 'bg-green-500' : pct >= 50 ? 'bg-brand-gold' : 'bg-brand-red'
+  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0
   return (
-    <div className="mt-2 h-2 overflow-hidden rounded-full bg-brand-surface">
+    <div className="mt-3 h-2 overflow-hidden rounded-rad-pill bg-line">
       <div
-        className={`h-full rounded-full transition-all duration-700 ${color}`}
+        className="h-full rounded-rad-pill bg-accent"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -52,60 +62,77 @@ export function TestDetailsView({
   details,
   modulesBalance,
 }: TestDetailsViewProps) {
-  const router = useRouter()
   const t = useTranslations('dashboard.testDetail')
-  const tHistory = useTranslations('dashboard.history')
+  const tStatus = useTranslations('dashboard.history.table')
   const tModules = useTranslations('modules')
+  const locale = useLocale()
   const [retakeOpen, setRetakeOpen] = useState(false)
 
   const moduleLabel = tModules(details.module)
-  const statusLabel = details.isFreeTest
-    ? tHistory('status.free')
-    : tHistory('status.paid')
+  const formattedDate = formatLongDate(details.submittedAt, locale)
+  const passed = details.passed
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-3xl space-y-10">
+      {/* ====== Back link ====== */}
       <div>
         <Link
           href="/dashboard/history"
-          className="text-sm text-brand-muted hover:text-brand-text"
+          className="text-sm text-ink-soft transition-colors hover:text-ink"
         >
           {t('backToHistory')}
         </Link>
       </div>
 
-      <div className="rounded-2xl bg-brand-white p-8 text-center shadow-soft">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-muted">
-          {t('certificateHeading', {
-            level: details.level,
-            module: moduleLabel,
-          })}
-        </p>
-        <div className="mb-2 text-6xl font-bold text-brand-text">
+      {/* ====== Editorial header ====== */}
+      <header className="space-y-4">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {t('eyebrow', { level: details.level })}
+        </div>
+        <h1 className="font-display text-[44px] leading-[1.05] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
+          {moduleLabel}.
+          <br />
+          <span className="text-ink-soft">{formattedDate}.</span>
+        </h1>
+      </header>
+
+      {/* ====== Score card ====== */}
+      <div className="rounded-rad border border-line bg-card p-10 text-center sm:p-14">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {t('resultEyebrow')}
+        </div>
+        <div className="mt-3 font-display text-7xl leading-none tracking-[-0.04em] text-ink md:text-8xl">
           {details.score}
         </div>
-        <p className="text-sm text-brand-muted">{t('outOf100')}</p>
-        <ProgressBar value={details.score} max={100} />
-        <p
-          className={`mt-4 text-lg font-bold ${
-            details.passed ? 'text-green-700' : 'text-brand-red'
-          }`}
-        >
-          {details.passed ? t('passed') : t('failed')}
-        </p>
-        <p className="mt-4 text-xs text-brand-muted">
-          {t('submittedAt', {
-            date: formatDate(details.submittedAt),
-            status: statusLabel,
-          })}
-        </p>
+        <div className="mt-2 font-mono text-xl text-ink-soft">/ 100</div>
+
+        <div className="mx-auto mt-6 h-2 w-64 overflow-hidden rounded-rad-pill bg-line">
+          <div
+            className={`h-full rounded-rad-pill ${passed ? 'bg-accent' : 'bg-ink'}`}
+            style={{ width: `${Math.min(details.score, 100)}%` }}
+          />
+        </div>
+
+        <div className="mt-6 inline-flex items-center gap-2 text-sm">
+          <span
+            aria-hidden="true"
+            className={`block h-1.5 w-1.5 rounded-full ${passed ? 'bg-accent' : 'bg-muted'}`}
+          />
+          <span className={passed ? 'text-ink-soft' : 'text-muted'}>
+            {passed
+              ? tStatus('statusBestanden')
+              : tStatus('statusNichtBestanden')}
+          </span>
+        </div>
+
+        <div className="mt-4 font-mono text-xs uppercase tracking-widest text-muted">
+          {formattedDate}
+        </div>
       </div>
 
+      {/* ====== Module-specific section ====== */}
       {(details.module === 'lesen' || details.module === 'horen') && (
-        <LesenHorenSection
-          moduleLabel={moduleLabel}
-          feedback={details.feedback}
-        />
+        <LesenHorenSection feedback={details.feedback} />
       )}
 
       {details.module === 'schreiben' && (
@@ -122,26 +149,32 @@ export function TestDetailsView({
         />
       )}
 
-      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-        <Link
-          href="/dashboard/history"
-          className="rounded-lg border border-brand-border bg-brand-white px-6 py-2.5 text-sm font-semibold text-brand-text transition hover:bg-brand-surface"
-        >
-          {t('backToHistoryButton')}
-        </Link>
+      {/* ====== Footer action ====== */}
+      <div className="flex flex-col items-center gap-3 pt-6">
         <button
           type="button"
+          disabled={modulesBalance === 0}
+          aria-label={modulesBalance === 0 ? t('retakeDisabled') : undefined}
+          title={modulesBalance === 0 ? t('retakeDisabled') : undefined}
           onClick={() => {
-            if (modulesBalance > 0) {
-              setRetakeOpen(true)
-            } else {
-              router.push('/pricing')
-            }
+            if (modulesBalance > 0) setRetakeOpen(true)
           }}
-          className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+          className={`rounded-rad-pill px-8 py-3 text-sm font-medium transition-colors ${
+            modulesBalance > 0
+              ? 'bg-ink text-page hover:bg-ink/90'
+              : 'cursor-not-allowed bg-line text-muted'
+          }`}
         >
           {t('retakeModule')}
         </button>
+        {modulesBalance === 0 && (
+          <Link
+            href="/pricing"
+            className="text-xs font-medium text-ink-soft underline underline-offset-4 transition-colors hover:text-ink"
+          >
+            {t('buyModules')}
+          </Link>
+        )}
       </div>
 
       <RetakeModuleModal
@@ -157,92 +190,102 @@ export function TestDetailsView({
 }
 
 function LesenHorenSection({
-  moduleLabel,
   feedback,
 }: {
-  moduleLabel: string
   feedback: LesenHorenAttemptFeedback | null
 }) {
   const t = useTranslations('dashboard.testDetail.lesenHoren')
 
   if (!feedback || !feedback.details || !feedback.summary) {
     return (
-      <div className="rounded-2xl bg-brand-white p-6 text-center shadow-soft">
-        <p className="text-sm text-brand-muted">{t('noDetails')}</p>
+      <div className="rounded-rad border border-line bg-card p-14 text-center">
+        <p className="text-sm text-ink-soft">{t('noDetails')}</p>
       </div>
     )
   }
 
   const entries = Object.entries(feedback.details)
-  const wrong = entries.filter(([, d]) => !d.isCorrect)
+  const wrongCount =
+    feedback.summary.total - feedback.summary.correct
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
-        <h3 className="mb-4 text-base font-semibold text-brand-text">
-          {t('summary', { module: moduleLabel })}
-        </h3>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="rounded-lg bg-green-50 px-4 py-2">
-            <span className="text-lg font-bold text-green-700">
-              {feedback.summary.correct}
-            </span>
-            <span className="ml-1 text-xs text-green-600">{t('correct')}</span>
+    <div className="space-y-6">
+      {/* Overview */}
+      <div className="rounded-rad border border-line bg-surface p-8">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          ÜBERSICHT
+        </div>
+        <div className="mt-4 flex flex-wrap items-end gap-0">
+          <StatPill
+            value={String(feedback.summary.correct)}
+            label={t('correct').toUpperCase()}
+          />
+          <div className="border-l border-line pl-8">
+            <StatPill
+              value={String(wrongCount)}
+              label={t('wrong').toUpperCase()}
+              muted={wrongCount > 0}
+            />
           </div>
-          <div className="rounded-lg bg-red-50 px-4 py-2">
-            <span className="text-lg font-bold text-brand-red">
-              {feedback.summary.total - feedback.summary.correct}
-            </span>
-            <span className="ml-1 text-xs text-red-600">{t('wrong')}</span>
-          </div>
-          <div className="rounded-lg bg-brand-surface px-4 py-2">
-            <span className="text-lg font-bold text-brand-text">
-              {feedback.summary.total}
-            </span>
-            <span className="ml-1 text-xs text-brand-muted">{t('total')}</span>
+          <div className="border-l border-line pl-8">
+            <StatPill
+              value={String(feedback.summary.total)}
+              label={t('total').toUpperCase()}
+              soft
+            />
           </div>
         </div>
+        {wrongCount === 0 && (
+          <div className="mt-5 font-mono text-[11px] uppercase tracking-widest text-accent-ink">
+            {t('allCorrect')}
+          </div>
+        )}
       </div>
 
-      <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
-        <h3 className="mb-4 text-base font-semibold text-brand-text">
-          {t('allAnswers')}
-        </h3>
-        <div className="space-y-2">
-          {entries.map(([id, detail]) => (
-            <div
-              key={id}
-              className={`flex flex-wrap items-center justify-between gap-3 rounded-lg px-4 py-2.5 ${
-                detail.isCorrect ? 'bg-green-50/40' : 'bg-red-50/40'
-              }`}
-            >
-              <span className="text-xs font-medium text-brand-text">
-                {t('taskLabel', { id })}
-              </span>
-              <div className="flex flex-wrap gap-3 text-xs">
-                <span
-                  className={
-                    detail.isCorrect ? 'text-green-700' : 'text-red-600'
-                  }
+      {/* All answers */}
+      <div className="rounded-rad border border-line bg-card p-8">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          ALLE ANTWORTEN
+        </div>
+        <div className="mt-4 space-y-3">
+          {entries.map(([id, detail], i) => {
+            const numericId = Number(id)
+            const padded = Number.isFinite(numericId)
+              ? String(numericId).padStart(2, '0')
+              : String(i + 1).padStart(2, '0')
+            return (
+              <div
+                key={id}
+                className={`border-l-2 py-3 pl-4 ${
+                  detail.isCorrect ? 'border-accent' : 'border-muted'
+                }`}
+              >
+                <div
+                  className={`font-mono text-[10px] uppercase tracking-widest ${
+                    detail.isCorrect ? 'text-accent-ink' : 'text-muted'
+                  }`}
                 >
+                  {padded} ·{' '}
+                  {detail.isCorrect ? 'RICHTIG' : 'FALSCH'}
+                </div>
+                <div className="mt-1 text-sm text-ink">
                   {t('yourAnswerLabel')}{' '}
-                  <strong>{detail.userAnswer || '—'}</strong>
-                </span>
+                  <strong className="font-medium">
+                    {detail.userAnswer || '—'}
+                  </strong>
+                </div>
                 {!detail.isCorrect && (
-                  <span className="text-green-700">
+                  <div className="mt-1 text-sm text-ink-soft">
                     {t('correctAnswerLabel')}{' '}
-                    <strong>{detail.correctAnswer}</strong>
-                  </span>
+                    <strong className="font-medium">
+                      {detail.correctAnswer}
+                    </strong>
+                  </div>
                 )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
-        {wrong.length === 0 && (
-          <p className="mt-4 text-center text-xs text-green-700">
-            {t('allCorrect')}
-          </p>
-        )}
       </div>
     </div>
   )
@@ -256,6 +299,8 @@ function SchreibenSection({
   content: SchreibenContent | null
 }) {
   const t = useTranslations('dashboard.testDetail.schreiben')
+  const tDetail = useTranslations('dashboard.testDetail')
+
   const criteria = feedback
     ? ([
         [t('taskFulfillment'), feedback.criteria.taskFulfillment, 25],
@@ -266,22 +311,25 @@ function SchreibenSection({
     : []
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {content?.tasks?.[0] && (
-        <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
-          <h3 className="mb-3 text-base font-semibold text-brand-text">
-            {t('task')}
-          </h3>
-          <p className="mb-3 text-sm font-medium text-brand-text">
+        <div className="rounded-rad border border-line bg-surface p-8">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            {t('task').toUpperCase()}
+          </div>
+          <p className="mt-3 text-sm text-ink-soft">
             {content.tasks[0].situation}
           </p>
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">
+          <p className="mt-4 whitespace-pre-wrap text-base text-ink">
             {content.tasks[0].prompt}
           </p>
           {content.tasks[0].requiredPoints?.length > 0 && (
-            <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-brand-muted">
+            <ul className="mt-4 space-y-2">
               {content.tasks[0].requiredPoints.map((p, i) => (
-                <li key={i}>{p}</li>
+                <li key={i} className="flex gap-3 text-sm text-ink-soft">
+                  <span aria-hidden="true">—</span>
+                  <span>{p}</span>
+                </li>
               ))}
             </ul>
           )}
@@ -290,23 +338,21 @@ function SchreibenSection({
 
       {feedback ? (
         <>
-          <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
-            <h3 className="mb-4 text-base font-semibold text-brand-text">
-              {t('criteria')}
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-rad border border-line bg-card p-8">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+              {tDetail('criteriaEyebrow')}
+            </div>
+            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
               {criteria.map(([label, score, max]) => (
-                <div key={label} className="rounded-lg bg-brand-bg p-4">
-                  <p className="text-xs font-medium text-brand-muted">
+                <div key={label}>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
                     {label}
-                  </p>
-                  <div className="mt-1 flex items-end gap-1">
-                    <span className="text-2xl font-bold text-brand-text">
+                  </div>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="font-display text-4xl text-ink">
                       {score}
                     </span>
-                    <span className="mb-0.5 text-xs text-brand-muted">
-                      / {max}
-                    </span>
+                    <span className="text-sm text-ink-soft">/ {max}</span>
                   </div>
                   <ProgressBar value={score} max={max} />
                 </div>
@@ -315,19 +361,19 @@ function SchreibenSection({
           </div>
 
           {feedback.comment && (
-            <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
-              <h4 className="mb-3 text-sm font-semibold text-brand-text">
-                {t('aiFeedback')}
-              </h4>
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">
+            <div className="rounded-rad border border-line bg-card p-8">
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                {t('aiFeedback').toUpperCase()}
+              </div>
+              <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-ink">
                 {feedback.comment}
               </p>
             </div>
           )}
         </>
       ) : (
-        <div className="rounded-2xl bg-brand-white p-6 text-center shadow-soft">
-          <p className="text-sm text-brand-muted">{t('noFeedback')}</p>
+        <div className="rounded-rad border border-line bg-card p-14 text-center">
+          <p className="text-sm text-ink-soft">{t('noFeedback')}</p>
         </div>
       )}
     </div>
@@ -342,6 +388,8 @@ function SprechenSection({
   content: SprechenContent | null
 }) {
   const t = useTranslations('dashboard.testDetail.sprechen')
+  const tDetail = useTranslations('dashboard.testDetail')
+
   const criteria = feedback
     ? ([
         [t('taskFulfillment'), feedback.criteria.taskFulfillment, 20],
@@ -353,25 +401,32 @@ function SprechenSection({
     : []
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {content?.tasks && content.tasks.length > 0 && (
-        <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
-          <h3 className="mb-3 text-base font-semibold text-brand-text">
-            {t('tasks')}
-          </h3>
-          <div className="space-y-3">
+        <div className="rounded-rad border border-line bg-surface p-8">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            {t('tasks').toUpperCase()}
+          </div>
+          <div className="mt-4">
             {content.tasks.map((task, idx) => (
-              <div key={task.id} className="rounded-lg bg-brand-bg p-4">
-                <p className="text-xs font-medium uppercase tracking-wider text-brand-muted">
+              <div
+                key={task.id}
+                className="border-t border-line pt-4 first:border-t-0 first:pt-0 [&:not(:first-child)]:mt-4"
+              >
+                <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
                   {t('teilLabel', { n: idx + 1, type: task.type })}
-                </p>
-                <p className="mt-1 text-sm font-medium text-brand-text">
-                  {task.topic}
-                </p>
+                </div>
+                <p className="mt-2 text-base text-ink">{task.topic}</p>
                 {task.points?.length > 0 && (
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-brand-muted">
+                  <ul className="mt-3 space-y-2">
                     {task.points.map((p, i) => (
-                      <li key={i}>{p}</li>
+                      <li
+                        key={i}
+                        className="flex gap-3 text-sm text-ink-soft"
+                      >
+                        <span aria-hidden="true">—</span>
+                        <span>{p}</span>
+                      </li>
                     ))}
                   </ul>
                 )}
@@ -383,23 +438,21 @@ function SprechenSection({
 
       {feedback ? (
         <>
-          <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
-            <h3 className="mb-4 text-base font-semibold text-brand-text">
-              {t('criteria')}
-            </h3>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="rounded-rad border border-line bg-card p-8">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+              {tDetail('criteriaEyebrow')}
+            </div>
+            <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3">
               {criteria.map(([label, score, max]) => (
-                <div key={label} className="rounded-lg bg-brand-bg p-4">
-                  <p className="text-xs font-medium text-brand-muted">
+                <div key={label}>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
                     {label}
-                  </p>
-                  <div className="mt-1 flex items-end gap-1">
-                    <span className="text-2xl font-bold text-brand-text">
+                  </div>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <span className="font-display text-4xl text-ink">
                       {score}
                     </span>
-                    <span className="mb-0.5 text-xs text-brand-muted">
-                      / {max}
-                    </span>
+                    <span className="text-sm text-ink-soft">/ {max}</span>
                   </div>
                   <ProgressBar value={score} max={max} />
                 </div>
@@ -408,21 +461,49 @@ function SprechenSection({
           </div>
 
           {feedback.comment && (
-            <div className="rounded-2xl bg-brand-white p-6 shadow-soft">
-              <h4 className="mb-3 text-sm font-semibold text-brand-text">
-                {t('aiFeedback')}
-              </h4>
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">
+            <div className="rounded-rad border border-line bg-card p-8">
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                {t('aiFeedback').toUpperCase()}
+              </div>
+              <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-ink">
                 {feedback.comment}
               </p>
             </div>
           )}
         </>
       ) : (
-        <div className="rounded-2xl bg-brand-white p-6 text-center shadow-soft">
-          <p className="text-sm text-brand-muted">{t('noFeedback')}</p>
+        <div className="rounded-rad border border-line bg-card p-14 text-center">
+          <p className="text-sm text-ink-soft">{t('noFeedback')}</p>
         </div>
       )}
+    </div>
+  )
+}
+
+/**
+ * Editorial stat pill — big display number on top, mono caption below.
+ * Variants: default (ink), muted (if the count matters and is > 0),
+ * soft (for neutral totals). Separators between pills are handled by
+ * the parent with `border-l`.
+ */
+function StatPill({
+  value,
+  label,
+  muted,
+  soft,
+}: {
+  value: string
+  label: string
+  muted?: boolean
+  soft?: boolean
+}) {
+  const valueColor = muted ? 'text-muted' : soft ? 'text-ink-soft' : 'text-ink'
+  return (
+    <div>
+      <div className={`font-display text-3xl ${valueColor}`}>{value}</div>
+      <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-muted">
+        {label}
+      </div>
     </div>
   )
 }

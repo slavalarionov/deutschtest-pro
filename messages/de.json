@@ -354,6 +354,9 @@
     "history": {
       "title": "Verlauf",
       "subtitle": "Alle abgeschlossenen Module mit Filtern nach Niveau, Modul und Datum.",
+      "eyebrow": "HISTORIE",
+      "titleCount": "{count} Module.",
+      "titleSubline": "Jeder Versuch zählt.",
       "filters": {
         "level": "Niveau",
         "module": "Modul",
@@ -361,7 +364,13 @@
         "dateTo": "Bis",
         "allLevels": "Alle Niveaus",
         "allModules": "Alle Module",
-        "reset": "Filter zurücksetzen"
+        "reset": "Filter zurücksetzen",
+        "columnsEyebrow": {
+          "stufe": "STUFE",
+          "modul": "MODUL",
+          "von": "VON",
+          "bis": "BIS"
+        }
       },
       "table": {
         "date": "Datum",
@@ -369,7 +378,9 @@
         "module": "Modul",
         "score": "Punkte",
         "status": "Status",
-        "detailsLink": "Details →"
+        "detailsLink": "Details →",
+        "statusBestanden": "Bestanden",
+        "statusNichtBestanden": "Nicht bestanden"
       },
       "empty": {
         "withFilters": "Keine Module entsprechen den Filtern.",
@@ -392,15 +403,23 @@
       "backToHistoryButton": "Zurück zum Verlauf",
       "toHistory": "Zur Verlaufsübersicht",
       "certificateHeading": "Goethe-Zertifikat {level} — {module}",
+      "eyebrow": "ZERTIFIKAT · GOETHE {level}",
+      "resultEyebrow": "ERGEBNIS",
+      "criteriaEyebrow": "BEWERTUNG NACH KRITERIEN",
       "outOf100": "von 100 Punkten",
-      "passed": "Bestanden ✅",
-      "failed": "Nicht bestanden ❌",
+      "passed": "Bestanden",
+      "failed": "Nicht bestanden",
       "submittedAt": "Abgegeben am {date} · {status}",
       "retakeModule": "Modul wiederholen",
+      "retakeDisabled": "Keine Module übrig",
+      "buyModules": "Module kaufen",
       "errors": {
         "forbidden": "Sie haben keinen Zugriff auf dieses Modul.",
         "notSubmitted": "Dieses Modul wurde noch nicht abgeschlossen.",
-        "notFound": "Modul nicht gefunden."
+        "notFound": "Modul nicht gefunden.",
+        "forbiddenEyebrow": "ZUGRIFF VERWEIGERT",
+        "notSubmittedEyebrow": "NICHT ABGESCHLOSSEN",
+        "notFoundEyebrow": "NICHT GEFUNDEN"
       },
       "lesenHoren": {
         "summary": "{module} — Zusammenfassung",

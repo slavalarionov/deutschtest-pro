@@ -354,6 +354,9 @@
     "history": {
       "title": "Geçmiş",
       "subtitle": "Seviye, modül ve tarih filtreleriyle tamamlanan tüm modüller.",
+      "eyebrow": "GEÇMİŞ",
+      "titleCount": "{count} Modül.",
+      "titleSubline": "Her deneme önemli.",
       "filters": {
         "level": "Seviye",
         "module": "Modül",
@@ -361,7 +364,13 @@
         "dateTo": "Bitiş",
         "allLevels": "Tüm seviyeler",
         "allModules": "Tüm modüller",
-        "reset": "Filtreleri sıfırla"
+        "reset": "Filtreleri sıfırla",
+        "columnsEyebrow": {
+          "stufe": "SEVİYE",
+          "modul": "MODÜL",
+          "von": "BAŞLANGIÇ",
+          "bis": "BİTİŞ"
+        }
       },
       "table": {
         "date": "Tarih",
@@ -369,7 +378,9 @@
         "module": "Modül",
         "score": "Puan",
         "status": "Durum",
-        "detailsLink": "Ayrıntılar →"
+        "detailsLink": "Ayrıntılar →",
+        "statusBestanden": "Geçti",
+        "statusNichtBestanden": "Geçmedi"
       },
       "empty": {
         "withFilters": "Filtrelere uyan modül yok.",
@@ -392,15 +403,23 @@
       "backToHistoryButton": "Geçmişe dön",
       "toHistory": "Geçmiş özetine",
       "certificateHeading": "Goethe-Zertifikat {level} — {module}",
+      "eyebrow": "SERTİFİKA · GOETHE {level}",
+      "resultEyebrow": "SONUÇ",
+      "criteriaEyebrow": "KRİTER BAZLI DEĞERLENDİRME",
       "outOf100": "/ 100 puan",
-      "passed": "Geçildi ✅",
-      "failed": "Geçilemedi ❌",
+      "passed": "Geçti",
+      "failed": "Geçmedi",
       "submittedAt": "{date} tarihinde teslim edildi · {status}",
       "retakeModule": "Modülü tekrar yap",
+      "retakeDisabled": "Modül kalmadı",
+      "buyModules": "Modül satın al",
       "errors": {
         "forbidden": "Bu modüle erişiminiz yok.",
         "notSubmitted": "Bu modül henüz tamamlanmadı.",
-        "notFound": "Modül bulunamadı."
+        "notFound": "Modül bulunamadı.",
+        "forbiddenEyebrow": "ERİŞİM REDDEDİLDİ",
+        "notSubmittedEyebrow": "TAMAMLANMADI",
+        "notFoundEyebrow": "BULUNAMADI"
       },
       "lesenHoren": {
         "summary": "{module} — özet",

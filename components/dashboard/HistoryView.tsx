@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import type {
   HistoryItem,
@@ -12,60 +12,83 @@ import type {
 const LEVEL_OPTIONS: HistoryLevel[] = ['A1', 'A2', 'B1']
 const MODULE_OPTIONS: HistoryModule[] = ['lesen', 'horen', 'schreiben', 'sprechen']
 
-function formatDate(iso: string): string {
+/**
+ * Short date format matching the Phase 3 prototype (`17.04.26`).
+ * en-US gets `MM/DD/YY`; everybody else uses `DD.MM.YY` via `de-DE` fallback.
+ */
+function formatShortDate(iso: string, locale: string): string {
   try {
-    return new Date(iso).toLocaleString('de-DE', {
+    const d = new Date(iso)
+    const intlLocale =
+      locale === 'en' ? 'en-US' : locale === 'tr' ? 'tr-TR' : 'de-DE'
+    return d.toLocaleDateString(intlLocale, {
       day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
     })
   } catch {
     return '—'
   }
 }
 
-function ScoreBadge({ score }: { score: number }) {
-  const color =
-    score >= 75
-      ? 'bg-green-50 text-green-700'
-      : score >= 60
-        ? 'bg-brand-gold/10 text-brand-gold-dark'
-        : 'bg-red-50 text-brand-red'
-  return (
-    <span
-      className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${color}`}
-    >
-      {score}
-    </span>
-  )
-}
+type ModuleIconName = HistoryModule
 
-function StatusBadge({
-  isFreeTest,
-  label,
-}: {
-  isFreeTest: boolean
-  label: string
-}) {
-  if (isFreeTest) {
-    return (
-      <span className="inline-flex items-center rounded-md bg-brand-surface px-2 py-0.5 text-xs font-medium text-brand-muted">
-        {label}
-      </span>
-    )
+/** Stroke-only 14px glyphs for module rows, matching the prototype. */
+function ModuleIcon({ name }: { name: ModuleIconName }) {
+  const paths: Record<ModuleIconName, React.ReactNode> = {
+    lesen: (
+      // open book
+      <>
+        <path d="M4 5h5a3 3 0 013 3v11a3 3 0 00-3-3H4V5z" />
+        <path d="M20 5h-5a3 3 0 00-3 3v11a3 3 0 013-3h5V5z" />
+      </>
+    ),
+    horen: (
+      // headphones
+      <>
+        <path d="M4 13v-1a8 8 0 0116 0v1" />
+        <path d="M4 13h3v6H5a1 1 0 01-1-1v-5z" />
+        <path d="M20 13h-3v6h2a1 1 0 001-1v-5z" />
+      </>
+    ),
+    schreiben: (
+      // pen
+      <>
+        <path d="M4 20l4-1 10-10-3-3L5 16l-1 4z" />
+        <path d="M14 7l3 3" />
+      </>
+    ),
+    sprechen: (
+      // mic
+      <>
+        <rect x="9" y="3" width="6" height="11" rx="3" />
+        <path d="M5 11a7 7 0 0014 0" />
+        <path d="M12 18v3" />
+      </>
+    ),
   }
+
   return (
-    <span className="inline-flex items-center rounded-md bg-brand-gold/10 px-2 py-0.5 text-xs font-medium text-brand-gold-dark">
-      {label}
-    </span>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="h-[14px] w-[14px] shrink-0 text-ink"
+    >
+      {paths[name]}
+    </svg>
   )
 }
 
 export function HistoryView() {
   const t = useTranslations('dashboard.history')
   const tModules = useTranslations('modules')
+  const locale = useLocale()
+
   const [items, setItems] = useState<HistoryItem[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -116,7 +139,7 @@ export function HistoryView() {
   }, [queryString, t])
 
   const hasFilters =
-    moduleFilter !== 'all' || levelFilter !== 'all' || fromDate || toDate
+    moduleFilter !== 'all' || levelFilter !== 'all' || Boolean(fromDate) || Boolean(toDate)
 
   function resetFilters() {
     setModuleFilter('all')
@@ -125,25 +148,32 @@ export function HistoryView() {
     setToDate('')
   }
 
-  return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-brand-text">{t('title')}</h1>
-        <p className="mt-1 text-sm text-brand-muted">{t('subtitle')}</p>
-      </div>
+  const totalCount = items?.length ?? 0
 
-      <div className="rounded-2xl bg-brand-white p-5 shadow-soft">
+  return (
+    <div className="mx-auto max-w-6xl">
+      {/* ====== Editorial header ====== */}
+      <header>
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {t('eyebrow')}
+        </div>
+        <h1 className="mt-3 font-display text-[44px] leading-[1.05] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
+          {t('titleCount', { count: totalCount })}
+          <br />
+          <span className="text-ink-soft">{t('titleSubline')}</span>
+        </h1>
+      </header>
+
+      {/* ====== Filters card ====== */}
+      <div className="mt-10 rounded-rad border border-line bg-surface p-6 sm:p-8">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-brand-muted">
-              {t('filters.level')}
-            </label>
+          <FilterSelectCard label={t('filters.columnsEyebrow.stufe')}>
             <select
               value={levelFilter}
               onChange={(e) =>
                 setLevelFilter(e.target.value as HistoryLevel | 'all')
               }
-              className="w-full rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm text-brand-text focus:border-brand-gold focus:outline-none"
+              className="w-full bg-transparent text-sm text-ink outline-none"
             >
               <option value="all">{t('filters.allLevels')}</option>
               {LEVEL_OPTIONS.map((lvl) => (
@@ -152,18 +182,15 @@ export function HistoryView() {
                 </option>
               ))}
             </select>
-          </div>
+          </FilterSelectCard>
 
-          <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-brand-muted">
-              {t('filters.module')}
-            </label>
+          <FilterSelectCard label={t('filters.columnsEyebrow.modul')}>
             <select
               value={moduleFilter}
               onChange={(e) =>
                 setModuleFilter(e.target.value as HistoryModule | 'all')
               }
-              className="w-full rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm text-brand-text focus:border-brand-gold focus:outline-none"
+              className="w-full bg-transparent text-sm text-ink outline-none"
             >
               <option value="all">{t('filters.allModules')}</option>
               {MODULE_OPTIONS.map((m) => (
@@ -172,39 +199,33 @@ export function HistoryView() {
                 </option>
               ))}
             </select>
-          </div>
+          </FilterSelectCard>
 
-          <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-brand-muted">
-              {t('filters.dateFrom')}
-            </label>
+          <FilterSelectCard label={t('filters.columnsEyebrow.von')}>
             <input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="w-full rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm text-brand-text focus:border-brand-gold focus:outline-none"
+              className="w-full bg-transparent text-sm text-ink outline-none"
             />
-          </div>
+          </FilterSelectCard>
 
-          <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-brand-muted">
-              {t('filters.dateTo')}
-            </label>
+          <FilterSelectCard label={t('filters.columnsEyebrow.bis')}>
             <input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="w-full rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm text-brand-text focus:border-brand-gold focus:outline-none"
+              className="w-full bg-transparent text-sm text-ink outline-none"
             />
-          </div>
+          </FilterSelectCard>
         </div>
 
         {hasFilters && (
-          <div className="mt-3 flex justify-end">
+          <div className="mt-5 flex justify-end">
             <button
               type="button"
               onClick={resetFilters}
-              className="text-xs font-medium text-brand-muted hover:text-brand-text"
+              className="text-xs font-medium text-ink-soft underline underline-offset-4 transition-colors hover:text-ink"
             >
               {t('filters.reset')}
             </button>
@@ -212,33 +233,53 @@ export function HistoryView() {
         )}
       </div>
 
-      <div className="rounded-2xl bg-brand-white shadow-soft">
+      {/* ====== Table card / states ====== */}
+      <div className="mt-8">
         {loading && (
-          <div className="flex items-center justify-center px-6 py-16">
-            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-brand-gold border-t-transparent" />
+          <div className="overflow-hidden rounded-rad border border-line bg-card p-6">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="mb-2 h-12 animate-pulse rounded-rad-sm bg-line"
+              />
+            ))}
           </div>
         )}
 
         {!loading && error && (
-          <div className="px-6 py-10 text-center">
-            <p className="text-sm text-brand-red">{error}</p>
+          <div className="rounded-rad border border-line bg-accent-soft p-8 text-center">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-accent-ink">
+              FEHLER
+            </div>
+            <p className="mt-3 text-sm text-accent-ink">{error}</p>
           </div>
         )}
 
         {!loading && !error && items && items.length === 0 && (
-          <div className="px-6 py-16 text-center">
-            <p className="text-sm font-medium text-brand-text">
+          <div className="rounded-rad border border-line bg-card p-14 text-center">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+              {hasFilters ? 'FILTER' : 'KEINE EINTRÄGE'}
+            </div>
+            <h2 className="mt-3 font-display text-2xl text-ink">
               {hasFilters ? t('empty.withFilters') : t('empty.noAttempts')}
-            </p>
-            <p className="mt-2 text-xs text-brand-muted">
+            </h2>
+            <p className="mt-2 text-sm text-ink-soft">
               {hasFilters
                 ? t('empty.withFiltersHint')
                 : t('empty.noAttemptsHint')}
             </p>
-            {!hasFilters && (
+            {hasFilters ? (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="mt-6 inline-flex items-center gap-2 rounded-rad-pill bg-ink px-6 py-3 text-sm font-medium text-page transition-colors hover:bg-ink/90"
+              >
+                {t('filters.reset')}
+              </button>
+            ) : (
               <Link
                 href="/dashboard"
-                className="mt-6 inline-block rounded-lg bg-brand-gold px-5 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark"
+                className="mt-6 inline-flex items-center gap-2 rounded-rad-pill bg-ink px-6 py-3 text-sm font-medium text-page transition-colors hover:bg-ink/90"
               >
                 {t('empty.toDashboard')}
               </Link>
@@ -247,63 +288,105 @@ export function HistoryView() {
         )}
 
         {!loading && !error && items && items.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="border-b border-brand-border bg-brand-surface/50 text-left text-xs uppercase tracking-wider text-brand-muted">
-                <tr>
-                  <th className="px-4 py-3 font-medium">{t('table.date')}</th>
-                  <th className="px-4 py-3 font-medium">{t('table.level')}</th>
-                  <th className="px-4 py-3 font-medium">{t('table.module')}</th>
-                  <th className="px-4 py-3 font-medium">{t('table.score')}</th>
-                  <th className="px-4 py-3 font-medium">{t('table.status')}</th>
-                  <th className="px-4 py-3 font-medium"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-brand-border">
-                {items.map((item) => (
-                  <tr
-                    key={item.attemptId}
-                    className="transition-colors hover:bg-brand-surface/40"
-                  >
-                    <td className="whitespace-nowrap px-4 py-3 text-brand-text">
-                      {formatDate(item.submittedAt)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center rounded-md bg-brand-bg px-2 py-0.5 text-xs font-semibold text-brand-text">
-                        {item.level}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-medium text-brand-text">
-                      {tModules(item.module)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <ScoreBadge score={item.score} />
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusBadge
-                        isFreeTest={item.isFreeTest}
-                        label={
-                          item.isFreeTest
-                            ? t('status.free')
-                            : t('status.paid')
-                        }
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Link
-                        href={`/dashboard/test/${item.attemptId}`}
-                        className="text-xs font-semibold text-brand-gold-dark hover:underline"
-                      >
-                        {t('table.detailsLink')}
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="overflow-hidden rounded-rad border border-line bg-card">
+            <div className="overflow-x-auto">
+              <div className="min-w-[720px]">
+                {/* Header row */}
+                <div className="grid grid-cols-10 items-center border-b border-line bg-surface px-6 py-4 font-mono text-[10px] uppercase tracking-widest text-muted">
+                  <div className="col-span-2">{t('table.date')}</div>
+                  <div className="col-span-3">{t('table.module')}</div>
+                  <div className="col-span-1">{t('table.level')}</div>
+                  <div className="col-span-2">{t('table.score')}</div>
+                  <div className="col-span-2 text-right">{t('table.status')}</div>
+                </div>
+
+                {/* Data rows */}
+                {items.map((item) => {
+                  const passed = item.score >= 60
+                  return (
+                    <Link
+                      key={item.attemptId}
+                      href={`/dashboard/test/${item.attemptId}`}
+                      className="grid grid-cols-10 items-center border-b border-line px-6 py-5 text-sm transition-colors last:border-0 hover:bg-surface/50"
+                    >
+                      {/* DATUM */}
+                      <div className="col-span-2 font-mono text-sm text-ink-soft">
+                        {formatShortDate(item.submittedAt, locale)}
+                      </div>
+
+                      {/* MODUL */}
+                      <div className="col-span-3 flex items-center gap-3">
+                        <ModuleIcon name={item.module} />
+                        <span className="font-display text-ink">
+                          {tModules(item.module)}
+                        </span>
+                      </div>
+
+                      {/* NIVEAU */}
+                      <div className="col-span-1">
+                        <span className="inline-flex items-center rounded-rad-pill border border-line px-2 py-0.5 font-mono text-xs text-ink-soft">
+                          {item.level}
+                        </span>
+                      </div>
+
+                      {/* PUNKTE */}
+                      <div className="col-span-2">
+                        <div className="flex items-center gap-3">
+                          <div className="font-display text-xl text-ink">
+                            {item.score}
+                          </div>
+                          <div className="h-2 w-16 overflow-hidden rounded-rad-pill bg-line">
+                            <div
+                              className={`h-full rounded-rad-pill ${passed ? 'bg-accent' : 'bg-ink'}`}
+                              style={{ width: `${item.score}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* STATUS */}
+                      <div className="col-span-2 flex items-center justify-end">
+                        <span className="inline-flex items-center gap-2 text-sm">
+                          <span
+                            aria-hidden="true"
+                            className={`block h-1.5 w-1.5 rounded-full ${passed ? 'bg-accent' : 'bg-muted'}`}
+                          />
+                          <span className={passed ? 'text-ink-soft' : 'text-muted'}>
+                            {passed
+                              ? t('table.statusBestanden')
+                              : t('table.statusNichtBestanden')}
+                          </span>
+                        </span>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+/**
+ * Editorial filter control — mono caption label sits above a transparent input
+ * inside a card with `focus-within:border-ink`. Mirrors the AuthInput pattern.
+ */
+function FilterSelectCard({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="rounded-rad-sm border border-line bg-card px-4 py-3 transition-colors focus-within:border-ink">
+      <div className="mb-1 font-mono text-[10px] uppercase tracking-widest text-muted">
+        {label}
+      </div>
+      {children}
     </div>
   )
 }
