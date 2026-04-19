@@ -21,6 +21,11 @@ ANFORDERUNGEN:
   - Die Antwort ist die ID des passenden Textes (a–h)
   - Jeder Text wird maximal einmal zugeordnet; manche Texte bleiben übrig
 
+WICHTIG — Feld "isExample":
+- Setze "isExample": true nur für die Beispielsituation (id 0).
+- Setze "isExample": false für alle anderen Situationen.
+- Niemals null. Immer genau true oder false.
+
 Zusatzdaten: {topic_extra}
 Variations-Seed (nicht erwähnen): {seed}
 

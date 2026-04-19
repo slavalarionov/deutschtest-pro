@@ -20,6 +20,11 @@ ANFORDERUNGEN:
   - Aufgaben 1–6: genau 3 "richtig" und 3 "falsch"
 - Jede Aufgabe ist eine Aussage über den Text
 
+WICHTIG — Feld "isExample":
+- Setze "isExample": true nur für die Beispielaufgabe.
+- Setze "isExample": false für alle anderen Aufgaben.
+- Niemals null. Immer genau true oder false.
+
 Zusatzdaten zum Thema: {topic_extra}
 Variations-Seed (nicht im Text erwähnen): {seed}
 

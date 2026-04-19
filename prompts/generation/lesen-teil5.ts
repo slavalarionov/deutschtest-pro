@@ -18,6 +18,11 @@ ANFORDERUNGEN:
   - Lücken 26–31 sind die echten Aufgaben
   - Jede Lücke hat 3 Optionen (a, b, c), nur eine passt grammatisch und semantisch
 
+WICHTIG — Feld "isExample":
+- Setze "isExample": true nur für die Beispiellücke (id 0).
+- Setze "isExample": false für alle anderen Lücken.
+- Niemals null. Immer genau true oder false.
+
 Zusatzdaten: {topic_extra}
 Variations-Seed (nicht erwähnen): {seed}
 

@@ -19,6 +19,11 @@ ANFORDERUNGEN:
   - Jede hat 3 Optionen (a, b, c), nur eine ist korrekt
 - Fragen beziehen sich auf verschiedene Absätze
 
+WICHTIG — Feld "isExample":
+- Setze "isExample": true nur für die Beispielaufgabe (id 0).
+- Setze "isExample": false für alle anderen Aufgaben.
+- Niemals null. Immer genau true oder false.
+
 Zusatzdaten zum Thema: {topic_extra}
 Variations-Seed (nicht im Text erwähnen): {seed}
 
