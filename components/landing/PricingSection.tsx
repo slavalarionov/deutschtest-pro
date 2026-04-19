@@ -30,11 +30,6 @@ export async function PricingSection() {
   const format = await getFormatter()
   const currency = currencyForLocale(locale)
 
-  // `pricing.ctaBuy` reads "Kaufen (bald verfügbar)" / "Buy (coming soon)" /
-  // "Купить (скоро)" — repurposed as the tooltip on the disabled CTA so the
-  // user knows payments are not live yet. Avoids adding a new i18n key.
-  const comingSoonTitle = tPricing('ctaBuy')
-
   return (
     <section
       id="pricing"
@@ -91,7 +86,7 @@ export async function PricingSection() {
                 {/* Top row: package name + badge */}
                 <div className="flex items-center justify-between gap-3">
                   <span className="font-display text-xl tracking-tight">
-                    {t(`${ns}.name`)}
+                    {tPricing(`${ns}.name`)}
                   </span>
                   {pkg.hasBadge && (
                     <span
@@ -102,7 +97,7 @@ export async function PricingSection() {
                           : 'border border-line-soft bg-surface text-ink-soft',
                       ].join(' ')}
                     >
-                      {t(`${ns}.badge`)}
+                      {tPricing(`${ns}.badge`)}
                     </span>
                   )}
                 </div>
@@ -131,7 +126,7 @@ export async function PricingSection() {
                       featured ? 'text-card/70' : 'text-ink-soft',
                     ].join(' ')}
                   >
-                    {t(`${ns}.priceNote`)}
+                    {tPricing(`${ns}.priceNote`)}
                   </div>
                 </div>
 
@@ -148,7 +143,7 @@ export async function PricingSection() {
                       <CheckIcon
                         className={featured ? 'text-card/70' : 'text-ink'}
                       />
-                      <span>{t(`${ns}.feature${n}`)}</span>
+                      <span>{tPricing(`${ns}.feature${n}`)}</span>
                     </li>
                   ))}
                 </ul>
@@ -158,7 +153,6 @@ export async function PricingSection() {
                   type="button"
                   disabled
                   aria-disabled="true"
-                  title={comingSoonTitle}
                   className={[
                     'mt-8 inline-flex items-center justify-center gap-2 rounded-rad-pill px-6 py-3 text-sm font-medium transition-opacity',
                     'disabled:cursor-not-allowed disabled:opacity-60',
@@ -167,7 +161,7 @@ export async function PricingSection() {
                       : 'bg-ink text-card',
                   ].join(' ')}
                 >
-                  {t('ctaBuy')}
+                  {tPricing('ctaBuy')}
                   <ArrowIcon />
                 </button>
               </article>
@@ -185,14 +179,14 @@ export async function PricingSection() {
               <SparkIcon />
             </span>
             <p className="text-sm leading-relaxed text-ink">
-              {t('freeTrial.title')}
+              {tPricing('freeTrial.title')}
             </p>
           </div>
           <Link
             href="/register"
             className="inline-flex flex-none items-center gap-2 rounded-rad-pill bg-ink px-5 py-2.5 text-sm font-medium text-card transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
           >
-            {t('freeTrial.cta')}
+            {tPricing('freeTrial.cta')}
             <ArrowIcon />
           </Link>
         </div>

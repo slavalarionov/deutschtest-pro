@@ -102,40 +102,7 @@
     "pricing": {
       "eyebrow": "03 — FİYATLAR",
       "title": "Basit fiyatlandırma",
-      "subtitle": "Bir modül paketi seçin ve kredilerinizi dört modül tipinden herhangi birinde kullanın: Lesen, Hören, Schreiben, Sprechen.",
-      "packages": {
-        "starter": {
-          "name": "Starter",
-          "priceNote": "10 modül",
-          "feature1": "İstediğiniz 10 modül",
-          "feature2": "Lesen, Hören, Schreiben, Sprechen",
-          "feature3": "AI değerlendirme ve geri bildirim"
-        },
-        "standard": {
-          "name": "Standard",
-          "priceNote": "20 modül",
-          "badge": "Popüler",
-          "feature1": "İstediğiniz 20 modül",
-          "feature2": "Lesen, Hören, Schreiben, Sprechen",
-          "feature3": "AI değerlendirme ve geri bildirim",
-          "feature4": "İlerleme analizi"
-        },
-        "intensive": {
-          "name": "Intensive",
-          "priceNote": "40 modül",
-          "badge": "−15%",
-          "feature1": "İstediğiniz 40 modül",
-          "feature2": "Lesen, Hören, Schreiben, Sprechen",
-          "feature3": "AI değerlendirme ve geri bildirim",
-          "feature4": "İlerleme analizi",
-          "feature5": "Öncelikli destek"
-        }
-      },
-      "ctaBuy": "Paket seç",
-      "freeTrial": {
-        "title": "Kayıt olunca 3 ücretsiz modül — herhangi bir modülü risksiz deneyin.",
-        "cta": "Ücretsiz başla"
-      }
+      "subtitle": "Bir modül paketi seçin ve kredilerinizi dört modül tipinden herhangi birinde kullanın: Lesen, Hören, Schreiben, Sprechen."
     },
     "faq": {
       "eyebrow": "04 — CEVAPLAR",
@@ -212,15 +179,6 @@
     }
   },
   "pricing": {
-    "header": {
-      "loginLink": "Giriş yap"
-    },
-    "title": "Modül paketi satın al",
-    "subtitle": "Bir modül paketi seçin. Modüller evrensel kredilerdir — dört tipin herhangi birinde kullanabilirsiniz: Lesen, Hören, Schreiben, Sprechen.",
-    "freeAvailable": "Hâlâ bir <strong>ücretsiz modülünüz</strong> var!",
-    "freeAvailableCta": "Şimdi ücretsiz dene →",
-    "paidAvailable": "{count, plural, other {<strong># modül</strong> kullanıma hazır.}}",
-    "paidAvailableCta": "Modülü başlat →",
     "packages": {
       "starter": {
         "name": "Starter",
@@ -249,12 +207,29 @@
         "feature5": "Öncelikli destek"
       }
     },
-    "ctaBuy": "Satın al (yakında)",
+    "ctaBuy": "Paket seç",
     "freeTrial": {
       "title": "Kayıt olunca 3 ücretsiz modül — herhangi bir modülü risksiz deneyin.",
       "cta": "Ücretsiz başla"
     },
-    "footnote": "Güvenli ödeme. Tüm fiyatlara KDV dahildir. Modüller satın alma tarihinden itibaren 30 gün geçerlidir."
+    "footnote": {
+      "secure": "GÜVENLİ ÖDEME",
+      "noSubs": "ABONELİK YOK",
+      "refund": "14 GÜN İADE"
+    },
+    "standalone": {
+      "title": "Modül Paketleri",
+      "subtitle": "Kendi hızınızda çalışın — yalnızca ihtiyaç duyduğunuzda ödeyin.",
+      "eyebrow": "FİYATLAR",
+      "authBanner": {
+        "hasCredits": "{count} modülünüz kaldı.",
+        "hasCreditsCta": "Panele git"
+      },
+      "meta": {
+        "title": "Fiyatlar · DeutschTest.pro — Goethe Hazırlık",
+        "description": "Goethe sınavı hazırlığı için modül paketleri. Modül başına 4 €'dan başlayan fiyatlarla. Abonelik yok, otomatik yenileme yok. Kayıtta 3 ücretsiz modül."
+      }
+    }
   },
   "dashboard": {
     "shell": {

@@ -102,40 +102,7 @@
     "pricing": {
       "eyebrow": "03 — PRICING",
       "title": "Simple pricing",
-      "subtitle": "Pick a module pack and spend your credits on any of the four types: Lesen, Hören, Schreiben, Sprechen.",
-      "packages": {
-        "starter": {
-          "name": "Starter",
-          "priceNote": "10 modules",
-          "feature1": "10 modules, any type",
-          "feature2": "Lesen, Hören, Schreiben, Sprechen",
-          "feature3": "AI scoring & feedback"
-        },
-        "standard": {
-          "name": "Standard",
-          "priceNote": "20 modules",
-          "badge": "Popular",
-          "feature1": "20 modules, any type",
-          "feature2": "Lesen, Hören, Schreiben, Sprechen",
-          "feature3": "AI scoring & feedback",
-          "feature4": "Progress analytics"
-        },
-        "intensive": {
-          "name": "Intensive",
-          "priceNote": "40 modules",
-          "badge": "−15%",
-          "feature1": "40 modules, any type",
-          "feature2": "Lesen, Hören, Schreiben, Sprechen",
-          "feature3": "AI scoring & feedback",
-          "feature4": "Progress analytics",
-          "feature5": "Priority support"
-        }
-      },
-      "ctaBuy": "Pick a pack",
-      "freeTrial": {
-        "title": "3 free modules when you sign up — try any module risk-free.",
-        "cta": "Start free"
-      }
+      "subtitle": "Pick a module pack and spend your credits on any of the four types: Lesen, Hören, Schreiben, Sprechen."
     },
     "faq": {
       "eyebrow": "04 — ANSWERS",
@@ -212,15 +179,6 @@
     }
   },
   "pricing": {
-    "header": {
-      "loginLink": "Log in"
-    },
-    "title": "Buy module pack",
-    "subtitle": "Pick a module pack. Modules are universal credits — spend them on any of the four types: Lesen, Hören, Schreiben, Sprechen.",
-    "freeAvailable": "You still have a <strong>free module</strong> available!",
-    "freeAvailableCta": "Take it free now →",
-    "paidAvailable": "{count, plural, one {You have <strong># module</strong> available.} other {You have <strong># modules</strong> available.}}",
-    "paidAvailableCta": "Start module →",
     "packages": {
       "starter": {
         "name": "Starter",
@@ -249,12 +207,29 @@
         "feature5": "Priority support"
       }
     },
-    "ctaBuy": "Buy (coming soon)",
+    "ctaBuy": "Select package",
     "freeTrial": {
       "title": "3 free modules when you sign up — try any module risk-free.",
       "cta": "Start free"
     },
-    "footnote": "Secure checkout. All prices include VAT. Modules are valid for 30 days after purchase."
+    "footnote": {
+      "secure": "SECURE PAYMENT",
+      "noSubs": "NO SUBSCRIPTIONS",
+      "refund": "14-DAY REFUND"
+    },
+    "standalone": {
+      "title": "Module Packages",
+      "subtitle": "Practice at your own pace — pay only when you need more.",
+      "eyebrow": "PRICING",
+      "authBanner": {
+        "hasCredits": "You have {count, plural, one {# module} other {# modules}} remaining.",
+        "hasCreditsCta": "Go to dashboard"
+      },
+      "meta": {
+        "title": "Pricing · DeutschTest.pro — Goethe Preparation",
+        "description": "Module packages for Goethe exam prep. From €4 per module. No subscriptions, no auto-renewals. 3 free modules on signup."
+      }
+    }
   },
   "dashboard": {
     "shell": {

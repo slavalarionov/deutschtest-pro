@@ -102,40 +102,7 @@
     "pricing": {
       "eyebrow": "03 — PREISE",
       "title": "Einfache Preisgestaltung",
-      "subtitle": "Wählen Sie ein Paket mit Modul-Guthaben und setzen Sie es flexibel für Lesen, Hören, Schreiben oder Sprechen ein.",
-      "packages": {
-        "starter": {
-          "name": "Starter",
-          "priceNote": "10 Module",
-          "feature1": "10 beliebige Module",
-          "feature2": "Lesen, Hören, Schreiben, Sprechen",
-          "feature3": "KI-Bewertung & Feedback"
-        },
-        "standard": {
-          "name": "Standard",
-          "priceNote": "20 Module",
-          "badge": "Beliebt",
-          "feature1": "20 beliebige Module",
-          "feature2": "Lesen, Hören, Schreiben, Sprechen",
-          "feature3": "KI-Bewertung & Feedback",
-          "feature4": "Fortschrittsanalyse"
-        },
-        "intensive": {
-          "name": "Intensive",
-          "priceNote": "40 Module",
-          "badge": "−15%",
-          "feature1": "40 beliebige Module",
-          "feature2": "Lesen, Hören, Schreiben, Sprechen",
-          "feature3": "KI-Bewertung & Feedback",
-          "feature4": "Fortschrittsanalyse",
-          "feature5": "Prioritäts-Support"
-        }
-      },
-      "ctaBuy": "Paket wählen",
-      "freeTrial": {
-        "title": "3 Module gratis bei der Registrierung — probieren Sie jedes Modul risikofrei aus.",
-        "cta": "Kostenlos starten"
-      }
+      "subtitle": "Wählen Sie ein Paket mit Modul-Guthaben und setzen Sie es flexibel für Lesen, Hören, Schreiben oder Sprechen ein."
     },
     "faq": {
       "eyebrow": "04 — ANTWORTEN",
@@ -212,15 +179,6 @@
     }
   },
   "pricing": {
-    "header": {
-      "loginLink": "Anmelden"
-    },
-    "title": "Modul-Pakete kaufen",
-    "subtitle": "Wählen Sie ein Paket mit Modul-Guthaben. Die Module sind universell: Sie setzen sie für Lesen, Hören, Schreiben oder Sprechen frei ein.",
-    "freeAvailable": "Sie haben noch ein <strong>kostenloses Modul</strong> verfügbar!",
-    "freeAvailableCta": "Jetzt kostenlos testen →",
-    "paidAvailable": "{count, plural, one {Sie haben <strong># Modul</strong> verfügbar.} other {Sie haben <strong># Module</strong> verfügbar.}}",
-    "paidAvailableCta": "Modul starten →",
     "packages": {
       "starter": {
         "name": "Starter",
@@ -249,12 +207,29 @@
         "feature5": "Prioritäts-Support"
       }
     },
-    "ctaBuy": "Kaufen (bald verfügbar)",
+    "ctaBuy": "Paket wählen",
     "freeTrial": {
       "title": "3 Module gratis bei der Registrierung — probieren Sie jedes Modul risikofrei aus.",
       "cta": "Kostenlos starten"
     },
-    "footnote": "Sichere Bezahlung. Alle Preise inkl. MwSt. Module sind 30 Tage ab Kauf gültig."
+    "footnote": {
+      "secure": "SICHERE BEZAHLUNG",
+      "noSubs": "KEINE ABOS",
+      "refund": "14 TAGE RÜCKERSTATTUNG"
+    },
+    "standalone": {
+      "title": "Modul-Pakete",
+      "subtitle": "Flexibel üben — bezahlen, wenn Sie es brauchen.",
+      "eyebrow": "PREISE",
+      "authBanner": {
+        "hasCredits": "Sie haben noch {count, plural, one {# Modul} other {# Module}}.",
+        "hasCreditsCta": "Zum Dashboard"
+      },
+      "meta": {
+        "title": "Preise · DeutschTest.pro — Goethe-Vorbereitung",
+        "description": "Modul-Pakete für die Goethe-Prüfung. Ab 4 € pro Modul. Keine Abos, keine automatischen Verlängerungen. 3 Module gratis bei Anmeldung."
+      }
+    }
   },
   "dashboard": {
     "shell": {

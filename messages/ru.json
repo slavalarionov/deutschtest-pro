@@ -102,40 +102,7 @@
     "pricing": {
       "eyebrow": "03 — ЦЕНЫ",
       "title": "Простые тарифы",
-      "subtitle": "Выберите пакет модулей и тратьте их на любой из четырёх типов: Lesen, Hören, Schreiben, Sprechen.",
-      "packages": {
-        "starter": {
-          "name": "Starter",
-          "priceNote": "10 модулей",
-          "feature1": "10 модулей на выбор",
-          "feature2": "Lesen, Hören, Schreiben, Sprechen",
-          "feature3": "Проверка ИИ и обратная связь"
-        },
-        "standard": {
-          "name": "Standard",
-          "priceNote": "20 модулей",
-          "badge": "Популярно",
-          "feature1": "20 модулей на выбор",
-          "feature2": "Lesen, Hören, Schreiben, Sprechen",
-          "feature3": "Проверка ИИ и обратная связь",
-          "feature4": "Анализ прогресса"
-        },
-        "intensive": {
-          "name": "Intensive",
-          "priceNote": "40 модулей",
-          "badge": "−15%",
-          "feature1": "40 модулей на выбор",
-          "feature2": "Lesen, Hören, Schreiben, Sprechen",
-          "feature3": "Проверка ИИ и обратная связь",
-          "feature4": "Анализ прогресса",
-          "feature5": "Приоритетная поддержка"
-        }
-      },
-      "ctaBuy": "Выбрать пакет",
-      "freeTrial": {
-        "title": "3 бесплатных модуля при регистрации — попробуйте любой модуль без риска.",
-        "cta": "Начать бесплатно"
-      }
+      "subtitle": "Выберите пакет модулей и тратьте их на любой из четырёх типов: Lesen, Hören, Schreiben, Sprechen."
     },
     "faq": {
       "eyebrow": "04 — ОТВЕТЫ",
@@ -212,15 +179,6 @@
     }
   },
   "pricing": {
-    "header": {
-      "loginLink": "Войти"
-    },
-    "title": "Купить пакет модулей",
-    "subtitle": "Выберите пакет модулей. Модули — универсальные кредиты: тратятся на любой из четырёх типов — Lesen, Hören, Schreiben, Sprechen.",
-    "freeAvailable": "У вас ещё есть <strong>бесплатный модуль</strong>!",
-    "freeAvailableCta": "Пройти бесплатно →",
-    "paidAvailable": "{count, plural, one {У вас доступен <strong># модуль</strong>.} few {У вас доступно <strong># модуля</strong>.} many {У вас доступно <strong># модулей</strong>.} other {У вас доступно <strong># модуля</strong>.}}",
-    "paidAvailableCta": "Начать модуль →",
     "packages": {
       "starter": {
         "name": "Starter",
@@ -249,12 +207,29 @@
         "feature5": "Приоритетная поддержка"
       }
     },
-    "ctaBuy": "Купить (скоро)",
+    "ctaBuy": "Выбрать пакет",
     "freeTrial": {
       "title": "3 бесплатных модуля при регистрации — попробуйте любой модуль без риска.",
       "cta": "Начать бесплатно"
     },
-    "footnote": "Безопасная оплата. Все цены указаны с НДС. Модули действительны 30 дней с момента покупки."
+    "footnote": {
+      "secure": "БЕЗОПАСНАЯ ОПЛАТА",
+      "noSubs": "БЕЗ ПОДПИСОК",
+      "refund": "ВОЗВРАТ 14 ДНЕЙ"
+    },
+    "standalone": {
+      "title": "Пакеты модулей",
+      "subtitle": "Занимайтесь в своём ритме — платите только когда нужно.",
+      "eyebrow": "ЦЕНЫ",
+      "authBanner": {
+        "hasCredits": "У вас {count, plural, one {# модуль} few {# модуля} many {# модулей} other {# модулей}}.",
+        "hasCreditsCta": "В личный кабинет"
+      },
+      "meta": {
+        "title": "Цены · DeutschTest.pro — подготовка к Goethe",
+        "description": "Пакеты модулей для подготовки к Goethe. От 400 ₽ за модуль. Без подписок, без автопродлений. 3 модуля бесплатно при регистрации."
+      }
+    }
   },
   "dashboard": {
     "shell": {
