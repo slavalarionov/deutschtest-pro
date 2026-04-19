@@ -72,23 +72,33 @@
     },
     "features": {
       "title": "Dört modül. Tek platform.",
+      "titleStrong": "Dört modül.",
+      "titleMuted": "Tek platform.",
       "subtitle": "Her modül Goethe-Zertifikat formatını birebir takip eder.",
       "items": {
         "lesen": {
           "title": "Lesen",
-          "description": "Yapay zekâ tarafından üretilen okuma metinleri, çoktan seçmeli ve doğru/yanlış görevlerle — gerçek Goethe-Zertifikat gibi."
+          "description": "Yapay zekâ tarafından üretilen okuma metinleri, çoktan seçmeli ve doğru/yanlış görevlerle — gerçek Goethe-Zertifikat gibi.",
+          "duration": "65 dk",
+          "parts": "5 bölüm"
         },
         "horen": {
           "title": "Hören",
-          "description": "Profesyonel seslendirmeyle hazırlanmış dinleme metinleri, gerçekçi seslerle. Geri sarma yok — tıpkı gerçek sınavdaki gibi."
+          "description": "Profesyonel seslendirmeyle hazırlanmış dinleme metinleri, gerçekçi seslerle. Geri sarma yok — tıpkı gerçek sınavdaki gibi.",
+          "duration": "40 dk",
+          "parts": "4 bölüm"
         },
         "schreiben": {
           "title": "Schreiben",
-          "description": "Resmi kriterlere göre AI değerlendirmesiyle yazma görevleri: görev yerine getirme, tutarlılık, kelime dağarcığı, dil bilgisi."
+          "description": "Resmi kriterlere göre AI değerlendirmesiyle yazma görevleri: görev yerine getirme, tutarlılık, kelime dağarcığı, dil bilgisi.",
+          "duration": "60 dk",
+          "parts": "2 görev"
         },
         "sprechen": {
           "title": "Sprechen",
-          "description": "Ses kaydı ve AI analiziyle sözlü sınav. Telaffuz, akıcılık ve dil bilgisi değerlendirilir."
+          "description": "Ses kaydı ve AI analiziyle sözlü sınav. Telaffuz, akıcılık ve dil bilgisi değerlendirilir.",
+          "duration": "15 dk",
+          "parts": "3 bölüm"
         }
       }
     },

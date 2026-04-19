@@ -72,23 +72,33 @@
     },
     "features": {
       "title": "Alle vier Module. Eine Plattform.",
+      "titleStrong": "Vier Module.",
+      "titleMuted": "Eine Plattform.",
       "subtitle": "Jedes Modul folgt exakt dem Format des Goethe-Zertifikats.",
       "items": {
         "lesen": {
           "title": "Lesen",
-          "description": "KI-generierte Lesetexte mit Multiple-Choice und Richtig/Falsch-Aufgaben — exakt wie im echten Goethe-Zertifikat."
+          "description": "KI-generierte Lesetexte mit Multiple-Choice und Richtig/Falsch-Aufgaben — exakt wie im echten Goethe-Zertifikat.",
+          "duration": "65 Min",
+          "parts": "5 Teile"
         },
         "horen": {
           "title": "Hören",
-          "description": "Professionell vertonte Hörtexte mit realistischen Stimmen. Kein Zurückspulen — wie in der echten Prüfung."
+          "description": "Professionell vertonte Hörtexte mit realistischen Stimmen. Kein Zurückspulen — wie in der echten Prüfung.",
+          "duration": "40 Min",
+          "parts": "4 Teile"
         },
         "schreiben": {
           "title": "Schreiben",
-          "description": "Schreibaufgaben mit KI-Bewertung nach offiziellen Kriterien: Aufgabenerfüllung, Kohärenz, Wortschatz, Grammatik."
+          "description": "Schreibaufgaben mit KI-Bewertung nach offiziellen Kriterien: Aufgabenerfüllung, Kohärenz, Wortschatz, Grammatik.",
+          "duration": "60 Min",
+          "parts": "2 Aufgaben"
         },
         "sprechen": {
           "title": "Sprechen",
-          "description": "Mündliche Prüfung mit Sprachaufnahme und KI-Analyse. Aussprache, Flüssigkeit und Grammatik werden bewertet."
+          "description": "Mündliche Prüfung mit Sprachaufnahme und KI-Analyse. Aussprache, Flüssigkeit und Grammatik werden bewertet.",
+          "duration": "15 Min",
+          "parts": "3 Teile"
         }
       }
     },

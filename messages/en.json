@@ -72,23 +72,33 @@
     },
     "features": {
       "title": "All four modules. One platform.",
+      "titleStrong": "Four modules.",
+      "titleMuted": "One platform.",
       "subtitle": "Every module follows the Goethe-Zertifikat format exactly.",
       "items": {
         "lesen": {
           "title": "Lesen",
-          "description": "AI-generated reading texts with multiple-choice and true/false tasks — just like the real Goethe-Zertifikat."
+          "description": "AI-generated reading texts with multiple-choice and true/false tasks — just like the real Goethe-Zertifikat.",
+          "duration": "65 min",
+          "parts": "5 parts"
         },
         "horen": {
           "title": "Hören",
-          "description": "Professionally voiced listening texts with realistic voices. No rewinding — just like the real exam."
+          "description": "Professionally voiced listening texts with realistic voices. No rewinding — just like the real exam.",
+          "duration": "40 min",
+          "parts": "4 parts"
         },
         "schreiben": {
           "title": "Schreiben",
-          "description": "Writing tasks with AI scoring based on official criteria: task fulfillment, coherence, vocabulary, grammar."
+          "description": "Writing tasks with AI scoring based on official criteria: task fulfillment, coherence, vocabulary, grammar.",
+          "duration": "60 min",
+          "parts": "2 tasks"
         },
         "sprechen": {
           "title": "Sprechen",
-          "description": "Oral exam with voice recording and AI analysis. Pronunciation, fluency and grammar are all scored."
+          "description": "Oral exam with voice recording and AI analysis. Pronunciation, fluency and grammar are all scored.",
+          "duration": "15 min",
+          "parts": "3 parts"
         }
       }
     },
