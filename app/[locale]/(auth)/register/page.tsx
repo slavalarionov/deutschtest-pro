@@ -132,7 +132,7 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout
-      eyebrow={t('title').toUpperCase()}
+      eyebrow={t('eyebrow')}
       titleStrong={t('subtitle')}
       footer={
         <p className="text-sm text-ink-soft">

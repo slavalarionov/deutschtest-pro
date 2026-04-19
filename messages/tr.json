@@ -176,6 +176,7 @@
   "auth": {
     "login": {
       "title": "Giriş yap",
+      "eyebrow": "GİRİŞ",
       "welcome": "DeutschTest.pro'ya tekrar hoş geldiniz",
       "googleButton": "Google ile giriş yap",
       "emailLabel": "E-posta",
@@ -190,6 +191,7 @@
     },
     "register": {
       "title": "Kayıt ol",
+      "eyebrow": "KAYIT",
       "subtitle": "DeutschTest.pro hesabınızı oluşturun",
       "googleButton": "Google ile kayıt ol",
       "emailLabel": "E-posta",

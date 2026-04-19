@@ -63,7 +63,7 @@ function LoginForm() {
 
   return (
     <AuthLayout
-      eyebrow={t('title').toUpperCase()}
+      eyebrow={t('eyebrow')}
       titleStrong={t('welcome')}
       footer={
         <p className="text-sm text-ink-soft">
