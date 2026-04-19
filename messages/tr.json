@@ -79,25 +79,21 @@
       "items": {
         "lesen": {
           "title": "Lesen",
-          "description": "Yapay zekâ tarafından üretilen okuma metinleri, çoktan seçmeli ve doğru/yanlış görevlerle — gerçek Goethe-Zertifikat gibi.",
           "duration": "65 dk",
           "parts": "5 bölüm"
         },
         "horen": {
           "title": "Hören",
-          "description": "Profesyonel seslendirmeyle hazırlanmış dinleme metinleri, gerçekçi seslerle. Geri sarma yok — tıpkı gerçek sınavdaki gibi.",
           "duration": "40 dk",
           "parts": "4 bölüm"
         },
         "schreiben": {
           "title": "Schreiben",
-          "description": "Resmi kriterlere göre AI değerlendirmesiyle yazma görevleri: görev yerine getirme, tutarlılık, kelime dağarcığı, dil bilgisi.",
           "duration": "60 dk",
           "parts": "2 görev"
         },
         "sprechen": {
           "title": "Sprechen",
-          "description": "Ses kaydı ve AI analiziyle sözlü sınav. Telaffuz, akıcılık ve dil bilgisi değerlendirilir.",
           "duration": "15 dk",
           "parts": "3 bölüm"
         }
@@ -279,8 +275,6 @@
       }
     },
     "overview": {
-      "title": "Tekrar hoş geldiniz",
-      "subtitle": "Kişisel öğrenme alanınız — istatistikler ve yeni sınavlar.",
       "eyebrow": "GENEL BAKIŞ",
       "greeting": "İyi günler, <name></name>.",
       "leadWithAttempts": "{total, plural, one {# modül} other {# modül}} ortalaması — {avg}. Tempoyu koruyun.",
@@ -309,18 +303,7 @@
         "niveau": "SEVİYE",
         "punktzahl": "PUAN",
         "status": "DURUM"
-      },
-      "metrics": {
-        "modulesTaken": "Tamamlanan modül",
-        "averageScore": "Ortalama puan",
-        "bestScore": "En iyi sonuç",
-        "lastModule": "Son modül",
-        "credits": "Mevcut kredi"
-      },
-      "outOf100": "/ 100",
-      "noAttempts": "Henüz deneme yok",
-      "adminMode": "Admin modu",
-      "creditHint": "1 kredi = 1 modül"
+      }
     },
     "launcher": {
       "title": "Yeni test başlat",
@@ -362,8 +345,6 @@
       }
     },
     "history": {
-      "title": "Geçmiş",
-      "subtitle": "Seviye, modül ve tarih filtreleriyle tamamlanan tüm modüller.",
       "eyebrow": "GEÇMİŞ",
       "titleCount": "{count} Modül.",
       "titleSubline": "Her deneme önemli.",
@@ -399,10 +380,6 @@
         "noAttemptsHint": "Panelden bir modül başlatın.",
         "toDashboard": "Panele git"
       },
-      "status": {
-        "free": "Ücretsiz",
-        "paid": "Ödemeli"
-      },
       "errors": {
         "loadFailed": "Geçmiş yüklenemedi.",
         "network": "Geçmiş yüklenirken ağ hatası."
@@ -412,7 +389,6 @@
       "backToHistory": "← Geçmişe dön",
       "backToHistoryButton": "Geçmişe dön",
       "toHistory": "Geçmiş özetine",
-      "certificateHeading": "Goethe-Zertifikat {level} — {module}",
       "eyebrow": "SERTİFİKA · GOETHE {level}",
       "resultEyebrow": "SONUÇ",
       "overviewEyebrow": "GENEL BAKIŞ",
@@ -420,8 +396,6 @@
       "criteriaEyebrow": "KRİTER BAZLI DEĞERLENDİRME",
       "aiFeedbackEyebrow": "YZ GERİ BİLDİRİM",
       "outOf100": "/ 100 puan",
-      "passed": "Geçti",
-      "failed": "Geçmedi",
       "submittedAt": "{date} tarihinde teslim edildi · {status}",
       "retakeModule": "Modülü tekrar yap",
       "retakeDisabled": "Modül kalmadı",
@@ -514,28 +488,18 @@
       }
     },
     "recommendations": {
-      "title": "Öneriler",
-      "subtitle": "Önceki modüllerinize dayalı kişisel çalışma ipuçları.",
       "loading": "Öneriler yükleniyor…",
       "refreshing": "Yeni öneriler oluşturuluyor…",
       "refreshButton": "Önerileri yenile",
       "refreshingButton": "Yenileniyor…",
       "retry": "Tekrar dene",
       "sections": {
-        "overall": "Genel değerlendirme",
-        "strengths": "Güçlü yönler",
-        "weaknesses": "Zayıf yönler",
-        "studyPlan": "Çalışma planınız",
-        "motivation": "Motivasyon",
         "overallEyebrow": "GENEL",
         "strengthsEyebrow": "GÜÇLÜ YANLAR",
         "weaknessesEyebrow": "GELİŞİM ALANLARI",
         "studyPlanEyebrow": "ÇALIŞMA PLANI · {count, plural, other {# ADIM}}",
         "motivationEyebrow": "MOTİVASYON"
       },
-      "modulesCount": "{count, plural, other {# modül}} dikkate alındı",
-      "cachedAt": "{date} tarihinde kaydedildi",
-      "generatedAt": "{date} tarihinde oluşturuldu",
       "eyebrow": "ÖNERİLER · YZ EĞİTİM YOLU",
       "headline": {
         "strong": "Bugün.",
@@ -568,8 +532,6 @@
       }
     },
     "payments": {
-      "title": "Ödemeler",
-      "subtitle": "Bakiyeniz, satın alma seçenekleri ve ödeme geçmişi.",
       "eyebrow": "ÖDEMELER",
       "headline": {
         "strong": "Bakiyeniz.",
@@ -590,14 +552,9 @@
       "creditExplanation": "1 kredi, bir sınav modülüne karşılık gelir (Lesen, Hören, Schreiben veya Sprechen).",
       "buyTitle": "Modül satın al",
       "buyHint": "Bir paket seçin — satın alınan modüller Lesen, Hören, Schreiben ve Sprechen arasında serbestçe kullanılabilir.",
-      "viewPackages": "Paketleri gör",
-      "historyTitle": "Ödeme geçmişi",
-      "historyEmpty": "Henüz ödeme yok",
-      "historyHint": "Ödeme sistemi devreye girdiğinde geçmiş burada görünecek."
+      "viewPackages": "Paketleri gör"
     },
     "settings": {
-      "title": "Ayarlar",
-      "subtitle": "Profil, şifre ve hesap yönetimi.",
       "eyebrow": "AYARLAR",
       "headline": {
         "strong": "Profil.",

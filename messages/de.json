@@ -79,25 +79,21 @@
       "items": {
         "lesen": {
           "title": "Lesen",
-          "description": "KI-generierte Lesetexte mit Multiple-Choice und Richtig/Falsch-Aufgaben — exakt wie im echten Goethe-Zertifikat.",
           "duration": "65 Min",
           "parts": "5 Teile"
         },
         "horen": {
           "title": "Hören",
-          "description": "Professionell vertonte Hörtexte mit realistischen Stimmen. Kein Zurückspulen — wie in der echten Prüfung.",
           "duration": "40 Min",
           "parts": "4 Teile"
         },
         "schreiben": {
           "title": "Schreiben",
-          "description": "Schreibaufgaben mit KI-Bewertung nach offiziellen Kriterien: Aufgabenerfüllung, Kohärenz, Wortschatz, Grammatik.",
           "duration": "60 Min",
           "parts": "2 Aufgaben"
         },
         "sprechen": {
           "title": "Sprechen",
-          "description": "Mündliche Prüfung mit Sprachaufnahme und KI-Analyse. Aussprache, Flüssigkeit und Grammatik werden bewertet.",
           "duration": "15 Min",
           "parts": "3 Teile"
         }
@@ -279,8 +275,6 @@
       }
     },
     "overview": {
-      "title": "Willkommen zurück",
-      "subtitle": "Ihr persönlicher Lernbereich — Statistik und neue Prüfungen.",
       "eyebrow": "ÜBERSICHT",
       "greeting": "Guten Tag, <name></name>.",
       "leadWithAttempts": "Durchschnitt über {total, plural, one {# Modul} other {# Module}} — {avg}. Halten Sie das Tempo.",
@@ -309,18 +303,7 @@
         "niveau": "NIVEAU",
         "punktzahl": "PUNKTZAHL",
         "status": "STATUS"
-      },
-      "metrics": {
-        "modulesTaken": "Module absolviert",
-        "averageScore": "Durchschnittliche Punktzahl",
-        "bestScore": "Bestes Ergebnis",
-        "lastModule": "Letztes Modul",
-        "credits": "Verfügbare Credits"
-      },
-      "outOf100": "von 100",
-      "noAttempts": "Noch keine Versuche",
-      "adminMode": "Admin-Modus",
-      "creditHint": "1 Credit = 1 Modul"
+      }
     },
     "launcher": {
       "title": "Neuen Test starten",
@@ -362,8 +345,6 @@
       }
     },
     "history": {
-      "title": "Verlauf",
-      "subtitle": "Alle abgeschlossenen Module mit Filtern nach Niveau, Modul und Datum.",
       "eyebrow": "HISTORIE",
       "titleCount": "{count} Module.",
       "titleSubline": "Jeder Versuch zählt.",
@@ -399,10 +380,6 @@
         "noAttemptsHint": "Starten Sie ein Modul über das Dashboard.",
         "toDashboard": "Zum Dashboard"
       },
-      "status": {
-        "free": "Kostenlos",
-        "paid": "Bezahlt"
-      },
       "errors": {
         "loadFailed": "Verlauf konnte nicht geladen werden.",
         "network": "Netzwerkfehler beim Laden des Verlaufs."
@@ -412,7 +389,6 @@
       "backToHistory": "← Zurück zum Verlauf",
       "backToHistoryButton": "Zurück zum Verlauf",
       "toHistory": "Zur Verlaufsübersicht",
-      "certificateHeading": "Goethe-Zertifikat {level} — {module}",
       "eyebrow": "ZERTIFIKAT · GOETHE {level}",
       "resultEyebrow": "ERGEBNIS",
       "overviewEyebrow": "ÜBERSICHT",
@@ -420,8 +396,6 @@
       "criteriaEyebrow": "BEWERTUNG NACH KRITERIEN",
       "aiFeedbackEyebrow": "KI-FEEDBACK",
       "outOf100": "von 100 Punkten",
-      "passed": "Bestanden",
-      "failed": "Nicht bestanden",
       "submittedAt": "Abgegeben am {date} · {status}",
       "retakeModule": "Modul wiederholen",
       "retakeDisabled": "Keine Module übrig",
@@ -514,28 +488,18 @@
       }
     },
     "recommendations": {
-      "title": "Empfehlungen",
-      "subtitle": "Persönliche Lerntipps auf Basis Ihrer bisherigen Module.",
       "loading": "Empfehlungen werden geladen…",
       "refreshing": "Neue Empfehlungen werden generiert…",
       "refreshButton": "Empfehlungen aktualisieren",
       "refreshingButton": "Wird aktualisiert…",
       "retry": "Erneut versuchen",
       "sections": {
-        "overall": "Allgemeine Einschätzung",
-        "strengths": "Stärken",
-        "weaknesses": "Schwächen",
-        "studyPlan": "Ihr Lernplan",
-        "motivation": "Motivation",
         "overallEyebrow": "ALLGEMEIN",
         "strengthsEyebrow": "STÄRKEN",
         "weaknessesEyebrow": "WACHSTUMSFELDER",
         "studyPlanEyebrow": "LERNPLAN · {count, plural, one {# SCHRITT} other {# SCHRITTE}}",
         "motivationEyebrow": "MOTIVATION"
       },
-      "modulesCount": "{count, plural, one {# Modul} other {# Module}} berücksichtigt",
-      "cachedAt": "Gespeichert am {date}",
-      "generatedAt": "Erstellt am {date}",
       "eyebrow": "EMPFEHLUNGEN · KI-LERNPFAD",
       "headline": {
         "strong": "Heute.",
@@ -568,8 +532,6 @@
       }
     },
     "payments": {
-      "title": "Zahlungen",
-      "subtitle": "Ihr Guthaben, Kaufoptionen und Zahlungshistorie.",
       "eyebrow": "ZAHLUNGEN",
       "headline": {
         "strong": "Ihr Guthaben.",
@@ -590,14 +552,9 @@
       "creditExplanation": "1 Credit entspricht einem Prüfungsmodul (Lesen, Hören, Schreiben oder Sprechen).",
       "buyTitle": "Module kaufen",
       "buyHint": "Wählen Sie ein Paket — gekaufte Module sind frei kombinierbar zwischen Lesen, Hören, Schreiben und Sprechen.",
-      "viewPackages": "Pakete ansehen",
-      "historyTitle": "Zahlungshistorie",
-      "historyEmpty": "Noch keine Zahlungen",
-      "historyHint": "Die Zahlungshistorie wird verfügbar, sobald das Zahlungssystem aktiviert ist."
+      "viewPackages": "Pakete ansehen"
     },
     "settings": {
-      "title": "Einstellungen",
-      "subtitle": "Profil, Passwort und Konto verwalten.",
       "eyebrow": "EINSTELLUNGEN",
       "headline": {
         "strong": "Profil.",

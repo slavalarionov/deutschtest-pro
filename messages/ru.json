@@ -79,25 +79,21 @@
       "items": {
         "lesen": {
           "title": "Lesen",
-          "description": "Тексты для чтения от ИИ с вопросами на выбор ответа и «верно/неверно» — как в настоящем Goethe-Zertifikat.",
           "duration": "65 мин",
           "parts": "5 частей"
         },
         "horen": {
           "title": "Hören",
-          "description": "Профессионально озвученные аудио с реалистичными голосами. Без перемотки — как на настоящем экзамене.",
           "duration": "40 мин",
           "parts": "4 части"
         },
         "schreiben": {
           "title": "Schreiben",
-          "description": "Письменные задания с проверкой ИИ по официальным критериям: выполнение задания, связность, словарный запас, грамматика.",
           "duration": "60 мин",
           "parts": "2 задания"
         },
         "sprechen": {
           "title": "Sprechen",
-          "description": "Устный экзамен с записью голоса и анализом ИИ. Оцениваются произношение, беглость и грамматика.",
           "duration": "15 мин",
           "parts": "3 части"
         }
@@ -279,8 +275,6 @@
       }
     },
     "overview": {
-      "title": "С возвращением",
-      "subtitle": "Ваш личный кабинет — статистика и новые экзамены.",
       "eyebrow": "ОБЗОР",
       "greeting": "Добрый день, <name></name>.",
       "leadWithAttempts": "Средний балл за {total, plural, one {# модуль} few {# модуля} many {# модулей} other {# модулей}} — {avg}. Продолжайте в том же темпе.",
@@ -309,18 +303,7 @@
         "niveau": "УРОВЕНЬ",
         "punktzahl": "БАЛЛ",
         "status": "СТАТУС"
-      },
-      "metrics": {
-        "modulesTaken": "Модулей пройдено",
-        "averageScore": "Средний балл",
-        "bestScore": "Лучший результат",
-        "lastModule": "Последний модуль",
-        "credits": "Доступные кредиты"
-      },
-      "outOf100": "из 100",
-      "noAttempts": "Пока нет попыток",
-      "adminMode": "Режим админа",
-      "creditHint": "1 кредит = 1 модуль"
+      }
     },
     "launcher": {
       "title": "Начать новый тест",
@@ -362,8 +345,6 @@
       }
     },
     "history": {
-      "title": "История",
-      "subtitle": "Все пройденные модули с фильтрами по уровню, модулю и дате.",
       "eyebrow": "ИСТОРИЯ",
       "titleCount": "{count, plural, one {# модуль} few {# модуля} many {# модулей} other {# модулей}}.",
       "titleSubline": "Каждая попытка на счету.",
@@ -399,10 +380,6 @@
         "noAttemptsHint": "Запустите модуль с дашборда.",
         "toDashboard": "К дашборду"
       },
-      "status": {
-        "free": "Бесплатно",
-        "paid": "Платно"
-      },
       "errors": {
         "loadFailed": "Не удалось загрузить историю.",
         "network": "Ошибка сети при загрузке истории."
@@ -412,7 +389,6 @@
       "backToHistory": "← Назад к истории",
       "backToHistoryButton": "Назад к истории",
       "toHistory": "К обзору истории",
-      "certificateHeading": "Goethe-Zertifikat {level} — {module}",
       "eyebrow": "СЕРТИФИКАТ · GOETHE {level}",
       "resultEyebrow": "РЕЗУЛЬТАТ",
       "overviewEyebrow": "ОБЗОР",
@@ -420,8 +396,6 @@
       "criteriaEyebrow": "ОЦЕНКА ПО КРИТЕРИЯМ",
       "aiFeedbackEyebrow": "ИИ-АНАЛИЗ",
       "outOf100": "из 100 баллов",
-      "passed": "Сдано",
-      "failed": "Не сдано",
       "submittedAt": "Отправлено {date} · {status}",
       "retakeModule": "Пройти заново",
       "retakeDisabled": "Нет модулей",
@@ -514,28 +488,18 @@
       }
     },
     "recommendations": {
-      "title": "Рекомендации",
-      "subtitle": "Персональные советы по учёбе на основе ваших пройденных модулей.",
       "loading": "Загружаем рекомендации…",
       "refreshing": "Генерируем новые рекомендации…",
       "refreshButton": "Обновить рекомендации",
       "refreshingButton": "Обновляем…",
       "retry": "Попробовать снова",
       "sections": {
-        "overall": "Общая оценка",
-        "strengths": "Сильные стороны",
-        "weaknesses": "Слабые места",
-        "studyPlan": "Ваш план учёбы",
-        "motivation": "Мотивация",
         "overallEyebrow": "ОБЩАЯ ОЦЕНКА",
         "strengthsEyebrow": "СИЛЬНЫЕ СТОРОНЫ",
         "weaknessesEyebrow": "ОБЛАСТИ РОСТА",
         "studyPlanEyebrow": "ПЛАН · {count, plural, one {# ШАГ} few {# ШАГА} many {# ШАГОВ} other {# ШАГА}}",
         "motivationEyebrow": "МОТИВАЦИЯ"
       },
-      "modulesCount": "{count, plural, one {учтён # модуль} few {учтено # модуля} many {учтено # модулей} other {учтено # модуля}}",
-      "cachedAt": "Сохранено {date}",
-      "generatedAt": "Создано {date}",
       "eyebrow": "РЕКОМЕНДАЦИИ · ИИ-ПЛАН ОБУЧЕНИЯ",
       "headline": {
         "strong": "Сегодня.",
@@ -568,8 +532,6 @@
       }
     },
     "payments": {
-      "title": "Оплата",
-      "subtitle": "Ваш баланс, варианты покупки и история оплат.",
       "eyebrow": "ПЛАТЕЖИ",
       "headline": {
         "strong": "Ваш баланс.",
@@ -590,14 +552,9 @@
       "creditExplanation": "1 кредит соответствует одному модулю экзамена (Lesen, Hören, Schreiben или Sprechen).",
       "buyTitle": "Купить модули",
       "buyHint": "Выберите пакет — купленные модули можно тратить на любой из четырёх: Lesen, Hören, Schreiben, Sprechen.",
-      "viewPackages": "Посмотреть пакеты",
-      "historyTitle": "История оплат",
-      "historyEmpty": "Пока нет оплат",
-      "historyHint": "История оплат появится, когда подключим систему платежей."
+      "viewPackages": "Посмотреть пакеты"
     },
     "settings": {
-      "title": "Настройки",
-      "subtitle": "Профиль, пароль и управление аккаунтом.",
       "eyebrow": "НАСТРОЙКИ",
       "headline": {
         "strong": "Профиль.",

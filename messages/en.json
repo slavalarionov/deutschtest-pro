@@ -79,25 +79,21 @@
       "items": {
         "lesen": {
           "title": "Lesen",
-          "description": "AI-generated reading texts with multiple-choice and true/false tasks — just like the real Goethe-Zertifikat.",
           "duration": "65 min",
           "parts": "5 parts"
         },
         "horen": {
           "title": "Hören",
-          "description": "Professionally voiced listening texts with realistic voices. No rewinding — just like the real exam.",
           "duration": "40 min",
           "parts": "4 parts"
         },
         "schreiben": {
           "title": "Schreiben",
-          "description": "Writing tasks with AI scoring based on official criteria: task fulfillment, coherence, vocabulary, grammar.",
           "duration": "60 min",
           "parts": "2 tasks"
         },
         "sprechen": {
           "title": "Sprechen",
-          "description": "Oral exam with voice recording and AI analysis. Pronunciation, fluency and grammar are all scored.",
           "duration": "15 min",
           "parts": "3 parts"
         }
@@ -279,8 +275,6 @@
       }
     },
     "overview": {
-      "title": "Welcome back",
-      "subtitle": "Your personal learning space — stats and new exams.",
       "eyebrow": "OVERVIEW",
       "greeting": "Good afternoon, <name></name>.",
       "leadWithAttempts": "Average across {total, plural, one {# module} other {# modules}} — {avg}. Keep the pace.",
@@ -309,18 +303,7 @@
         "niveau": "LEVEL",
         "punktzahl": "SCORE",
         "status": "STATUS"
-      },
-      "metrics": {
-        "modulesTaken": "Modules taken",
-        "averageScore": "Average score",
-        "bestScore": "Best result",
-        "lastModule": "Last module",
-        "credits": "Credits available"
-      },
-      "outOf100": "out of 100",
-      "noAttempts": "No attempts yet",
-      "adminMode": "Admin mode",
-      "creditHint": "1 credit = 1 module"
+      }
     },
     "launcher": {
       "title": "Start a new test",
@@ -362,8 +345,6 @@
       }
     },
     "history": {
-      "title": "History",
-      "subtitle": "All completed modules, filtered by level, module and date.",
       "eyebrow": "HISTORY",
       "titleCount": "{count, plural, one {# module} other {# modules}}.",
       "titleSubline": "Every attempt counts.",
@@ -399,10 +380,6 @@
         "noAttemptsHint": "Start a module from the dashboard.",
         "toDashboard": "Go to dashboard"
       },
-      "status": {
-        "free": "Free",
-        "paid": "Paid"
-      },
       "errors": {
         "loadFailed": "Couldn't load history.",
         "network": "Network error while loading history."
@@ -412,7 +389,6 @@
       "backToHistory": "← Back to history",
       "backToHistoryButton": "Back to history",
       "toHistory": "Go to history",
-      "certificateHeading": "Goethe-Zertifikat {level} — {module}",
       "eyebrow": "CERTIFICATE · GOETHE {level}",
       "resultEyebrow": "RESULT",
       "overviewEyebrow": "OVERVIEW",
@@ -420,8 +396,6 @@
       "criteriaEyebrow": "CRITERIA-BASED SCORING",
       "aiFeedbackEyebrow": "AI FEEDBACK",
       "outOf100": "out of 100 points",
-      "passed": "Passed",
-      "failed": "Not passed",
       "submittedAt": "Submitted on {date} · {status}",
       "retakeModule": "Retake module",
       "retakeDisabled": "No modules left",
@@ -514,28 +488,18 @@
       }
     },
     "recommendations": {
-      "title": "Recommendations",
-      "subtitle": "Personal study tips based on your past modules.",
       "loading": "Loading recommendations…",
       "refreshing": "Generating new recommendations…",
       "refreshButton": "Refresh recommendations",
       "refreshingButton": "Refreshing…",
       "retry": "Try again",
       "sections": {
-        "overall": "Overall assessment",
-        "strengths": "Strengths",
-        "weaknesses": "Weaknesses",
-        "studyPlan": "Your study plan",
-        "motivation": "Motivation",
         "overallEyebrow": "OVERALL",
         "strengthsEyebrow": "STRENGTHS",
         "weaknessesEyebrow": "AREAS TO GROW",
         "studyPlanEyebrow": "STUDY PLAN · {count, plural, one {# STEP} other {# STEPS}}",
         "motivationEyebrow": "MOTIVATION"
       },
-      "modulesCount": "{count, plural, one {# module} other {# modules}} considered",
-      "cachedAt": "Saved on {date}",
-      "generatedAt": "Created on {date}",
       "eyebrow": "RECOMMENDATIONS · AI STUDY PATH",
       "headline": {
         "strong": "Today.",
@@ -568,8 +532,6 @@
       }
     },
     "payments": {
-      "title": "Payments",
-      "subtitle": "Your balance, purchase options and payment history.",
       "eyebrow": "PAYMENTS",
       "headline": {
         "strong": "Your balance.",
@@ -590,14 +552,9 @@
       "creditExplanation": "1 credit is one exam module (Lesen, Hören, Schreiben or Sprechen).",
       "buyTitle": "Buy modules",
       "buyHint": "Pick a package — purchased modules can be used freely across Lesen, Hören, Schreiben and Sprechen.",
-      "viewPackages": "View packages",
-      "historyTitle": "Payment history",
-      "historyEmpty": "No payments yet",
-      "historyHint": "Payment history will show up once the payment system is live."
+      "viewPackages": "View packages"
     },
     "settings": {
-      "title": "Settings",
-      "subtitle": "Manage profile, password and account.",
       "eyebrow": "SETTINGS",
       "headline": {
         "strong": "Profile.",
