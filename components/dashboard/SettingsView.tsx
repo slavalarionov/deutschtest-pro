@@ -120,7 +120,7 @@ function ProfileCard({
             {displayName || email}
           </p>
           <p className="mt-1 truncate font-mono text-xs uppercase tracking-wide text-muted">
-            {email} · {t('memberSinceMono')} {memberSinceLabel}
+            {email} · {t('memberSinceMono')} · {memberSinceLabel}
           </p>
         </div>
       </div>

@@ -642,7 +642,7 @@
       "profile": {
         "title": "Profile",
         "eyebrow": "PROFILE",
-        "memberSinceMono": "MEMBER SINCE",
+        "memberSinceMono": "MEMBER",
         "nameEyebrow": "DISPLAY NAME",
         "savedChip": "Saved",
         "emailLabel": "Email",

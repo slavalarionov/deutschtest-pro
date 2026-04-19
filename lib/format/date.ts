@@ -30,15 +30,30 @@ export function formatEditorialDate(
 
 /**
  * Long-form editorial month/year formatter used in the settings screen
- * ("MITGLIED SEIT APRIL 2026" / "УЧАСТНИК С АПРЕЛЬ 2026" / etc.).
+ * ("MITGLIED · APRIL 2026" / "УЧАСТНИК · АПРЕЛЬ 2026" / "ÜYE · NİSAN 2026").
  *
- * Locale note: Russian `toLocaleDateString(… { month: 'long' })` returns the
- * genitive form (`апреля`). For an uppercase eyebrow we want the nominative
- * (`АПРЕЛЬ`), but since all slots are a single word the genitive reads fine in
- * caps as well; we keep the native form and uppercase it. Turkish uses
- * `toLocaleUpperCase(locale)` so `Nisan` becomes `NİSAN` (dotted capital İ)
- * rather than the ASCII `NISAN`.
+ * Russian note: `Intl.DateTimeFormat` with `{ month: 'long' }` can return the
+ * genitive form in some browser ICU builds (e.g. `апреля` instead of `апрель`).
+ * Since this label is shown standalone (not as part of a full date like
+ * "19 апреля"), we want the nominative form. We override the Russian output
+ * with an explicit nominative table. Turkish still uses `toLocaleUpperCase`
+ * so `Nisan` becomes `NİSAN` (dotted capital İ).
  */
+const RU_MONTHS_NOMINATIVE_UPPER = [
+  'ЯНВАРЬ',
+  'ФЕВРАЛЬ',
+  'МАРТ',
+  'АПРЕЛЬ',
+  'МАЙ',
+  'ИЮНЬ',
+  'ИЮЛЬ',
+  'АВГУСТ',
+  'СЕНТЯБРЬ',
+  'ОКТЯБРЬ',
+  'НОЯБРЬ',
+  'ДЕКАБРЬ',
+] as const
+
 export function formatEditorialMonthYear(
   date: Date | string,
   locale: string,
@@ -47,6 +62,11 @@ export function formatEditorialMonthYear(
   if (Number.isNaN(d.getTime())) return '—'
 
   const year = d.getFullYear()
+
+  if (locale.startsWith('ru')) {
+    return `${RU_MONTHS_NOMINATIVE_UPPER[d.getMonth()]} ${year}`
+  }
+
   const month = d
     .toLocaleDateString(locale, { month: 'long' })
     .toLocaleUpperCase(locale)
