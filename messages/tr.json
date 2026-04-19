@@ -606,6 +606,19 @@
     "payments": {
       "title": "Ödemeler",
       "subtitle": "Bakiyeniz, satın alma seçenekleri ve ödeme geçmişi.",
+      "eyebrow": "ÖDEMELER",
+      "headline": {
+        "strong": "Bakiyeniz.",
+        "muted": "Sınırsız öğrenin."
+      },
+      "balanceEyebrow": "MEVCUT BAKİYE",
+      "balanceUnitMono": "{count, plural, other {MODÜL}}",
+      "balanceUnlimitedMono": "SINIRSIZ",
+      "hintEyebrow": "NOT",
+      "buyEyebrow": "PAKET SATIN AL",
+      "buyHeadline": "Paketinizi seçin.",
+      "historyEmptyEyebrow": "ÖDEME YOK · YAKINDA",
+      "historyEmptyLead": "İlk satın alımınızdan sonra ödeme geçmişiniz burada görünecek.",
       "currentBalance": "Mevcut bakiye",
       "balanceUnlimited": "Sınırsız",
       "balanceUnit": "{count, plural, other {modül}}",

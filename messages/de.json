@@ -606,6 +606,19 @@
     "payments": {
       "title": "Zahlungen",
       "subtitle": "Ihr Guthaben, Kaufoptionen und Zahlungshistorie.",
+      "eyebrow": "ZAHLUNGEN",
+      "headline": {
+        "strong": "Ihr Guthaben.",
+        "muted": "Unbegrenzt lernen."
+      },
+      "balanceEyebrow": "AKTUELLES GUTHABEN",
+      "balanceUnitMono": "{count, plural, one {MODUL} other {MODULE}}",
+      "balanceUnlimitedMono": "OHNE LIMIT",
+      "hintEyebrow": "HINWEIS",
+      "buyEyebrow": "PAKET KAUFEN",
+      "buyHeadline": "Wählen Sie Ihr Paket.",
+      "historyEmptyEyebrow": "KEINE ZAHLUNGEN · BALD VERFÜGBAR",
+      "historyEmptyLead": "Nach Ihrer ersten Bestellung erscheint hier die Zahlungshistorie.",
       "currentBalance": "Aktuelles Guthaben",
       "balanceUnlimited": "Unbegrenzt",
       "balanceUnit": "{count, plural, one {Modul} other {Module}}",

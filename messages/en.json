@@ -606,6 +606,19 @@
     "payments": {
       "title": "Payments",
       "subtitle": "Your balance, purchase options and payment history.",
+      "eyebrow": "PAYMENTS",
+      "headline": {
+        "strong": "Your balance.",
+        "muted": "Learn without limits."
+      },
+      "balanceEyebrow": "CURRENT BALANCE",
+      "balanceUnitMono": "{count, plural, one {MODULE} other {MODULES}}",
+      "balanceUnlimitedMono": "UNLIMITED",
+      "hintEyebrow": "NOTE",
+      "buyEyebrow": "BUY PACKAGE",
+      "buyHeadline": "Choose your package.",
+      "historyEmptyEyebrow": "NO PAYMENTS · COMING SOON",
+      "historyEmptyLead": "Your payment history will appear here after your first purchase.",
       "currentBalance": "Current balance",
       "balanceUnlimited": "Unlimited",
       "balanceUnit": "{count, plural, one {module} other {modules}}",

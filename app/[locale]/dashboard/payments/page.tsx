@@ -26,54 +26,73 @@ export default async function DashboardPaymentsPage() {
     typeof profile?.modules_balance === 'number' ? profile.modules_balance : 0
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-brand-text">{t('title')}</h1>
-        <p className="mt-1 text-sm text-brand-muted">{t('subtitle')}</p>
-      </div>
+    <div className="mx-auto max-w-5xl space-y-6">
+      {/* Header */}
+      <header>
+        <p className="eyebrow">{t('eyebrow')}</p>
+        <h1 className="mt-3 font-display text-6xl leading-[1] tracking-[-0.035em] md:text-7xl">
+          <span className="block text-ink">{t('headline.strong')}</span>
+          <span className="block text-ink-soft">{t('headline.muted')}</span>
+        </h1>
+      </header>
 
-      <section className="rounded-2xl bg-brand-white p-6 shadow-soft">
-        <p className="text-xs font-medium uppercase tracking-wider text-brand-muted">
-          {t('currentBalance')}
-        </p>
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className="text-4xl font-bold text-brand-text">
-            {isAdmin ? t('balanceUnlimited') : balance}
-          </span>
-          {!isAdmin && (
-            <span className="text-sm text-brand-muted">
-              {t('balanceUnit', { count: balance })}
-            </span>
-          )}
-        </div>
-        <p className="mt-2 text-xs text-brand-muted">
-          {isAdmin ? t('adminHint') : t('creditExplanation')}
-        </p>
-      </section>
+      {/* Balance card */}
+      <section className="rounded-rad border border-line bg-card p-14 text-center">
+        <p className="eyebrow">{t('balanceEyebrow')}</p>
 
-      <section className="rounded-2xl bg-brand-white p-6 shadow-soft">
-        <h2 className="text-lg font-semibold text-brand-text">
-          {t('buyTitle')}
-        </h2>
-        <p className="mt-1 text-sm text-brand-muted">{t('buyHint')}</p>
-        <Link
-          href="/pricing"
-          className="mt-4 inline-flex items-center justify-center rounded-lg bg-brand-gold px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-gold-dark"
-        >
-          {t('viewPackages')}
-        </Link>
-      </section>
+        {isAdmin ? (
+          <>
+            <div className="mt-4 font-display text-6xl tracking-[-0.03em] text-ink md:text-7xl">
+              ∞
+            </div>
+            <p className="mt-3 font-mono text-[11px] uppercase tracking-wide text-muted">
+              {t('balanceUnlimitedMono')}
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="mt-4 font-display text-7xl tracking-[-0.03em] text-ink md:text-8xl">
+              {balance}
+            </div>
+            <p className="mt-3 font-mono text-[11px] uppercase tracking-wide text-muted">
+              {t('balanceUnitMono', { count: balance })}
+            </p>
+          </>
+        )}
 
-      <section className="rounded-2xl bg-brand-white p-6 shadow-soft">
-        <h2 className="text-lg font-semibold text-brand-text">
-          {t('historyTitle')}
-        </h2>
-        <div className="mt-4 rounded-xl border border-dashed border-brand-border bg-brand-surface px-6 py-10 text-center">
-          <p className="text-sm font-medium text-brand-text">
-            {t('historyEmpty')}
+        <div className="mt-10 border-t border-line pt-8">
+          <p className="eyebrow">{t('hintEyebrow')}</p>
+          <p className="mt-3 text-ink-soft">
+            {isAdmin ? t('adminHint') : t('creditExplanation')}
           </p>
-          <p className="mt-2 text-xs text-brand-muted">{t('historyHint')}</p>
         </div>
+      </section>
+
+      {/* Buy card */}
+      <section className="rounded-rad border border-line bg-surface p-8">
+        <p className="eyebrow">{t('buyEyebrow')}</p>
+        <div className="mt-4 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex-1">
+            <h2 className="font-display text-2xl tracking-[-0.02em] text-ink">
+              {t('buyHeadline')}
+            </h2>
+            <p className="mt-2 text-ink-soft">{t('buyHint')}</p>
+          </div>
+          <Link
+            href="/pricing"
+            className="inline-flex flex-shrink-0 items-center justify-center rounded-rad-pill bg-ink px-8 py-3 text-sm font-medium text-page transition-colors hover:bg-ink-soft"
+          >
+            {t('viewPackages')}
+          </Link>
+        </div>
+      </section>
+
+      {/* History placeholder */}
+      <section className="rounded-rad border border-dashed border-line bg-card p-14 text-center">
+        <p className="font-mono text-[11px] uppercase tracking-wide text-muted">
+          {t('historyEmptyEyebrow')}
+        </p>
+        <p className="mt-3 text-muted">{t('historyEmptyLead')}</p>
       </section>
     </div>
   )

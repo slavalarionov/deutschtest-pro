@@ -606,6 +606,19 @@
     "payments": {
       "title": "Оплата",
       "subtitle": "Ваш баланс, варианты покупки и история оплат.",
+      "eyebrow": "ПЛАТЕЖИ",
+      "headline": {
+        "strong": "Ваш баланс.",
+        "muted": "Учитесь без ограничений."
+      },
+      "balanceEyebrow": "ТЕКУЩИЙ БАЛАНС",
+      "balanceUnitMono": "{count, plural, one {МОДУЛЬ} few {МОДУЛЯ} many {МОДУЛЕЙ} other {МОДУЛЯ}}",
+      "balanceUnlimitedMono": "БЕЗ ЛИМИТА",
+      "hintEyebrow": "ПОДСКАЗКА",
+      "buyEyebrow": "КУПИТЬ ПАКЕТ",
+      "buyHeadline": "Выберите свой пакет.",
+      "historyEmptyEyebrow": "ПЛАТЕЖЕЙ НЕТ · СКОРО БУДЕТ ДОСТУПНО",
+      "historyEmptyLead": "После первой покупки здесь появится история платежей.",
       "currentBalance": "Текущий баланс",
       "balanceUnlimited": "Без ограничений",
       "balanceUnit": "{count, plural, one {модуль} few {модуля} many {модулей} other {модуля}}",
