@@ -264,6 +264,9 @@
       "closeMenu": "Menüyü kapat",
       "backHome": "← Anasayfaya",
       "logout": "Çıkış yap",
+      "konto": "HESAP",
+      "credits": "KREDİLER",
+      "modulesLeft": "modül kaldı",
       "nav": {
         "dashboard": "Panel",
         "history": "Geçmiş",

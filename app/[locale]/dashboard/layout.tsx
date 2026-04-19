@@ -18,7 +18,17 @@ export default async function DashboardLayout({
     redirect('/login?next=/dashboard')
   }
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('modules_balance')
+    .eq('id', user.id)
+    .single()
+
+  const modulesBalance = profile?.modules_balance ?? 0
+
   return (
-    <DashboardShell email={user.email ?? ''}>{children}</DashboardShell>
+    <DashboardShell email={user.email ?? ''} modulesBalance={modulesBalance}>
+      {children}
+    </DashboardShell>
   )
 }

@@ -264,6 +264,9 @@
       "closeMenu": "Закрыть меню",
       "backHome": "← На главную",
       "logout": "Выйти",
+      "konto": "АККАУНТ",
+      "credits": "КРЕДИТЫ",
+      "modulesLeft": "модулей осталось",
       "nav": {
         "dashboard": "Дашборд",
         "history": "История",

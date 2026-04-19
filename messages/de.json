@@ -264,6 +264,9 @@
       "closeMenu": "Menü schließen",
       "backHome": "← Zur Startseite",
       "logout": "Abmelden",
+      "konto": "KONTO",
+      "credits": "CREDITS",
+      "modulesLeft": "Module übrig",
       "nav": {
         "dashboard": "Dashboard",
         "history": "Verlauf",
