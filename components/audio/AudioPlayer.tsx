@@ -47,7 +47,7 @@ export function AudioPlayer({ src, maxPlays }: AudioPlayerProps) {
   }, [])
 
   return (
-    <div className="flex items-center gap-3 rounded-lg bg-brand-surface px-4 py-3">
+    <div className="flex items-center gap-3 rounded-rad-sm bg-surface px-4 py-3">
       <audio
         ref={audioRef}
         src={src}
@@ -61,8 +61,8 @@ export function AudioPlayer({ src, maxPlays }: AudioPlayerProps) {
         disabled={!canPlay && !isPlaying}
         className={`flex h-10 w-10 items-center justify-center rounded-full transition ${
           canPlay || isPlaying
-            ? 'bg-brand-gold text-white hover:bg-brand-gold-dark'
-            : 'cursor-not-allowed bg-brand-border text-brand-muted'
+            ? 'bg-ink text-page hover:bg-ink-soft'
+            : 'cursor-not-allowed bg-line text-muted'
         }`}
         aria-label={isPlaying ? t('pause') : t('play')}
       >
@@ -79,15 +79,15 @@ export function AudioPlayer({ src, maxPlays }: AudioPlayerProps) {
       </button>
 
       <div className="flex-1">
-        <div className="h-1.5 overflow-hidden rounded-full bg-brand-border">
+        <div className="h-1.5 overflow-hidden rounded-full bg-line">
           <div
-            className="h-full rounded-full bg-brand-gold transition-all duration-200"
+            className="h-full rounded-full bg-ink transition-all duration-200"
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
-      <span className="text-xs font-medium text-brand-muted">
+      <span className="font-mono text-xs uppercase tracking-wider text-muted">
         {playCount}/{maxPlays}
       </span>
     </div>

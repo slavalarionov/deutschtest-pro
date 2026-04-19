@@ -76,8 +76,8 @@ export function RecordingButton({
         onClick={isRecording ? stopRecording : startRecording}
         className={`flex h-14 w-14 items-center justify-center rounded-full transition ${
           isRecording
-            ? 'animate-pulse bg-brand-red text-white'
-            : 'bg-brand-gold text-white hover:bg-brand-gold-dark'
+            ? 'animate-pulse bg-accent text-accent-ink'
+            : 'bg-ink text-page hover:bg-ink-soft'
         }`}
         aria-label={isRecording ? t('stopRecording') : t('startRecording')}
       >
@@ -93,7 +93,7 @@ export function RecordingButton({
       </button>
 
       {isRecording && (
-        <span className="font-mono text-sm font-medium text-brand-red">
+        <span className="font-mono text-sm font-medium text-ink">
           {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
         </span>
       )}

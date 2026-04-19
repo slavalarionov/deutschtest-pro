@@ -86,8 +86,8 @@ export function LanguageSwitcher({ isLoggedIn = false, variant = 'default' }: La
         onClick={() => setOpen((v) => !v)}
         className={
           isCompact
-            ? 'inline-flex items-center gap-1 rounded-lg border border-brand-border bg-brand-white px-3 py-1.5 text-xs font-medium text-brand-text shadow-soft transition hover:border-brand-gold/40'
-            : 'inline-flex items-center gap-1.5 rounded-lg border border-brand-border bg-brand-white px-3 py-2 text-sm font-medium text-brand-text shadow-soft transition hover:border-brand-gold/40'
+            ? 'inline-flex items-center gap-1 rounded-rad-sm border border-line bg-card px-3 py-1.5 text-xs font-medium text-ink transition-colors hover:bg-surface'
+            : 'inline-flex items-center gap-1.5 rounded-rad-sm border border-line bg-card px-3 py-2 text-sm font-medium text-ink transition-colors hover:bg-surface'
         }
       >
         <span>{currentLabel}</span>
@@ -114,7 +114,7 @@ export function LanguageSwitcher({ isLoggedIn = false, variant = 'default' }: La
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.12 }}
-            className="absolute right-0 z-50 mt-1 w-40 overflow-hidden rounded-lg border border-brand-border bg-brand-white shadow-card"
+            className="absolute right-0 z-50 mt-1 w-40 overflow-hidden rounded-rad-sm border border-line bg-card shadow-lift"
           >
             {OPTIONS.map((opt) => {
               const active = opt.code === currentLocale
@@ -125,14 +125,18 @@ export function LanguageSwitcher({ isLoggedIn = false, variant = 'default' }: La
                     role="option"
                     aria-selected={active}
                     onClick={() => selectLocale(opt.code)}
-                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition ${
+                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition-colors ${
                       active
-                        ? 'bg-brand-gold/10 font-semibold text-brand-gold-dark'
-                        : 'text-brand-text hover:bg-brand-border/60'
+                        ? 'bg-ink font-medium text-page'
+                        : 'text-ink-soft hover:bg-surface hover:text-ink'
                     }`}
                   >
                     <span>{opt.label}</span>
-                    {active && <span aria-hidden className="text-brand-gold">✓</span>}
+                    {active && (
+                      <span aria-hidden className="text-page">
+                        ✓
+                      </span>
+                    )}
                   </button>
                 </li>
               )
