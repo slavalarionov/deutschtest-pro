@@ -6,7 +6,7 @@ import { PricingSection } from '@/components/landing/PricingSection'
 import { FaqSection } from '@/components/landing/FaqSection'
 import { AuthNav } from '@/components/auth/AuthNav'
 import { createClient } from '@/lib/supabase/server'
-import { checkUserCanTakeTest } from '@/lib/exam/limits'
+import { redirect } from '@/i18n/routing'
 
 export async function generateMetadata({
   params,
@@ -20,37 +20,26 @@ export async function generateMetadata({
   }
 }
 
-export default async function HomePage() {
+export default async function HomePage({
+  params,
+}: {
+  params: { locale: string }
+}) {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  let freeTestAvailable = true
-  let paidTestsCount = 0
-  let modulesBalance = 0
-  let isAdmin = false
-
   if (user) {
-    const availability = await checkUserCanTakeTest(user.id, user.email)
-    freeTestAvailable = availability.freeTestAvailable
-    paidTestsCount = availability.paidTestsCount
-    modulesBalance = availability.modulesBalance
-    isAdmin = !!availability.isAdmin
+    redirect({ href: '/dashboard', locale: params.locale })
   }
 
   return (
     <main className="min-h-screen">
       <header className="absolute right-4 top-4 z-50 sm:right-8 sm:top-6">
-        <AuthNav userEmail={user?.email ?? null} />
+        <AuthNav userEmail={null} />
       </header>
-      <HeroSection
-        isLoggedIn={!!user}
-        freeTestAvailable={freeTestAvailable}
-        paidTestsCount={paidTestsCount}
-        modulesBalance={modulesBalance}
-        isAdmin={isAdmin}
-      />
+      <HeroSection isLoggedIn={false} />
       <FeaturesSection />
       <PricingSection />
       <FaqSection />

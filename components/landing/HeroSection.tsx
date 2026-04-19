@@ -17,18 +17,18 @@ const MODULES: { id: ExamModule; icon: string }[] = [
 
 interface HeroSectionProps {
   isLoggedIn: boolean
-  freeTestAvailable: boolean
-  paidTestsCount: number
-  modulesBalance: number
-  isAdmin: boolean
+  freeTestAvailable?: boolean
+  paidTestsCount?: number
+  modulesBalance?: number
+  isAdmin?: boolean
 }
 
 export function HeroSection({
   isLoggedIn,
-  freeTestAvailable,
-  paidTestsCount,
-  modulesBalance,
-  isAdmin,
+  freeTestAvailable = true,
+  paidTestsCount = 0,
+  modulesBalance = 0,
+  isAdmin = false,
 }: HeroSectionProps) {
   const router = useRouter()
   const t = useTranslations('landing.hero')
