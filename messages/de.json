@@ -34,6 +34,7 @@
       "subtitlePaidTests": "{count, plural, one {Sie haben # Test verfügbar.} other {Sie haben # Tests verfügbar.}}",
       "subtitleModules": "Modul-Credits: {count} (1 Credit pro Modul)",
       "ctaRegister": "Kostenlos registrieren & testen",
+      "alreadyRegistered": "Schon registriert? → Anmelden",
       "ctaSelectModule": "Modul wählen",
       "ctaStart": "Test starten — {level}",
       "ctaBuy": "Tests kaufen",

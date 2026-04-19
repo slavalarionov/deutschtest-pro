@@ -1,310 +1,262 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
-import type { ExamLevel, ExamModule } from '@/types/exam'
-
-const LEVELS: ExamLevel[] = ['A1', 'A2', 'B1']
-const MODULES: { id: ExamModule; icon: string }[] = [
-  { id: 'lesen', icon: '📖' },
-  { id: 'horen', icon: '🎧' },
-  { id: 'schreiben', icon: '✍️' },
-  { id: 'sprechen', icon: '🗣' },
-]
 
 interface HeroSectionProps {
+  /**
+   * Guests only see this editorial Hero — logged-in users are redirected to
+   * `/dashboard` in `app/[locale]/page.tsx` before render. The prop is kept
+   * for API stability and to toggle the small "already registered" link.
+   */
   isLoggedIn: boolean
-  freeTestAvailable?: boolean
-  paidTestsCount?: number
-  modulesBalance?: number
-  isAdmin?: boolean
 }
 
-export function HeroSection({
-  isLoggedIn,
-  freeTestAvailable = true,
-  paidTestsCount = 0,
-  modulesBalance = 0,
-  isAdmin = false,
-}: HeroSectionProps) {
-  const router = useRouter()
+/**
+ * Landing Hero — editorial layout (Phase 3 Redesign).
+ *
+ * Port of `LandingHero` from docs/Redesign.html (lines 311–409):
+ * big display typography, ß grapheme, two floating preview cards,
+ * scrolling letters strip. The test launcher has moved to `/dashboard`;
+ * the CTA here is registration-only.
+ *
+ * Decorative German strings inside the floating cards are intentionally
+ * not i18n'd — they are a visual sample of the product, not UI copy.
+ */
+export function HeroSection({ isLoggedIn }: HeroSectionProps) {
   const t = useTranslations('landing.hero')
-  const [selectedLevel, setSelectedLevel] = useState<ExamLevel>('B1')
-  const [selectedModule, setSelectedModule] = useState<ExamModule | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  /** API `error` string for dev-only under the German message (screenshots / debugging). */
-  const [errorDetail, setErrorDetail] = useState<string | null>(null)
-
-  const genericGenerateFail = t('errors.generateFailed')
-
-  async function handleStartExam() {
-    if (!isLoggedIn) {
-      router.push('/register')
-      return
-    }
-
-    if (!selectedModule) return
-
-    const mustPrepayModules =
-      !isAdmin && !freeTestAvailable && paidTestsCount === 0
-
-    if (mustPrepayModules && modulesBalance < 1) {
-      setError(t('errors.noCredits'))
-      return
-    }
-
-    setLoading(true)
-    setError(null)
-    setErrorDetail(null)
-
-    try {
-      const res = await fetch('/api/exam/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ level: selectedLevel, module: selectedModule }),
-      })
-
-      let data: Record<string, unknown> = {}
-      try {
-        data = (await res.json()) as Record<string, unknown>
-      } catch {
-        data = {}
-      }
-
-      if (res.status === 401) {
-        setLoading(false)
-        router.push('/login')
-        return
-      }
-
-      if (res.status === 403) {
-        setLoading(false)
-        if (data.code === 'insufficient_balance') {
-          setError(String(data.error ?? t('errors.insufficientBalanceFallback')))
-        } else {
-          router.push(String(data.redirect ?? '/pricing'))
-        }
-        return
-      }
-
-      if (!res.ok) {
-        const code = data.code
-        const apiError = typeof data.error === 'string' ? data.error : undefined
-        console.error('[exam/generate] non-OK response', { status: res.status, code, error: apiError })
-        setError(genericGenerateFail)
-        setErrorDetail(apiError ?? null)
-        setLoading(false)
-        return
-      }
-
-      if (!data.success || !data.sessionId) {
-        const code = data.code
-        const apiError = typeof data.error === 'string' ? data.error : undefined
-        console.error('[exam/generate] unexpected body', { code, error: apiError, success: data.success })
-        setError(genericGenerateFail)
-        setErrorDetail(apiError ?? null)
-        setLoading(false)
-        return
-      }
-
-      router.push(`/exam/${data.sessionId}`)
-      setLoading(false)
-    } catch (err) {
-      console.error('[exam/generate] fetch failed', err)
-      setError(genericGenerateFail)
-      setErrorDetail(err instanceof Error ? err.message : String(err))
-      setLoading(false)
-    }
-  }
-
-  function getCtaLabel(): string {
-    if (loading) return ''
-    if (!isLoggedIn) return t('ctaRegister')
-    if (!selectedModule) return t('ctaSelectModule')
-    if (freeTestAvailable || paidTestsCount > 0 || modulesBalance > 0) {
-      return t('ctaStart', { level: selectedLevel })
-    }
-    return t('ctaBuy')
-  }
-
-  function getSubtitle(): string {
-    if (!isLoggedIn) return t('subtitleGuest')
-    if (freeTestAvailable) return t('subtitleFreeAvailable')
-    if (paidTestsCount > 0) return t('subtitlePaidTests', { count: paidTestsCount })
-    if (modulesBalance > 0) return t('subtitleModules', { count: modulesBalance })
-    return ''
-  }
-
-  const showExamSelector =
-    isLoggedIn && (freeTestAvailable || paidTestsCount > 0 || modulesBalance > 0 || isAdmin)
-  const showBuyButton =
-    isLoggedIn && !isAdmin && !freeTestAvailable && paidTestsCount === 0 && modulesBalance === 0
-
-  const loadingHint = loading ? t('loadingHint') : null
-  const levelDescKey: Record<ExamLevel, string> = {
-    A1: 'a1',
-    A2: 'a2',
-    B1: 'b1',
-  }
 
   return (
-    <section className="relative overflow-hidden bg-brand-bg px-4 py-24 sm:py-32">
-      <div className="mx-auto max-w-4xl text-center">
+    <section
+      className="relative overflow-hidden bg-page"
+      aria-labelledby="landing-hero-title"
+    >
+      {/* Hero grid */}
+      <div className="mx-auto grid max-w-7xl grid-cols-1 items-end gap-10 px-4 pb-10 pt-24 sm:px-6 sm:pt-28 lg:grid-cols-12 lg:gap-8 lg:px-10 lg:pt-20">
+        {/* Left: copy */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="lg:col-span-7"
         >
-          <span className="mb-4 inline-block rounded-full bg-brand-surface px-4 py-1.5 text-xs font-medium tracking-wide text-brand-muted">
-            {t('badge')}
+          {/* Eyebrow chip */}
+          <span
+            className="mb-6 inline-flex items-center gap-2 rounded-rad-pill border border-line bg-card px-3 py-1.5 text-xs font-medium sm:mb-8"
+            style={{ color: 'var(--muted)' }}
+          >
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-rad-pill bg-accent"
+            />
+            <span>{t('badge')}</span>
           </span>
 
-          <h1 className="mb-6 text-4xl font-bold leading-tight text-brand-text sm:text-5xl lg:text-6xl">
-            {t('titlePart1')}{' '}
-            <span className="text-brand-gold">{t('titleHighlight')}</span>{' '}
-            {t('titlePart2')}
+          {/* Display headline — three parts, middle italic in accent */}
+          <h1
+            id="landing-hero-title"
+            className="font-display text-balance text-[44px] font-normal leading-[1.02] tracking-tighter text-ink sm:text-[64px] lg:text-[96px] lg:leading-[0.95]"
+          >
+            <span className="text-muted">{t('titlePart1')}</span>
+            <br />
+            <span className="italic" style={{ fontWeight: 500 }}>
+              {t('titleHighlight')}
+            </span>
+            <span className="text-muted"> </span>
+            <span>{t('titlePart2')}</span>
           </h1>
 
-          <p className="mx-auto mb-4 max-w-2xl text-lg text-brand-muted">
+          {/* Lead */}
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-ink-soft sm:mt-8 sm:text-lg">
             {t('subtitle')}
           </p>
 
-          {getSubtitle() && (
-            <p className="mx-auto mb-8 max-w-xl text-sm font-medium text-brand-gold-dark">
-              {getSubtitle()}
-            </p>
-          )}
-
-          {showExamSelector && (
-            <>
-              <div className="mx-auto mb-4 flex max-w-sm justify-center gap-3">
-                {LEVELS.map((lvl) => (
-                  <button
-                    key={lvl}
-                    type="button"
-                    onClick={() => setSelectedLevel(lvl)}
-                    disabled={loading}
-                    className={`flex-1 rounded-xl border-2 px-4 py-3 transition ${
-                      selectedLevel === lvl
-                        ? 'border-brand-gold bg-brand-gold/5 shadow-soft'
-                        : 'border-brand-border bg-brand-white hover:border-brand-gold/40'
-                    }`}
-                  >
-                    <span
-                      className={`block text-lg font-bold ${selectedLevel === lvl ? 'text-brand-gold-dark' : 'text-brand-text'}`}
-                    >
-                      {lvl}
-                    </span>
-                    <span className="block text-[11px] text-brand-muted">
-                      {t(`levels.${levelDescKey[lvl]}`)}
-                    </span>
-                  </button>
-                ))}
-              </div>
-
-              <div className="mx-auto mb-4 grid max-w-lg grid-cols-1 gap-2 sm:grid-cols-2">
-                {MODULES.map((mod) => {
-                  const checked = selectedModule === mod.id
-                  const nameKey = `modules.${mod.id}` as const
-                  const durKey =
-                    `modules.duration${mod.id.charAt(0).toUpperCase()}${mod.id.slice(1)}` as const
-                  return (
-                    <button
-                      key={mod.id}
-                      type="button"
-                      onClick={() => setSelectedModule(mod.id)}
-                      disabled={loading}
-                      className={`flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition ${
-                        checked
-                          ? 'border-brand-gold bg-brand-gold/5 shadow-soft'
-                          : 'border-brand-border bg-brand-white hover:border-brand-gold/40'
-                      }`}
-                    >
-                      <div className="flex-1">
-                        <span className="text-lg">{mod.icon}</span>{' '}
-                        <span className="font-semibold text-brand-text">{t(nameKey)}</span>
-                        <span className="mt-0.5 block text-xs text-brand-muted">{t(durKey)}</span>
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
-
-              <p className="mx-auto mb-6 max-w-xl text-sm text-brand-muted">
-                {t('modulesHint')}
-              </p>
-            </>
-          )}
-
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            {showBuyButton ? (
-              <div className="flex flex-col items-center gap-3">
-                <p className="max-w-md text-sm text-brand-muted">
-                  {t('buyPrompt')}
-                </p>
-                <Link
-                  href="/pricing"
-                  className="rounded-lg bg-brand-gold px-8 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark"
-                >
-                  {t('ctaBuy')}
-                </Link>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={handleStartExam}
-                disabled={loading || (isLoggedIn && !selectedModule)}
-                className="rounded-lg bg-brand-gold px-8 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark disabled:cursor-not-allowed disabled:opacity-60"
+          {/* Primary CTA */}
+          <div className="mt-8 flex flex-col items-start gap-3 sm:mt-10">
+            <Link
+              href="/register"
+              className="inline-flex items-center gap-2 rounded-rad-pill bg-ink px-6 py-3.5 text-sm font-medium text-card transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+            >
+              {t('ctaRegister')}
+              <svg
+                aria-hidden="true"
+                width="14"
+                height="14"
+                viewBox="0 0 20 20"
+                fill="none"
               >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    {t('ctaGenerating')}
-                  </span>
-                ) : (
-                  getCtaLabel()
-                )}
-              </button>
+                <path
+                  d="M5 10h10M11 6l4 4-4 4"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
+
+            {!isLoggedIn && (
+              <Link
+                href="/login"
+                className="text-sm text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline"
+              >
+                {t('alreadyRegistered')}
+              </Link>
             )}
           </div>
 
-          {error && (
-            <div className="mt-4">
-              <p className="text-sm text-brand-red">{error}</p>
-              {process.env.NODE_ENV !== 'production' && errorDetail && (
-                <p className="mt-1 break-all font-mono text-xs text-brand-red/80">{errorDetail}</p>
+          {/* Stats row */}
+          <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4 text-sm text-muted sm:mt-14 sm:gap-10">
+            <div>
+              <span className="block font-display text-2xl text-ink">3</span>
+              {t('stats.levels')}
+            </div>
+            <div className="hidden h-8 w-px bg-line sm:block" />
+            <div>
+              <span className="block font-display text-2xl text-ink">4</span>
+              {t('stats.modules')}
+            </div>
+            <div className="hidden h-8 w-px bg-line sm:block" />
+            <div>
+              <span className="block font-display text-2xl text-ink">
+                {t('stats.aiLabel')}
+              </span>
+              {t('stats.ai')}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Right: ß grapheme + floating cards (desktop only) */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+          className="relative hidden h-[520px] lg:col-span-5 lg:block"
+          aria-hidden="true"
+        >
+          {/* ß grapheme */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div
+              className="font-display leading-none text-ink"
+              style={{
+                fontSize: 520,
+                letterSpacing: '-0.06em',
+                fontWeight: 400,
+              }}
+            >
+              ß
+            </div>
+          </div>
+
+          {/* Unicode label — top-left */}
+          <div className="absolute left-0 top-4 flex gap-2 font-mono text-[11px] text-muted">
+            <span>U+00DF</span>
+            <span>·</span>
+            <span>LATIN SMALL LETTER SHARP S</span>
+          </div>
+
+          {/* Preview card — LESEN · B1 · Teil 2 */}
+          <div className="absolute -right-4 bottom-10 w-60 rounded-rad-sm border border-line bg-card p-4 shadow-lift">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="font-mono text-xs text-muted">
+                LESEN · B1 · Teil 2
+              </span>
+              <span
+                className="rounded-rad-pill px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"
+                style={{
+                  background: 'var(--accent-soft)',
+                  color: 'var(--accent-ink)',
+                }}
+              >
+                Live
+              </span>
+            </div>
+            <div className="text-sm text-ink">
+              {'„Was ist die Hauptaussage des Textes?“'}
+            </div>
+            <div className="mt-3 space-y-1.5">
+              {[
+                { text: 'Die Stadt wird umgebaut.', active: false },
+                { text: 'Die Menschen sind unzufrieden.', active: false },
+                { text: 'Das Projekt wird gefördert.', active: true },
+              ].map((opt, i) => (
+                <div
+                  key={i}
+                  className="rounded-rad-sm border px-2.5 py-2 text-xs"
+                  style={{
+                    borderColor: opt.active ? 'var(--accent)' : 'var(--line)',
+                    background: opt.active
+                      ? 'var(--accent-soft)'
+                      : 'var(--card)',
+                    color: opt.active
+                      ? 'var(--accent-ink)'
+                      : 'var(--ink-soft)',
+                  }}
+                >
+                  <span className="mr-2 font-mono">
+                    {String.fromCharCode(97 + i)}
+                  </span>
+                  {opt.text}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Preview card — KI-Feedback */}
+          <div className="absolute right-8 top-4 w-48 rounded-rad-sm border border-line bg-card p-3 shadow-lift">
+            <div className="mb-2 flex items-center gap-2">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 20 20"
+                fill="none"
+                className="text-accent"
+              >
+                <path
+                  d="M10 2l1.8 5.2L17 9l-5.2 1.8L10 16l-1.8-5.2L3 9l5.2-1.8L10 2z"
+                  fill="currentColor"
+                />
+              </svg>
+              <span className="text-xs font-medium text-ink">KI-Feedback</span>
+            </div>
+            <div className="text-xs text-ink-soft">
+              Achte auf{' '}
+              <span
+                className="font-medium"
+                style={{ color: 'var(--accent-ink)' }}
+              >
+                Konjunktiv II
+              </span>{' '}
+              {'— hier passt „wäre“ besser als „war“.'}
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Scrolling letters strip */}
+      <div className="overflow-hidden border-y border-line-soft py-4 sm:py-6">
+        <div
+          className="flex animate-letter-drift gap-10 whitespace-nowrap font-display sm:gap-14"
+          style={{ fontSize: 'clamp(40px, 8vw, 72px)', lineHeight: 1 }}
+        >
+          {Array.from({ length: 2 }).map((_, k) => (
+            <div key={k} className="flex gap-10 sm:gap-14">
+              {['ä', 'ö', 'ü', 'ß', 'ei', 'ch', 'sch', 'ng', 'eu', 'au', 'ie'].map(
+                (l, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      color: i % 3 === 0 ? 'var(--ink)' : 'var(--line)',
+                    }}
+                  >
+                    {l}
+                  </span>
+                ),
               )}
             </div>
-          )}
-
-          {loadingHint && <p className="mt-3 text-xs text-brand-muted">{loadingHint}</p>}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="mt-16 flex items-center justify-center gap-8 text-sm text-brand-muted"
-        >
-          <div>
-            <span className="block text-2xl font-bold text-brand-text">A1–B1</span>
-            {t('stats.levels')}
-          </div>
-          <div className="h-8 w-px bg-brand-border" />
-          <div>
-            <span className="block text-2xl font-bold text-brand-text">4</span>
-            {t('stats.modules')}
-          </div>
-          <div className="h-8 w-px bg-brand-border" />
-          <div>
-            <span className="block text-2xl font-bold text-brand-text">{t('stats.aiLabel')}</span>
-            {t('stats.ai')}
-          </div>
-        </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   )
