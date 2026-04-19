@@ -67,7 +67,8 @@
         "modules": "Modules",
         "aiLabel": "AI",
         "ai": "scoring"
-      }
+      },
+      "sampleBadge": "Example"
     },
     "features": {
       "title": "All four modules. One platform.",

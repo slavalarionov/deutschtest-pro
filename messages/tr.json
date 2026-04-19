@@ -67,7 +67,8 @@
         "modules": "Modüller",
         "aiLabel": "AI",
         "ai": "değerlendirme"
-      }
+      },
+      "sampleBadge": "Örnek"
     },
     "features": {
       "title": "Dört modül. Tek platform.",

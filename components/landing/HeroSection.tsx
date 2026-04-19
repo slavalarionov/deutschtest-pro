@@ -169,7 +169,7 @@ export function HeroSection({ isLoggedIn }: HeroSectionProps) {
                   color: 'var(--accent-ink)',
                 }}
               >
-                Live
+                {t('sampleBadge')}
               </span>
             </div>
             <div className="text-sm text-ink">
@@ -205,20 +205,31 @@ export function HeroSection({ isLoggedIn }: HeroSectionProps) {
 
           {/* Preview card — KI-Feedback */}
           <div className="absolute right-8 top-4 w-48 rounded-rad-sm border border-line bg-card p-3 shadow-lift">
-            <div className="mb-2 flex items-center gap-2">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 20 20"
-                fill="none"
-                className="text-accent"
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  className="text-accent"
+                >
+                  <path
+                    d="M10 2l1.8 5.2L17 9l-5.2 1.8L10 16l-1.8-5.2L3 9l5.2-1.8L10 2z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <span className="text-xs font-medium text-ink">KI-Feedback</span>
+              </div>
+              <span
+                className="rounded-rad-pill px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"
+                style={{
+                  background: 'var(--accent-soft)',
+                  color: 'var(--accent-ink)',
+                }}
               >
-                <path
-                  d="M10 2l1.8 5.2L17 9l-5.2 1.8L10 16l-1.8-5.2L3 9l5.2-1.8L10 2z"
-                  fill="currentColor"
-                />
-              </svg>
-              <span className="text-xs font-medium text-ink">KI-Feedback</span>
+                {t('sampleBadge')}
+              </span>
             </div>
             <div className="text-xs text-ink-soft">
               Achte auf{' '}

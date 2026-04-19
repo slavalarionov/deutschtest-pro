@@ -67,7 +67,8 @@
         "modules": "Module",
         "aiLabel": "KI",
         "ai": "Bewertung"
-      }
+      },
+      "sampleBadge": "Beispiel"
     },
     "features": {
       "title": "Alle vier Module. Eine Plattform.",
