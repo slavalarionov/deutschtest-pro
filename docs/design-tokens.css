@@ -1,0 +1,152 @@
+/* ==========================================================================
+   deutschtest.pro — colors_and_type.css
+   Single source of truth for design tokens.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ---------- Geometry ---------- */
+  --radius: 20px;          /* default card radius (tweakable 8–32) */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-pill: 999px;
+
+  /* ---------- Accent (single hue, modulated) ---------- */
+  --accent-h: 255;                                     /* tweakable 0–360 */
+  --accent:      oklch(0.58 0.17 var(--accent-h));    /* primary accent */
+  --accent-soft: oklch(0.94 0.04 var(--accent-h));    /* tinted bg */
+  --accent-ink:  oklch(0.38 0.14 var(--accent-h));    /* fg on soft bg */
+
+  /* ---------- Surface ladder (light) ---------- */
+  --bg:        oklch(0.985 0.003 250);   /* page */
+  --surface:   oklch(0.975 0.004 250);   /* recessed (rails, footer) */
+  --card:      #ffffff;                  /* raised */
+
+  /* ---------- Ink ladder ---------- */
+  --ink:       oklch(0.17 0.012 260);    /* primary text, headings */
+  --ink-soft:  oklch(0.32 0.012 260);    /* secondary body */
+  --muted:     oklch(0.54 0.008 260);    /* tertiary, captions */
+
+  /* ---------- Lines ---------- */
+  --line:      oklch(0.92 0.004 260);    /* card borders, dividers */
+  --line-soft: oklch(0.955 0.003 260);   /* hairlines, inner */
+
+  /* ---------- Brand secondary (sparingly) ---------- */
+  --gelb:      #ffd400;                  /* Deutsch yellow — high-stakes CTA */
+  --gelb-ink:  #1a1500;                  /* fg on yellow */
+
+  /* ---------- Type scale ---------- */
+  --font-display: 'Inter Tight', Inter, system-ui, sans-serif;
+  --font-body:    'Inter Tight', Inter, system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --fs-mono-cap: 11px;     /* uppercase eyebrows ("01 — MODULE") */
+  --fs-xs:       12px;
+  --fs-sm:       14px;
+  --fs-base:     16px;
+  --fs-lg:       18px;
+  --fs-2xl:      24px;
+  --fs-display-s: 32px;
+  --fs-display-m: 48px;
+  --fs-display-l: 64px;
+  --fs-display-xl: 96px;
+
+  --tracking-tight:   -0.045em;
+  --tracking-display: -0.035em;
+  --tracking-body:    -0.01em;
+
+  /* ---------- Shadows ---------- */
+  --shadow-lift: 0 8px 28px -10px rgba(0, 0, 0, 0.08), 0 1px 0 rgba(0, 0, 0, 0.02);
+  --shadow-pop:  0 30px 80px -30px rgba(0, 0, 0, 0.25);
+
+  /* ---------- Spacing scale (Tailwind-ish) ---------- */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-14: 56px;
+  --sp-20: 80px;
+  --sp-32: 128px;
+
+  /* ---------- Motion ---------- */
+  --ease-out: cubic-bezier(.2,.7,.2,1);
+  --dur-fast: 120ms;
+  --dur-base: 150ms;
+}
+
+/* ---------- Dark theme (data-theme="dark") ---------- */
+[data-theme="dark"] {
+  --bg:        oklch(0.13 0.01 260);
+  --surface:   oklch(0.16 0.012 260);
+  --card:      oklch(0.185 0.013 260);
+  --ink:       oklch(0.97 0.004 250);
+  --ink-soft:  oklch(0.85 0.006 250);
+  --muted:     oklch(0.65 0.01 260);
+  --line:      oklch(0.27 0.013 260);
+  --line-soft: oklch(0.22 0.012 260);
+  --accent-soft: oklch(0.28 0.09 var(--accent-h));
+  --accent-ink:  oklch(0.78 0.14 var(--accent-h));
+}
+
+/* ==========================================================================
+   Semantic typography classes
+   ========================================================================== */
+
+html, body { background: var(--bg); color: var(--ink); }
+body {
+  font-family: var(--font-body);
+  font-feature-settings: "ss01", "cv11", "calt";
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: var(--tracking-body);
+}
+
+.font-display { font-family: var(--font-display); letter-spacing: -0.035em; font-weight: 500; }
+.font-mono    { font-family: var(--font-mono); }
+
+/* Eyebrow: small uppercase mono caption — "01 — MODULE", "MITTWOCH, 18. APRIL" */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-cap);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+/* Display sizes (use on h1/h2 with .font-display) */
+.h-display-xl { font-size: 96px; line-height: 0.95; letter-spacing: -0.045em; font-weight: 400; }
+.h-display-l  { font-size: 64px; line-height: 1.0;  letter-spacing: -0.04em;  font-weight: 400; }
+.h-display-m  { font-size: 48px; line-height: 1.0;  letter-spacing: -0.035em; font-weight: 500; }
+.h-display-s  { font-size: 32px; line-height: 1.1;  letter-spacing: -0.025em; font-weight: 500; }
+
+/* Body */
+.t-body  { font-size: var(--fs-base); line-height: 1.55; color: var(--ink-soft); }
+.t-lead  { font-size: var(--fs-lg);   line-height: 1.5;  color: var(--ink-soft); }
+.t-small { font-size: var(--fs-sm);   line-height: 1.5; }
+.t-caption { font-size: var(--fs-xs); color: var(--muted); }
+
+/* ==========================================================================
+   Color utilities (matching Redesign.html shorthand)
+   ========================================================================== */
+.ink         { color: var(--ink); }
+.ink-soft    { color: var(--ink-soft); }
+.muted       { color: var(--muted); }
+.accent      { color: var(--accent); }
+.accent-ink  { color: var(--accent-ink); }
+.bg-accent      { background: var(--accent); color: #fff; }
+.bg-accent-soft { background: var(--accent-soft); color: var(--accent-ink); }
+.bg-gelb        { background: var(--gelb); color: var(--gelb-ink); }
+.surface     { background: var(--surface); }
+.line        { border-color: var(--line); }
+.line-soft   { border-color: var(--line-soft); }
+
+/* Radii shortcuts */
+.rad      { border-radius: var(--radius); }
+.rad-sm   { border-radius: var(--radius-sm); }
+.rad-lg   { border-radius: calc(var(--radius) * 1.4); }
+.rad-pill { border-radius: var(--radius-pill); }
+
+/* Selection follows accent */
+::selection { background: var(--accent-soft); color: var(--accent-ink); }

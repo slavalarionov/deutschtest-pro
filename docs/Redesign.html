@@ -1,0 +1,1849 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>deutschtest.pro — редизайн</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  :root{
+    --radius: 20px;
+    --accent-h: 255;
+    --accent: oklch(0.58 0.17 var(--accent-h));
+    --accent-soft: oklch(0.94 0.04 var(--accent-h));
+    --accent-ink: oklch(0.38 0.14 var(--accent-h));
+
+    --bg: oklch(0.985 0.003 250);
+    --surface: oklch(0.975 0.004 250);
+    --card: #ffffff;
+    --ink: oklch(0.17 0.012 260);
+    --ink-soft: oklch(0.32 0.012 260);
+    --muted: oklch(0.54 0.008 260);
+    --line: oklch(0.92 0.004 260);
+    --line-soft: oklch(0.955 0.003 260);
+  }
+  [data-theme="dark"]{
+    --bg: oklch(0.13 0.01 260);
+    --surface: oklch(0.16 0.012 260);
+    --card: oklch(0.185 0.013 260);
+    --ink: oklch(0.97 0.004 250);
+    --ink-soft: oklch(0.85 0.006 250);
+    --muted: oklch(0.65 0.01 260);
+    --line: oklch(0.27 0.013 260);
+    --line-soft: oklch(0.22 0.012 260);
+    --accent-soft: oklch(0.28 0.09 var(--accent-h));
+    --accent-ink: oklch(0.78 0.14 var(--accent-h));
+  }
+  html,body{ background: var(--bg); color: var(--ink); }
+  body{
+    font-family: 'Inter Tight', Inter, system-ui, sans-serif;
+    font-feature-settings: "ss01","cv11","calt";
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+  .font-display{ font-family:'Inter Tight', Inter, sans-serif; letter-spacing:-0.035em; font-weight:500; }
+  .font-mono{ font-family:'JetBrains Mono', ui-monospace, monospace; }
+
+  .rad{ border-radius: var(--radius); }
+  .rad-sm{ border-radius: calc(var(--radius) * 0.55); }
+  .rad-lg{ border-radius: calc(var(--radius) * 1.5); }
+  .rad-pill{ border-radius: 999px; }
+
+  .card{ background: var(--card); border: 1px solid var(--line); }
+  .surface{ background: var(--surface); }
+  .line{ border-color: var(--line); }
+  .line-soft{ border-color: var(--line-soft); }
+  .ink{ color: var(--ink); }
+  .ink-soft{ color: var(--ink-soft); }
+  .muted{ color: var(--muted); }
+  .accent{ color: var(--accent); }
+  .bg-accent{ background: var(--accent); }
+  .bg-accent-soft{ background: var(--accent-soft); }
+  .accent-ink{ color: var(--accent-ink); }
+  .ring-accent{ box-shadow: 0 0 0 1px var(--accent); }
+  .dotline{ background-image: radial-gradient(var(--line) 1px, transparent 1px); background-size: 12px 12px; }
+  .gridline{
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb{ background: var(--line); border-radius:10px; }
+  ::-webkit-scrollbar-track{ background: transparent; }
+
+  /* Phone frame */
+  .phone{
+    width: 390px; height: 800px; border-radius: 46px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    box-shadow: 0 30px 80px -30px rgba(0,0,0,0.25), 0 0 0 10px color-mix(in oklch, var(--ink) 92%, transparent), 0 0 0 11px var(--line);
+    overflow: hidden; position: relative;
+  }
+  .phone .notch{ position:absolute; top:10px; left:50%; transform:translateX(-50%); width:110px; height:30px; background:#000; border-radius:999px; z-index:50;}
+
+  /* Letter-as-graphic */
+  .grafem{
+    font-family:'Inter Tight', sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.08em;
+    line-height: 0.82;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--line);
+  }
+  .grafem-fill{ color: var(--ink); -webkit-text-stroke: 0; }
+  .grafem-accent{ color: var(--accent); -webkit-text-stroke: 0; }
+
+  /* Focus */
+  .focus-ring:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Marquee for letters */
+  @keyframes drift { from{ transform: translateX(0);} to{ transform: translateX(-50%);} }
+  .drift{ animation: drift 60s linear infinite; }
+
+  /* Tweaks panel */
+  .tweaks{ position:fixed; right:16px; bottom:16px; z-index:200; }
+  .tweaks-panel{ background: var(--card); border:1px solid var(--line); border-radius: 18px; box-shadow: 0 20px 60px -20px rgba(0,0,0,0.2); padding: 14px; width: 280px; }
+  .swatch{ width:22px; height:22px; border-radius:999px; border:1px solid var(--line); cursor:pointer; }
+  .swatch.on{ box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ink); }
+
+  /* Utility anims */
+  .fade-in{ animation: fi .4s ease both; }
+  @keyframes fi{ from{opacity:0; transform: translateY(6px);} to{opacity:1; transform:none;} }
+
+  /* custom selection */
+  ::selection{ background: var(--accent-soft); color: var(--accent-ink); }
+
+  /* Progress pipes */
+  .pipe{ height: 3px; border-radius: 999px; background: var(--line); overflow:hidden; }
+  .pipe > span{ display:block; height:100%; background: var(--ink); border-radius: 999px; }
+
+  /* Chart grid */
+  .axis{ stroke: var(--line); }
+  .axis-soft{ stroke: var(--line-soft); }
+
+  /* Buttons */
+  .btn{ display:inline-flex; align-items:center; gap:.5rem; padding:.7rem 1.05rem; border-radius: calc(var(--radius) * 0.6); font-size: 14px; font-weight: 500; transition: all .15s ease; border: 1px solid transparent; cursor:pointer; white-space:nowrap;}
+  .btn-primary{ background: var(--ink); color: var(--bg); }
+  .btn-primary:hover{ transform: translateY(-1px); }
+  .btn-accent{ background: var(--accent); color: #fff; }
+  .btn-ghost{ background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn-ghost:hover{ background: var(--surface); }
+
+  .chip{ display:inline-flex; align-items:center; gap:.4rem; padding:.32rem .7rem; border-radius: 999px; font-size: 12px; font-weight:500; color: var(--ink-soft); background: var(--surface); border:1px solid var(--line); }
+  .chip-dot::before{ content:""; width:6px; height:6px; border-radius: 999px; background: currentColor; display:inline-block; }
+
+  /* Nav rail (left side of prototype) */
+  .rail{ background: var(--surface); border-right:1px solid var(--line); }
+  .rail-item{ padding: 8px 12px; border-radius: 10px; font-size: 13px; color: var(--ink-soft); cursor:pointer; display:flex; align-items:center; gap:10px; }
+  .rail-item:hover{ background: var(--card); }
+  .rail-item.on{ background: var(--ink); color: var(--bg); }
+
+  /* Soft shadow */
+  .shadow-lift{ box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 32px -16px rgba(0,0,0,.12); }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Tweakable defaults (JSON block, parsed by host) -->
+  <script>
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "accentHue": 255,
+      "radius": 32,
+      "theme": "light"
+    }/*EDITMODE-END*/;
+    window.__TWEAK_DEFAULTS = TWEAK_DEFAULTS;
+  </script>
+
+  <script type="text/babel">
+
+/* === screens/common.jsx === */
+const { useState, useEffect, useMemo, useRef } = React;
+
+/* ---------- Tiny icon set (strokes only, no emoji) ---------- */
+function Icon({ name, size = 16, stroke = 1.5, className = "" }) {
+  const s = size;
+  const p = { fill: "none", stroke: "currentColor", strokeWidth: stroke, strokeLinecap: "round", strokeLinejoin: "round" };
+  const paths = {
+    arrow:       <path {...p} d="M5 12h14M13 6l6 6-6 6" />,
+    arrowLeft:   <path {...p} d="M19 12H5M11 6l-6 6 6 6" />,
+    check:       <path {...p} d="M4 12l5 5L20 6" />,
+    cross:       <path {...p} d="M6 6l12 12M18 6L6 18" />,
+    plus:        <path {...p} d="M12 5v14M5 12h14" />,
+    search:      <g {...p}><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></g>,
+    sparkle:     <path {...p} d="M12 3v6m0 6v6M3 12h6m6 0h6M6.2 6.2l4.2 4.2m3.2 3.2l4.2 4.2M17.8 6.2l-4.2 4.2m-3.2 3.2L6.2 17.8" />,
+    clock:       <g {...p}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g>,
+    book:        <path {...p} d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2V5zM4 5v14M19 3v14" />,
+    headphones:  <path {...p} d="M4 13v-1a8 8 0 0116 0v1M4 13v5a2 2 0 002 2h1v-7H6a2 2 0 00-2 0zm16 0v5a2 2 0 01-2 2h-1v-7h1a2 2 0 012 0z" />,
+    pen:         <path {...p} d="M4 20h4l11-11-4-4L4 16v4zM14 6l4 4" />,
+    mic:         <g {...p}><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></g>,
+    spark:       <path {...p} d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6L12 3z" />,
+    menu:        <path {...p} d="M4 7h16M4 12h16M4 17h16" />,
+    home:        <path {...p} d="M4 11l8-7 8 7v9a1 1 0 01-1 1h-5v-6H10v6H5a1 1 0 01-1-1v-9z" />,
+    chart:       <path {...p} d="M4 20h16M7 16V9m5 7V4m5 12v-7" />,
+    history:     <g {...p}><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></g>,
+    lightbulb:   <path {...p} d="M9 18h6m-5 3h4m-6-8a5 5 0 118 0c0 2-1 3-2 4v2H9v-2c-1-1-2-2-2-4z" />,
+    settings:    <g {...p}><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.2-1.6l2-1.5-2-3.4-2.4.9A7 7 0 0014.6 5l-.4-2.5h-4L9.8 5a7 7 0 00-1.8 1.4l-2.4-.9-2 3.4 2 1.5A7 7 0 005 12c0 .6.1 1.1.2 1.6l-2 1.5 2 3.4 2.4-.9A7 7 0 009.4 19l.4 2.5h4L14.2 19c.6-.3 1.3-.7 1.8-1.4l2.4.9 2-3.4-2-1.5c.1-.5.2-1 .2-1.6z"/></g>,
+    card:        <g {...p}><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h3"/></g>,
+    shield:      <path {...p} d="M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6l8-3z" />,
+    user:        <g {...p}><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></g>,
+    users:       <g {...p}><circle cx="9" cy="8" r="4"/><path d="M1 21a8 8 0 0116 0"/><circle cx="17" cy="6" r="3"/><path d="M23 17a5 5 0 00-7-4"/></g>,
+    logo:        <g {...p}><path d="M5 19V5l7 14 7-14v14" /></g>,
+    circle:      <circle {...p} cx="12" cy="12" r="9" />,
+    dot:         <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>,
+    play:        <path {...p} d="M7 5v14l12-7L7 5z" fill="currentColor" stroke="none"/>,
+    pause:       <path {...p} d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor" stroke="none"/>,
+    flag:        <path {...p} d="M5 21V4M5 4h12l-2 4 2 4H5" />,
+    bolt:        <path {...p} d="M13 3L4 14h7l-1 7 9-11h-7l1-7z" />,
+    sun:         <g {...p}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/></g>,
+    moon:        <path {...p} d="M20 15A8 8 0 019 4a8 8 0 1011 11z" />,
+    copy:        <g {...p}><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/></g>,
+    lock:        <g {...p}><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></g>,
+    mail:        <g {...p}><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 7 9-7"/></g>,
+    google:      <path {...p} d="M21 12a9 9 0 11-3-6.7M21 5v5h-5" />,
+    trash:       <path {...p} d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />,
+    edit:        <path {...p} d="M4 20h4l11-11-4-4L4 16v4z" />,
+    star:        <path {...p} d="M12 3l2.6 6 6.4.6-4.8 4.4 1.4 6.3L12 17l-5.6 3.3 1.4-6.3L3 9.6l6.4-.6L12 3z" />,
+    filter:      <path {...p} d="M4 5h16l-6 8v6l-4-2v-4L4 5z" />,
+  };
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" className={className} aria-hidden="true">
+      {paths[name] || null}
+    </svg>
+  );
+}
+
+/* ---------- Logo ---------- */
+function Logo({ small }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="relative" style={{ width: small ? 22 : 28, height: small ? 22 : 28 }}>
+        <div className="absolute inset-0 rad-sm" style={{ background: "var(--ink)" }} />
+        <span className="absolute inset-0 flex items-center justify-center font-display" style={{ color: "var(--bg)", fontSize: small ? 14 : 18, fontWeight: 600 }}>ß</span>
+      </div>
+      <span className="font-display font-semibold" style={{ fontSize: small ? 14 : 16 }}>deutschtest<span style={{ color: "var(--muted)" }}>.pro</span></span>
+    </div>
+  );
+}
+
+/* ---------- Generic primitives ---------- */
+function Chip({ children, tone = "default", icon }) {
+  const style = tone === "accent"
+    ? { background: "var(--accent-soft)", color: "var(--accent-ink)", borderColor: "transparent" }
+    : {};
+  return <span className="chip" style={style}>{icon && <Icon name={icon} size={12} />}{children}</span>;
+}
+
+function Button({ variant = "primary", children, icon, right, className = "", ...rest }) {
+  const cls = {
+    primary: "btn btn-primary",
+    accent:  "btn btn-accent",
+    ghost:   "btn btn-ghost",
+  }[variant] || "btn btn-primary";
+  return (
+    <button className={`${cls} ${className}`} {...rest}>
+      {icon && <Icon name={icon} size={14} />}
+      <span>{children}</span>
+      {right && <Icon name={right} size={14} />}
+    </button>
+  );
+}
+
+function Card({ children, className = "", style }) {
+  return <div className={`card rad shadow-lift ${className}`} style={style}>{children}</div>;
+}
+
+/* ---------- Frame helpers ---------- */
+function BrowserFrame({ url = "deutschtest.pro", children, height = 900 }) {
+  return (
+    <div className="card rad-lg overflow-hidden" style={{ width: 1280, margin: "0 auto", boxShadow: "0 40px 80px -40px rgba(0,0,0,0.25)" }}>
+      <div className="flex items-center gap-3 px-4 py-3 border-b line-soft" style={{ background: "var(--surface)" }}>
+        <div className="flex gap-1.5">
+          <span className="w-3 h-3 rounded-full" style={{ background: "#ff5f57" }}></span>
+          <span className="w-3 h-3 rounded-full" style={{ background: "#febc2e" }}></span>
+          <span className="w-3 h-3 rounded-full" style={{ background: "#28c840" }}></span>
+        </div>
+        <div className="flex-1 flex justify-center">
+          <div className="px-3 py-1 rad-pill text-xs font-mono" style={{ background: "var(--card)", border: "1px solid var(--line)", color: "var(--muted)" }}>
+            {url}
+          </div>
+        </div>
+        <div className="w-14" />
+      </div>
+      <div style={{ height, background: "var(--bg)", overflow: "auto" }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function PhoneFrame({ children, time = "9:41" }) {
+  return (
+    <div className="phone">
+      <div className="notch" />
+      <div className="absolute top-3 left-0 right-0 px-8 flex justify-between items-center z-40 text-[12px] font-medium" style={{ color: "var(--ink)" }}>
+        <span>{time}</span>
+        <span className="flex items-center gap-1">
+          <span className="w-4 h-2.5 rounded-sm border line" />
+        </span>
+      </div>
+      <div className="h-full overflow-y-auto pt-12">{children}</div>
+    </div>
+  );
+}
+
+/* Expose */
+Object.assign(window, { Icon, Logo, Chip, Button, Card, BrowserFrame, PhoneFrame });
+
+
+/* === screens/landing.jsx === */
+/* Landing page — inspired by openai.com / wisprflow / ai.google */
+
+function LandingHero() {
+  return (
+    <section className="relative overflow-hidden" style={{ background: "var(--bg)" }}>
+      {/* top nav */}
+      <div className="px-10 pt-6 flex items-center justify-between">
+        <Logo />
+        <nav className="flex items-center gap-8 text-sm" style={{ color: "var(--ink-soft)" }}>
+          <a>Module</a>
+          <a>Niveaustufen</a>
+          <a>Preise</a>
+          <a>FAQ</a>
+        </nav>
+        <div className="flex items-center gap-3">
+          <div className="chip" style={{ paddingLeft: 10, paddingRight: 8, cursor:"pointer" }}>
+            <span className="text-xs">DE</span>
+            <svg width="10" height="10" viewBox="0 0 20 20"><path fill="currentColor" d="M5 8l5 5 5-5z"/></svg>
+          </div>
+          <button className="text-sm" style={{ color: "var(--ink-soft)" }}>Anmelden</button>
+          <Button variant="gelb" right="arrow">Kostenlos testen</Button>
+        </div>
+      </div>
+
+      {/* Hero */}
+      <div className="px-10 pt-20 pb-10 grid grid-cols-12 gap-8 items-end">
+        <div className="col-span-7">
+          <div className="inline-flex items-center gap-2 chip rad-pill mb-8">
+            <span className="w-1.5 h-1.5 rad-pill" style={{ background: "var(--accent)" }} />
+            <span className="muted">KI-Prüfungssimulation · Goethe · telc · ÖSD</span>
+          </div>
+          <h1 className="font-display" style={{ fontSize: 96, lineHeight: 0.95, letterSpacing: "-0.045em", fontWeight: 400 }}>
+            Bestehen.<br/>
+            <span style={{ color: "var(--muted)" }}>Beim</span> <span className="italic" style={{ fontFamily: "'Inter Tight'", fontWeight: 500 }}>ersten</span> <span style={{ color: "var(--muted)" }}>Versuch.</span>
+          </h1>
+          <p className="mt-8 text-lg max-w-lg" style={{ color: "var(--ink-soft)" }}>
+            Echte Prüfungsbedingungen. KI-generierte Aufgaben in A1–C1. Feedback, das zeigt, wo du stehst — und was als Nächstes kommt.
+          </p>
+          <div className="mt-10 flex items-center gap-3">
+            <Button variant="primary" right="arrow">Kostenlos starten</Button>
+            <Button variant="ghost" icon="play">90-Sek-Tour</Button>
+          </div>
+
+          <div className="mt-14 flex items-center gap-10 text-sm" style={{ color: "var(--muted)" }}>
+            <div><span className="font-display text-2xl ink block">24 481</span>absolvierte Module</div>
+            <div className="w-px h-8 line border-l" />
+            <div><span className="font-display text-2xl ink block">A1–C1</span>6 Niveaustufen</div>
+            <div className="w-px h-8 line border-l" />
+            <div><span className="font-display text-2xl ink block">4.8<span style={{ color: "var(--muted)" }}>/5</span></span>Bewertung Studenten</div>
+          </div>
+        </div>
+
+        {/* Umlaut graphic */}
+        <div className="col-span-5 relative" style={{ height: 520 }}>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="grafem grafem-fill" style={{ fontSize: 520 }}>ß</div>
+          </div>
+          <div className="absolute left-0 top-4 flex gap-2 text-[11px] font-mono" style={{ color: "var(--muted)" }}>
+            <span>U+00DF</span><span>·</span><span>LATIN SMALL LETTER SHARP S</span>
+          </div>
+          <div className="absolute -right-4 bottom-10 card rad-sm p-4 w-60 shadow-lift">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs muted font-mono">LESEN · B1 · Teil 2</span>
+              <Chip tone="accent">Live</Chip>
+            </div>
+            <div className="text-sm ink">„Was ist die Hauptaussage des Textes?"</div>
+            <div className="mt-3 space-y-1.5">
+              {["Die Stadt wird umgebaut.", "Die Menschen sind unzufrieden.", "Das Projekt wird gefördert."].map((t,i)=>(
+                <div key={i} className={`text-xs px-2.5 py-2 rad-sm border ${i===2?"":""}`} style={{ borderColor: i===2 ? "var(--accent)" : "var(--line)", background: i===2 ? "var(--accent-soft)" : "var(--card)", color: i===2 ? "var(--accent-ink)" : "var(--ink-soft)" }}>
+                  <span className="font-mono mr-2">{String.fromCharCode(97+i)}</span>{t}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="absolute right-8 top-4 card rad-sm p-3 w-48 shadow-lift">
+            <div className="flex items-center gap-2 mb-2">
+              <Icon name="sparkle" size={14} />
+              <span className="text-xs font-medium">KI-Feedback</span>
+            </div>
+            <div className="text-xs" style={{ color: "var(--ink-soft)" }}>
+              Achte auf <span className="accent-ink font-medium">Konjunktiv II</span> — hier passt „wäre" besser als „war".
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Scrolling letters strip */}
+      <div className="overflow-hidden py-6 border-y line-soft">
+        <div className="drift flex gap-14 whitespace-nowrap font-display" style={{ fontSize: 72, lineHeight: 1 }}>
+          {Array(2).fill(0).map((_,k)=>(
+            <div key={k} className="flex gap-14">
+              {["ä","ö","ü","ß","ei","ch","sch","ng","eu","au","ie"].map((l,i)=>(
+                <span key={i} style={{ color: i%3===0 ? "var(--ink)" : "var(--line)" }}>{l}</span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LandingModules() {
+  const mods = [
+    { id:"lesen", name:"Lesen", de:"Leseverstehen", icon:"book", min:"65 Min", parts:"5 Teile" },
+    { id:"horen", name:"Hören", de:"Hörverstehen", icon:"headphones", min:"40 Min", parts:"4 Teile" },
+    { id:"schreiben", name:"Schreiben", de:"Schriftlicher Ausdruck", icon:"pen", min:"60 Min", parts:"2 Aufgaben" },
+    { id:"sprechen", name:"Sprechen", de:"Mündlicher Ausdruck", icon:"mic", min:"15 Min", parts:"3 Teile" },
+  ];
+  return (
+    <section className="px-10 py-32">
+      <div className="flex items-end justify-between mb-14">
+        <div>
+          <div className="text-xs font-mono muted mb-3">01 — MODULE</div>
+          <h2 className="font-display" style={{ fontSize: 64, letterSpacing: "-0.04em", lineHeight: 1, fontWeight: 400 }}>
+            Vier Module.<br/>
+            <span style={{ color: "var(--muted)" }}>Eine Plattform.</span>
+          </h2>
+        </div>
+        <p className="max-w-sm text-sm" style={{ color: "var(--ink-soft)" }}>
+          Jedes Modul ist an Originalformate angelehnt — Timing, Struktur und Bewertung entsprechen echten Prüfungen.
+        </p>
+      </div>
+      <div className="grid grid-cols-4 gap-3">
+        {mods.map((m,i)=>(
+          <div key={m.id} className="card rad p-6 h-80 flex flex-col justify-between relative overflow-hidden">
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono muted">0{i+1}</span>
+                <Icon name={m.icon} size={18} />
+              </div>
+              <div className="font-display mt-16" style={{ fontSize: 42, letterSpacing: "-0.03em", lineHeight: 1 }}>{m.name}</div>
+              <div className="text-sm muted mt-1">{m.de}</div>
+            </div>
+            <div className="flex items-center justify-between text-xs font-mono" style={{ color: "var(--muted)" }}>
+              <span>{m.min}</span>
+              <span>{m.parts}</span>
+            </div>
+            <div className="absolute -right-6 -bottom-6 grafem" style={{ fontSize: 160 }}>
+              {m.name[0]}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function LandingHow() {
+  const steps = [
+    { t:"Niveau wählen", d:"A1 bis C1 — Goethe, telc, ÖSD oder TestDaF." },
+    { t:"Modul starten", d:"Die KI generiert eine einzigartige Prüfung in Sekunden." },
+    { t:"Feedback erhalten", d:"Punktzahl, Fehleranalyse und gezielte Empfehlungen." },
+  ];
+  return (
+    <section className="px-10 py-32" style={{ background: "var(--surface)" }}>
+      <div className="max-w-6xl">
+        <div className="text-xs font-mono muted mb-3">02 — PROZESS</div>
+        <h2 className="font-display mb-20" style={{ fontSize: 64, letterSpacing: "-0.04em", lineHeight: 1 }}>
+          Drei Schritte. Eine Prüfung.
+        </h2>
+        <div className="grid grid-cols-3 gap-10">
+          {steps.map((s,i)=>(
+            <div key={i} className="border-t pt-6 line">
+              <div className="text-xs font-mono muted mb-6">0{i+1}</div>
+              <div className="font-display mb-3" style={{ fontSize: 28, letterSpacing: "-0.02em" }}>{s.t}</div>
+              <div className="text-sm" style={{ color: "var(--ink-soft)" }}>{s.d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LandingPricing() {
+  const plans = [
+    { name:"Probe", price:"0", per:"einmalig", items:["1 Modul deiner Wahl", "KI-Bewertung", "Basis-Feedback"], cta:"Kostenlos starten", featured:false },
+    { name:"Standard", price:"14", per:"pro Monat", items:["Unbegrenzte Module", "Detailliertes Feedback", "Lernpfad", "Fortschrittsanalyse"], cta:"14 Tage gratis", featured:true },
+    { name:"Pro", price:"29", per:"pro Monat", items:["Alles aus Standard", "Sprechen mit KI-Tutor", "Priorität-Support", "Export als PDF"], cta:"Pro wählen", featured:false },
+  ];
+  return (
+    <section className="px-10 py-32">
+      <div className="text-xs font-mono muted mb-3">03 — PREISE</div>
+      <h2 className="font-display mb-14" style={{ fontSize: 64, letterSpacing: "-0.04em", lineHeight: 1 }}>
+        Einfach und fair.
+      </h2>
+      <div className="grid grid-cols-3 gap-4">
+        {plans.map((p,i)=>(
+          <div key={i} className="rad p-8 flex flex-col" style={{
+            background: p.featured ? "var(--ink)" : "var(--card)",
+            border: `1px solid ${p.featured ? "var(--ink)" : "var(--line)"}`,
+            color: p.featured ? "var(--bg)" : "var(--ink)",
+          }}>
+            <div className="flex items-center justify-between">
+              <span className="font-display text-xl">{p.name}</span>
+              {p.featured && <Chip tone="accent">Beliebt</Chip>}
+            </div>
+            <div className="mt-6 mb-1">
+              <span className="font-display" style={{ fontSize: 72, letterSpacing: "-0.04em", lineHeight: 1 }}>€{p.price}</span>
+            </div>
+            <div className="text-sm" style={{ opacity: .7 }}>{p.per}</div>
+            <div className="mt-8 space-y-3 flex-1">
+              {p.items.map((it,j)=>(
+                <div key={j} className="flex items-start gap-3 text-sm">
+                  <Icon name="check" size={16} className="mt-0.5" />
+                  <span>{it}</span>
+                </div>
+              ))}
+            </div>
+            <button className="btn mt-8" style={{
+              background: p.featured ? "var(--bg)" : "var(--ink)",
+              color: p.featured ? "var(--ink)" : "var(--bg)",
+            }}>{p.cta} <Icon name="arrow" size={14} /></button>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function LandingFooter() {
+  return (
+    <footer className="px-10 py-20" style={{ borderTop: "1px solid var(--line)" }}>
+      <div className="grid grid-cols-12 gap-8">
+        <div className="col-span-6">
+          <div className="grafem grafem-fill" style={{ fontSize: 220, lineHeight: 0.9 }}>ä ö ü</div>
+        </div>
+        <div className="col-span-2 text-sm">
+          <div className="muted text-xs font-mono mb-3">PRODUKT</div>
+          <div className="space-y-2"><div>Module</div><div>Niveaustufen</div><div>Preise</div></div>
+        </div>
+        <div className="col-span-2 text-sm">
+          <div className="muted text-xs font-mono mb-3">UNTERNEHMEN</div>
+          <div className="space-y-2"><div>Über uns</div><div>Blog</div><div>Kontakt</div></div>
+        </div>
+        <div className="col-span-2 text-sm">
+          <div className="muted text-xs font-mono mb-3">RECHTLICHES</div>
+          <div className="space-y-2"><div>Impressum</div><div>AGB</div><div>Datenschutz</div></div>
+        </div>
+      </div>
+      <div className="mt-20 flex items-center justify-between text-xs font-mono muted">
+        <Logo small />
+        <span>© 2026 deutschtest.pro · Made with care in Berlin</span>
+      </div>
+    </footer>
+  );
+}
+
+function LandingScreen() {
+  return (
+    <div>
+      <LandingHero />
+      <LandingModules />
+      <LandingHow />
+      <LandingPricing />
+      <LandingFooter />
+    </div>
+  );
+}
+
+window.LandingScreen = LandingScreen;
+
+
+/* === screens/auth.jsx === */
+/* Auth: login + register */
+
+function AuthScreen({ mode = "login" }) {
+  const isLogin = mode === "login";
+  return (
+    <div className="min-h-full grid grid-cols-2">
+      {/* Left: form */}
+      <div className="p-14 flex flex-col">
+        <Logo />
+        <div className="flex-1 flex items-center">
+          <div className="w-full max-w-sm">
+            <div className="text-xs font-mono muted mb-3">{isLogin ? "ANMELDEN" : "REGISTRIEREN"}</div>
+            <h1 className="font-display mb-2" style={{ fontSize: 48, letterSpacing: "-0.035em", lineHeight: 1 }}>
+              {isLogin ? "Willkommen zurück." : "Auf Deutsch,\nauf gehts."}
+            </h1>
+            <p className="muted text-sm mb-10">{isLogin ? "Weiter mit deiner Vorbereitung." : "Erstelle ein Konto — einen Test gratis."}</p>
+
+            <div className="space-y-3">
+              <button className="btn btn-ghost w-full justify-center" style={{ padding: "12px" }}>
+                <Icon name="google" size={16} /> Mit Google fortfahren
+              </button>
+              <div className="flex items-center gap-3 my-4 text-xs muted font-mono">
+                <div className="flex-1 border-t line"></div>ODER<div className="flex-1 border-t line"></div>
+              </div>
+
+              <label className="block">
+                <span className="text-xs font-mono muted">E-MAIL</span>
+                <div className="flex items-center gap-2 mt-1 px-3 py-3 card rad-sm">
+                  <Icon name="mail" size={14} className="muted" />
+                  <input className="flex-1 bg-transparent outline-none text-sm" placeholder="anna@beispiel.de" defaultValue="anna.meyer@email.de" />
+                </div>
+              </label>
+              <label className="block">
+                <span className="text-xs font-mono muted">PASSWORT</span>
+                <div className="flex items-center gap-2 mt-1 px-3 py-3 card rad-sm">
+                  <Icon name="lock" size={14} className="muted" />
+                  <input type="password" className="flex-1 bg-transparent outline-none text-sm" defaultValue="••••••••••" />
+                </div>
+              </label>
+              {!isLogin && (
+                <label className="flex items-center gap-2 text-xs muted">
+                  <input type="checkbox" defaultChecked /> Ich akzeptiere die AGB und Datenschutzrichtlinien.
+                </label>
+              )}
+
+              <Button variant="primary" right="arrow" className="w-full justify-center mt-2">
+                {isLogin ? "Anmelden" : "Konto erstellen"}
+              </Button>
+
+              <div className="text-xs text-center muted pt-2">
+                {isLogin ? <>Neu hier? <a className="underline ink">Registrieren</a></> : <>Schon dabei? <a className="underline ink">Anmelden</a></>}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="text-xs font-mono muted">© 2026 deutschtest.pro</div>
+      </div>
+
+      {/* Right: graphic */}
+      <div className="relative overflow-hidden" style={{ background: "var(--surface)" }}>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="grafem grafem-fill" style={{ fontSize: 560, lineHeight: 0.8 }}>ü</div>
+        </div>
+        <div className="absolute left-10 top-10 text-xs font-mono muted">U+00FC · LATIN SMALL LETTER U WITH DIAERESIS</div>
+        <div className="absolute left-10 bottom-10 right-10">
+          <div className="card rad p-6">
+            <div className="text-sm ink-soft mb-4">„Die Prüfung war realistisch — ich war auf jede Aufgabe vorbereitet."</div>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rad-pill" style={{ background: "var(--accent-soft)", color: "var(--accent-ink)" }}>
+                <div className="w-full h-full flex items-center justify-center font-display">M</div>
+              </div>
+              <div>
+                <div className="text-xs ink">Marta K.</div>
+                <div className="text-xs muted">Goethe B2 bestanden · 87/100</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.AuthScreen = AuthScreen;
+
+
+/* === screens/dashboard.jsx === */
+/* Dashboard: shell with sidebar + main */
+
+function DashboardSidebar({ active = "home" }) {
+  const main = [
+    { id:"home", label:"Übersicht", icon:"home" },
+    { id:"history", label:"Verlauf", icon:"history" },
+    { id:"progress", label:"Fortschritt", icon:"chart" },
+    { id:"recs", label:"Empfehlungen", icon:"lightbulb" },
+  ];
+  const account = [
+    { id:"payments", label:"Zahlungen", icon:"card" },
+    { id:"settings", label:"Einstellungen", icon:"settings" },
+  ];
+  return (
+    <aside className="p-5 flex flex-col h-full" style={{ width: 220, borderRight: "1px solid var(--line)" }}>
+      <Logo small />
+      <div className="mt-8 space-y-0.5">
+        {main.map(i=>(
+          <div key={i.id} className="rail-item" style={i.id===active ? { background: "var(--ink)", color: "var(--bg)" } : {}}>
+            <Icon name={i.icon} size={15} />
+            <span className="text-sm">{i.label}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-6 text-[10px] font-mono muted px-3 mb-2 tracking-widest">KONTO</div>
+      <div className="space-y-0.5 flex-1">
+        {account.map(i=>(
+          <div key={i.id} className="rail-item" style={i.id===active ? { background: "var(--ink)", color: "var(--bg)" } : {}}>
+            <Icon name={i.icon} size={15} />
+            <span className="text-sm">{i.label}</span>
+          </div>
+        ))}
+      </div>
+      <div className="card rad-sm p-4 mt-4">
+        <div className="flex items-center gap-2 mb-2 text-[10px] font-mono muted tracking-widest">
+          <Icon name="bolt" size={11} /> CREDITS
+        </div>
+        <div className="font-display" style={{ fontSize: 24, letterSpacing: "-0.02em" }}>12 <span className="muted text-sm">/ 20</span></div>
+        <div className="pipe mt-2"><span style={{ width: "60%", background: "var(--accent)" }} /></div>
+      </div>
+    </aside>
+  );
+}
+
+function DashboardHome() {
+  const stats = [
+    { l:"ABSOLVIERT",       v:"14",    s:"+3 diese Woche",        tone:"accent" },
+    { l:"DURCHSCHNITT",     v:"78",    suf:"/ 100", s:"+4 seit letzter Woche", tone:"accent" },
+    { l:"STÄRKSTES MODUL",  v:"Lesen", big:false, s:"84 Ø · 4 Durchgänge",     tone:"default" },
+    { l:"SCHWÄCHSTES MODUL",v:"Sprechen", big:false, s:"58 Ø · Fokus",         tone:"warn" },
+  ];
+
+  const recs = [
+    { tone:"accent", title:"Grammatik · Verbklammer & Kasus", body:"Fehlerquote 34 % in den letzten Schreiben-Modulen. 2 gezielte Durchgänge erwartet +4 Punkte." },
+    { tone:"gelb",   title:"Wortschatz · Gesundheit & Körper", body:"12 B1-Begriffe fehlen in Ihren Sprechen-Antworten. Karteikarten verfügbar." },
+    { tone:"ink",    title:"Sprechen · Teil 2 — Alltagsdialog", body:"Ihr schwächster Abschnitt. 3 weitere Durchgänge heben Sie auf den Durchschnitt." },
+  ];
+
+  const rows = [
+    { d:"18. Apr · 14:32", mod:"Schreiben", lvl:"B1", pts:84, max:100, status:"bestanden" },
+    { d:"17. Apr · 10:15", mod:"Hören",     lvl:"B1", pts:72, max:100, status:"bestanden" },
+    { d:"15. Apr · 19:48", mod:"Lesen",     lvl:"B1", pts:84, max:100, status:"bestanden" },
+    { d:"14. Apr · 16:02", mod:"Sprechen",  lvl:"B1", pts:58, max:100, status:"nicht" },
+    { d:"12. Apr · 11:20", mod:"Lesen",     lvl:"A2", pts:92, max:100, status:"bestanden" },
+  ];
+
+  // chart data
+  const pts = [52,56,58,61,64,66,69,72,74,76,78,84];
+  const max = 100, w = 560, h = 160, pad = 20;
+  const sx = i => pad + (i * (w - pad*2)) / (pts.length - 1);
+  const sy = v => h - pad - (v/max) * (h - pad*2);
+  const path = pts.map((p,i)=>`${i?"L":"M"}${sx(i)},${sy(p)}`).join(" ");
+
+  return (
+    <div className="p-10">
+      {/* Greeting */}
+      <div className="mb-10">
+        <div className="text-[10px] font-mono muted tracking-widest mb-3">ÜBERSICHT</div>
+        <h1 className="font-display ink" style={{ fontSize: 44, letterSpacing: "-0.03em", lineHeight: 1.05, fontWeight: 500 }}>
+          Guten Tag, <span className="italic" style={{ fontFamily: "'Inter Tight'", fontWeight: 400 }}>Anna</span>.
+        </h1>
+        <p className="mt-3 max-w-xl text-sm" style={{ color: "var(--ink-soft)" }}>
+          Ihre nächste Goethe-Prüfung ist in <span className="ink font-medium">18 Tagen</span>. Basierend auf Ihrem Fortschritt empfehlen wir heute das Modul <span className="ink font-medium">Sprechen</span>.
+        </p>
+        <div className="mt-5 flex gap-2">
+          <Button variant="primary" right="arrow">Prüfung starten</Button>
+          <Button variant="ghost">Lernplan anzeigen</Button>
+        </div>
+      </div>
+
+      {/* Stat row */}
+      <div className="grid grid-cols-4 gap-3 mb-6">
+        {stats.map((m,i)=>(
+          <div key={i} className="card rad-sm p-5">
+            <div className="text-[10px] font-mono muted tracking-widest">{m.l}</div>
+            <div className="font-display mt-3" style={{ fontSize: m.big===false ? 28 : 40, letterSpacing: "-0.025em", lineHeight: 1 }}>
+              {m.v}{m.suf && <span className="muted text-sm font-normal"> {m.suf}</span>}
+            </div>
+            <div className="text-xs mt-2" style={{ color: m.tone==="accent" ? "var(--accent-ink)" : m.tone==="warn" ? "oklch(0.55 0.16 30)" : "var(--muted)" }}>
+              {m.s}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Chart + recommendations */}
+      <div className="grid grid-cols-5 gap-3 mb-6">
+        <div className="col-span-3 card rad-sm p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-sm font-medium">Fortschritt · letzte 12 Prüfungen</div>
+            <div className="flex gap-1">
+              {["Alle","Lesen","Hören","Schreiben","Sprechen"].map((t,k)=>(
+                <button key={t} className="chip" style={{ padding: "4px 10px", fontSize: 11, ...(k===0 ? { background: "var(--ink)", color:"var(--bg)", borderColor:"var(--ink)" } : {}) }}>{t}</button>
+              ))}
+            </div>
+          </div>
+          <svg viewBox={`0 0 ${w} ${h}`} width="100%" style={{ height: 180 }}>
+            {/* baseline */}
+            <line x1={pad} x2={w-pad} y1={sy(60)} y2={sy(60)} stroke="var(--line)" strokeDasharray="3 4" />
+            <text x={pad} y={sy(60)-4} fontSize="9" fill="var(--muted)" fontFamily="JetBrains Mono">60 — pass</text>
+            <path d={path} fill="none" stroke="var(--ink)" strokeWidth="1.5" />
+            {pts.map((p,i)=>(
+              <circle key={i} cx={sx(i)} cy={sy(p)} r="3" fill="var(--bg)" stroke="var(--ink)" strokeWidth="1.5" />
+            ))}
+            {/* last point badge */}
+            <g transform={`translate(${sx(pts.length-1)-22},${sy(pts[pts.length-1])-30})`}>
+              <rect width="56" height="22" rx="11" fill="var(--accent)" />
+              <text x="28" y="14" textAnchor="middle" fontSize="11" fill="#fff" fontWeight="600">84 Ø</text>
+            </g>
+          </svg>
+        </div>
+
+        <div className="col-span-2 card rad-sm p-5">
+          <div className="text-sm font-medium mb-4">KI-Empfehlungen</div>
+          <div className="space-y-4">
+            {recs.map((r,i)=>(
+              <div key={i} className="flex gap-3">
+                <div className="mt-1.5 shrink-0 rad-pill" style={{ width: 8, height: 8, background: r.tone==="accent" ? "var(--accent)" : r.tone==="gelb" ? "var(--gelb)" : "var(--ink)" }} />
+                <div>
+                  <div className="text-sm font-medium">{r.title}</div>
+                  <div className="text-xs mt-0.5" style={{ color: "var(--ink-soft)" }}>{r.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Verlauf table */}
+      <div className="card rad-sm overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid var(--line)" }}>
+          <div className="text-sm font-medium">Verlauf</div>
+          <a className="text-xs flex items-center gap-1" style={{ color: "var(--ink-soft)" }}>Alle anzeigen <Icon name="arrow" size={11} /></a>
+        </div>
+        <div className="grid grid-cols-12 px-5 py-3 text-[10px] font-mono muted tracking-widest" style={{ borderBottom: "1px solid var(--line-soft)" }}>
+          <div className="col-span-3">DATUM</div>
+          <div className="col-span-2">MODUL</div>
+          <div className="col-span-1">NIVEAU</div>
+          <div className="col-span-2">PUNKTZAHL</div>
+          <div className="col-span-2">STATUS</div>
+          <div className="col-span-2 text-right"></div>
+        </div>
+        {rows.map((r,i)=>(
+          <div key={i} className="grid grid-cols-12 px-5 py-4 items-center text-sm" style={{ borderBottom: i<rows.length-1 ? "1px solid var(--line-soft)" : "" }}>
+            <div className="col-span-3 font-mono" style={{ color: "var(--ink-soft)", fontSize: 12 }}>{r.d}</div>
+            <div className="col-span-2">{r.mod}</div>
+            <div className="col-span-1" style={{ color: "var(--ink-soft)" }}>{r.lvl}</div>
+            <div className="col-span-2"><span className="font-medium">{r.pts}</span><span className="muted"> / {r.max}</span></div>
+            <div className="col-span-2">
+              <span className="inline-flex items-center gap-1.5 text-xs">
+                <span className="rad-pill" style={{ width: 6, height: 6, background: r.status==="bestanden" ? "oklch(0.62 0.15 150)" : "oklch(0.6 0.18 25)" }} />
+                <span style={{ color: r.status==="bestanden" ? "oklch(0.42 0.13 150)" : "oklch(0.45 0.17 25)" }}>
+                  {r.status==="bestanden" ? "Bestanden" : "Nicht bestanden"}
+                </span>
+              </span>
+            </div>
+            <div className="col-span-2 text-right">
+              <a className="text-xs inline-flex items-center gap-1" style={{ color: "var(--ink-soft)" }}>Details <Icon name="arrow" size={11} /></a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DashboardShell({ active = "home", children }) {
+  return (
+    <div className="flex h-full">
+      <DashboardSidebar active={active} />
+      <div className="flex-1 overflow-y-auto" style={{ background: "var(--bg)" }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+window.DashboardShell = DashboardShell;
+window.DashboardHome = DashboardHome;
+
+
+/* === screens/exam.jsx === */
+/* Exam: Lesen in progress */
+
+function ExamScreen() {
+  return (
+    <div className="min-h-full" style={{ background: "var(--bg)" }}>
+      {/* Exam top bar */}
+      <div className="sticky top-0 z-40 px-10 py-4 flex items-center justify-between" style={{ background: "var(--bg)", borderBottom: "1px solid var(--line)" }}>
+        <div className="flex items-center gap-4">
+          <Logo small />
+          <div className="w-px h-5 line border-l"></div>
+          <Chip icon="book">Lesen · B1 · Teil 2</Chip>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="text-sm font-mono flex items-center gap-2">
+            <Icon name="clock" size={14} />
+            <span className="font-display" style={{ fontSize: 20, letterSpacing: "-0.02em" }}>32:14</span>
+          </div>
+          <div className="w-px h-5 line border-l"></div>
+          <Button variant="ghost">Pause</Button>
+          <Button variant="primary">Abgeben</Button>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="px-10 py-5 flex items-center gap-3" style={{ borderBottom: "1px solid var(--line-soft)" }}>
+        <div className="text-xs font-mono muted">FRAGE 7 · VON 12</div>
+        <div className="flex-1 flex gap-1">
+          {Array(12).fill(0).map((_,i)=>(
+            <div key={i} className="flex-1 h-1.5 rad-pill" style={{
+              background: i < 6 ? "var(--ink)" : i === 6 ? "var(--accent)" : "var(--line)"
+            }} />
+          ))}
+        </div>
+        <div className="text-xs font-mono muted">58%</div>
+      </div>
+
+      <div className="grid grid-cols-12 gap-8 px-10 py-10 max-w-7xl mx-auto">
+        {/* Reading passage */}
+        <div className="col-span-7">
+          <div className="text-xs font-mono muted mb-2">TEXT A · ARBEITSWELT</div>
+          <h2 className="font-display mb-6" style={{ fontSize: 36, letterSpacing: "-0.025em", lineHeight: 1.1 }}>
+            Das Homeoffice bleibt
+          </h2>
+          <div className="prose text-base leading-relaxed" style={{ color: "var(--ink-soft)", maxWidth: "62ch" }}>
+            <p className="mb-4">Seit der Pandemie hat sich die Arbeitswelt grundlegend verändert. Viele Unternehmen haben erkannt, dass Homeoffice nicht nur eine Notlösung ist, sondern auch langfristig sinnvoll sein kann.</p>
+            <p className="mb-4">Eine aktuelle Studie des Instituts für Arbeitsmarktforschung zeigt: <span style={{ background: "var(--accent-soft)", color: "var(--accent-ink)", padding: "2px 4px" }} className="rad-sm">62 Prozent der Angestellten</span> möchten weiterhin mindestens zwei Tage pro Woche von zu Hause arbeiten. Gleichzeitig berichten viele Arbeitgeber von einer Produktivitätssteigerung — vorausgesetzt, die technische Ausstattung stimmt.</p>
+            <p className="mb-4">Kritisch sehen Experten jedoch die soziale Komponente. „Der informelle Austausch im Büro lässt sich nur schwer ersetzen", sagt Prof. Dr. Schulze von der Universität Leipzig. Hybride Modelle mit festen Bürotagen könnten eine Antwort sein.</p>
+          </div>
+          <div className="mt-8 flex gap-2 text-xs font-mono muted">
+            <Chip icon="mic">Vorlesen</Chip>
+            <Chip icon="edit">Markieren</Chip>
+            <Chip icon="search">Wörterbuch</Chip>
+          </div>
+        </div>
+
+        {/* Question */}
+        <div className="col-span-5">
+          <div className="card rad p-8 sticky top-32">
+            <div className="text-xs font-mono muted mb-3">AUFGABE 7</div>
+            <div className="font-display mb-6" style={{ fontSize: 22, letterSpacing: "-0.015em", lineHeight: 1.25 }}>
+              Was ist die Hauptaussage des Textes zu Homeoffice-Modellen?
+            </div>
+            <div className="space-y-2">
+              {[
+                "Homeoffice wird bald komplett abgeschafft.",
+                "Die meisten Angestellten wollen teilweise zu Hause arbeiten.",
+                "Produktivität sinkt im Homeoffice generell.",
+                "Bürotage sind rechtlich verpflichtend.",
+              ].map((t, i) => {
+                const selected = i === 1;
+                return (
+                  <div key={i} className={`flex items-start gap-3 p-4 rad-sm border transition-all cursor-pointer`} style={{
+                    borderColor: selected ? "var(--accent)" : "var(--line)",
+                    background: selected ? "var(--accent-soft)" : "var(--card)"
+                  }}>
+                    <div className="w-6 h-6 rad-pill flex items-center justify-center text-xs font-mono flex-shrink-0" style={{
+                      background: selected ? "var(--accent)" : "transparent",
+                      color: selected ? "#fff" : "var(--muted)",
+                      border: selected ? "none" : "1px solid var(--line)"
+                    }}>{String.fromCharCode(65+i)}</div>
+                    <div className="text-sm" style={{ color: selected ? "var(--accent-ink)" : "var(--ink)" }}>{t}</div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-6 flex items-center justify-between">
+              <Button variant="ghost" icon="arrowLeft">Zurück</Button>
+              <div className="text-xs muted">7 / 12</div>
+              <Button variant="primary" right="arrow">Weiter</Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Answer sheet footer */}
+      <div className="px-10 pb-10">
+        <div className="text-xs font-mono muted mb-3">ANTWORTBOGEN</div>
+        <div className="flex gap-1.5 flex-wrap">
+          {Array(12).fill(0).map((_,i)=>{
+            const state = i < 6 ? "done" : i === 6 ? "current" : i === 8 ? "marked" : "empty";
+            const style = {
+              done: { background: "var(--ink)", color: "var(--bg)", border: "1px solid var(--ink)" },
+              current: { background: "var(--accent-soft)", color: "var(--accent-ink)", border: "1px solid var(--accent)" },
+              marked: { background: "var(--card)", color: "var(--ink)", border: "1px dashed var(--accent)" },
+              empty: { background: "var(--card)", color: "var(--muted)", border: "1px solid var(--line)" }
+            }[state];
+            return (
+              <div key={i} className="w-9 h-9 rad-sm flex items-center justify-center text-xs font-mono" style={style}>
+                {i+1}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.ExamScreen = ExamScreen;
+
+
+/* === screens/progress.jsx === */
+/* Progress */
+
+function ProgressScreen() {
+  const modules = [
+    { name:"Lesen", cur:82, prev:74, level:"B1" },
+    { name:"Hören", cur:71, prev:68, level:"B1" },
+    { name:"Schreiben", cur:74, prev:65, level:"B1" },
+    { name:"Sprechen", cur:69, prev:62, level:"B1" },
+  ];
+  const weeks = [32, 45, 52, 48, 61, 68, 72, 75, 74, 78, 82, 80];
+  return (
+    <div className="p-10">
+      <div className="flex items-start justify-between mb-10">
+        <div>
+          <div className="text-xs font-mono muted mb-2">FORTSCHRITT</div>
+          <h1 className="font-display" style={{ fontSize: 56, letterSpacing: "-0.035em", lineHeight: 1 }}>
+            +14 Punkte<br/><span style={{ color: "var(--ink-soft)" }}>in 12 Wochen.</span>
+          </h1>
+        </div>
+        <div className="flex gap-2">
+          {["7T","30T","3M","Alle"].map((t,i)=>(
+            <button key={t} className="chip" style={i===2 ? { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" } : {}}>{t}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Main chart */}
+      <div className="card rad p-8 mb-6">
+        <div className="flex items-end justify-between mb-6">
+          <div>
+            <div className="text-xs font-mono muted">Ø PUNKTZAHL · WÖCHENTLICH</div>
+            <div className="font-display mt-1" style={{ fontSize: 42, letterSpacing: "-0.025em" }}>80<span className="muted text-xl"> / 100</span></div>
+          </div>
+          <div className="flex gap-4 text-xs">
+            <div className="flex items-center gap-2"><span className="w-3 h-0.5" style={{ background: "var(--ink)" }}></span>Du</div>
+            <div className="flex items-center gap-2"><span className="w-3 h-0.5 border-t border-dashed" style={{ borderColor: "var(--muted)" }}></span>Bestehensgrenze</div>
+          </div>
+        </div>
+
+        <svg viewBox="0 0 800 280" className="w-full" style={{ height: 280 }}>
+          {/* grid */}
+          {[0,1,2,3,4].map(i => (
+            <line key={i} x1="40" x2="790" y1={40 + i*50} y2={40 + i*50} className="axis-soft" strokeDasharray="2 4" />
+          ))}
+          {[0,25,50,75,100].map((v,i)=>(
+            <text key={i} x="10" y={245 - i*50} className="font-mono" style={{ fontSize: 10, fill: "var(--muted)" }}>{v}</text>
+          ))}
+          {/* Pass line */}
+          <line x1="40" x2="790" y1={240 - 60/100*200} y2={240 - 60/100*200} stroke="var(--muted)" strokeDasharray="3 3" strokeWidth="1" />
+          <text x="740" y={240 - 60/100*200 - 6} className="font-mono" style={{ fontSize: 10, fill: "var(--muted)" }}>bestanden · 60</text>
+
+          {/* Area */}
+          <path d={`M 40,${240 - weeks[0]/100*200} ${weeks.map((w,i)=>`L ${40 + (i*(750/11))},${240 - w/100*200}`).join(" ")} L 790,240 L 40,240 Z`}
+                fill="var(--accent-soft)" opacity="0.6" />
+          {/* Line */}
+          <polyline fill="none" stroke="var(--ink)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"
+                    points={weeks.map((w,i)=>`${40 + (i*(750/11))},${240 - w/100*200}`).join(" ")} />
+          {/* Dots */}
+          {weeks.map((w,i)=>(
+            <circle key={i} cx={40 + (i*(750/11))} cy={240 - w/100*200} r={i===weeks.length-2?5:3}
+                    fill={i===weeks.length-2 ? "var(--accent)" : "var(--ink)"}
+                    stroke="var(--card)" strokeWidth="2" />
+          ))}
+          {/* X labels */}
+          {["W1","W2","W3","W4","W5","W6","W7","W8","W9","W10","W11","W12"].map((l,i)=>(
+            <text key={l} x={40 + (i*(750/11))} y={265} textAnchor="middle" className="font-mono" style={{ fontSize: 10, fill: "var(--muted)" }}>{l}</text>
+          ))}
+        </svg>
+      </div>
+
+      {/* Per-module breakdown */}
+      <div className="grid grid-cols-4 gap-3 mb-10">
+        {modules.map((m,i)=>{
+          const delta = m.cur - m.prev;
+          return (
+            <div key={i} className="card rad p-6">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-mono muted">{m.name.toUpperCase()}</span>
+                <span className="text-xs font-mono accent-ink">+{delta}</span>
+              </div>
+              <div className="font-display" style={{ fontSize: 44, letterSpacing: "-0.03em", lineHeight: 1 }}>{m.cur}</div>
+              <div className="text-xs muted mt-1">Vorher: {m.prev}</div>
+              <div className="pipe mt-4"><span style={{ width: `${m.cur}%`, background: m.cur>=60?"var(--accent)":"var(--ink)" }} /></div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Skill radar */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="card rad p-8 col-span-2">
+          <div className="text-xs font-mono muted mb-6">KATEGORIEN · STÄRKEN UND SCHWÄCHEN</div>
+          <div className="space-y-4">
+            {[
+              { cat:"Hauptaussage erkennen", val: 88 },
+              { cat:"Detailverständnis", val: 76 },
+              { cat:"Wortschatz im Kontext", val: 82 },
+              { cat:"Konjunktiv II", val: 54 },
+              { cat:"Präpositionen", val: 67 },
+              { cat:"Nebensätze", val: 71 },
+            ].map((s,i)=>(
+              <div key={i} className="flex items-center gap-4">
+                <div className="text-sm w-48 ink-soft">{s.cat}</div>
+                <div className="flex-1 pipe"><span style={{ width: `${s.val}%`, background: s.val < 60 ? "var(--ink)" : "var(--accent)" }} /></div>
+                <div className="text-sm font-mono w-8 text-right">{s.val}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="card rad p-8">
+          <div className="text-xs font-mono muted mb-4">PROGNOSE</div>
+          <div className="font-display mb-2" style={{ fontSize: 48, letterSpacing: "-0.03em", lineHeight: 1 }}>92%</div>
+          <div className="text-sm muted mb-6">Wahrscheinlichkeit bestandener Goethe B1 Prüfung.</div>
+          <div className="text-xs muted font-mono mb-2">BASIS</div>
+          <div className="text-sm ink-soft">Dein aktueller Durchschnitt, Lernrhythmus und die Performance auf kritischen Aufgabentypen.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.ProgressScreen = ProgressScreen;
+
+
+/* === screens/history.jsx === */
+/* History */
+
+function HistoryScreen() {
+  const rows = [
+    { d:"17.04.26", mod:"Lesen", lvl:"B1", score:82, dur:"58 Min", status:"bestanden" },
+    { d:"15.04.26", mod:"Hören", lvl:"B1", score:71, dur:"38 Min", status:"bestanden" },
+    { d:"13.04.26", mod:"Schreiben", lvl:"B1", score:74, dur:"59 Min", status:"bestanden" },
+    { d:"11.04.26", mod:"Sprechen", lvl:"B1", score:69, dur:"15 Min", status:"bestanden" },
+    { d:"08.04.26", mod:"Lesen", lvl:"B1", score:74, dur:"62 Min", status:"bestanden" },
+    { d:"05.04.26", mod:"Hören", lvl:"B1", score:58, dur:"40 Min", status:"knapp" },
+    { d:"02.04.26", mod:"Lesen", lvl:"A2", score:91, dur:"45 Min", status:"bestanden" },
+    { d:"29.03.26", mod:"Schreiben", lvl:"A2", score:88, dur:"55 Min", status:"bestanden" },
+  ];
+  return (
+    <div className="p-10">
+      <div className="flex items-start justify-between mb-10">
+        <div>
+          <div className="text-xs font-mono muted mb-2">HISTORIE</div>
+          <h1 className="font-display ink" style={{ fontSize: 56, letterSpacing: "-0.035em", lineHeight: 1 }}>
+            24 Module.<br/><span style={{ color: "var(--ink-soft)" }}>Jeder Versuch zählt.</span>
+          </h1>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="ghost" icon="filter">Filter</Button>
+          <Button variant="ghost" icon="copy">Exportieren</Button>
+        </div>
+      </div>
+
+      <div className="card rad overflow-hidden">
+        <div className="grid grid-cols-12 px-6 py-4 text-xs font-mono muted" style={{ borderBottom: "1px solid var(--line)", background: "var(--surface)" }}>
+          <div className="col-span-2">DATUM</div>
+          <div className="col-span-3">MODUL</div>
+          <div className="col-span-1">NIVEAU</div>
+          <div className="col-span-2">DAUER</div>
+          <div className="col-span-2">PUNKTE</div>
+          <div className="col-span-2 text-right">STATUS</div>
+        </div>
+        {rows.map((r,i)=>(
+          <div key={i} className="grid grid-cols-12 px-6 py-5 items-center text-sm hover:bg-opacity-50" style={{ borderBottom: i<rows.length-1 ? "1px solid var(--line-soft)" : "" }}>
+            <div className="col-span-2 font-mono" style={{ color: "var(--ink-soft)" }}>{r.d}</div>
+            <div className="col-span-3 flex items-center gap-3">
+              <Icon name={{Lesen:"book",Hören:"headphones",Schreiben:"pen",Sprechen:"mic"}[r.mod]} size={14} />
+              <span>{r.mod}</span>
+            </div>
+            <div className="col-span-1"><span className="chip">{r.lvl}</span></div>
+            <div className="col-span-2" style={{ color: "var(--ink-soft)" }}>{r.dur}</div>
+            <div className="col-span-2">
+              <div className="flex items-center gap-3">
+                <div className="font-display" style={{ fontSize: 20 }}>{r.score}</div>
+                <div className="flex-1 pipe max-w-20"><span style={{ width: `${r.score}%`, background: r.score >= 60 ? "var(--accent)" : "var(--ink)" }} /></div>
+              </div>
+            </div>
+            <div className="col-span-2 flex items-center justify-end gap-3">
+              <Chip tone={r.status==="knapp" ? "default" : "accent"}>{r.status}</Chip>
+              <Icon name="arrow" size={14} className="muted" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+window.HistoryScreen = HistoryScreen;
+
+
+/* === screens/recommendations.jsx === */
+/* Recommendations */
+
+function RecommendationsScreen() {
+  const recs = [
+    { pri:"Hoch", area:"Konjunktiv II", why:"54% Genauigkeit — deutlich unter Durchschnitt.", time:"15 Min", items:["Grammatik-Lesson", "5 Übungen", "Mini-Test"] },
+    { pri:"Mittel", area:"Hörverstehen Teil 2", why:"Probleme bei schnellen Dialogen.", time:"25 Min", items:["2 Hörtexte", "8 Multiple-Choice"] },
+    { pri:"Mittel", area:"Präpositionen + Dativ/Akk.", why:"Letzte 3 Tests: wiederholte Fehler.", time:"20 Min", items:["Theorie + 12 Lückentexte"] },
+    { pri:"Niedrig", area:"Wortschatz Arbeitswelt", why:"B1-Thema, bald in Prüfung relevant.", time:"10 Min", items:["30 Karten · SRS"] },
+  ];
+  const priColor = { Hoch: "var(--accent)", Mittel: "var(--ink)", Niedrig: "var(--muted)" };
+  return (
+    <div className="p-10">
+      <div className="mb-10">
+        <div className="text-xs font-mono muted mb-2">EMPFEHLUNGEN · KI-LERNPFAD</div>
+        <h1 className="font-display" style={{ fontSize: 56, letterSpacing: "-0.035em", lineHeight: 1 }}>
+          Heute.<br/><span style={{ color: "var(--ink-soft)" }}>Was wirklich hilft.</span>
+        </h1>
+        <p className="muted mt-4 max-w-xl">Basierend auf deinen letzten 12 Modulen, deinem Zieltermin (21.05.26) und Fehlermustern.</p>
+      </div>
+
+      <div className="card rad p-6 mb-8" style={{ background: "var(--ink)", color: "var(--bg)" }}>
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="text-xs font-mono" style={{ opacity: .6 }}>HEUTIGE SESSION · 60 MIN</div>
+            <div className="font-display mt-3" style={{ fontSize: 32, letterSpacing: "-0.02em", lineHeight: 1.1 }}>
+              Grammatik + Hören, mit Fokus auf deine Schwachstellen.
+            </div>
+            <div className="flex gap-6 mt-6 text-sm" style={{ opacity: .85 }}>
+              <div><span className="font-mono text-xs" style={{ opacity: .6 }}>ERWARTETER GEWINN</span><div className="mt-1">+4 bis +7 Punkte in 2 Wochen</div></div>
+              <div><span className="font-mono text-xs" style={{ opacity: .6 }}>CREDITS</span><div className="mt-1">0 (im Plan enthalten)</div></div>
+            </div>
+          </div>
+          <button className="btn" style={{ background: "var(--bg)", color: "var(--ink)" }}>Session starten <Icon name="arrow" size={14} /></button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {recs.map((r,i)=>(
+          <div key={i} className="card rad p-7">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="chip-dot chip" style={{ color: priColor[r.pri] }}>{r.pri}e Priorität</span>
+              <span className="chip">{r.time}</span>
+            </div>
+            <div className="font-display mb-2" style={{ fontSize: 26, letterSpacing: "-0.02em" }}>{r.area}</div>
+            <div className="text-sm muted mb-5">{r.why}</div>
+            <div className="space-y-2 mb-6">
+              {r.items.map((it,j)=>(
+                <div key={j} className="flex items-center gap-2 text-sm">
+                  <Icon name="dot" size={10} className="muted" />{it}
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between items-center pt-5 border-t line-soft">
+              <span className="text-xs font-mono muted">NICHT RELEVANT?</span>
+              <Button variant="ghost" right="arrow">Beginnen</Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+window.RecommendationsScreen = RecommendationsScreen;
+
+
+/* === screens/settings.jsx === */
+/* Settings */
+
+function SettingsScreen() {
+  return (
+    <div className="p-10 max-w-4xl">
+      <div className="mb-10">
+        <div className="text-xs font-mono muted mb-2">EINSTELLUNGEN</div>
+        <h1 className="font-display" style={{ fontSize: 56, letterSpacing: "-0.035em", lineHeight: 1 }}>Profil & Präferenzen</h1>
+      </div>
+
+      <div className="space-y-3">
+        {/* Profile */}
+        <div className="card rad p-8">
+          <div className="flex items-start gap-6">
+            <div className="w-20 h-20 rad-pill flex items-center justify-center font-display" style={{ background: "var(--accent-soft)", color: "var(--accent-ink)", fontSize: 32 }}>A</div>
+            <div className="flex-1">
+              <div className="font-display mb-1" style={{ fontSize: 28, letterSpacing: "-0.02em" }}>Anna Meyer</div>
+              <div className="muted text-sm mb-5">anna.meyer@email.de · Mitglied seit Jan. 2026</div>
+              <div className="grid grid-cols-2 gap-4">
+                <label className="block"><span className="text-xs font-mono muted">VORNAME</span>
+                  <input defaultValue="Anna" className="mt-1 w-full px-3 py-2.5 card rad-sm text-sm outline-none" />
+                </label>
+                <label className="block"><span className="text-xs font-mono muted">NACHNAME</span>
+                  <input defaultValue="Meyer" className="mt-1 w-full px-3 py-2.5 card rad-sm text-sm outline-none" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Exam target */}
+        <div className="card rad p-8">
+          <div className="text-xs font-mono muted mb-4">PRÜFUNGSZIEL</div>
+          <div className="grid grid-cols-3 gap-4">
+            <label className="block"><span className="text-xs font-mono muted">PRÜFUNG</span>
+              <select className="mt-1 w-full px-3 py-2.5 card rad-sm text-sm outline-none">
+                <option>Goethe-Zertifikat</option><option>telc Deutsch</option><option>ÖSD</option><option>TestDaF</option>
+              </select>
+            </label>
+            <label className="block"><span className="text-xs font-mono muted">NIVEAU</span>
+              <div className="mt-1 flex gap-1">
+                {["A1","A2","B1","B2","C1"].map(l=>(
+                  <button key={l} className="flex-1 py-2.5 rad-sm text-sm" style={l==="B1" ? { background: "var(--ink)", color: "var(--bg)" } : { border: "1px solid var(--line)" }}>{l}</button>
+                ))}
+              </div>
+            </label>
+            <label className="block"><span className="text-xs font-mono muted">TERMIN</span>
+              <input defaultValue="21.05.2026" className="mt-1 w-full px-3 py-2.5 card rad-sm text-sm outline-none" />
+            </label>
+          </div>
+        </div>
+
+        {/* Preferences */}
+        <div className="card rad p-8 space-y-5">
+          <div className="text-xs font-mono muted">PRÄFERENZEN</div>
+          {[
+            { l:"Tägliche Erinnerung", d:"Jeden Tag um 18:00", on:true },
+            { l:"Wochenbericht", d:"Jeden Montag per E-Mail", on:true },
+            { l:"Prüfungs-Countdown", d:"Zeige Tage bis zum Termin auf der Startseite", on:true },
+            { l:"Automatische KI-Empfehlungen", d:"Passe Lernpfad nach jedem Modul an", on:false },
+          ].map((t,i)=>(
+            <div key={i} className="flex items-center justify-between" style={{ borderBottom: i<3 ? "1px solid var(--line-soft)" : "", paddingBottom: i<3 ? 16 : 0 }}>
+              <div>
+                <div className="text-sm">{t.l}</div>
+                <div className="text-xs muted">{t.d}</div>
+              </div>
+              <div className="w-11 h-6 rad-pill relative transition-all" style={{ background: t.on ? "var(--ink)" : "var(--line)" }}>
+                <div className="w-5 h-5 rad-pill absolute top-0.5 transition-all" style={{ background: "var(--bg)", left: t.on ? 22 : 2 }}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Danger */}
+        <div className="card rad p-8" style={{ borderColor: "var(--line)" }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm">Konto löschen</div>
+              <div className="text-xs muted">Alle Daten werden dauerhaft entfernt.</div>
+            </div>
+            <button className="btn btn-ghost" style={{ color: "var(--accent-ink)" }}>Konto löschen</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.SettingsScreen = SettingsScreen;
+
+
+/* === screens/pricing.jsx === */
+/* Pricing */
+
+function PricingScreen() {
+  return (
+    <div className="p-10">
+      <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-xs font-mono muted mb-3">PREISE</div>
+        <h1 className="font-display" style={{ fontSize: 72, letterSpacing: "-0.045em", lineHeight: 1 }}>
+          Pay as you learn.
+        </h1>
+        <p className="muted mt-6">Keine versteckten Kosten. Jederzeit kündbar. Monatlich oder jährlich — du entscheidest.</p>
+
+        <div className="inline-flex mt-10 rad-pill p-1 chip gap-1" style={{ padding: 4 }}>
+          {["Monatlich","Jährlich · −20%"].map((t,i)=>(
+            <button key={i} className="px-5 py-2 rad-pill text-sm" style={i===1 ? { background: "var(--ink)", color: "var(--bg)" } : {}}>{t}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 max-w-6xl mx-auto">
+        {[
+          { n:"Probe", p:"0", per:"einmalig", f:["1 Modul deiner Wahl","KI-Bewertung","Basis-Feedback"], cta:"Kostenlos starten", dark:false },
+          { n:"Standard", p:"14", per:"Monat", f:["Unbegrenzte Module","Detailliertes Feedback","Lernpfad","Fortschrittsanalyse","Export als PDF"], cta:"14 Tage gratis", dark:true, tag:"Am beliebtesten" },
+          { n:"Pro", p:"29", per:"Monat", f:["Alles aus Standard","Sprechen mit KI-Tutor (unbegrenzt)","Priorität-Support","Mock-Prüfung im Echtformat","1 Lehrer-Session / Monat"], cta:"Pro wählen", dark:false },
+        ].map((p,i)=>(
+          <div key={i} className="rad p-10 flex flex-col" style={{
+            background: p.dark ? "var(--ink)" : "var(--card)",
+            border: `1px solid ${p.dark ? "var(--ink)" : "var(--line)"}`,
+            color: p.dark ? "var(--bg)" : "var(--ink)",
+            minHeight: 520
+          }}>
+            <div className="flex items-center justify-between mb-8">
+              <span className="font-display text-2xl">{p.n}</span>
+              {p.tag && <Chip tone="accent">{p.tag}</Chip>}
+            </div>
+            <div className="font-display" style={{ fontSize: 88, letterSpacing: "-0.045em", lineHeight: 1 }}>€{p.p}</div>
+            <div className="text-sm mt-1" style={{ opacity: .7 }}>pro {p.per}</div>
+            <div className="mt-8 space-y-3 flex-1">
+              {p.f.map((x,j)=>(<div key={j} className="flex items-start gap-3 text-sm"><Icon name="check" size={16} className="mt-0.5" /><span>{x}</span></div>))}
+            </div>
+            <button className="btn mt-8 justify-center" style={{ background: p.dark ? "var(--bg)" : "var(--ink)", color: p.dark ? "var(--ink)" : "var(--bg)" }}>{p.cta} <Icon name="arrow" size={14} /></button>
+          </div>
+        ))}
+      </div>
+
+      {/* Credit packs */}
+      <div className="mt-24 max-w-6xl mx-auto">
+        <div className="text-xs font-mono muted mb-3">CREDIT-PAKETE</div>
+        <div className="flex items-end justify-between mb-8">
+          <h2 className="font-display" style={{ fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>Ohne Abo. 1 Credit = 1 Modul.</h2>
+        </div>
+        <div className="grid grid-cols-4 gap-3">
+          {[
+            { n:5, p:9, save:null },
+            { n:10, p:15, save:"−17%" },
+            { n:25, p:34, save:"−25%" },
+            { n:50, p:59, save:"−35%", best:true },
+          ].map((c,i)=>(
+            <div key={i} className="card rad p-6 relative" style={c.best ? { borderColor: "var(--accent)" } : {}}>
+              {c.best && <span className="absolute -top-2 left-5 chip" style={{ background: "var(--accent)", color: "#fff", borderColor: "var(--accent)" }}>Beste Wahl</span>}
+              <div className="font-display" style={{ fontSize: 44, letterSpacing: "-0.03em", lineHeight: 1 }}>{c.n}</div>
+              <div className="text-xs muted mt-1">Credits</div>
+              <div className="mt-6 flex items-end gap-2">
+                <span className="font-display" style={{ fontSize: 28, letterSpacing: "-0.02em" }}>€{c.p}</span>
+                {c.save && <span className="text-xs accent-ink mb-1">{c.save}</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.PricingScreen = PricingScreen;
+
+
+/* === screens/admin.jsx === */
+/* Admin */
+
+function AdminScreen() {
+  return (
+    <div className="flex h-full">
+      <aside className="p-6" style={{ width: 220, borderRight: "1px solid var(--line)" }}>
+        <Logo small />
+        <div className="mt-6 chip-dot chip" style={{ color: "var(--accent)" }}>Admin</div>
+        <div className="mt-8 text-xs font-mono muted mb-3">VERWALTUNG</div>
+        <div className="space-y-1">
+          {[["Dashboard","home",false],["Benutzer","users",true],["Themen","book",false],["Prompts","sparkle",false],["Finanzen","card",false]].map(([l,ic,on],i)=>(
+            <div key={i} className="rail-item" style={on ? { background: "var(--ink)", color: "var(--bg)" } : {}}>
+              <Icon name={ic} size={14} /><span className="text-sm">{l}</span>
+            </div>
+          ))}
+        </div>
+      </aside>
+
+      <div className="flex-1 p-10 overflow-y-auto">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <div className="text-xs font-mono muted mb-2">BENUTZER</div>
+            <h1 className="font-display" style={{ fontSize: 40, letterSpacing: "-0.03em", lineHeight: 1 }}>1 284 Benutzer</h1>
+          </div>
+          <div className="flex gap-2">
+            <div className="chip" style={{ paddingLeft: 10, paddingRight: 10 }}>
+              <Icon name="search" size={12} />
+              <input className="bg-transparent outline-none text-sm" placeholder="Suchen..." style={{ width: 180 }} />
+            </div>
+            <Button variant="primary" icon="plus">Neu</Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-4 gap-3 mb-8">
+          {[
+            { l:"Aktiv (30T)", v:"742", d:"+18%" },
+            { l:"Zahlende", v:"189", d:"+7%" },
+            { l:"Umsatz MTD", v:"€4 217", d:"+12%" },
+            { l:"Churn", v:"2.4%", d:"−0.6%" },
+          ].map((s,i)=>(
+            <div key={i} className="card rad p-5">
+              <div className="text-xs font-mono muted">{s.l.toUpperCase()}</div>
+              <div className="font-display mt-3" style={{ fontSize: 32, letterSpacing: "-0.025em" }}>{s.v}</div>
+              <div className="text-xs accent-ink mt-1">{s.d}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="card rad overflow-hidden">
+          <div className="grid grid-cols-12 px-6 py-4 text-xs font-mono muted" style={{ borderBottom: "1px solid var(--line)", background: "var(--surface)" }}>
+            <div className="col-span-4">BENUTZER</div><div className="col-span-2">ROLLE</div><div className="col-span-2">PLAN</div><div className="col-span-2">MODULE</div><div className="col-span-2 text-right">ANGEMELDET</div>
+          </div>
+          {[
+            { n:"Anna Meyer", e:"anna.meyer@email.de", r:"Student", pl:"Standard", m:24, d:"vor 2 Std" },
+            { n:"Marta Kowalska", e:"marta.k@email.pl", r:"Student", pl:"Pro", m:62, d:"vor 5 Std" },
+            { n:"Dmitry Ivanov", e:"d.ivanov@email.ru", r:"Student", pl:"Probe", m:1, d:"gestern" },
+            { n:"Yuki Tanaka", e:"yuki.t@email.jp", r:"Admin", pl:"—", m:0, d:"gerade eben" },
+            { n:"Lara Silva", e:"lara.s@email.br", r:"Student", pl:"Standard", m:18, d:"vor 3 Tagen" },
+            { n:"Omar El-Amin", e:"omar@email.eg", r:"Student", pl:"Pro", m:41, d:"vor 1 Woche" },
+          ].map((u,i,arr)=>(
+            <div key={i} className="grid grid-cols-12 px-6 py-4 items-center text-sm" style={{ borderBottom: i<arr.length-1 ? "1px solid var(--line-soft)" : "" }}>
+              <div className="col-span-4 flex items-center gap-3">
+                <div className="w-8 h-8 rad-pill flex items-center justify-center font-display text-xs" style={{ background: "var(--surface)", border: "1px solid var(--line)" }}>{u.n[0]}</div>
+                <div>
+                  <div>{u.n}</div><div className="text-xs muted">{u.e}</div>
+                </div>
+              </div>
+              <div className="col-span-2"><Chip tone={u.r==="Admin"?"accent":"default"}>{u.r}</Chip></div>
+              <div className="col-span-2 muted">{u.pl}</div>
+              <div className="col-span-2">{u.m}</div>
+              <div className="col-span-2 text-right text-xs muted font-mono">{u.d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+window.AdminScreen = AdminScreen;
+
+
+/* === screens/mobile.jsx === */
+/* Mobile screens (wrapped in PhoneFrame) */
+
+function MobileLanding() {
+  return (
+    <PhoneFrame>
+      <div className="px-6">
+        <div className="flex items-center justify-between py-3">
+          <Logo small />
+          <Icon name="menu" size={20} />
+        </div>
+        <div className="mt-8 text-[11px] font-mono muted">KI-PRÜFUNGSSIMULATION</div>
+        <div className="font-display mt-3" style={{ fontSize: 48, letterSpacing: "-0.04em", lineHeight: 0.95 }}>
+          Beim<br/>ersten<br/>Versuch<br/>bestehen.
+        </div>
+        <p className="muted text-sm mt-5">Goethe · telc · ÖSD · TestDaF. Echt-Prüfungsbedingungen ab €0.</p>
+        <button className="btn btn-primary w-full justify-center mt-6">Kostenlos starten <Icon name="arrow" size={14} /></button>
+        <div className="relative mt-12 flex justify-center">
+          <div className="grafem grafem-fill" style={{ fontSize: 300, lineHeight: 0.8 }}>ß</div>
+        </div>
+        <div className="card rad p-5 -mt-10">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-mono muted">LESEN · B1</span>
+            <Chip tone="accent">Live</Chip>
+          </div>
+          <div className="text-sm">„Was ist die Hauptaussage?"</div>
+          <div className="mt-3 space-y-1.5">
+            {["Die Stadt wird umgebaut","Projekt wird gefördert"].map((t,i)=>(
+              <div key={i} className="text-xs p-2 rad-sm border" style={{ borderColor: i===1?"var(--accent)":"var(--line)", background: i===1?"var(--accent-soft)":"var(--card)" }}>{t}</div>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2 mt-10 mb-10 text-center">
+          <div><div className="font-display text-2xl">24k</div><div className="text-[11px] muted">Module</div></div>
+          <div><div className="font-display text-2xl">A1–C1</div><div className="text-[11px] muted">Niveaus</div></div>
+          <div><div className="font-display text-2xl">4.8</div><div className="text-[11px] muted">Sterne</div></div>
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+function MobileDashboard() {
+  return (
+    <PhoneFrame>
+      <div className="px-6">
+        <div className="flex items-center justify-between py-3">
+          <div>
+            <div className="text-[10px] font-mono muted">MITTWOCH, 18. APRIL</div>
+            <div className="font-display" style={{ fontSize: 24, letterSpacing: "-0.02em" }}>Hallo, Anna</div>
+          </div>
+          <div className="w-9 h-9 rad-pill flex items-center justify-center font-display" style={{ background: "var(--accent-soft)", color: "var(--accent-ink)" }}>A</div>
+        </div>
+
+        {/* hero card */}
+        <div className="card rad p-5 mt-4" style={{ background: "var(--ink)", color: "var(--bg)" }}>
+          <div className="text-[10px] font-mono" style={{ opacity: .6 }}>HEUTE EMPFOHLEN</div>
+          <div className="font-display mt-2" style={{ fontSize: 22, letterSpacing: "-0.015em", lineHeight: 1.15 }}>Hören B1 · Teil 2</div>
+          <div className="text-xs mt-1" style={{ opacity: .7 }}>20 Min · 8 Fragen</div>
+          <button className="mt-4 btn" style={{ background: "var(--bg)", color: "var(--ink)" }}>Starten <Icon name="arrow" size={14} /></button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          {[["Ø Punkte","78"],["Streak","12"],["Module","24"],["Credits","12"]].map(([l,v],i)=>(
+            <div key={i} className="card rad-sm p-4">
+              <div className="text-[10px] font-mono muted">{l.toUpperCase()}</div>
+              <div className="font-display mt-2" style={{ fontSize: 28 }}>{v}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6 text-[10px] font-mono muted mb-2">MODULE</div>
+        {[{n:"Lesen",ic:"book",s:82},{n:"Hören",ic:"headphones",s:71},{n:"Schreiben",ic:"pen",s:74},{n:"Sprechen",ic:"mic",s:69}].map((m,i)=>(
+          <div key={i} className="card rad-sm p-4 mb-2 flex items-center gap-3">
+            <Icon name={m.ic} size={16} />
+            <div className="flex-1">
+              <div className="text-sm">{m.n}</div>
+              <div className="pipe mt-1.5"><span style={{ width: `${m.s}%`, background: "var(--accent)" }} /></div>
+            </div>
+            <div className="font-display text-lg">{m.s}</div>
+          </div>
+        ))}
+
+        {/* tab bar */}
+        <div className="sticky bottom-0 -mx-6 mt-8 px-8 py-4 flex justify-around" style={{ background: "var(--bg)", borderTop: "1px solid var(--line)" }}>
+          {[["home",true],["chart",false],["lightbulb",false],["user",false]].map(([ic,on],i)=>(
+            <Icon key={i} name={ic} size={20} className={on ? "ink" : "muted"} />
+          ))}
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+function MobileExam() {
+  return (
+    <PhoneFrame>
+      <div className="px-6">
+        <div className="flex items-center justify-between py-3">
+          <Icon name="arrowLeft" size={18} />
+          <Chip icon="clock">32:14</Chip>
+          <div className="text-xs font-mono muted">7/12</div>
+        </div>
+        <div className="flex gap-1 mt-3">
+          {Array(12).fill(0).map((_,i)=>(<div key={i} className="flex-1 h-1 rad-pill" style={{ background: i<6?"var(--ink)":i===6?"var(--accent)":"var(--line)" }}/>))}
+        </div>
+        <div className="mt-6 text-[10px] font-mono muted">LESEN · B1 · AUFGABE 7</div>
+        <div className="font-display mt-3" style={{ fontSize: 26, letterSpacing: "-0.02em", lineHeight: 1.15 }}>
+          Was ist die Hauptaussage des Textes zu Homeoffice-Modellen?
+        </div>
+        <div className="mt-5 space-y-2">
+          {["Homeoffice wird abgeschafft.","Viele wollen teilweise zu Hause arbeiten.","Produktivität sinkt generell.","Bürotage sind verpflichtend."].map((t,i)=>{
+            const sel = i===1;
+            return (
+              <div key={i} className="flex items-start gap-3 p-4 rad-sm border" style={{ borderColor: sel?"var(--accent)":"var(--line)", background: sel?"var(--accent-soft)":"var(--card)" }}>
+                <div className="w-5 h-5 rad-pill flex items-center justify-center text-[10px] font-mono flex-shrink-0" style={{ background: sel?"var(--accent)":"transparent", color: sel?"#fff":"var(--muted)", border: sel?"none":"1px solid var(--line)" }}>{String.fromCharCode(65+i)}</div>
+                <div className="text-sm" style={{ color: sel?"var(--accent-ink)":"var(--ink)" }}>{t}</div>
+              </div>
+            );
+          })}
+        </div>
+        <button className="btn btn-primary w-full justify-center mt-5">Weiter <Icon name="arrow" size={14} /></button>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+function MobileProgress() {
+  const weeks = [32, 45, 52, 48, 61, 68, 72, 75, 74, 78, 82, 80];
+  return (
+    <PhoneFrame>
+      <div className="px-6">
+        <div className="py-3">
+          <div className="text-[10px] font-mono muted">FORTSCHRITT · 12 WOCHEN</div>
+          <div className="font-display mt-2" style={{ fontSize: 40, letterSpacing: "-0.035em", lineHeight: 1 }}>+14<br/><span style={{ color: "var(--ink-soft)" }}>Punkte</span></div>
+        </div>
+        <div className="card rad p-4 mt-2">
+          <svg viewBox="0 0 300 140" className="w-full" style={{ height: 140 }}>
+            <line x1="10" x2="290" y1={120 - 60/100*100} y2={120 - 60/100*100} stroke="var(--muted)" strokeDasharray="2 3" />
+            <path d={`M 10,${120 - weeks[0]/100*100} ${weeks.map((w,i)=>`L ${10+(i*(280/11))},${120 - w/100*100}`).join(" ")} L 290,120 L 10,120 Z`} fill="var(--accent-soft)" opacity=".7" />
+            <polyline fill="none" stroke="var(--ink)" strokeWidth="2" points={weeks.map((w,i)=>`${10+(i*(280/11))},${120 - w/100*100}`).join(" ")} />
+            {weeks.map((w,i)=>(<circle key={i} cx={10+(i*(280/11))} cy={120-w/100*100} r="2.5" fill="var(--ink)" />))}
+          </svg>
+        </div>
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          {[["Lesen",82],["Hören",71],["Schreiben",74],["Sprechen",69]].map(([n,s],i)=>(
+            <div key={i} className="card rad-sm p-4">
+              <div className="text-[10px] font-mono muted">{n.toUpperCase()}</div>
+              <div className="font-display mt-1" style={{ fontSize: 28 }}>{s}</div>
+              <div className="pipe mt-2"><span style={{ width: `${s}%`, background: s>=60?"var(--accent)":"var(--ink)" }}/></div>
+            </div>
+          ))}
+        </div>
+
+        <div className="card rad p-5 mt-4" style={{ background: "var(--ink)", color: "var(--bg)" }}>
+          <div className="text-[10px] font-mono" style={{ opacity: .6 }}>PROGNOSE</div>
+          <div className="font-display mt-2" style={{ fontSize: 48, letterSpacing: "-0.035em", lineHeight: 1 }}>92%</div>
+          <div className="text-xs mt-1" style={{ opacity: .8 }}>Bestanden Goethe B1 · 21.05.</div>
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+window.MobileLanding = MobileLanding;
+window.MobileDashboard = MobileDashboard;
+window.MobileExam = MobileExam;
+window.MobileProgress = MobileProgress;
+
+
+/* === app.jsx === */
+/* Main app shell — left rail picks a screen, center renders it */
+
+const DESKTOP_SCREENS = [
+  { id:"landing",  label:"Лендинг",           render: () => <LandingScreen /> },
+  { id:"auth",     label:"Вход / регистрация", render: () => <AuthScreen /> },
+  { id:"dashboard",label:"Дашборд",            render: () => <DashboardShell active="home"><DashboardHome /></DashboardShell> },
+  { id:"exam",     label:"Экзамен",            render: () => <ExamScreen /> },
+  { id:"progress", label:"Прогресс",           render: () => <DashboardShell active="progress"><ProgressScreen /></DashboardShell> },
+  { id:"history",  label:"Историй",            render: () => <DashboardShell active="history"><HistoryScreen /></DashboardShell> },
+  { id:"recs",     label:"Рекомендации",       render: () => <DashboardShell active="recs"><RecommendationsScreen /></DashboardShell> },
+  { id:"settings", label:"Настройки",          render: () => <DashboardShell active="settings"><SettingsScreen /></DashboardShell> },
+  { id:"pricing",  label:"Цены",               render: () => <PricingScreen /> },
+  { id:"admin",    label:"Админка",            render: () => <AdminScreen /> },
+];
+const MOBILE_SCREENS = [
+  { id:"m-landing",   label:"Лендинг",  render: () => <MobileLanding /> },
+  { id:"m-dashboard", label:"Дашборд",  render: () => <MobileDashboard /> },
+  { id:"m-exam",      label:"Экзамен",  render: () => <MobileExam /> },
+  { id:"m-progress",  label:"Прогресс", render: () => <MobileProgress /> },
+];
+
+function Tweaks({ open, setOpen, state, setState }) {
+  const hues = [
+    { h: 255, name: "Cool blue" },
+    { h: 210, name: "Azure" },
+    { h: 160, name: "Mint" },
+    { h: 140, name: "Grün" },
+    { h: 25,  name: "Kupfer" },
+    { h: 350, name: "Rot" },
+    { h: 280, name: "Violett" },
+  ];
+  return (
+    <div className="tweaks">
+      {open && (
+        <div className="tweaks-panel fade-in">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-xs font-mono muted">TWEAKS</div>
+            <button onClick={() => setOpen(false)} className="muted"><Icon name="cross" size={14} /></button>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <div className="text-xs mb-2 ink-soft">Акцентный цвет</div>
+              <div className="flex gap-2 flex-wrap">
+                {hues.map(h => (
+                  <button key={h.h}
+                    onClick={() => setState(s => ({ ...s, accentHue: h.h }))}
+                    className={`swatch ${state.accentHue===h.h?'on':''}`}
+                    title={h.name}
+                    style={{ background: `oklch(0.58 0.17 ${h.h})` }} />
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs mb-2 ink-soft">Радиус скругления · {state.radius}px</div>
+              <input type="range" min="0" max="32" value={state.radius}
+                onChange={e => setState(s => ({ ...s, radius: parseInt(e.target.value) }))}
+                className="w-full" />
+            </div>
+            <div>
+              <div className="text-xs mb-2 ink-soft">Тема</div>
+              <div className="flex gap-1">
+                {["light","dark"].map(t => (
+                  <button key={t}
+                    onClick={() => setState(s => ({ ...s, theme: t }))}
+                    className="btn btn-ghost flex-1 justify-center"
+                    style={ state.theme===t ? { background: "var(--ink)", color: "var(--bg)", borderColor: "var(--ink)" } : {}}>
+                    <Icon name={t==="light"?"sun":"moon"} size={14} /> {t==="light"?"Светлая":"Тёмная"}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      <button onClick={() => setOpen(o=>!o)} className="btn btn-primary mt-2" style={{ boxShadow: "0 12px 30px -10px rgba(0,0,0,.3)" }}>
+        <Icon name="settings" size={14} /> Tweaks
+      </button>
+    </div>
+  );
+}
+
+function App() {
+  const [screen, setScreen] = useState(() => localStorage.getItem("screen") || "landing");
+  const [tweaksOpen, setTweaksOpen] = useState(false);
+  const [tweakState, setTweakState] = useState(() => ({ ...window.__TWEAK_DEFAULTS }));
+  const [tweaksAvailable, setTweaksAvailable] = useState(false);
+
+  useEffect(() => { localStorage.setItem("screen", screen); }, [screen]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--accent-h", String(tweakState.accentHue));
+    root.style.setProperty("--accent", `oklch(0.58 0.17 ${tweakState.accentHue})`);
+    root.style.setProperty("--accent-soft", `oklch(0.94 0.04 ${tweakState.accentHue})`);
+    root.style.setProperty("--accent-ink", `oklch(0.38 0.14 ${tweakState.accentHue})`);
+    root.style.setProperty("--radius", `${tweakState.radius}px`);
+    root.setAttribute("data-theme", tweakState.theme);
+  }, [tweakState]);
+
+  // Host-driven tweak protocol
+  useEffect(() => {
+    function onMsg(e) {
+      const d = e.data || {};
+      if (d.type === "__activate_edit_mode") setTweaksOpen(true);
+      if (d.type === "__deactivate_edit_mode") setTweaksOpen(false);
+    }
+    window.addEventListener("message", onMsg);
+    window.parent.postMessage({ type: "__edit_mode_available" }, "*");
+    setTweaksAvailable(true);
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
+
+  useEffect(() => {
+    window.parent.postMessage({ type: "__edit_mode_set_keys", edits: tweakState }, "*");
+  }, [tweakState]);
+
+  const all = [...DESKTOP_SCREENS, ...MOBILE_SCREENS];
+  const current = all.find(s => s.id === screen) || DESKTOP_SCREENS[0];
+  const isMobile = current.id.startsWith("m-");
+
+  return (
+    <div className="min-h-screen flex" style={{ background: "var(--surface)" }}>
+      {/* Nav rail */}
+      <div className="rail p-5 flex flex-col" style={{ width: 240, position: "sticky", top: 0, height: "100vh" }}>
+        <Logo small />
+        <div className="text-[10px] font-mono muted mt-6 mb-2">РЕДИЗАЙН · HI-FI</div>
+        <div className="text-xs ink-soft leading-relaxed mb-6">Новый визуальный язык deutschtest.pro — прохладная палитра, минимализм, типографика с немецкими буквами.</div>
+
+        <div className="text-[10px] font-mono muted mb-2">DESKTOP</div>
+        <div className="space-y-0.5">
+          {DESKTOP_SCREENS.map(s => (
+            <div key={s.id} className={`rail-item ${s.id===screen?"on":""}`} onClick={() => setScreen(s.id)}>
+              <span className="text-[10px] font-mono" style={{ opacity: .5 }}>{String(DESKTOP_SCREENS.indexOf(s)+1).padStart(2,"0")}</span>
+              <span className="text-sm">{s.label}</span>
+            </div>
+          ))}
+        </div>
+        <div className="text-[10px] font-mono muted mt-6 mb-2">MOBILE</div>
+        <div className="space-y-0.5">
+          {MOBILE_SCREENS.map((s,i) => (
+            <div key={s.id} className={`rail-item ${s.id===screen?"on":""}`} onClick={() => setScreen(s.id)}>
+              <span className="text-[10px] font-mono" style={{ opacity: .5 }}>M{i+1}</span>
+              <span className="text-sm">{s.label}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex-1" />
+        <div className="text-[10px] font-mono muted">
+          Inter Tight · JetBrains Mono<br/>
+          oklch · radius {tweakState.radius}
+        </div>
+      </div>
+
+      {/* Stage */}
+      <div className="flex-1 overflow-auto">
+        <div className={`${isMobile ? "flex items-start justify-center py-10" : ""}`} style={{ minHeight: "100vh" }}>
+          {isMobile ? (
+            <div>
+              <div className="text-xs font-mono muted mb-4 text-center">{current.label}</div>
+              {current.render()}
+            </div>
+          ) : (
+            <div className="py-10">
+              <BrowserFrame url={`deutschtest.pro / ${current.label}`} height={920}>
+                {current.render()}
+              </BrowserFrame>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <Tweaks open={tweaksOpen} setOpen={setTweaksOpen} state={tweakState} setState={setTweakState} />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+
+</script>
+</body>
+</html>
