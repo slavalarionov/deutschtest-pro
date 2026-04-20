@@ -4,6 +4,7 @@ import { getInterLineSilenceMp3 } from '@/lib/audio/silence-between-lines'
 import { resolveVoiceId, type VoiceRole } from '@/lib/voices'
 import { concatenateMp3Buffers } from '@/lib/concat-mp3'
 import { logAiUsage } from './ai-usage-logger'
+import { classifyError } from './ai-usage-error-classifier'
 import { calculateElevenLabsTtsCost } from './ai-pricing'
 
 const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1'
@@ -71,28 +72,59 @@ async function synthesizeToBuffer(
       await sleep(base + jitter)
     }
 
-    const response = await fetch(
-      `${ELEVENLABS_API_URL}/text-to-speech/${voiceId}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'xi-api-key': process.env.ELEVENLABS_API_KEY!,
-        },
-        body: JSON.stringify({
-          text,
-          model_id: 'eleven_multilingual_v2',
-          voice_settings: voiceSettings(emotion),
-        }),
-      }
-    )
+    const startedAt = Date.now()
+    const attemptNumber = attempt + 1
+
+    let response: Response
+    try {
+      response = await fetch(
+        `${ELEVENLABS_API_URL}/text-to-speech/${voiceId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'xi-api-key': process.env.ELEVENLABS_API_KEY!,
+          },
+          body: JSON.stringify({
+            text,
+            model_id: 'eleven_multilingual_v2',
+            voice_settings: voiceSettings(emotion),
+          }),
+        }
+      )
+    } catch (err) {
+      logAiUsage({
+        provider: 'elevenlabs',
+        model: 'eleven_multilingual_v2',
+        operation: 'tts_generate',
+        characters: text.length,
+        costUsd: 0,
+        status: classifyError(err),
+        errorMessage: err instanceof Error ? err.message : String(err),
+        errorStack: err instanceof Error ? err.stack ?? null : null,
+        latencyMs: Date.now() - startedAt,
+        attemptNumber,
+      }).catch(() => {})
+      throw err
+    }
 
     if (response.status === 429) {
       last429 = true
       const errorBody = await response.text().catch(() => '')
       console.warn(
-        `ElevenLabs 429 (attempt ${attempt + 1}/${TTS_MAX_RETRIES}) voice=${voiceId.slice(0, 8)}… ${errorBody.slice(0, 120)}`
+        `ElevenLabs 429 (attempt ${attemptNumber}/${TTS_MAX_RETRIES}) voice=${voiceId.slice(0, 8)}… ${errorBody.slice(0, 120)}`
       )
+      logAiUsage({
+        provider: 'elevenlabs',
+        model: 'eleven_multilingual_v2',
+        operation: 'tts_generate',
+        characters: text.length,
+        costUsd: 0,
+        status: 'rate_limit',
+        errorMessage: `429: ${errorBody.slice(0, 300)}`,
+        latencyMs: Date.now() - startedAt,
+        attemptNumber,
+      }).catch(() => {})
       continue
     }
 
@@ -104,6 +136,17 @@ async function synthesizeToBuffer(
       console.error(
         `ElevenLabs ${response.status} | key: ${keyPreview} | body: ${errorBody.slice(0, 200)}`
       )
+      logAiUsage({
+        provider: 'elevenlabs',
+        model: 'eleven_multilingual_v2',
+        operation: 'tts_generate',
+        characters: text.length,
+        costUsd: 0,
+        status: 'error',
+        errorMessage: `ElevenLabs ${response.status}: ${errorBody.slice(0, 300)}`,
+        latencyMs: Date.now() - startedAt,
+        attemptNumber,
+      }).catch(() => {})
       throw new Error(`ElevenLabs API error: ${response.status}`)
     }
 
@@ -116,6 +159,9 @@ async function synthesizeToBuffer(
       operation: 'tts_generate',
       characters: text.length,
       costUsd: cost,
+      status: 'success',
+      latencyMs: Date.now() - startedAt,
+      attemptNumber,
     }).catch(() => {})
 
     return Buffer.from(arrayBuffer)

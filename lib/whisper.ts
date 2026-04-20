@@ -2,6 +2,7 @@
 
 import OpenAI from 'openai'
 import { logAiUsage } from './ai-usage-logger'
+import { classifyError } from './ai-usage-error-classifier'
 import { calculateWhisperCost } from './ai-pricing'
 
 let _openai: OpenAI | null = null
@@ -28,22 +29,42 @@ export async function transcribeAudio(
     { type: 'audio/webm' }
   )
 
-  const response = await getOpenAI().audio.transcriptions.create({
-    file,
-    model: 'whisper-1',
-    language: 'de',
-    response_format: 'verbose_json',
-  })
+  const startedAt = Date.now()
 
-  const audioSeconds = (response as { duration?: number }).duration ?? 0
-  const cost = calculateWhisperCost('whisper-1', audioSeconds)
-  logAiUsage({
-    provider: 'openai',
-    model: 'whisper-1',
-    operation: 'whisper_transcribe',
-    audioSeconds,
-    costUsd: cost,
-  }).catch(() => {})
+  try {
+    const response = await getOpenAI().audio.transcriptions.create({
+      file,
+      model: 'whisper-1',
+      language: 'de',
+      response_format: 'verbose_json',
+    })
 
-  return response.text
+    const audioSeconds = (response as { duration?: number }).duration ?? 0
+    const cost = calculateWhisperCost('whisper-1', audioSeconds)
+    logAiUsage({
+      provider: 'openai',
+      model: 'whisper-1',
+      operation: 'whisper_transcribe',
+      audioSeconds,
+      costUsd: cost,
+      status: 'success',
+      latencyMs: Date.now() - startedAt,
+      attemptNumber: 1,
+    }).catch(() => {})
+
+    return response.text
+  } catch (err) {
+    logAiUsage({
+      provider: 'openai',
+      model: 'whisper-1',
+      operation: 'whisper_transcribe',
+      costUsd: 0,
+      status: classifyError(err),
+      errorMessage: err instanceof Error ? err.message : String(err),
+      errorStack: err instanceof Error ? err.stack ?? null : null,
+      latencyMs: Date.now() - startedAt,
+      attemptNumber: 1,
+    }).catch(() => {})
+    throw err
+  }
 }

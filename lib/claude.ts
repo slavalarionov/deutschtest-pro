@@ -26,6 +26,7 @@ import type { Locale } from '@/i18n/request'
 import { pickRandomTopic, type TopicData, type ExamLevelLower } from '@/lib/topic-sampler'
 import { horenDialogueEmotionSchema, normalizeDialogueEmotion } from '@/lib/horen-emotion'
 import { logAiUsage } from './ai-usage-logger'
+import { classifyError } from './ai-usage-error-classifier'
 import { calculateAnthropicCost } from './ai-pricing'
 
 const anthropic = new Anthropic({
@@ -124,6 +125,10 @@ export async function generateWithTool<T>(opts: GenerateWithToolOptions<T>): Pro
 
   for (let attempt = 1; attempt <= TOOL_GEN_RETRIES; attempt++) {
     let receivedInput: unknown | undefined
+    const startedAt = Date.now()
+    // Saved before schema.parse so a ZodError still logs the tokens Anthropic
+    // billed us for — we paid for those tokens even if the output didn't validate.
+    let anthropicUsage: { model: string; inputTokens: number; outputTokens: number } | null = null
     try {
       if (attempt > 1) await sleep(2000 * (attempt - 1))
 
@@ -142,19 +147,11 @@ export async function generateWithTool<T>(opts: GenerateWithToolOptions<T>): Pro
         messages: [{ role: 'user', content: userPrompt }],
       })
 
-      const cost = calculateAnthropicCost(
-        message.model,
-        message.usage.input_tokens,
-        message.usage.output_tokens
-      )
-      logAiUsage({
-        provider: 'anthropic',
+      anthropicUsage = {
         model: message.model,
-        operation,
         inputTokens: message.usage.input_tokens,
         outputTokens: message.usage.output_tokens,
-        costUsd: cost,
-      }).catch(() => {})
+      }
 
       const toolUseBlock = message.content.find((b) => b.type === 'tool_use')
       if (!toolUseBlock || toolUseBlock.type !== 'tool_use') {
@@ -165,10 +162,55 @@ export async function generateWithTool<T>(opts: GenerateWithToolOptions<T>): Pro
       const preNormalized = coerceTopLevelJsonStrings(receivedInput)
       const normalized = normalizeInput ? normalizeInput(preNormalized) : preNormalized
       const validated = schema.parse(normalized)
+
+      const cost = calculateAnthropicCost(
+        anthropicUsage.model,
+        anthropicUsage.inputTokens,
+        anthropicUsage.outputTokens
+      )
+      logAiUsage({
+        provider: 'anthropic',
+        model: anthropicUsage.model,
+        operation,
+        inputTokens: anthropicUsage.inputTokens,
+        outputTokens: anthropicUsage.outputTokens,
+        costUsd: cost,
+        status: 'success',
+        latencyMs: Date.now() - startedAt,
+        attemptNumber: attempt,
+      }).catch(() => {})
+
       return validated
     } catch (err) {
       lastError = err
-      const msg = err instanceof Error ? err.message : String(err)
+      const latencyMs = Date.now() - startedAt
+      const status = classifyError(err)
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      const errorStack = err instanceof Error ? err.stack ?? null : null
+
+      const loggedCost = anthropicUsage
+        ? calculateAnthropicCost(
+            anthropicUsage.model,
+            anthropicUsage.inputTokens,
+            anthropicUsage.outputTokens
+          )
+        : 0
+
+      logAiUsage({
+        provider: 'anthropic',
+        model: anthropicUsage?.model ?? 'claude-sonnet-4-20250514',
+        operation,
+        inputTokens: anthropicUsage?.inputTokens ?? 0,
+        outputTokens: anthropicUsage?.outputTokens ?? 0,
+        costUsd: loggedCost,
+        status,
+        errorMessage,
+        errorStack,
+        latencyMs,
+        attemptNumber: attempt,
+      }).catch(() => {})
+
+      const msg = errorMessage
 
       if (msg.includes('overloaded') || msg.includes('529')) {
         console.warn(`[generateWithTool] Claude overloaded, retry ${attempt}/${TOOL_GEN_RETRIES}...`)
