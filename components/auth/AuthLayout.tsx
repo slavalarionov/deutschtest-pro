@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import Image from 'next/image'
 import { Link } from '@/i18n/routing'
 import { LanguageSwitcher } from '@/components/common/LanguageSwitcher'
 
@@ -39,12 +40,23 @@ export function AuthLayout({
       <main className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
         {/* Left: form column */}
         <div className="flex flex-col justify-between p-6 sm:p-10 lg:p-14">
-          {/* Top: brand wordmark */}
-          <Link href="/" className="inline-flex items-center gap-1">
+          {/* Top: brand lockup (icon mark + wordmark) */}
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2.5"
+            aria-label="DeutschTest.pro"
+          >
+            <Image
+              src="/icon-mark.svg"
+              alt=""
+              width={28}
+              height={28}
+              aria-hidden="true"
+              priority
+            />
             <span className="font-display text-xl font-medium tracking-tight text-ink">
-              DeutschTest
+              deutschtest<span className="text-muted">.pro</span>
             </span>
-            <span className="text-ink-soft">.pro</span>
           </Link>
 
           {/* Middle: eyebrow + headline + lead + form */}

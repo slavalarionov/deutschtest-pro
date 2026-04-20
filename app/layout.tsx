@@ -26,6 +26,26 @@ export const metadata: Metadata = {
   description:
     'Bereiten Sie sich mit KI-generierten Prüfungen auf das Goethe-Zertifikat vor. Lesen, Hören, Schreiben, Sprechen — alles in einer Plattform.',
   keywords: ['Goethe-Zertifikat', 'Deutsch', 'A1', 'A2', 'B1', 'exam', 'simulator', 'AI'],
+  icons: {
+    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
+    apple: '/apple-touch-icon.png',
+  },
+  openGraph: {
+    title: 'DeutschTest.pro — AI-Simulator Goethe-Zertifikat',
+    description:
+      'Bereiten Sie sich mit KI-generierten Prüfungen auf das Goethe-Zertifikat vor. Lesen, Hören, Schreiben, Sprechen — alles in einer Plattform.',
+    url: 'https://deutschtest.pro',
+    siteName: 'DeutschTest.pro',
+    images: [
+      {
+        url: 'https://deutschtest.pro/icon-mark.svg',
+        width: 1200,
+        height: 630,
+        alt: 'DeutschTest.pro',
+      },
+    ],
+    type: 'website',
+  },
 }
 
 export default function RootLayout({

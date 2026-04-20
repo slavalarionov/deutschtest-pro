@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, usePathname, useRouter } from '@/i18n/routing'
@@ -165,9 +166,19 @@ export function DashboardShell({ email, modulesBalance, children }: DashboardShe
         <Link
           href="/dashboard"
           onClick={() => setOpen(false)}
-          className="block font-display text-lg font-medium tracking-tight text-ink"
+          className="inline-flex items-center gap-2.5"
+          aria-label="DeutschTest.pro"
         >
-          DeutschTest<span className="text-muted">.pro</span>
+          <Image
+            src="/icon-mark.svg"
+            alt=""
+            width={28}
+            height={28}
+            aria-hidden="true"
+          />
+          <span className="font-display text-lg font-medium tracking-tight text-ink">
+            deutschtest<span className="text-muted">.pro</span>
+          </span>
         </Link>
         <p className="mt-1 truncate text-xs text-muted">{email}</p>
       </div>
@@ -230,9 +241,19 @@ export function DashboardShell({ email, modulesBalance, children }: DashboardShe
       <header className="fixed inset-x-0 top-0 z-30 flex items-center justify-between border-b border-line bg-page px-4 py-3 lg:hidden">
         <Link
           href="/dashboard"
-          className="font-display text-base font-medium tracking-tight text-ink"
+          className="inline-flex items-center gap-2"
+          aria-label="DeutschTest.pro"
         >
-          DeutschTest<span className="text-muted">.pro</span>
+          <Image
+            src="/icon-mark.svg"
+            alt=""
+            width={24}
+            height={24}
+            aria-hidden="true"
+          />
+          <span className="font-display text-base font-medium tracking-tight text-ink">
+            deutschtest<span className="text-muted">.pro</span>
+          </span>
         </Link>
         <button
           type="button"

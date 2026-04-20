@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useExamStore } from '@/store/examStore'
@@ -97,9 +98,19 @@ export function ExamShell({ sessionId }: ExamShellProps) {
           <div className="flex items-center gap-4">
             <a
               href="/"
-              className="font-display text-sm font-medium tracking-tight text-ink"
+              className="inline-flex items-center gap-2"
+              aria-label="DeutschTest.pro"
             >
-              DeutschTest.pro
+              <Image
+                src="/icon-mark.svg"
+                alt=""
+                width={20}
+                height={20}
+                aria-hidden="true"
+              />
+              <span className="font-display text-sm font-medium tracking-tight text-ink">
+                deutschtest<span className="text-muted">.pro</span>
+              </span>
             </a>
             <span aria-hidden="true" className="h-4 w-px bg-line" />
             <span className="font-mono text-[11px] uppercase tracking-wider text-muted">
