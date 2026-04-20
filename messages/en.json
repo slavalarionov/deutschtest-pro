@@ -55,7 +55,7 @@
         "durationSchreiben": "60 min",
         "durationSprechen": "15 min"
       },
-      "modulesHint": "💡 Pick a single module for focused practice. 1 credit = 1 module.",
+      "modulesHint": "Pick a single module for focused practice. 1 credit = 1 module.",
       "buyPrompt": "You've already used your free test. Buy more tests to keep going.",
       "loadingHint": "Generating the module — please wait a moment…",
       "errors": {

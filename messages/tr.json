@@ -55,7 +55,7 @@
         "durationSchreiben": "60 dk",
         "durationSprechen": "15 dk"
       },
-      "modulesHint": "💡 Odaklı pratik için tek bir modül seçin. 1 kredi = 1 modül.",
+      "modulesHint": "Odaklı pratik için tek bir modül seçin. 1 kredi = 1 modül.",
       "buyPrompt": "Ücretsiz testinizi zaten kullandınız. Devam etmek için yeni test satın alın.",
       "loadingHint": "Modül hazırlanıyor — biraz bekleyin…",
       "errors": {

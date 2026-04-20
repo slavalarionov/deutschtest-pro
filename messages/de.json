@@ -55,7 +55,7 @@
         "durationSchreiben": "60 Min",
         "durationSprechen": "15 Min"
       },
-      "modulesHint": "💡 Wählen Sie ein Modul für ein gezieltes Training. 1 Credit = 1 Modul.",
+      "modulesHint": "Wählen Sie ein Modul für ein gezieltes Training. 1 Credit = 1 Modul.",
       "buyPrompt": "Sie haben bereits Ihren kostenlosen Test verwendet. Kaufen Sie weitere Tests, um fortzufahren.",
       "loadingHint": "Modul wird generiert — bitte einen Moment warten…",
       "errors": {
