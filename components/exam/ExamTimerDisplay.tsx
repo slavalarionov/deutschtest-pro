@@ -15,12 +15,12 @@ export function ExamTimerDisplay({ timeLeft }: ExamTimerDisplayProps) {
 
   return (
     <div
-      className={`rounded-lg px-4 py-2 font-mono text-lg font-semibold tabular-nums transition-colors ${
+      className={`rounded-rad-sm border px-4 py-2 font-mono text-lg font-medium tabular-nums tracking-tight transition-colors ${
         isCritical
-          ? 'animate-timer-pulse bg-red-100 text-brand-red'
+          ? 'animate-timer-pulse border-error bg-error-soft text-error'
           : isWarning
-            ? 'bg-orange-50 text-orange-600'
-            : 'bg-brand-surface text-brand-text'
+            ? 'border-accent bg-accent-soft text-accent-ink'
+            : 'border-line bg-card text-ink'
       }`}
     >
       {String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}
@@ -49,10 +49,10 @@ export function TimerWarningBanner({ timeLeft }: { timeLeft: number }) {
 
   return (
     <div
-      className={`flex items-center justify-between rounded-xl px-5 py-3 shadow-soft ${
+      className={`flex items-center justify-between rounded-rad border px-5 py-3 ${
         is1Min
-          ? 'animate-timer-pulse bg-red-50 text-brand-red'
-          : 'bg-orange-50 text-orange-700'
+          ? 'animate-timer-pulse border-error bg-error-soft text-error'
+          : 'border-accent bg-accent-soft text-accent-ink'
       }`}
     >
       <div className="flex items-center gap-3">
@@ -60,13 +60,13 @@ export function TimerWarningBanner({ timeLeft }: { timeLeft: number }) {
           <circle cx="12" cy="12" r="10" />
           <polyline points="12,6 12,12 16,14" />
         </svg>
-        <span className="text-sm font-semibold">
+        <span className="text-sm font-medium tracking-tight">
           {is1Min ? t('warning60Seconds') : t('warning5Minutes')}
         </span>
       </div>
       <button
         onClick={() => setDismissed(true)}
-        className="text-xs font-medium opacity-70 hover:opacity-100"
+        className="font-mono text-[11px] uppercase tracking-wider opacity-70 transition-opacity hover:opacity-100"
       >
         {t('dismiss')}
       </button>
