@@ -3,8 +3,9 @@
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { useRouter } from '@/i18n/routing'
+import { Link, useRouter } from '@/i18n/routing'
 import { RetakeModuleModal } from '@/components/exam/RetakeModuleModal'
+import { formatEditorialDate } from '@/lib/format/date'
 
 interface ModuleScores {
   lesen?: number
@@ -41,12 +42,15 @@ interface ResultsData {
 
 const VALID_MODULES = new Set(['lesen', 'horen', 'schreiben', 'sprechen'])
 
+/** Flat progress bar on `--line` with an `--accent` fill. No score-gradation. */
 function ProgressBar({ value, max }: { value: number; max: number }) {
-  const pct = max > 0 ? (value / max) * 100 : 0
-  const color = pct >= 75 ? 'bg-green-500' : pct >= 50 ? 'bg-brand-gold' : 'bg-brand-red'
+  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0
   return (
-    <div className="mt-2 h-2 overflow-hidden rounded-full bg-brand-surface">
-      <div className={`h-full rounded-full transition-all duration-700 ${color}`} style={{ width: `${pct}%` }} />
+    <div className="mt-3 h-2 overflow-hidden rounded-rad-pill bg-line">
+      <div
+        className="h-full rounded-rad-pill bg-accent"
+        style={{ width: `${pct}%` }}
+      />
     </div>
   )
 }
@@ -57,6 +61,7 @@ export default function ResultsPage() {
   const locale = useLocale()
   const t = useTranslations('results')
   const tModules = useTranslations('modules')
+  const tDetail = useTranslations('dashboard.testDetail')
   const [data, setData] = useState<ResultsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -83,10 +88,12 @@ export default function ResultsPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-brand-bg">
+      <div className="flex min-h-screen items-center justify-center bg-page">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-brand-gold border-t-transparent" />
-          <p className="text-sm text-brand-muted">{t('loading')}</p>
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-ink border-t-transparent" />
+          <p className="font-mono text-xs uppercase tracking-widest text-muted">
+            {t('loading')}
+          </p>
         </div>
       </div>
     )
@@ -94,13 +101,17 @@ export default function ResultsPage() {
 
   if (error || !data) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-brand-bg px-4">
-        <div className="max-w-md rounded-xl bg-brand-white p-8 text-center shadow-soft">
-          <p className="mb-4 text-lg font-semibold text-brand-text">{t('notFound')}</p>
-          <p className="mb-6 text-sm text-brand-muted">{error || t('notSubmitted')}</p>
+      <div className="flex min-h-screen items-center justify-center bg-page px-4">
+        <div className="w-full max-w-md rounded-rad border border-line bg-card p-10 text-center">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            {t('notFound')}
+          </div>
+          <h1 className="mt-4 font-display text-4xl leading-[1.05] tracking-[-0.03em] text-ink">
+            {error || t('notSubmitted')}
+          </h1>
           <button
             onClick={() => router.push('/')}
-            className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+            className="mt-8 rounded-rad-pill bg-ink px-8 py-3 text-sm font-medium text-page transition-colors hover:bg-ink/90"
           >
             {t('toHome')}
           </button>
@@ -114,47 +125,80 @@ export default function ResultsPage() {
   const moduleLabel = tModules(activeModule as 'lesen' | 'horen' | 'schreiben' | 'sprechen')
   const score = scores ? (scores as Record<string, number>)[activeModule] : undefined
   const passed = score !== undefined && score >= 60
+  const formattedDate = data.submittedAt
+    ? formatEditorialDate(data.submittedAt, locale)
+    : null
 
   return (
-    <div className="min-h-screen bg-brand-bg">
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
-        {/* Header */}
-        <div className="mb-8 rounded-2xl bg-brand-white p-8 text-center shadow-soft">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-brand-muted">
-            {t('certificateHeading', { level, module: moduleLabel })}
-          </p>
+    <div className="min-h-screen bg-page">
+      <div className="mx-auto max-w-3xl space-y-10 px-4 py-10 sm:px-6 sm:py-14">
+        {/* ====== Editorial header ====== */}
+        <header className="space-y-4">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            {tDetail('eyebrow', { level })}
+          </div>
+          <h1 className="font-display text-[44px] leading-[1.05] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
+            {moduleLabel}.
+            {formattedDate && (
+              <>
+                <br />
+                <span className="text-ink-soft">{formattedDate}.</span>
+              </>
+            )}
+          </h1>
+        </header>
+
+        {/* ====== Score card ====== */}
+        <div className="rounded-rad border border-line bg-card p-10 text-center sm:p-14">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            {tDetail('resultEyebrow')}
+          </div>
           <div
             data-testid="result-score-value"
-            className="mb-2 text-7xl font-bold text-brand-text"
+            className="mt-3 font-display text-7xl leading-none tracking-[-0.04em] text-ink tabular-nums md:text-8xl"
           >
             {score ?? '—'}
           </div>
-          <p className="text-sm text-brand-muted">{t('outOf100')}</p>
-          {score !== undefined && <ProgressBar value={score} max={100} />}
+          <div className="mt-2 font-mono text-xl text-ink-soft">/ 100</div>
+
+          {score !== undefined && (
+            <div className="mx-auto mt-6 h-2 w-64 overflow-hidden rounded-rad-pill bg-line">
+              <div
+                className={`h-full rounded-rad-pill ${passed ? 'bg-accent' : 'bg-ink'}`}
+                style={{ width: `${Math.min(score, 100)}%` }}
+              />
+            </div>
+          )}
+
           {score !== undefined && (
             <p
               data-testid="result-status"
               data-passed={passed ? 'true' : 'false'}
-              className={`mt-4 text-lg font-bold ${passed ? 'text-green-700' : 'text-brand-red'}`}
+              className="mt-6 inline-flex items-center gap-2 text-sm"
             >
-              {passed ? t('passed') : t('failed')}
+              <span
+                aria-hidden="true"
+                className={`block h-1.5 w-1.5 rounded-full ${passed ? 'bg-accent' : 'bg-muted'}`}
+              />
+              <span className={passed ? 'text-ink-soft' : 'text-muted'}>
+                {passed ? t('passed') : t('failed')}
+              </span>
             </p>
           )}
-          {data.submittedAt && (
-            <p className="mt-4 text-xs text-brand-muted">
-              {t('submittedAt', {
-                date: new Date(data.submittedAt).toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short' }),
-              })}
-            </p>
+
+          {formattedDate && (
+            <div className="mt-4 font-mono text-xs uppercase tracking-widest text-muted">
+              {formattedDate}
+            </div>
           )}
         </div>
 
-        {/* Detailed feedback */}
+        {/* ====== Detailed feedback ====== */}
         {aiFeedback && (() => {
           const fb = (aiFeedback as Record<string, unknown>)[activeModule]
           if (!fb) return null
           if (activeModule === 'lesen' || activeModule === 'horen') {
-            return <LesenHorenDetails moduleLabel={moduleLabel} feedback={fb as LesenHorenFeedback} />
+            return <LesenHorenDetails feedback={fb as LesenHorenFeedback} />
           }
           if (activeModule === 'schreiben') {
             return <SchreibenDetails feedback={fb as SchreibenFeedback} />
@@ -165,30 +209,45 @@ export default function ResultsPage() {
           return null
         })()}
 
-        {/* Navigation buttons */}
-        <div className="mt-6 flex flex-col items-center gap-3">
+        {/* ====== Footer actions ====== */}
+        <div className="flex flex-col items-center gap-3 pt-6">
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
               onClick={() => router.push('/dashboard')}
-              className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+              className="rounded-rad-pill bg-ink px-8 py-3 text-sm font-medium text-page transition-colors hover:bg-ink/90"
             >
               {t('toDashboard')}
             </button>
             <button
               type="button"
+              disabled={data.modulesBalance === 0}
+              aria-label={
+                data.modulesBalance === 0 ? tDetail('retakeDisabled') : undefined
+              }
+              title={
+                data.modulesBalance === 0 ? tDetail('retakeDisabled') : undefined
+              }
               onClick={() => {
-                if (data.modulesBalance > 0) {
-                  setRetakeModalOpen(true)
-                } else {
-                  router.push('/pricing')
-                }
+                if (data.modulesBalance > 0) setRetakeModalOpen(true)
               }}
-              className="rounded-lg border border-brand-border bg-brand-white px-6 py-2.5 text-sm font-semibold text-brand-text transition hover:bg-brand-surface"
+              className={`rounded-rad-pill px-8 py-3 text-sm font-medium transition-colors ${
+                data.modulesBalance > 0
+                  ? 'border border-line bg-card text-ink hover:bg-surface'
+                  : 'cursor-not-allowed border border-line bg-line text-muted'
+              }`}
             >
               {t('retakeModule')}
             </button>
           </div>
+          {data.modulesBalance === 0 && (
+            <Link
+              href="/pricing"
+              className="text-xs font-medium text-ink-soft underline underline-offset-4 transition-colors hover:text-ink"
+            >
+              {tDetail('buyModules')}
+            </Link>
+          )}
         </div>
       </div>
 
@@ -204,82 +263,131 @@ export default function ResultsPage() {
   )
 }
 
-function LesenHorenDetails({ moduleLabel, feedback }: { moduleLabel: string; feedback: LesenHorenFeedback }) {
+function LesenHorenDetails({ feedback }: { feedback: LesenHorenFeedback }) {
   const t = useTranslations('results.lesenHoren')
+  const tDetail = useTranslations('dashboard.testDetail')
   if (!feedback.details || !feedback.summary) return null
 
-  const wrongAnswers = Object.entries(feedback.details).filter(([, d]) => !d.isCorrect)
+  const entries = Object.entries(feedback.details)
+  const wrongCount = feedback.summary.total - feedback.summary.correct
 
   return (
-    <div className="mb-6 rounded-xl bg-brand-white p-6 shadow-soft">
-      <h3 className="mb-4 text-base font-semibold text-brand-text">
-        {t('title', { module: moduleLabel })}
-      </h3>
-      <div className="mb-4 flex items-center gap-4">
-        <div className="rounded-lg bg-green-50 px-4 py-2">
-          <span className="text-lg font-bold text-green-700">{feedback.summary.correct}</span>
-          <span className="ml-1 text-xs text-green-600">{t('correct')}</span>
+    <div className="space-y-6">
+      {/* Overview */}
+      <div className="rounded-rad border border-line bg-surface p-8">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {tDetail('overviewEyebrow')}
         </div>
-        <div className="rounded-lg bg-red-50 px-4 py-2">
-          <span className="text-lg font-bold text-brand-red">{feedback.summary.total - feedback.summary.correct}</span>
-          <span className="ml-1 text-xs text-red-600">{t('wrong')}</span>
-        </div>
-        <div className="rounded-lg bg-brand-surface px-4 py-2">
-          <span className="text-lg font-bold text-brand-text">{feedback.summary.total}</span>
-          <span className="ml-1 text-xs text-brand-muted">{t('total')}</span>
+        <div className="mt-4 flex flex-wrap items-end gap-0">
+          <StatPill
+            value={String(feedback.summary.correct)}
+            label={t('correct').toUpperCase()}
+          />
+          <div className="border-l border-line pl-8">
+            <StatPill
+              value={String(wrongCount)}
+              label={t('wrong').toUpperCase()}
+              muted={wrongCount > 0}
+            />
+          </div>
+          <div className="border-l border-line pl-8">
+            <StatPill
+              value={String(feedback.summary.total)}
+              label={t('total').toUpperCase()}
+              soft
+            />
+          </div>
         </div>
       </div>
 
-      {wrongAnswers.length > 0 && (
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">{t('wrongAnswers')}</p>
-          <div className="space-y-2">
-            {wrongAnswers.map(([id, detail]) => (
-              <div key={id} className="flex items-center justify-between rounded-lg bg-red-50/50 px-4 py-2.5">
-                <span className="text-xs font-medium text-brand-text">{t('taskLabel', { id })}</span>
-                <div className="flex gap-3 text-xs">
-                  <span className="text-red-600">{t('yourAnswerLabel')} <strong>{detail.userAnswer || '—'}</strong></span>
-                  <span className="text-green-600">{t('correctAnswerLabel')} <strong>{detail.correctAnswer}</strong></span>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* All answers */}
+      <div className="rounded-rad border border-line bg-card p-8">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {tDetail('allAnswersEyebrow')}
         </div>
-      )}
+        <div className="mt-4 space-y-3">
+          {entries.map(([id, detail], i) => {
+            const numericId = Number(id)
+            const padded = Number.isFinite(numericId)
+              ? String(numericId).padStart(2, '0')
+              : String(i + 1).padStart(2, '0')
+            return (
+              <div
+                key={id}
+                className={`border-l-2 py-3 pl-4 ${
+                  detail.isCorrect ? 'border-accent' : 'border-muted'
+                }`}
+              >
+                <div
+                  className={`font-mono text-[10px] uppercase tracking-widest ${
+                    detail.isCorrect ? 'text-accent-ink' : 'text-muted'
+                  }`}
+                >
+                  {padded} · {detail.isCorrect ? 'RICHTIG' : 'FALSCH'}
+                </div>
+                <div className="mt-1 text-sm text-ink">
+                  {t('yourAnswerLabel')}{' '}
+                  <strong className="font-medium">
+                    {detail.userAnswer || '—'}
+                  </strong>
+                </div>
+                {!detail.isCorrect && (
+                  <div className="mt-1 text-sm text-ink-soft">
+                    {t('correctAnswerLabel')}{' '}
+                    <strong className="font-medium">
+                      {detail.correctAnswer}
+                    </strong>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
 
 function SchreibenDetails({ feedback }: { feedback: SchreibenFeedback }) {
   const t = useTranslations('results.schreiben')
+  const tDetail = useTranslations('dashboard.testDetail')
   const criteria = [
-    ['taskFulfillment', feedback.criteria.taskFulfillment, 25],
-    ['coherence', feedback.criteria.coherence, 25],
-    ['vocabulary', feedback.criteria.vocabulary, 25],
-    ['grammar', feedback.criteria.grammar, 25],
+    [t('taskFulfillment'), feedback.criteria.taskFulfillment, 25],
+    [t('coherence'), feedback.criteria.coherence, 25],
+    [t('vocabulary'), feedback.criteria.vocabulary, 25],
+    [t('grammar'), feedback.criteria.grammar, 25],
   ] as const
 
   return (
-    <div className="mb-6 space-y-4">
-      <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-        <h3 className="mb-4 text-base font-semibold text-brand-text">{t('title')}</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {criteria.map(([key, score, max]) => (
-            <div key={key} className="rounded-lg bg-brand-bg p-4">
-              <p className="text-xs font-medium text-brand-muted">{t(key)}</p>
-              <div className="mt-1 flex items-end gap-1">
-                <span className="text-2xl font-bold text-brand-text">{score}</span>
-                <span className="mb-0.5 text-xs text-brand-muted">/ {max}</span>
+    <div className="space-y-6">
+      <div className="rounded-rad border border-line bg-card p-8">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {tDetail('criteriaEyebrow')}
+        </div>
+        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          {criteria.map(([label, score, max]) => (
+            <div key={label}>
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                {label}
+              </div>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className="font-display text-4xl text-ink">{score}</span>
+                <span className="text-sm text-ink-soft">/ {max}</span>
               </div>
               <ProgressBar value={score} max={max} />
             </div>
           ))}
         </div>
       </div>
+
       {feedback.comment && (
-        <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-          <h4 className="mb-3 text-sm font-semibold text-brand-text">{t('aiFeedback')}</h4>
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">{feedback.comment}</p>
+        <div className="rounded-rad border border-line bg-card p-8">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            {tDetail('aiFeedbackEyebrow')}
+          </div>
+          <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-ink">
+            {feedback.comment}
+          </p>
         </div>
       )}
     </div>
@@ -288,37 +396,75 @@ function SchreibenDetails({ feedback }: { feedback: SchreibenFeedback }) {
 
 function SprechenDetails({ feedback }: { feedback: SprechenFeedback }) {
   const t = useTranslations('results.sprechen')
+  const tDetail = useTranslations('dashboard.testDetail')
   const criteria = [
-    ['taskFulfillment', feedback.criteria.taskFulfillment, 20],
-    ['fluency', feedback.criteria.fluency, 20],
-    ['vocabulary', feedback.criteria.vocabulary, 20],
-    ['grammar', feedback.criteria.grammar, 20],
-    ['pronunciation', feedback.criteria.pronunciation, 20],
+    [t('taskFulfillment'), feedback.criteria.taskFulfillment, 20],
+    [t('fluency'), feedback.criteria.fluency, 20],
+    [t('vocabulary'), feedback.criteria.vocabulary, 20],
+    [t('grammar'), feedback.criteria.grammar, 20],
+    [t('pronunciation'), feedback.criteria.pronunciation, 20],
   ] as const
 
   return (
-    <div className="mb-6 space-y-4">
-      <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-        <h3 className="mb-4 text-base font-semibold text-brand-text">{t('title')}</h3>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {criteria.map(([key, score, max]) => (
-            <div key={key} className="rounded-lg bg-brand-bg p-4">
-              <p className="text-xs font-medium text-brand-muted">{t(key)}</p>
-              <div className="mt-1 flex items-end gap-1">
-                <span className="text-2xl font-bold text-brand-text">{score}</span>
-                <span className="mb-0.5 text-xs text-brand-muted">/ {max}</span>
+    <div className="space-y-6">
+      <div className="rounded-rad border border-line bg-card p-8">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {tDetail('criteriaEyebrow')}
+        </div>
+        <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3">
+          {criteria.map(([label, score, max]) => (
+            <div key={label}>
+              <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                {label}
+              </div>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className="font-display text-4xl text-ink">{score}</span>
+                <span className="text-sm text-ink-soft">/ {max}</span>
               </div>
               <ProgressBar value={score} max={max} />
             </div>
           ))}
         </div>
       </div>
+
       {feedback.comment && (
-        <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-          <h4 className="mb-3 text-sm font-semibold text-brand-text">{t('aiFeedback')}</h4>
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">{feedback.comment}</p>
+        <div className="rounded-rad border border-line bg-card p-8">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            {tDetail('aiFeedbackEyebrow')}
+          </div>
+          <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-ink">
+            {feedback.comment}
+          </p>
         </div>
       )}
+    </div>
+  )
+}
+
+/**
+ * Editorial stat pill — big display number on top, mono caption below.
+ * Variants: default (ink), muted (if the count matters and is > 0),
+ * soft (for neutral totals). Separators between pills are handled by
+ * the parent with `border-l`.
+ */
+function StatPill({
+  value,
+  label,
+  muted,
+  soft,
+}: {
+  value: string
+  label: string
+  muted?: boolean
+  soft?: boolean
+}) {
+  const valueColor = muted ? 'text-muted' : soft ? 'text-ink-soft' : 'text-ink'
+  return (
+    <div>
+      <div className={`font-display text-3xl ${valueColor}`}>{value}</div>
+      <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-muted">
+        {label}
+      </div>
     </div>
   )
 }

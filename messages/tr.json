@@ -791,8 +791,8 @@
     "retakeModule": "Modülü tekrar yap",
     "certificateHeading": "Goethe-Zertifikat {level} — {module}",
     "outOf100": "/ 100 puan",
-    "passed": "Geçildi ✅",
-    "failed": "Geçilemedi ❌",
+    "passed": "Geçildi",
+    "failed": "Geçilemedi",
     "submittedAt": "{date} tarihinde teslim edildi",
     "errors": {
       "loadFailed": "Sonuçlar yüklenemedi.",

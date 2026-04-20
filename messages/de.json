@@ -791,8 +791,8 @@
     "retakeModule": "Modul wiederholen",
     "certificateHeading": "Goethe-Zertifikat {level} — {module}",
     "outOf100": "von 100 Punkten",
-    "passed": "Bestanden ✅",
-    "failed": "Nicht bestanden ❌",
+    "passed": "Bestanden",
+    "failed": "Nicht bestanden",
     "submittedAt": "Abgegeben am {date}",
     "errors": {
       "loadFailed": "Ergebnisse konnten nicht geladen werden.",

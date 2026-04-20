@@ -791,8 +791,8 @@
     "retakeModule": "Пройти заново",
     "certificateHeading": "Goethe-Zertifikat {level} — {module}",
     "outOf100": "из 100 баллов",
-    "passed": "Сдан ✅",
-    "failed": "Не сдан ❌",
+    "passed": "Сдан",
+    "failed": "Не сдан",
     "submittedAt": "Отправлено {date}",
     "errors": {
       "loadFailed": "Не удалось загрузить результаты.",
