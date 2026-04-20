@@ -34,7 +34,7 @@ const TASK_ID_BADGE =
 const OPTION_BASE =
   'rounded-rad border px-3 py-2 text-left text-xs font-medium transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink'
 const OPTION_NEUTRAL = 'border-line text-ink-soft hover:border-ink/40 hover:text-ink'
-const OPTION_SELECTED = 'border-ink bg-accent-soft text-ink'
+const OPTION_SELECTED = 'border-accent/60 bg-accent-soft text-ink'
 const OPTION_SELECTED_CORRECT = 'border-accent/60 bg-accent-soft text-ink'
 const OPTION_SELECTED_WRONG = 'border-error/60 bg-error-soft text-ink'
 const OPTION_HINT_CORRECT = 'border-accent/60 bg-card text-ink'
