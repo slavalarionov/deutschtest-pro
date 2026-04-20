@@ -10,21 +10,28 @@ interface TimeUpOverlayProps {
 export function TimeUpOverlay({ detail }: TimeUpOverlayProps) {
   const t = useTranslations('exam.timer')
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="mx-4 max-w-md rounded-2xl bg-brand-white p-8 text-center shadow-xl">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8B1A1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-page/80 p-4">
+      <div className="w-full max-w-md rounded-rad border border-line bg-card p-10 text-center shadow-lift">
+        <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-rad-pill border border-line bg-surface text-ink-soft">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="10" />
             <polyline points="12,6 12,12 16,14" />
           </svg>
         </div>
-        <h2 className="mb-2 text-xl font-bold text-brand-text">
+        <div className="mb-3 font-mono text-[11px] uppercase tracking-wider text-muted">
+          {t('redirecting')}
+        </div>
+        <h2 className="font-display text-2xl font-medium tracking-tight text-ink">
           {t('timeUpTitle')}
         </h2>
-        <p className="mb-4 text-sm text-brand-muted">{t('timeUpMessage')}</p>
-        {detail && <p className="mb-4 text-xs text-brand-muted">{detail}</p>}
-        <div className="mx-auto h-1.5 w-32 overflow-hidden rounded-full bg-brand-surface">
-          <div className="h-full animate-progress rounded-full bg-brand-gold" />
+        <p className="mt-3 text-sm text-ink-soft">{t('timeUpMessage')}</p>
+        {detail && (
+          <p className="mt-2 font-mono text-xs uppercase tracking-wider text-muted">
+            {detail}
+          </p>
+        )}
+        <div className="mx-auto mt-8 h-1 w-40 overflow-hidden rounded-rad-pill bg-line">
+          <div className="h-full animate-progress rounded-rad-pill bg-ink" />
         </div>
       </div>
     </div>
