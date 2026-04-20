@@ -128,13 +128,13 @@ export function ModuleLauncher({
                 disabled={loading}
                 className={`rounded-rad-sm border p-4 text-left transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
                   active
-                    ? 'border-ink bg-ink text-page'
+                    ? 'border-accent/60 bg-accent-soft text-ink'
                     : 'border-line bg-page text-ink hover:border-ink-soft'
                 }`}
               >
                 <div
                   className={`font-mono text-[10px] uppercase tracking-widest ${
-                    active ? 'text-page/70' : 'text-muted'
+                    active ? 'text-ink-soft' : 'text-muted'
                   }`}
                 >
                   {lvl.label}
@@ -165,17 +165,17 @@ export function ModuleLauncher({
                 disabled={loading}
                 className={`flex flex-col items-start gap-3 rounded-rad-sm border p-5 text-left transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60 ${
                   active
-                    ? 'border-ink bg-ink text-page'
+                    ? 'border-accent/60 bg-accent-soft text-ink'
                     : 'border-line bg-page text-ink hover:border-ink-soft'
                 }`}
               >
                 <ModuleIcon
                   module={mod.id}
-                  className={`h-6 w-6 ${active ? 'text-page' : 'text-ink'}`}
+                  className="h-6 w-6 text-ink"
                 />
                 <div
                   className={`font-mono text-[10px] uppercase tracking-widest ${
-                    active ? 'text-page/70' : 'text-muted'
+                    active ? 'text-ink-soft' : 'text-muted'
                   }`}
                 >
                   {t(`durations.${mod.id}`)}
