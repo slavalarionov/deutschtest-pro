@@ -25,21 +25,6 @@ const config: Config = {
         surface: 'var(--surface)',
         card: 'var(--card)',
         page: 'var(--bg)',
-
-        // @deprecated Legacy warm gold palette (pre Phase 3). Kept so existing
-        // components keep rendering during the screen-by-screen migration.
-        // Remove once every screen has moved to the new tokens.
-        brand: {
-          bg: '#FAFAF7',
-          surface: '#F2EFE8',
-          border: '#E0DDD6',
-          text: '#1A1A1A',
-          muted: '#6B6560',
-          gold: '#C8A84B',
-          'gold-dark': '#9E7E2C',
-          red: '#8B1A1A',
-          white: '#FFFFFF',
-        },
       },
       fontFamily: {
         // Phase 3: display + body + mono — see app/layout.tsx for next/font

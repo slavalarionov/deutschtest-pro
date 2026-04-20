@@ -98,11 +98,11 @@
 
 @layer base {
   * {
-    @apply border-brand-border;
+    @apply border-line;
   }
 
   body {
-    @apply bg-brand-bg text-brand-text antialiased;
+    @apply bg-page text-ink antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
