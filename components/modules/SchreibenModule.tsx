@@ -10,6 +10,35 @@ import type { SchreibenContent, SchreibenFeedback } from '@/types/exam'
 
 const SCHREIBEN_TIME = 60 * 60
 
+// ============================================================
+// Shared editorial class atoms
+// ============================================================
+
+const SHELL = 'rounded-rad border border-line bg-card'
+const EYEBROW = 'font-mono text-[11px] uppercase tracking-wider text-muted'
+
+type HintKey = 'empty' | 'low' | 'almost' | 'enough'
+
+function wordHintStyles(hintKey: HintKey): { text: string; dot: string } {
+  switch (hintKey) {
+    case 'enough':
+      return { text: 'text-accent', dot: 'bg-accent' }
+    case 'almost':
+      return { text: 'text-ink-soft', dot: 'bg-ink-soft' }
+    case 'low':
+    case 'empty':
+    default:
+      return { text: 'text-muted', dot: 'bg-muted' }
+  }
+}
+
+function criteriaBarClass(score: number): string {
+  const pct = (score / 25) * 100
+  if (pct >= 70) return 'h-1 bg-accent'
+  if (pct >= 50) return 'h-1 bg-muted'
+  return 'h-1 bg-error-soft border-t border-error/40'
+}
+
 export function SchreibenModule() {
   const router = useRouter()
   const t = useTranslations('exam.modules.schreiben')
@@ -86,14 +115,14 @@ export function SchreibenModule() {
   if (!task) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-brand-muted">{t('loading')}</p>
+        <p className="text-muted">{t('loading')}</p>
       </div>
     )
   }
 
   const targetWords = task.wordCount || 80
 
-  const hintKey =
+  const hintKey: HintKey =
     wordCount === 0
       ? 'empty'
       : wordCount < targetWords * 0.5
@@ -102,44 +131,44 @@ export function SchreibenModule() {
           ? 'almost'
           : 'enough'
 
+  const hintStyles = wordHintStyles(hintKey)
+
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       {timeUp && session && <TimeUpOverlay detail={postSubmit ? tTimer('redirecting') : undefined} />}
 
       {/* Header */}
-      <div className="flex items-center justify-between rounded-xl bg-brand-white p-4 shadow-soft">
+      <div className={`${SHELL} flex items-center justify-between p-4`}>
         <div>
-          <h2 className="text-lg font-semibold text-brand-text">{t('moduleTitle')}</h2>
-          <p className="text-xs text-brand-muted">{t('moduleHint')}</p>
+          <p className={EYEBROW}>{t('moduleHint')}</p>
+          <h2 className="mt-1 text-lg font-semibold text-ink">{t('moduleTitle')}</h2>
         </div>
-        <ExamTimerDisplay timeLeft={timeLeft} />
+        <div className="font-mono tabular-nums">
+          <ExamTimerDisplay timeLeft={timeLeft} />
+        </div>
       </div>
 
       {!submitted && <TimerWarningBanner timeLeft={timeLeft} />}
 
       {/* Task card */}
-      <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-        <span className="mb-3 inline-block rounded bg-brand-surface px-2.5 py-0.5 text-xs font-medium text-brand-muted">
-          {t('task')}
-        </span>
+      <div className={`${SHELL} p-6`}>
+        <div className={EYEBROW}>{t('task')}</div>
 
         {task.context && (
-          <div className="mb-4 rounded-lg border border-brand-border bg-brand-bg p-4">
-            <p className="text-sm italic leading-relaxed text-brand-muted">{task.context}</p>
+          <div className="mt-3 rounded-rad-sm border border-line bg-surface p-4">
+            <p className="text-sm italic leading-relaxed text-ink-soft">{task.context}</p>
           </div>
         )}
 
-        <p className="mb-4 text-sm font-medium leading-relaxed text-brand-text">{task.prompt}</p>
+        <p className="mt-4 text-sm font-medium leading-relaxed text-ink">{task.prompt}</p>
 
         {task.requiredPoints && task.requiredPoints.length > 0 && (
-          <div className="rounded-lg bg-brand-surface p-4">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">
-              {t('requiredPoints')}
-            </p>
+          <div className="mt-4 rounded-rad-sm border border-line bg-surface p-4">
+            <p className={`mb-2 ${EYEBROW}`}>{t('requiredPoints')}</p>
             <ul className="space-y-1">
               {task.requiredPoints.map((point, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-brand-text">
-                  <span className="mt-0.5 text-brand-gold">•</span>
+                <li key={i} className="flex items-start gap-2 text-sm text-ink">
+                  <span className="mt-0.5 text-muted">—</span>
                   {point}
                 </li>
               ))}
@@ -150,12 +179,11 @@ export function SchreibenModule() {
 
       {/* Writing area */}
       {!submitted ? (
-        <div className="rounded-xl bg-brand-white p-6 shadow-soft">
+        <div className={`${SHELL} p-6`}>
           <div className="mb-3 flex items-center justify-between">
-            <label className="text-sm font-medium text-brand-text">{t('yourText')}</label>
-            <span className={`text-xs font-medium tabular-nums ${
-              wordCount >= targetWords ? 'text-green-600' : wordCount >= targetWords * 0.5 ? 'text-brand-gold' : 'text-brand-muted'
-            }`}>
+            <label className="text-sm font-medium text-ink">{t('yourText')}</label>
+            <span className={`inline-flex items-center gap-2 font-mono text-[11px] tabular-nums ${hintStyles.text}`}>
+              <span className={`inline-block h-1.5 w-1.5 rounded-full ${hintStyles.dot}`} />
               {t('wordCount', { count: wordCount, target: targetWords })}
             </span>
           </div>
@@ -165,23 +193,19 @@ export function SchreibenModule() {
             onChange={(e) => setText(e.target.value)}
             placeholder={t('textPlaceholder')}
             rows={12}
-            className="w-full resize-none rounded-lg border border-brand-border bg-brand-bg p-4 text-sm leading-relaxed text-brand-text outline-none transition placeholder:text-brand-muted/50 focus:border-brand-gold focus:ring-1 focus:ring-brand-gold"
+            className="w-full resize-none rounded-rad-sm border border-line bg-card p-4 text-sm leading-relaxed text-ink outline-none transition placeholder:text-muted focus:border-accent focus:ring-1 focus:ring-accent"
           />
 
-          <div className="mt-4 flex items-center justify-between">
-            <p className="text-xs text-brand-muted">{t(`wordHint.${hintKey}`)}</p>
+          <div className="mt-4 flex items-center justify-between gap-4">
+            <p className={EYEBROW}>{t(`wordHint.${hintKey}`)}</p>
             <button
               onClick={handleSubmit}
               disabled={wordCount < 5 || submitting}
-              className={`rounded-lg px-6 py-2.5 text-sm font-semibold transition ${
-                wordCount >= 5 && !submitting
-                  ? 'bg-brand-gold text-white hover:bg-brand-gold-dark'
-                  : 'cursor-not-allowed bg-brand-border text-brand-muted'
-              }`}
+              className="rounded-rad bg-ink px-6 py-2.5 text-sm font-semibold text-card transition hover:bg-ink-soft disabled:opacity-40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink"
             >
               {submitting ? (
                 <span className="flex items-center gap-2">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-card border-t-transparent" />
                   {t('submitting')}
                 </span>
               ) : (
@@ -194,24 +218,24 @@ export function SchreibenModule() {
         /* Results */
         <div className="space-y-4">
           {/* Submitted text preview */}
-          <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-            <h3 className="mb-3 text-sm font-semibold text-brand-muted">{t('yourText')}</h3>
-            <div className="rounded-lg bg-brand-bg p-4">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-text">{text}</p>
+          <div className={`${SHELL} p-6`}>
+            <div className={EYEBROW}>{t('yourText')}</div>
+            <div className="mt-3 rounded-rad-sm border border-line bg-surface p-4">
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink">{text}</p>
             </div>
-            <p className="mt-2 text-xs text-brand-muted">{t('wordCountFinal', { count: wordCount })}</p>
+            <p className="mt-2 font-mono text-[11px] tabular-nums text-muted">{t('wordCountFinal', { count: wordCount })}</p>
           </div>
 
           {error && (
-            <div className="rounded-xl bg-red-50 p-5 text-sm text-brand-red">{error}</div>
+            <div className="rounded-rad border border-error/40 bg-error-soft/40 p-5 text-sm text-error">{error}</div>
           )}
 
           {feedback && (
             <>
               {/* Score */}
-              <div className="rounded-xl bg-brand-white p-6 text-center shadow-soft">
-                <div className="mb-1 text-5xl font-bold text-brand-text">{feedback.score}</div>
-                <p className="text-sm text-brand-muted">{t('outOf100')}</p>
+              <div className={`${SHELL} p-6 text-center`}>
+                <div className="font-display text-5xl font-medium tabular-nums text-ink">{feedback.score}</div>
+                <p className={`mt-2 ${EYEBROW}`}>{t('outOf100')}</p>
               </div>
 
               {/* Criteria breakdown */}
@@ -222,15 +246,16 @@ export function SchreibenModule() {
                   ['vocabulary', feedback.criteria.vocabulary],
                   ['grammar', feedback.criteria.grammar],
                 ] as const).map(([key, score]) => (
-                  <div key={key} className="rounded-xl bg-brand-white p-4 shadow-soft">
-                    <p className="text-xs font-medium text-brand-muted">{t(`criteria.${key}`)}</p>
-                    <div className="mt-1 flex items-end gap-1">
-                      <span className="text-2xl font-bold text-brand-text">{score}</span>
-                      <span className="mb-0.5 text-xs text-brand-muted">/ 25</span>
+                  <div key={key} className="flex flex-col gap-2 overflow-hidden rounded-rad border border-line bg-card">
+                    <div className="flex flex-col gap-2 px-4 pt-4">
+                      <p className={EYEBROW}>{t(`criteria.${key}`)}</p>
+                      <div className="font-mono text-2xl tabular-nums text-ink">
+                        {score}/25
+                      </div>
                     </div>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-brand-surface">
+                    <div className="mt-2 h-1 w-full bg-surface">
                       <div
-                        className="h-full rounded-full bg-brand-gold transition-all"
+                        className={criteriaBarClass(score)}
                         style={{ width: `${(score / 25) * 100}%` }}
                       />
                     </div>
@@ -239,19 +264,19 @@ export function SchreibenModule() {
               </div>
 
               {/* AI comment */}
-              <div className="rounded-xl bg-brand-white p-6 shadow-soft">
-                <h3 className="mb-3 text-sm font-semibold text-brand-text">{t('aiFeedback')}</h3>
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-muted">
+              <div className={`${SHELL} p-6`}>
+                <p className={EYEBROW}>{t('aiFeedback')}</p>
+                <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-ink-soft">
                   {feedback.comment}
                 </p>
               </div>
 
               {postSubmit && !timeUp && (
-                <div className="text-center">
+                <div className="flex justify-center">
                   <button
                     type="button"
                     onClick={() => router.push(postSubmit.href)}
-                    className="inline-block rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+                    className="rounded-rad bg-ink px-8 py-3 text-sm font-semibold text-card transition hover:bg-ink-soft focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink"
                   >
                     {postSubmit.label}
                   </button>
