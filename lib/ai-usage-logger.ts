@@ -10,6 +10,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import type { AiUsageStatus } from './ai-usage-error-classifier';
 
 type Provider = 'anthropic' | 'elevenlabs' | 'openai';
 
@@ -25,6 +26,12 @@ export interface LogAiUsageParams {
   characters?: number;
   costUsd: number;
   metadata?: Record<string, unknown>;
+  // Added by migration 021 — see ai-usage-error-classifier.ts
+  status?: AiUsageStatus;
+  errorMessage?: string | null;
+  errorStack?: string | null;
+  latencyMs?: number | null;
+  attemptNumber?: number | null;
 }
 
 /**
@@ -61,6 +68,13 @@ export async function logAiUsage(params: LogAiUsageParams): Promise<void> {
       characters: params.characters ?? null,
       cost_usd: params.costUsd,
       metadata: params.metadata ?? null,
+      status: params.status ?? 'success',
+      error_message: params.errorMessage ?? null,
+      // Truncate to match the Notion plan (lib/ai-usage-logger.ts:~2000 chars)
+      // so we don't blow up a row with an enormous stack trace.
+      error_stack: params.errorStack ? params.errorStack.slice(0, 2000) : null,
+      latency_ms: params.latencyMs ?? null,
+      attempt_number: params.attemptNumber ?? 1,
     });
 
     if (error) {
