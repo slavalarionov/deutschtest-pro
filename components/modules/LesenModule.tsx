@@ -22,6 +22,50 @@ import type {
 const TOTAL_TIME = 65 * 60
 const TEIL_KEYS = ['teil1', 'teil2', 'teil3', 'teil4', 'teil5'] as const
 
+// ============================================================
+// Shared editorial class atoms
+// ============================================================
+
+const SHELL = 'rounded-rad border border-line bg-card'
+const TASK_SHELL_BASE = 'rounded-rad border p-5 transition'
+const TASK_SHELL_NEUTRAL = 'border-line bg-card'
+const TASK_SHELL_CORRECT = 'border-accent/40 bg-accent-soft/40'
+const TASK_SHELL_WRONG = 'border-error/40 bg-error-soft/40'
+
+const EYEBROW = 'font-mono text-[11px] uppercase tracking-wider text-muted'
+const TASK_ID_BADGE =
+  'mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full border border-line font-mono text-[11px] text-muted'
+
+// Option button base styles: neutral, selected-correct, selected-wrong,
+// not-selected-but-correct (post-submit hint), in-progress (no submit yet).
+const OPTION_BASE =
+  'rounded-rad border px-3 py-2 text-left text-xs font-medium transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink'
+const OPTION_NEUTRAL = 'border-line text-ink-soft hover:border-ink/40 hover:text-ink'
+const OPTION_SELECTED = 'border-ink bg-accent-soft text-ink'
+const OPTION_SELECTED_CORRECT = 'border-accent/60 bg-accent-soft text-ink'
+const OPTION_SELECTED_WRONG = 'border-error/60 bg-error-soft text-ink'
+const OPTION_HINT_CORRECT = 'border-accent/60 bg-card text-ink'
+const OPTION_DISABLED = 'cursor-default'
+
+function optionClass(params: {
+  isSelected: boolean
+  isCorrectAnswer: boolean
+  submitted: boolean
+  detailIsCorrect?: boolean
+}): string {
+  const { isSelected, isCorrectAnswer, submitted, detailIsCorrect } = params
+  if (isSelected) {
+    if (submitted && detailIsCorrect !== undefined) {
+      return detailIsCorrect ? OPTION_SELECTED_CORRECT : OPTION_SELECTED_WRONG
+    }
+    return OPTION_SELECTED
+  }
+  if (submitted && isCorrectAnswer) {
+    return OPTION_HINT_CORRECT
+  }
+  return OPTION_NEUTRAL
+}
+
 export function LesenModule() {
   const router = useRouter()
   const t = useTranslations('exam.modules.lesen')
@@ -83,7 +127,7 @@ export function LesenModule() {
   if (!lesen) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-brand-muted">{t('loading')}</p>
+        <p className="text-muted">{t('loading')}</p>
       </div>
     )
   }
@@ -93,12 +137,12 @@ export function LesenModule() {
       {timeUp && session && <TimeUpOverlay detail={postSubmit ? tTimer('redirecting') : undefined} />}
 
       {/* Header with timer */}
-      <div className="flex items-center justify-between rounded-xl bg-brand-white p-4 shadow-soft">
+      <div className={`${SHELL} flex items-center justify-between p-4`}>
         <div>
-          <h2 className="text-lg font-semibold text-brand-text">{t('moduleTitle')}</h2>
-          <p className="text-xs text-brand-muted">{t('moduleHint')}</p>
+          <p className={EYEBROW}>{t('moduleHint')}</p>
+          <h2 className="mt-1 text-lg font-semibold text-ink">{t('moduleTitle')}</h2>
         </div>
-        <div data-testid="exam-timer">
+        <div data-testid="exam-timer" className="font-mono tabular-nums">
           <ExamTimerDisplay timeLeft={timeLeft} />
         </div>
       </div>
@@ -106,16 +150,16 @@ export function LesenModule() {
       {!submitted && <TimerWarningBanner timeLeft={timeLeft} />}
 
       {/* Teil navigation */}
-      <div className="flex gap-1.5 rounded-xl bg-brand-white p-1.5 shadow-soft">
+      <div className={`${SHELL} flex gap-1 p-1`}>
         {TEIL_KEYS.map((key, i) => (
           <button
             key={i}
             data-testid={`teil-tab-${i + 1}`}
             onClick={() => setCurrentTeil(i)}
-            className={`flex-1 rounded-lg py-2 text-xs font-semibold transition ${
+            className={`flex-1 rounded-rad px-2 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink ${
               currentTeil === i
-                ? 'bg-brand-gold text-white shadow-sm'
-                : 'text-brand-muted hover:bg-brand-surface'
+                ? 'bg-ink text-card'
+                : 'text-ink-soft hover:bg-surface'
             }`}
           >
             {t(`${key}.title`)}
@@ -131,20 +175,20 @@ export function LesenModule() {
       {currentTeil === 4 && <Teil5View data={lesen.teil5} answers={answers} setAnswer={setAnswer} submitted={submitted} results={results} />}
 
       {/* Navigation + Submit */}
-      <div className="flex items-center justify-between rounded-xl bg-brand-white p-4 shadow-soft">
+      <div className={`${SHELL} flex items-center justify-between p-4`}>
         <button
           data-testid="nav-zurueck"
           onClick={() => setCurrentTeil(Math.max(0, currentTeil - 1))}
           disabled={currentTeil === 0}
-          className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-brand-text transition hover:bg-brand-surface disabled:opacity-30"
+          className="rounded-rad border border-line px-4 py-2 text-sm font-medium text-ink-soft transition hover:text-ink disabled:opacity-30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink"
         >
           {tShared('back')}
         </button>
 
         {submitted && results ? (
           <div className="text-center">
-            <span className="text-2xl font-bold text-brand-text">{results.score}%</span>
-            <span className="ml-2 text-sm text-brand-muted">({results.summary.correct}/{results.summary.total})</span>
+            <span className="font-mono text-2xl font-bold text-ink tabular-nums">{results.score}%</span>
+            <span className="ml-2 font-mono text-xs text-muted tabular-nums">({results.summary.correct}/{results.summary.total})</span>
           </div>
         ) : (
           currentTeil === 4 ? (
@@ -152,7 +196,7 @@ export function LesenModule() {
               data-testid="nav-abgeben"
               onClick={handleSubmit}
               disabled={submitting}
-              className="rounded-lg bg-brand-gold px-6 py-2 text-sm font-semibold text-white transition hover:bg-brand-gold-dark disabled:opacity-70"
+              className="rounded-rad bg-ink px-6 py-2 text-sm font-semibold text-card transition hover:bg-ink-soft disabled:opacity-60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink"
             >
               {submitting ? tShared('submitting') : tShared('submitAll')}
             </button>
@@ -163,7 +207,7 @@ export function LesenModule() {
           data-testid="nav-weiter"
           onClick={() => setCurrentTeil(Math.min(4, currentTeil + 1))}
           disabled={currentTeil === 4}
-          className="rounded-lg border border-brand-border px-4 py-2 text-sm font-medium text-brand-text transition hover:bg-brand-surface disabled:opacity-30"
+          className="rounded-rad border border-line px-4 py-2 text-sm font-medium text-ink transition hover:bg-surface disabled:opacity-30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink"
         >
           {tShared('next')}
         </button>
@@ -175,7 +219,7 @@ export function LesenModule() {
             type="button"
             data-testid="nav-to-results"
             onClick={() => router.push(postSubmit.href)}
-            className="rounded-lg bg-brand-gold px-8 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-gold-dark"
+            className="rounded-rad bg-ink px-8 py-3 text-sm font-semibold text-card transition hover:bg-ink-soft focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink"
           >
             {postSubmit.label}
           </button>
@@ -200,8 +244,24 @@ interface TeilViewProps {
 
 function AnswerBadge({ isCorrect }: { isCorrect: boolean }) {
   return isCorrect
-    ? <span className="ml-2 text-xs font-semibold text-green-600">✓</span>
-    : <span className="ml-2 text-xs font-semibold text-red-600">✗</span>
+    ? <span className="ml-2 font-mono text-xs font-semibold text-ink">✓</span>
+    : <span className="ml-2 font-mono text-xs font-semibold text-error">✗</span>
+}
+
+function taskShellClass(submitted: boolean, detail?: { isCorrect: boolean }): string {
+  if (submitted && detail) {
+    return `${TASK_SHELL_BASE} ${detail.isCorrect ? TASK_SHELL_CORRECT : TASK_SHELL_WRONG}`
+  }
+  return `${TASK_SHELL_BASE} ${TASK_SHELL_NEUTRAL}`
+}
+
+// Circular lowercase letter badge (a / b / c) for MC option pills.
+function OptionLetter({ letter }: { letter: string }) {
+  return (
+    <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full border border-current font-mono text-[10px] font-semibold lowercase">
+      {letter}
+    </span>
+  )
 }
 
 // ============================================================
@@ -215,7 +275,7 @@ function Teil1View({ data, answers, setAnswer, submitted, results }: TeilViewPro
 
   return (
     <div className="space-y-4">
-      <TeilHeader title={t('title')} desc={t('desc')} tag={t('tag')} />
+      <TeilHeader number={1} title={t('title')} desc={t('desc')} tag={t('tag')} />
       <TextBlock text={data.text} />
       {example && <ExampleRF task={example} />}
       {tasks.map((task) => (
@@ -237,16 +297,22 @@ function Teil2View({ data, answers, setAnswer, submitted, results }: TeilViewPro
 
   return (
     <div className="space-y-4">
-      <TeilHeader title={t('title')} desc={t('desc')} tag={t('tag')} />
+      <TeilHeader number={2} title={t('title')} desc={t('desc')} tag={t('tag')} />
       <TextBlock text={data.text} />
       {example && (
-        <div className="rounded-xl border-2 border-dashed border-brand-border bg-brand-surface/50 p-5">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">{tShared('example')}</div>
-          <p className="mb-2 text-sm font-medium text-brand-text">{example.question}</p>
-          <div className="flex gap-2">
+        <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
+          <div className={EYEBROW}>{tShared('example')}</div>
+          <p className="mb-3 mt-2 text-sm font-medium text-ink">{example.question}</p>
+          <div className="flex flex-wrap gap-2">
             {(['a', 'b', 'c'] as const).map((opt) => (
-              <span key={opt} className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${opt === example.answer ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>
-                {opt}) {example.options[opt]}
+              <span
+                key={opt}
+                className={`inline-flex items-center rounded-rad border px-3 py-1.5 text-xs font-medium ${
+                  opt === example.answer ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'
+                }`}
+              >
+                <OptionLetter letter={opt} />
+                {example.options[opt]}
               </span>
             ))}
           </div>
@@ -257,9 +323,9 @@ function Teil2View({ data, answers, setAnswer, submitted, results }: TeilViewPro
         const userAnswer = answers[key] as string | undefined
         const detail = results?.details[key]
         return (
-          <div key={task.id} data-testid="exam-task" className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
-            <p className="mb-3 text-sm font-medium text-brand-text">
-              <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-surface text-xs font-semibold text-brand-muted">{task.id}</span>
+          <div key={task.id} data-testid="exam-task" className={taskShellClass(submitted, detail)}>
+            <p className="mb-3 text-sm font-medium text-ink">
+              <span className={TASK_ID_BADGE}>{task.id}</span>
               {task.question}
               {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
             </p>
@@ -270,17 +336,15 @@ function Teil2View({ data, answers, setAnswer, submitted, results }: TeilViewPro
                   data-testid={`answer-option-${key}-${opt}`}
                   onClick={() => !submitted && setAnswer(key, opt)}
                   disabled={submitted}
-                  className={`flex-1 rounded-lg border px-3 py-2 text-left text-xs font-medium transition ${
-                    userAnswer === opt
-                      ? submitted && detail
-                        ? detail.isCorrect ? 'border-green-500 bg-green-500 text-white' : 'border-red-500 bg-red-500 text-white'
-                        : 'border-brand-gold bg-brand-gold text-white'
-                      : submitted && detail && detail.correctAnswer === opt
-                        ? 'border-green-500 bg-green-50 text-green-700'
-                        : 'border-brand-border text-brand-text hover:border-brand-gold/50'
-                  } ${submitted ? 'cursor-default' : ''}`}
+                  className={`flex-1 ${OPTION_BASE} ${optionClass({
+                    isSelected: userAnswer === opt,
+                    isCorrectAnswer: detail?.correctAnswer === opt,
+                    submitted,
+                    detailIsCorrect: detail?.isCorrect,
+                  })} ${submitted ? OPTION_DISABLED : ''}`}
                 >
-                  <span className="font-semibold">{opt})</span> {task.options[opt]}
+                  <OptionLetter letter={opt} />
+                  {task.options[opt]}
                 </button>
               ))}
             </div>
@@ -304,16 +368,19 @@ function Teil3View({ data, answers, setAnswer, submitted, results }: TeilViewPro
 
   return (
     <div className="space-y-4">
-      <TeilHeader title={t('title')} desc={t('desc')} tag={t('tag')} />
+      <TeilHeader number={3} title={t('title')} desc={t('desc')} tag={t('tag')} />
       <TextBlock text={data.text} />
       {example && (
-        <div className="rounded-xl border-2 border-dashed border-brand-border bg-brand-surface/50 p-5">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">{tShared('example')}</div>
-          <div className="flex items-start justify-between gap-4">
-            <p className="text-sm text-brand-text"><span className="mr-2 font-semibold text-brand-muted">0</span>{example.statement}</p>
+        <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
+          <div className={EYEBROW}>{tShared('example')}</div>
+          <div className="mt-2 flex items-start justify-between gap-4">
+            <p className="text-sm text-ink">
+              <span className="mr-2 font-mono text-xs text-muted">0</span>
+              {example.statement}
+            </p>
             <div className="flex shrink-0 gap-2">
-              <span className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${example.answer === 'ja' ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>{tAnswers('ja')}</span>
-              <span className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${example.answer === 'nein' ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>{tAnswers('nein')}</span>
+              <span className={`rounded-rad border px-3 py-1.5 text-xs font-semibold ${example.answer === 'ja' ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'}`}>{tAnswers('ja')}</span>
+              <span className={`rounded-rad border px-3 py-1.5 text-xs font-semibold ${example.answer === 'nein' ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'}`}>{tAnswers('nein')}</span>
             </div>
           </div>
         </div>
@@ -323,22 +390,29 @@ function Teil3View({ data, answers, setAnswer, submitted, results }: TeilViewPro
         const userAnswer = answers[key] as string | undefined
         const detail = results?.details[key]
         return (
-          <div key={task.id} data-testid="exam-task" className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
+          <div key={task.id} data-testid="exam-task" className={taskShellClass(submitted, detail)}>
             <div className="flex items-start justify-between gap-4">
-              <p className="text-sm leading-relaxed text-brand-text">
-                <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-surface text-xs font-semibold text-brand-muted">{task.id}</span>
+              <p className="text-sm leading-relaxed text-ink">
+                <span className={TASK_ID_BADGE}>{task.id}</span>
                 {task.statement}
                 {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
               </p>
-              <div className="flex shrink-0 gap-2">
+              <div className="grid shrink-0 grid-cols-2 gap-2">
                 {(['ja', 'nein'] as const).map((opt) => (
-                  <button key={opt} data-testid={`answer-${opt}-${key}`} onClick={() => !submitted && setAnswer(key, opt)} disabled={submitted}
-                    className={`rounded-lg border px-4 py-1.5 text-xs font-semibold capitalize transition ${
-                      userAnswer === opt
-                        ? submitted && detail ? (detail.isCorrect ? 'border-green-500 bg-green-500 text-white' : 'border-red-500 bg-red-500 text-white') : 'border-brand-gold bg-brand-gold text-white'
-                        : submitted && detail && detail.correctAnswer === opt ? 'border-green-500 bg-green-50 text-green-700' : 'border-brand-border text-brand-text hover:border-brand-gold/50'
-                    } ${submitted ? 'cursor-default' : ''}`}
-                  >{tAnswers(opt)}</button>
+                  <button
+                    key={opt}
+                    data-testid={`answer-${opt}-${key}`}
+                    onClick={() => !submitted && setAnswer(key, opt)}
+                    disabled={submitted}
+                    className={`rounded-rad border px-4 py-1.5 text-xs font-semibold capitalize transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink ${optionClass({
+                      isSelected: userAnswer === opt,
+                      isCorrectAnswer: detail?.correctAnswer === opt,
+                      submitted,
+                      detailIsCorrect: detail?.isCorrect,
+                    })} ${submitted ? OPTION_DISABLED : ''}`}
+                  >
+                    {tAnswers(opt)}
+                  </button>
                 ))}
               </div>
             </div>
@@ -362,24 +436,24 @@ function Teil4View({ data, answers, setAnswer, submitted, results }: TeilViewPro
 
   return (
     <div className="space-y-4">
-      <TeilHeader title={t('title')} desc={t('desc')} tag={t('tag')} />
+      <TeilHeader number={4} title={t('title')} desc={t('desc')} tag={t('tag')} />
 
       <div className="grid gap-3 sm:grid-cols-2">
         {data.texts?.map((text) => (
-          <div key={String(text.id)} className="rounded-xl bg-brand-white p-4 shadow-soft">
-            <span className="mb-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-gold/10 text-xs font-bold text-brand-gold-dark">
+          <div key={String(text.id)} className={`${SHELL} p-4`}>
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-ink/20 font-mono text-[11px] font-semibold text-ink">
               {String(text.id).toUpperCase()}
             </span>
-            <p className="mt-2 text-sm leading-relaxed text-brand-text">{text.text}</p>
+            <p className="mt-2 text-sm leading-relaxed text-ink">{text.text}</p>
           </div>
         ))}
       </div>
 
       {example && (
-        <div className="rounded-xl border-2 border-dashed border-brand-border bg-brand-surface/50 p-5">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">{tShared('example')}</div>
-          <p className="text-sm text-brand-text">{example.situation}</p>
-          <span className="mt-2 inline-block rounded-lg border border-brand-gold bg-brand-gold/10 px-3 py-1 text-xs font-semibold text-brand-gold-dark">
+        <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
+          <div className={EYEBROW}>{tShared('example')}</div>
+          <p className="mt-2 text-sm text-ink">{example.situation}</p>
+          <span className="mt-3 inline-flex items-center rounded-rad border border-accent/60 bg-accent-soft px-3 py-1 font-mono text-xs font-semibold text-ink">
             → {String(example.answer).toUpperCase()}
           </span>
         </div>
@@ -390,21 +464,30 @@ function Teil4View({ data, answers, setAnswer, submitted, results }: TeilViewPro
         const userAnswer = answers[key] as string | undefined
         const detail = results?.details[key]
         return (
-          <div key={s.id} data-testid="exam-task" className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
-            <p className="mb-3 text-sm text-brand-text">
-              <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-surface text-xs font-semibold text-brand-muted">{s.id}</span>
+          <div key={s.id} data-testid="exam-task" className={taskShellClass(submitted, detail)}>
+            <p className="mb-3 text-sm text-ink">
+              <span className={TASK_ID_BADGE}>{s.id}</span>
               {s.situation}
               {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
             </p>
             <div className="flex flex-wrap gap-2">
               {textOptions.map((opt) => (
-                <button key={opt} data-testid={`answer-option-${key}-${opt}`} onClick={() => !submitted && setAnswer(key, opt)} disabled={submitted}
-                  className={`rounded-lg border px-3 py-1.5 text-xs font-semibold uppercase transition ${
-                    userAnswer === opt
-                      ? submitted && detail ? (detail.isCorrect ? 'border-green-500 bg-green-500 text-white' : 'border-red-500 bg-red-500 text-white') : 'border-brand-gold bg-brand-gold text-white'
-                      : submitted && detail && detail.correctAnswer === opt ? 'border-green-500 bg-green-50 text-green-700' : 'border-brand-border text-brand-text hover:border-brand-gold/50'
-                  } ${submitted ? 'cursor-default' : ''}`}
-                >{opt}</button>
+                <button
+                  key={opt}
+                  data-testid={`answer-option-${key}-${opt}`}
+                  onClick={() => !submitted && setAnswer(key, opt)}
+                  disabled={submitted}
+                  className={`inline-flex items-center rounded-rad border px-3 py-1.5 text-xs font-semibold uppercase transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink ${optionClass({
+                    isSelected: userAnswer === opt,
+                    isCorrectAnswer: detail?.correctAnswer === opt,
+                    submitted,
+                    detailIsCorrect: detail?.isCorrect,
+                  })} ${submitted ? OPTION_DISABLED : ''}`}
+                >
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-current font-mono text-[10px]">
+                    {opt.toUpperCase()}
+                  </span>
+                </button>
               ))}
             </div>
           </div>
@@ -426,16 +509,22 @@ function Teil5View({ data, answers, setAnswer, submitted, results }: TeilViewPro
 
   return (
     <div className="space-y-4">
-      <TeilHeader title={t('title')} desc={t('desc')} tag={t('tag')} />
+      <TeilHeader number={5} title={t('title')} desc={t('desc')} tag={t('tag')} />
       <TextBlock text={data.text} />
 
       {example && (
-        <div className="rounded-xl border-2 border-dashed border-brand-border bg-brand-surface/50 p-5">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">{t('exampleLabel')}</div>
-          <div className="flex gap-2">
+        <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
+          <div className={EYEBROW}>{t('exampleLabel')}</div>
+          <div className="mt-2 flex flex-wrap gap-2">
             {(['a', 'b', 'c'] as const).map((opt) => (
-              <span key={opt} className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${opt === example.answer ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>
-                {opt}) {example.options[opt]}
+              <span
+                key={opt}
+                className={`inline-flex items-center rounded-rad border px-3 py-1.5 text-xs font-medium ${
+                  opt === example.answer ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'
+                }`}
+              >
+                <OptionLetter letter={opt} />
+                {example.options[opt]}
               </span>
             ))}
           </div>
@@ -447,21 +536,29 @@ function Teil5View({ data, answers, setAnswer, submitted, results }: TeilViewPro
         const userAnswer = answers[key] as string | undefined
         const detail = results?.details[key]
         return (
-          <div key={gap.id} data-testid="exam-task" className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
-            <p className="mb-3 text-sm font-medium text-brand-text">
-              <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-surface text-xs font-semibold text-brand-muted">{gap.id}</span>
+          <div key={gap.id} data-testid="exam-task" className={taskShellClass(submitted, detail)}>
+            <p className="mb-3 text-sm font-medium text-ink">
+              <span className={TASK_ID_BADGE}>{gap.id}</span>
               {tShared('gapLabel', { id: gap.id })}
               {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
             </p>
             <div className="flex flex-col gap-2 sm:flex-row">
               {(['a', 'b', 'c'] as const).map((opt) => (
-                <button key={opt} data-testid={`answer-option-${key}-${opt}`} onClick={() => !submitted && setAnswer(key, opt)} disabled={submitted}
-                  className={`flex-1 rounded-lg border px-3 py-2 text-left text-xs font-medium transition ${
-                    userAnswer === opt
-                      ? submitted && detail ? (detail.isCorrect ? 'border-green-500 bg-green-500 text-white' : 'border-red-500 bg-red-500 text-white') : 'border-brand-gold bg-brand-gold text-white'
-                      : submitted && detail && detail.correctAnswer === opt ? 'border-green-500 bg-green-50 text-green-700' : 'border-brand-border text-brand-text hover:border-brand-gold/50'
-                  } ${submitted ? 'cursor-default' : ''}`}
-                ><span className="font-semibold">{opt})</span> {gap.options[opt]}</button>
+                <button
+                  key={opt}
+                  data-testid={`answer-option-${key}-${opt}`}
+                  onClick={() => !submitted && setAnswer(key, opt)}
+                  disabled={submitted}
+                  className={`flex-1 ${OPTION_BASE} ${optionClass({
+                    isSelected: userAnswer === opt,
+                    isCorrectAnswer: detail?.correctAnswer === opt,
+                    submitted,
+                    detailIsCorrect: detail?.isCorrect,
+                  })} ${submitted ? OPTION_DISABLED : ''}`}
+                >
+                  <OptionLetter letter={opt} />
+                  {gap.options[opt]}
+                </button>
               ))}
             </div>
           </div>
@@ -475,22 +572,22 @@ function Teil5View({ data, answers, setAnswer, submitted, results }: TeilViewPro
 // Shared components
 // ============================================================
 
-function TeilHeader({ title, desc, tag }: { title: string; desc: string; tag: string }) {
+function TeilHeader({ number, title, desc, tag }: { number: number; title: string; desc: string; tag: string }) {
   return (
-    <div className="rounded-xl bg-brand-white p-5 shadow-soft">
-      <div className="flex items-center gap-3">
-        <h3 className="text-lg font-semibold text-brand-text">{title}</h3>
-        <span className="rounded bg-brand-surface px-2 py-0.5 text-xs font-medium text-brand-muted">{tag}</span>
+    <div className={`${SHELL} p-5`}>
+      <div className={EYEBROW}>
+        Teil {number} · {tag}
       </div>
-      <p className="mt-1 text-sm text-brand-muted">{desc}</p>
+      <h3 className="mt-1 text-lg font-semibold text-ink">{title}</h3>
+      <p className="mt-1 text-sm text-ink-soft">{desc}</p>
     </div>
   )
 }
 
 function TextBlock({ text }: { text: string }) {
   return (
-    <div className="rounded-xl bg-brand-white p-6 shadow-soft sm:p-8">
-      <div className="prose prose-sm max-w-none leading-relaxed text-brand-text">
+    <div className={`${SHELL} p-6 sm:p-8`}>
+      <div className="prose prose-sm max-w-none leading-relaxed text-ink">
         {text.split('\n').map((p, i) => (
           <p key={i} className={i > 0 ? 'mt-3' : ''}>{p}</p>
         ))}
@@ -503,13 +600,16 @@ function ExampleRF({ task }: { task: LesenTask }) {
   const tShared = useTranslations('exam.modules.shared')
   const tAnswers = useTranslations('exam.modules.lesen.answers')
   return (
-    <div className="rounded-xl border-2 border-dashed border-brand-border bg-brand-surface/50 p-5">
-      <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-muted">{tShared('example')}</div>
-      <div className="flex items-start justify-between gap-4">
-        <p className="text-sm text-brand-text"><span className="mr-2 font-semibold text-brand-muted">0</span>{task.statement}</p>
+    <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
+      <div className={EYEBROW}>{tShared('example')}</div>
+      <div className="mt-2 flex items-start justify-between gap-4">
+        <p className="text-sm text-ink">
+          <span className="mr-2 font-mono text-xs text-muted">0</span>
+          {task.statement}
+        </p>
         <div className="flex shrink-0 gap-2">
-          <span className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${task.answer === 'richtig' ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>{tAnswers('richtig')}</span>
-          <span className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${task.answer === 'falsch' ? 'border-brand-gold bg-brand-gold/10 text-brand-gold-dark' : 'border-brand-border text-brand-muted'}`}>{tAnswers('falsch')}</span>
+          <span className={`rounded-rad border px-3 py-1.5 text-xs font-semibold ${task.answer === 'richtig' ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'}`}>{tAnswers('richtig')}</span>
+          <span className={`rounded-rad border px-3 py-1.5 text-xs font-semibold ${task.answer === 'falsch' ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'}`}>{tAnswers('falsch')}</span>
         </div>
       </div>
     </div>
@@ -525,22 +625,29 @@ function RFRow({ task, prefix, answers, setAnswer, submitted, results }: {
   const detail = results?.details[key]
 
   return (
-    <div data-testid="exam-task" className={`rounded-xl p-5 shadow-soft transition ${submitted && detail ? (detail.isCorrect ? 'border-2 border-green-200 bg-green-50/50' : 'border-2 border-red-200 bg-red-50/50') : 'bg-brand-white'}`}>
+    <div data-testid="exam-task" className={taskShellClass(submitted, detail)}>
       <div className="flex items-start justify-between gap-4">
-        <p className="text-sm leading-relaxed text-brand-text">
-          <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-surface text-xs font-semibold text-brand-muted">{task.id}</span>
+        <p className="text-sm leading-relaxed text-ink">
+          <span className={TASK_ID_BADGE}>{task.id}</span>
           {task.statement}
           {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
         </p>
-        <div className="flex shrink-0 gap-2">
+        <div className="grid shrink-0 grid-cols-2 gap-2">
           {(['richtig', 'falsch'] as const).map((opt) => (
-            <button key={opt} data-testid={`answer-${opt}-${key}`} onClick={() => !submitted && setAnswer(key, opt)} disabled={submitted}
-              className={`rounded-lg border px-4 py-1.5 text-xs font-semibold capitalize transition ${
-                userAnswer === opt
-                  ? submitted && detail ? (detail.isCorrect ? 'border-green-500 bg-green-500 text-white' : 'border-red-500 bg-red-500 text-white') : 'border-brand-gold bg-brand-gold text-white'
-                  : submitted && detail && detail.correctAnswer === opt ? 'border-green-500 bg-green-50 text-green-700' : 'border-brand-border text-brand-text hover:border-brand-gold/50'
-              } ${submitted ? 'cursor-default' : ''}`}
-            >{tAnswers(opt)}</button>
+            <button
+              key={opt}
+              data-testid={`answer-${opt}-${key}`}
+              onClick={() => !submitted && setAnswer(key, opt)}
+              disabled={submitted}
+              className={`rounded-rad border px-4 py-1.5 text-xs font-semibold capitalize transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink ${optionClass({
+                isSelected: userAnswer === opt,
+                isCorrectAnswer: detail?.correctAnswer === opt,
+                submitted,
+                detailIsCorrect: detail?.isCorrect,
+              })} ${submitted ? OPTION_DISABLED : ''}`}
+            >
+              {tAnswers(opt)}
+            </button>
           ))}
         </div>
       </div>
