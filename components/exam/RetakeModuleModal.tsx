@@ -55,29 +55,37 @@ export function RetakeModuleModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl bg-brand-white p-6 shadow-xl">
-        <h3 className="mb-3 text-lg font-semibold text-brand-text">{t('title')}</h3>
-        <p className="mb-4 text-sm text-brand-muted">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-page/80 p-4">
+      <div className="w-full max-w-md rounded-rad border border-line bg-card p-8 shadow-lift">
+        <h3 className="font-display text-xl font-medium tracking-tight text-ink">
+          {t('title')}
+        </h3>
+        <p className="mt-4 text-sm leading-relaxed text-ink-soft">
           {t.rich('body', {
             module: moduleLabel,
-            b: (chunks) => <strong>{chunks}</strong>,
+            b: (chunks) => (
+              <strong className="font-medium text-ink">{chunks}</strong>
+            ),
           })}
         </p>
-        <p className="mb-5 text-sm text-brand-text">
+        <div className="mt-5 rounded-rad-sm border border-line bg-surface px-4 py-3 text-sm text-ink-soft">
           {t.rich('balance', {
             current: modulesBalance,
             next: modulesBalance - 1,
-            b: (chunks) => <strong>{chunks}</strong>,
+            b: (chunks) => (
+              <strong className="font-medium text-accent-ink">{chunks}</strong>
+            ),
           })}
-        </p>
-        {error && <p className="mb-3 text-sm text-brand-red">{error}</p>}
-        <div className="flex justify-end gap-3">
+        </div>
+        {error && (
+          <p className="mt-4 text-sm text-error">{error}</p>
+        )}
+        <div className="mt-8 flex justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="rounded-lg border border-brand-border bg-brand-white px-4 py-2 text-sm font-semibold text-brand-text hover:bg-brand-surface"
+            className="inline-flex items-center rounded-rad-pill border border-line px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t('cancel')}
           </button>
@@ -85,7 +93,7 @@ export function RetakeModuleModal({
             type="button"
             onClick={handleConfirm}
             disabled={loading}
-            className="rounded-lg bg-brand-gold px-4 py-2 text-sm font-semibold text-white hover:bg-brand-gold-dark disabled:opacity-50"
+            className="inline-flex items-center rounded-rad-pill bg-ink px-5 py-2 text-sm font-medium text-page transition-colors hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? t('confirming') : t('confirm')}
           </button>
