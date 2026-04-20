@@ -56,10 +56,12 @@ export function ExamShell({ sessionId }: ExamShellProps) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-brand-bg">
+      <div className="flex min-h-screen items-center justify-center bg-page">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-brand-gold border-t-transparent" />
-          <p className="text-sm text-brand-muted">{t('loading')}</p>
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-rad-pill border-2 border-line border-t-ink" />
+          <p className="font-mono text-xs uppercase tracking-wider text-muted">
+            {t('loading')}
+          </p>
         </div>
       </div>
     )
@@ -67,12 +69,12 @@ export function ExamShell({ sessionId }: ExamShellProps) {
 
   if (error || !session) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-brand-bg">
-        <div className="rounded-xl bg-brand-white p-8 text-center shadow-card">
-          <p className="mb-4 text-brand-red">{error || t('notFound')}</p>
+      <div className="flex min-h-screen items-center justify-center bg-page p-4">
+        <div className="w-full max-w-md rounded-rad border border-line bg-card p-8 text-center">
+          <p className="mb-6 text-sm text-error">{error || t('notFound')}</p>
           <a
             href="/"
-            className="rounded-lg bg-brand-gold px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-gold-dark"
+            className="inline-flex items-center rounded-rad-pill bg-ink px-6 py-3 text-sm font-medium text-page transition-colors hover:bg-ink/90"
           >
             {t('back')}
           </a>
@@ -89,21 +91,28 @@ export function ExamShell({ sessionId }: ExamShellProps) {
   const moduleLabel = tModules(activeModule)
 
   return (
-    <div data-testid="exam-shell" className="min-h-screen bg-brand-bg">
-      <header className="sticky top-0 z-50 border-b border-brand-border bg-brand-white/90 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <a href="/" className="text-sm font-bold text-brand-gold">
+    <div data-testid="exam-shell" className="min-h-screen bg-page">
+      <header className="sticky top-0 z-50 border-b border-line bg-card/90 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
+          <div className="flex items-center gap-4">
+            <a
+              href="/"
+              className="font-display text-sm font-medium tracking-tight text-ink"
+            >
               DeutschTest.pro
             </a>
-            <span className="text-brand-border">|</span>
-            <span className="text-sm font-semibold text-brand-text">
+            <span aria-hidden="true" className="h-4 w-px bg-line" />
+            <span className="font-mono text-[11px] uppercase tracking-wider text-muted">
               {t('certificate', { level: session.level })}
             </span>
-            <span className="rounded-full bg-brand-surface px-2.5 py-0.5 text-xs font-medium text-brand-muted">
-              {moduleLabel}
-            </span>
           </div>
+          <span className="inline-flex items-center gap-2 rounded-rad-pill border border-line bg-card px-3 py-1 text-xs font-medium text-ink">
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-rad-pill bg-accent"
+            />
+            {moduleLabel}
+          </span>
         </div>
       </header>
       <div className="px-4 py-8">
