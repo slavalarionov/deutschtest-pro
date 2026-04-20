@@ -149,13 +149,13 @@ export default function ResultsPage() {
         </header>
 
         {/* ====== Score card ====== */}
-        <div className="rounded-rad border border-line bg-card p-10 text-center sm:p-14">
+        <div className="rounded-rad border border-line bg-card p-8 text-center sm:p-10">
           <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
             {tDetail('resultEyebrow')}
           </div>
           <div
             data-testid="result-score-value"
-            className="mt-3 font-display text-7xl leading-none tracking-[-0.04em] text-ink tabular-nums md:text-8xl"
+            className="mt-3 font-display text-5xl leading-none tracking-[-0.04em] text-ink tabular-nums"
           >
             {score ?? '—'}
           </div>
@@ -174,7 +174,7 @@ export default function ResultsPage() {
             <p
               data-testid="result-status"
               data-passed={passed ? 'true' : 'false'}
-              className="mt-6 inline-flex items-center gap-2 text-sm"
+              className="mt-3 inline-flex items-center gap-2 text-sm"
             >
               <span
                 aria-hidden="true"
@@ -184,12 +184,6 @@ export default function ResultsPage() {
                 {passed ? t('passed') : t('failed')}
               </span>
             </p>
-          )}
-
-          {formattedDate && (
-            <div className="mt-4 font-mono text-xs uppercase tracking-widest text-muted">
-              {formattedDate}
-            </div>
           )}
         </div>
 
