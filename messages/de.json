@@ -254,7 +254,6 @@
       "greeting": "Guten Tag, <name></name>.",
       "leadWithAttempts": "Durchschnitt über {total, plural, one {# Modul} other {# Module}} — {avg}. Halten Sie das Tempo.",
       "leadEmpty": "Starten Sie Ihr erstes Modul — wir zeigen Ihnen anschließend, woran Sie arbeiten sollten.",
-      "ctaStart": "Prüfung starten",
       "stats": {
         "absolviert": "ABSOLVIERT",
         "durchschnitt": "DURCHSCHNITT",

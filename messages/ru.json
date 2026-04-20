@@ -254,7 +254,6 @@
       "greeting": "Добрый день, <name></name>.",
       "leadWithAttempts": "Средний балл за {total, plural, one {# модуль} few {# модуля} many {# модулей} other {# модулей}} — {avg}. Продолжайте в том же темпе.",
       "leadEmpty": "Пройдите первый модуль — и мы подскажем, над чем работать дальше.",
-      "ctaStart": "Начать экзамен",
       "stats": {
         "absolviert": "ПРОЙДЕНО",
         "durchschnitt": "СРЕДНИЙ",

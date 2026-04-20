@@ -199,15 +199,6 @@ export default async function DashboardHomePage() {
               })
             : t('leadEmpty')}
         </p>
-        <div className="mt-5">
-          <a
-            href="#start"
-            className="inline-flex items-center gap-2 rounded-rad-pill bg-ink px-6 py-3 text-sm font-medium text-page transition-colors hover:bg-ink/90"
-          >
-            {t('ctaStart')}
-            <span aria-hidden="true">→</span>
-          </a>
-        </div>
       </header>
 
       {/* ====== Stat row ====== */}

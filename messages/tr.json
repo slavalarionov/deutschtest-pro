@@ -254,7 +254,6 @@
       "greeting": "İyi günler, <name></name>.",
       "leadWithAttempts": "{total, plural, one {# modül} other {# modül}} ortalaması — {avg}. Tempoyu koruyun.",
       "leadEmpty": "İlk modülünüzü tamamlayın, ardından nelere odaklanmanız gerektiğini gösterelim.",
-      "ctaStart": "Sınavı başlat",
       "stats": {
         "absolviert": "TAMAMLANDI",
         "durchschnitt": "ORTALAMA",

@@ -254,7 +254,6 @@
       "greeting": "Good afternoon, <name></name>.",
       "leadWithAttempts": "Average across {total, plural, one {# module} other {# modules}} — {avg}. Keep the pace.",
       "leadEmpty": "Run your first module and we'll start pointing you at what to work on.",
-      "ctaStart": "Start exam",
       "stats": {
         "absolviert": "COMPLETED",
         "durchschnitt": "AVERAGE",
