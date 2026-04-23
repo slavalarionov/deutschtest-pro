@@ -834,5 +834,27 @@
       "errorFallback": "Yeni sınav oluşturulurken hata",
       "errorNetwork": "Ağ hatası"
     }
+  },
+  "errorPages": {
+    "notFound": {
+      "eyebrow": "404 · BULUNAMADI",
+      "titleLine1": "Sayfa",
+      "titleLine2": "bulunamadı.",
+      "description": "Bu adres hiçbir yere çıkmıyor. Sayfa taşınmış olabilir ya da bağlantı geçerliliğini yitirmiştir.",
+      "ctaHome": "Ana sayfaya dön",
+      "ctaBack": "Geri"
+    },
+    "serverError": {
+      "eyebrow": "500 · SUNUCU HATASI",
+      "titleLine1": "Bir şeyler",
+      "titleLine2": "yanlış gitti.",
+      "description": "Sunucu isteğinizi işleyemedi. Lütfen birkaç dakika sonra tekrar deneyin.",
+      "ctaRetry": "Tekrar dene",
+      "ctaHome": "Ana sayfaya dön"
+    },
+    "loading": {
+      "eyebrow": "YÜKLENİYOR",
+      "label": "İçerik hazırlanıyor"
+    }
   }
 }

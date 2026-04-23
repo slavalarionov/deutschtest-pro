@@ -834,5 +834,27 @@
       "errorFallback": "Error while creating the new exam",
       "errorNetwork": "Network error"
     }
+  },
+  "errorPages": {
+    "notFound": {
+      "eyebrow": "404 · NOT FOUND",
+      "titleLine1": "Page",
+      "titleLine2": "not found.",
+      "description": "This address leads nowhere. The page may have moved, or the link is no longer valid.",
+      "ctaHome": "Back to home",
+      "ctaBack": "Back"
+    },
+    "serverError": {
+      "eyebrow": "500 · INTERNAL ERROR",
+      "titleLine1": "Something",
+      "titleLine2": "went wrong.",
+      "description": "The server could not process your request. Please try again in a moment.",
+      "ctaRetry": "Try again",
+      "ctaHome": "Back to home"
+    },
+    "loading": {
+      "eyebrow": "LOADING",
+      "label": "Preparing content"
+    }
   }
 }

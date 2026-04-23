@@ -834,5 +834,27 @@
       "errorFallback": "Fehler beim Erstellen der neuen Prüfung",
       "errorNetwork": "Netzwerkfehler"
     }
+  },
+  "errorPages": {
+    "notFound": {
+      "eyebrow": "404 · NICHT GEFUNDEN",
+      "titleLine1": "Seite",
+      "titleLine2": "nicht gefunden.",
+      "description": "Diese Adresse führt ins Leere. Vielleicht ist die Seite umgezogen oder der Link ist nicht mehr gültig.",
+      "ctaHome": "Zur Startseite",
+      "ctaBack": "Zurück"
+    },
+    "serverError": {
+      "eyebrow": "500 · INTERNER FEHLER",
+      "titleLine1": "Etwas",
+      "titleLine2": "ist schiefgelaufen.",
+      "description": "Der Server konnte die Anfrage nicht verarbeiten. Versuchen Sie es in einem Moment erneut.",
+      "ctaRetry": "Erneut versuchen",
+      "ctaHome": "Zur Startseite"
+    },
+    "loading": {
+      "eyebrow": "LÄDT",
+      "label": "Inhalte werden vorbereitet"
+    }
   }
 }
