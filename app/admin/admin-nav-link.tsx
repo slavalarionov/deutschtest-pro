@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { AdminIcon, type AdminIconName } from '@/components/admin/AdminIcon'
 
 /**
  * Пункт сайдбара админки с авто-подсветкой активной секции.
@@ -14,7 +15,7 @@ export function AdminNavLink({
   label,
 }: {
   href: string
-  icon: string
+  icon: AdminIconName
   label: string
 }) {
   const pathname = usePathname() ?? ''
@@ -23,13 +24,13 @@ export function AdminNavLink({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 px-4 py-2.5 rounded-md text-sm transition-colors ${
+      className={`flex items-center gap-3 rounded-rad-pill px-3 py-2 text-sm transition-colors ${
         isActive
-          ? 'bg-[#1A1A1A] text-white hover:bg-[#3A3A3A]'
-          : 'text-[#1A1A1A] hover:bg-[#E0DDD6]'
+          ? 'bg-ink text-page'
+          : 'text-ink-soft hover:bg-surface hover:text-ink'
       }`}
     >
-      <span className="text-base">{icon}</span>
+      <AdminIcon name={icon} className="h-[15px] w-[15px] shrink-0" />
       <span>{label}</span>
     </Link>
   )

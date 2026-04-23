@@ -1,15 +1,13 @@
 import Link from 'next/link'
 import { requireAdminPage } from '@/lib/admin/require-admin'
 import { AdminNavLink } from './admin-nav-link'
+import type { AdminIconName } from '@/components/admin/AdminIcon'
 
-const NAV_ITEMS = [
-  { href: '/admin', label: 'Dashboard', icon: '📊' },
-  { href: '/admin/users', label: 'Пользователи', icon: '👥' },
-  { href: '/admin/prompts', label: 'Промпты', icon: '✏️' },
-  { href: '/admin/topics', label: 'Темы', icon: '🎲' },
-  { href: '/admin/promo', label: 'Промокоды', icon: '🎟️' },
-  { href: '/admin/economy', label: 'Экономика', icon: '💰' },
-  { href: '/admin/feedback', label: 'Фидбэк', icon: '💬' },
+const NAV_ITEMS: ReadonlyArray<{ href: string; label: string; icon: AdminIconName }> = [
+  { href: '/admin', label: 'Dashboard', icon: 'dashboard' },
+  { href: '/admin/users', label: 'Пользователи', icon: 'users' },
+  { href: '/admin/prompts', label: 'Промпты', icon: 'prompts' },
+  { href: '/admin/topics', label: 'Темы', icon: 'topics' },
 ] as const
 
 export default async function AdminLayout({
@@ -20,36 +18,41 @@ export default async function AdminLayout({
   const admin = await requireAdminPage('/admin')
 
   return (
-    <div className="flex min-h-screen bg-[#FAFAF7]">
-      {/* Sidebar */}
-      <aside className="w-64 border-r border-[#E0DDD6] bg-[#F2EFE8] flex flex-col">
-        <div className="p-6 border-b border-[#E0DDD6]">
-          <Link href="/admin" className="block">
-            <h1 className="text-xl font-bold text-[#1A1A1A]">
-              DeutschTest <span className="text-[#C8A84B]">Admin</span>
-            </h1>
+    <div className="flex min-h-screen bg-page">
+      <aside className="flex w-[220px] flex-col border-r border-line bg-page">
+        <div className="p-5">
+          <Link
+            href="/admin"
+            className="inline-flex items-baseline gap-2"
+            aria-label="DeutschTest.pro Admin"
+          >
+            <span className="font-display text-lg font-medium tracking-tight text-ink">
+              deutschtest<span className="text-muted">.pro</span>
+            </span>
           </Link>
-          <p className="text-xs text-[#6B6560] mt-1 truncate">{admin.email}</p>
+          <div className="mt-2 font-mono text-[10px] uppercase tracking-widest text-accent-ink">
+            Admin
+          </div>
+          <p className="mt-2 truncate text-xs text-muted">{admin.email}</p>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="mt-6 flex-1 space-y-0.5 px-5">
           {NAV_ITEMS.map((item) => (
             <AdminNavLink key={item.href} href={item.href} icon={item.icon} label={item.label} />
           ))}
         </nav>
 
-        <div className="p-4 border-t border-[#E0DDD6]">
+        <div className="border-t border-line px-5 py-4">
           <Link
             href="/"
-            className="flex items-center gap-2 text-xs text-[#6B6560] hover:text-[#1A1A1A]"
+            className="block text-xs text-muted transition-colors hover:text-ink"
           >
-            ← Вернуться на сайт
+            Вернуться на сайт
           </Link>
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 p-8 overflow-auto">{children}</main>
+      <main className="flex-1 overflow-auto p-8">{children}</main>
     </div>
   )
 }
