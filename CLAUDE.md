@@ -38,7 +38,7 @@ deutschtest/
 ├── app/
 │   ├── (auth)/login, /register
 │   ├── (exam)/exam/[sessionId]/
-│   ├── admin/                    ← админ-панель: dashboard, users, prompts, topics, promo
+│   ├── admin/                    ← админ-панель: dashboard, users, prompts, topics, promo, economy
 │   ├── api/
 │   │   ├── admin/{users,prompts,topics,promo}/...  ← admin-only, requireAdminApi()
 │   │   ├── audio/generate
