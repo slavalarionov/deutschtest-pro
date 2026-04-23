@@ -10,6 +10,7 @@ const NAV_ITEMS: ReadonlyArray<{ href: string; label: string; icon: AdminIconNam
   { href: '/admin/topics', label: 'Темы', icon: 'topics' },
   { href: '/admin/promo', label: 'Промо', icon: 'promo' },
   { href: '/admin/economy', label: 'Экономика', icon: 'economy' },
+  { href: '/admin/feedback', label: 'Фидбэк', icon: 'feedback' },
 ] as const
 
 export default async function AdminLayout({

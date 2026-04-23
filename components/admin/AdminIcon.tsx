@@ -5,6 +5,7 @@ export type AdminIconName =
   | 'topics'
   | 'promo'
   | 'economy'
+  | 'feedback'
 
 /**
  * Stroke-only 24×24 glyphs for the admin sidebar. Mirrors the `SidebarIcon`
@@ -62,6 +63,13 @@ export function AdminIcon({
         <path d="M5 6.5v4c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5v-4" />
         <path d="M5 10.5v4c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5v-4" />
         <path d="M5 14.5v3c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5v-3" />
+      </>
+    ),
+    feedback: (
+      <>
+        <path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-6l-4 3v-3H6a2 2 0 0 1-2-2V6z" />
+        <path d="M8 9h8" />
+        <path d="M8 13h5" />
       </>
     ),
   }
