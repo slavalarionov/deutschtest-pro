@@ -385,7 +385,6 @@ function FunnelColumn({
       ? Math.max(Math.round((count! / firstStepCount) * 100), 8)
       : 0
   const barColor = isReference ? 'bg-ink' : 'bg-accent'
-  const reactionLabel = funnelConversionReaction(isEmpty ? null : pctOfPrevious)
 
   return (
     <div className="flex min-h-[240px] flex-col rounded-rad border border-line bg-card p-6">
@@ -406,14 +405,22 @@ function FunnelColumn({
         {isEmpty ? '—' : count!.toLocaleString('ru-RU')}
       </div>
       <div className="mt-auto space-y-1 pt-6">
-        {pctOfPrevious !== null && !isEmpty && (
-          <div className="font-mono text-[11px] uppercase tracking-wider text-muted tabular-nums">
-            {pctOfPrevious}% от предыдущего
+        {isReference ? (
+          <div className="font-mono text-[11px] uppercase tracking-wider text-muted">
+            Базовая когорта
           </div>
+        ) : (
+          <>
+            {pctOfPrevious !== null && !isEmpty && (
+              <div className="font-mono text-[11px] uppercase tracking-wider text-muted tabular-nums">
+                {pctOfPrevious}% от предыдущего
+              </div>
+            )}
+            <div className="font-mono text-[11px] uppercase tracking-wider text-muted">
+              {funnelConversionReaction(isEmpty ? null : pctOfPrevious)}
+            </div>
+          </>
         )}
-        <div className="font-mono text-[11px] uppercase tracking-wider text-muted">
-          {reactionLabel}
-        </div>
       </div>
     </div>
   )
