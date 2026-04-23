@@ -392,7 +392,13 @@
         "correctAnswerLabel": "Верный:",
         "taskLabel": "Задание {id}",
         "allCorrect": "Все ответы верны — отлично!",
-        "noDetails": "Подробные ответы не сохранены."
+        "noDetails": "Подробные ответы не сохранены.",
+        "table": {
+          "number": "#",
+          "status": "Статус",
+          "yourAnswer": "Ваш ответ",
+          "correctAnswer": "Верный"
+        }
       },
       "schreiben": {
         "task": "Задание",
@@ -805,7 +811,13 @@
       "wrongAnswers": "Неверные ответы",
       "taskLabel": "Задание {id}",
       "yourAnswerLabel": "Ваш:",
-      "correctAnswerLabel": "Верный:"
+      "correctAnswerLabel": "Верный:",
+      "table": {
+        "number": "#",
+        "status": "Статус",
+        "yourAnswer": "Ваш ответ",
+        "correctAnswer": "Верный"
+      }
     },
     "schreiben": {
       "title": "Schreiben — оценка",

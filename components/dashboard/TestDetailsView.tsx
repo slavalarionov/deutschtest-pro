@@ -100,10 +100,6 @@ export function TestDetailsView({
               : tStatus('statusNichtBestanden')}
           </span>
         </div>
-
-        <div className="mt-4 font-mono text-xs uppercase tracking-widest text-muted">
-          {formattedDate}
-        </div>
       </div>
 
       {/* ====== Module-specific section ====== */}
@@ -220,49 +216,60 @@ function LesenHorenSection({
       </div>
 
       {/* All answers */}
-      <div className="rounded-rad border border-line bg-card p-8">
+      <div className="rounded-rad border border-line bg-card p-6 sm:p-8">
         <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
           {tDetail('allAnswersEyebrow')}
         </div>
-        <div className="mt-4 space-y-3">
-          {entries.map(([id, detail], i) => {
-            const numericId = Number(id)
-            const padded = Number.isFinite(numericId)
-              ? String(numericId).padStart(2, '0')
-              : String(i + 1).padStart(2, '0')
-            return (
-              <div
-                key={id}
-                className={`border-l-2 py-3 pl-4 ${
-                  detail.isCorrect ? 'border-accent' : 'border-muted'
-                }`}
-              >
-                <div
-                  className={`font-mono text-[10px] uppercase tracking-widest ${
-                    detail.isCorrect ? 'text-accent-ink' : 'text-muted'
-                  }`}
-                >
-                  {padded} ·{' '}
-                  {detail.isCorrect ? 'RICHTIG' : 'FALSCH'}
-                </div>
-                <div className="mt-1 text-sm text-ink">
-                  {t('yourAnswerLabel')}{' '}
-                  <strong className="font-medium">
-                    {detail.userAnswer || '—'}
-                  </strong>
-                </div>
-                {!detail.isCorrect && (
-                  <div className="mt-1 text-sm text-ink-soft">
-                    {t('correctAnswerLabel')}{' '}
-                    <strong className="font-medium">
-                      {detail.correctAnswer}
-                    </strong>
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
+        <table className="mt-4 w-full font-mono text-sm tabular-nums">
+          <thead>
+            <tr className="border-b border-line text-[10px] uppercase tracking-widest text-muted">
+              <th className="py-2 pr-4 text-left font-normal">
+                {t('table.number')}
+              </th>
+              <th className="w-8 px-2 py-2 text-center font-normal">
+                <span className="sr-only">{t('table.status')}</span>
+              </th>
+              <th className="px-3 py-2 text-left font-normal">
+                {t('table.yourAnswer')}
+              </th>
+              <th className="py-2 pl-3 text-left font-normal">
+                {t('table.correctAnswer')}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {entries.map(([id, detail], i) => {
+              const numericId = Number(id)
+              const padded = Number.isFinite(numericId)
+                ? String(numericId).padStart(2, '0')
+                : String(i + 1).padStart(2, '0')
+              return (
+                <tr key={id} className="border-b border-line-soft last:border-b-0">
+                  <td className="py-2 pr-4 text-muted">{padded}</td>
+                  <td className="w-8 px-2 py-2 text-center">
+                    {detail.isCorrect ? (
+                      <span aria-label={t('correct')} className="text-accent-ink">
+                        {'✓'}
+                      </span>
+                    ) : (
+                      <span aria-label={t('wrong')} className="text-error">
+                        {'✗'}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-ink">{detail.userAnswer || '—'}</td>
+                  <td
+                    className={`py-2 pl-3 ${
+                      detail.isCorrect ? 'text-muted' : 'text-ink-soft'
+                    }`}
+                  >
+                    {detail.isCorrect ? '—' : detail.correctAnswer}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   )

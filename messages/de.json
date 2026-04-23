@@ -392,7 +392,13 @@
         "correctAnswerLabel": "Richtig:",
         "taskLabel": "Aufgabe {id}",
         "allCorrect": "Alle Antworten richtig — super!",
-        "noDetails": "Keine detaillierten Antworten gespeichert."
+        "noDetails": "Keine detaillierten Antworten gespeichert.",
+        "table": {
+          "number": "#",
+          "status": "Status",
+          "yourAnswer": "Ihre Antwort",
+          "correctAnswer": "Korrekt"
+        }
       },
       "schreiben": {
         "task": "Aufgabe",
@@ -805,7 +811,13 @@
       "wrongAnswers": "Falsche Antworten",
       "taskLabel": "Aufgabe {id}",
       "yourAnswerLabel": "Ihre:",
-      "correctAnswerLabel": "Richtig:"
+      "correctAnswerLabel": "Richtig:",
+      "table": {
+        "number": "#",
+        "status": "Status",
+        "yourAnswer": "Ihre Antwort",
+        "correctAnswer": "Korrekt"
+      }
     },
     "schreiben": {
       "title": "Schreiben — Bewertung",

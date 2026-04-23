@@ -392,7 +392,13 @@
         "correctAnswerLabel": "Doğru:",
         "taskLabel": "Görev {id}",
         "allCorrect": "Tüm yanıtlar doğru — harika!",
-        "noDetails": "Ayrıntılı yanıt kaydedilmedi."
+        "noDetails": "Ayrıntılı yanıt kaydedilmedi.",
+        "table": {
+          "number": "#",
+          "status": "Durum",
+          "yourAnswer": "Cevabınız",
+          "correctAnswer": "Doğru"
+        }
       },
       "schreiben": {
         "task": "Görev",
@@ -805,7 +811,13 @@
       "wrongAnswers": "Yanlış yanıtlar",
       "taskLabel": "Görev {id}",
       "yourAnswerLabel": "Sizin:",
-      "correctAnswerLabel": "Doğru:"
+      "correctAnswerLabel": "Doğru:",
+      "table": {
+        "number": "#",
+        "status": "Durum",
+        "yourAnswer": "Cevabınız",
+        "correctAnswer": "Doğru"
+      }
     },
     "schreiben": {
       "title": "Schreiben — değerlendirme",
