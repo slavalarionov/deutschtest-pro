@@ -280,15 +280,15 @@ async function loadDashboardData(): Promise<DashboardData> {
 function StatCard({
   label,
   value,
+  caption,
   hint,
   reaction,
-  description,
 }: {
   label: string
   value: string
+  caption?: string
   hint?: string
   reaction?: string
-  description?: string
 }) {
   return (
     <div className="rounded-rad border border-line bg-card p-6">
@@ -298,8 +298,13 @@ function StatCard({
       <div className="mt-3 font-display text-4xl tracking-tight tabular-nums text-ink">
         {value}
       </div>
-      {hint && (
+      {caption && (
         <div className="mt-2 font-mono text-[11px] uppercase tracking-wider text-muted">
+          {caption}
+        </div>
+      )}
+      {hint && (
+        <div className="mt-1 font-mono text-[11px] uppercase tracking-wider text-muted">
           {hint}
         </div>
       )}
@@ -307,9 +312,6 @@ function StatCard({
         <div className="mt-1 font-mono text-[11px] uppercase tracking-wider text-muted">
           {reaction}
         </div>
-      )}
-      {description && (
-        <p className="mt-3 text-sm leading-relaxed text-muted">{description}</p>
       )}
     </div>
   )
@@ -540,22 +542,22 @@ export default async function AdminDashboardPage() {
           <StatCard
             label="Всего зарегистрировано"
             value={basic.totalUsers.toLocaleString('ru-RU')}
-            description="Сколько людей создали аккаунт. На этапе без рекламы растёт от прямых ссылок и тестов. Главный драйвер после запуска рекламы."
+            caption="Всего аккаунтов"
           />
           <StatCard
             label="С хотя бы одной попыткой"
             value={basic.activeUsers.toLocaleString('ru-RU')}
+            caption="Из них активировались"
             hint={activationPct}
             reaction={activationReaction(
               basic.totalUsers > 0 ? Math.round((basic.activeUsers / basic.totalUsers) * 100) : null,
               basic.totalUsers,
             )}
-            description="Люди, которые не только зарегистрировались, но и начали первый модуль. Процент от всех — активация. Если упадёт ниже 50% после рекламы — онбординг теряет людей на пути от регистрации к первому тесту."
           />
           <StatCard
             label="Тестов запущено сегодня"
             value={basic.attemptsToday.toLocaleString('ru-RU')}
-            description="Попытки, стартовавшие с 00:00 сегодня по серверу. Нервный пульс продукта: резкое падение — либо баг в генерации, либо пиковая нагрузка у провайдеров, либо просто вечер выходного."
+            caption="Попытки с 00:00 по серверу"
           />
         </div>
       </section>
@@ -568,18 +570,18 @@ export default async function AdminDashboardPage() {
           <StatCard
             label="Сегодня"
             value={formatUsd(basic.costToday)}
+            caption="С начала суток"
             hint="Anthropic + ElevenLabs + OpenAI"
-            description="Суммарный расход на AI-провайдеры с начала суток. Сопоставляется с числом тестов: аномалия — если стоимость растёт, а тестов не больше."
           />
           <StatCard
             label="За 7 дней"
             value={formatUsd(basic.costWeek)}
-            description="Скользящая неделя. Нужна чтобы сглаживать суточные скачки и ловить постепенные сдвиги: новый промпт с длиннее контекстом, ретраи из-за битой валидации, неудачный кеш аудио."
+            caption="Скользящие 7 дней"
           />
           <StatCard
             label="За 30 дней"
             value={formatUsd(basic.costMonth)}
-            description="Базовая опорная цифра для маржи. Делим на число модулей за период — получаем фактическую себестоимость одного прогона в среднем по всем уровням и типам."
+            caption="Скользящие 30 дней"
           />
         </div>
       </section>
@@ -604,11 +606,7 @@ export default async function AdminDashboardPage() {
           ))}
         </div>
         <p className="mt-4 text-sm leading-relaxed text-muted">
-          Средняя себестоимость одного прогона каждого модуля за период после подключения детального логирования
-          (с {formatPatchDate(LOGGING_PATCH_DATE)}). Hören обычно дороже из-за TTS у ElevenLabs — аудио съедает большую
-          часть стоимости. Sprechen следом: Whisper STT + Claude-оценка каждой Teil. Lesen и Schreiben дешевле —
-          только Claude-вызовы без медиа. Эти цифры определят маржу на каждый тип модуля, когда подключится оплата.
-          Точные цифры появятся через 2–3 недели работы с реальной нагрузкой.
+          AI-себестоимость одного прогона. Определит маржу на каждый тип модуля, когда подключится оплата.
         </p>
       </section>
 
@@ -632,10 +630,7 @@ export default async function AdminDashboardPage() {
           />
         </div>
         <p className="mt-4 text-sm leading-relaxed text-muted">
-          Сколько процентов пользователей возвращаются после первого теста через 7 и 30 дней. Ключевая метрика
-          SaaS-продукта. Низкий retention (меньше 20% на 7 днях) — людям неинтересно возвращаться: проблема либо в
-          содержании тестов, либо в отсутствии мотивации между прохождениями. Накапливается с первого дня рекламы.
-          Сейчас выборка меньше 5 человек — цифры не показываются до тех пор, пока когорта не наберёт значимого размера.
+          Сколько % юзеров вернулись через 7 и 30 дней после первой попытки.
         </p>
       </section>
 
@@ -659,10 +654,7 @@ export default async function AdminDashboardPage() {
           ))}
         </div>
         <p className="mt-4 text-sm leading-relaxed text-muted">
-          Как человек проходит путь от регистрации до оплаты. На каждом шаге теряется часть людей — это нормально,
-          но важно понимать где потеря самая большая. Шаг «Купил пакет» будет пустым до подключения эквайринга
-          (Robokassa). После запуска рекламы сюда смотрим ежедневно: если шаг 2 теряет больше 50% — проблема в
-          онбординге; если шаг 3 — проблема в интересе; если шаг 4 — проблема в цене или доверии.
+          Сколько людей доходят от регистрации до оплаты. Шаг «Купил пакет» появится с Robokassa.
         </p>
       </section>
     </div>
