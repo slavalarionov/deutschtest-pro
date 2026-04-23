@@ -282,7 +282,7 @@ export function HistoryView() {
                         <span className="inline-flex items-center gap-2 text-sm">
                           <span
                             aria-hidden="true"
-                            className={`block h-1.5 w-1.5 rounded-full ${passed ? 'bg-accent' : 'bg-muted'}`}
+                            className={`block h-1.5 w-1.5 rounded-full ${passed ? 'bg-accent' : 'bg-ink'}`}
                           />
                           <span className={passed ? 'text-ink-soft' : 'text-muted'}>
                             {passed

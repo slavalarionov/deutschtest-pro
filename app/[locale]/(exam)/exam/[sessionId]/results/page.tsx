@@ -178,7 +178,7 @@ export default function ResultsPage() {
             >
               <span
                 aria-hidden="true"
-                className={`block h-1.5 w-1.5 rounded-full ${passed ? 'bg-accent' : 'bg-muted'}`}
+                className={`block h-1.5 w-1.5 rounded-full ${passed ? 'bg-accent' : 'bg-ink'}`}
               />
               <span className={passed ? 'text-ink-soft' : 'text-muted'}>
                 {passed ? t('passed') : t('failed')}
