@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireAdminPage } from '@/lib/admin/require-admin'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { StatusChip } from '@/components/admin/StatusChip'
 import { UserActions } from './user-actions'
 
 export const dynamic = 'force-dynamic'
@@ -131,47 +132,61 @@ export default async function AdminUserDetailPage({
 
   const isSelf = admin.id === profile.id
   const totalAdmins = adminsCount ?? 0
+  const noFlags = !profile.is_admin && !profile.is_unlimited && !profile.is_blocked
 
   return (
-    <div className="max-w-5xl space-y-6">
-      <div className="text-xs text-[#6B6560]">
-        <Link href="/admin/users" className="hover:text-[#1A1A1A]">
-          ← К списку пользователей
+    <div className="max-w-5xl space-y-8">
+      <div>
+        <Link
+          href="/admin/users"
+          className="text-sm text-ink-soft transition-colors hover:text-ink"
+        >
+          К списку пользователей
         </Link>
       </div>
 
-      {/* Header */}
-      <header className="border border-[#E0DDD6] rounded-md bg-white p-6">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-bold text-[#1A1A1A] font-mono">
+      {/* Header card */}
+      <header className="rounded-rad border border-line bg-card p-8">
+        <div className="flex flex-wrap items-start justify-between gap-6">
+          <div className="min-w-0 flex-1">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+              User{profile.target_level ? ` · Ziel ${profile.target_level}` : ''}
+            </div>
+            <h1 className="mt-2 break-all font-mono text-2xl tracking-tight text-ink">
               {profile.email}
               {isSelf && (
-                <span className="ml-2 text-sm text-[#C8A84B] font-sans normal-case">(вы)</span>
+                <span className="ml-3 font-mono text-xs uppercase tracking-wider text-accent-ink">
+                  вы
+                </span>
               )}
             </h1>
-            <div className="mt-1 text-sm text-[#6B6560]">
+            <div className="mt-2 text-sm text-ink-soft">
               {profile.display_name ?? profile.full_name ?? '— без имени —'}
-              {profile.target_level && <span className="ml-2">· цель {profile.target_level}</span>}
             </div>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {profile.is_admin && <Pill color="gold">admin</Pill>}
-              {profile.is_unlimited && <Pill color="blue">unlimited</Pill>}
-              {profile.is_blocked && <Pill color="red">blocked</Pill>}
-              {!profile.is_admin && !profile.is_unlimited && !profile.is_blocked && (
-                <Pill color="neutral">regular</Pill>
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {profile.is_admin && <StatusChip variant="admin">admin</StatusChip>}
+              {profile.is_unlimited && (
+                <StatusChip variant="unlimited">unlimited</StatusChip>
               )}
+              {profile.is_blocked && <StatusChip variant="blocked">blocked</StatusChip>}
+              {noFlags && <StatusChip variant="regular">regular</StatusChip>}
             </div>
           </div>
-          <div className="text-right space-y-0.5">
-            <div className="text-xs text-[#6B6560]">Баланс модулей</div>
-            <div className="text-3xl font-bold text-[#1A1A1A]">{profile.modules_balance}</div>
+          <div className="shrink-0 text-right">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+              Balance
+            </div>
+            <div className="mt-2 font-display text-5xl tabular-nums tracking-tight text-ink">
+              {profile.modules_balance}
+            </div>
           </div>
         </div>
 
-        <dl className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <dl className="mt-8 grid grid-cols-2 gap-6 md:grid-cols-4">
           <Meta label="ID">
-            <code className="text-[10px] break-all">{profile.id}</code>
+            <code className="block break-all font-mono text-[10px] text-ink-soft">
+              {profile.id}
+            </code>
           </Meta>
           <Meta label="Регистрация">{fmt(profile.created_at)}</Meta>
           <Meta label="Last sign-in">{fmt(authRow.last_sign_in_at ?? null)}</Meta>
@@ -194,112 +209,114 @@ export default async function AdminUserDetailPage({
       />
 
       {/* Attempts */}
-      <section className="border border-[#E0DDD6] rounded-md bg-white">
-        <header className="px-4 py-3 border-b border-[#E0DDD6] flex items-center justify-between">
-          <h2 className="text-sm font-medium text-[#1A1A1A]">
-            Попытки <span className="text-[#6B6560] font-normal">({attempts.length})</span>
-          </h2>
-          <span className="text-xs text-[#6B6560]">последние 50</span>
-        </header>
-        {attempts.length === 0 ? (
-          <div className="p-6 text-sm text-[#6B6560]">Попыток нет.</div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-[#F2EFE8] text-[#6B6560] text-xs uppercase tracking-wide">
-              <tr>
-                <th className="px-3 py-2 text-left">Started</th>
-                <th className="px-3 py-2 text-left">Level</th>
-                <th className="px-3 py-2 text-left">Статус</th>
-                <th className="px-3 py-2 text-left">Оплата</th>
-                <th className="px-3 py-2 text-left">Band / Score</th>
-                <th className="px-3 py-2 text-left">Session ID</th>
+      <DataSection
+        title="Попытки"
+        count={attempts.length}
+        subtitle="последние 50"
+        empty={attempts.length === 0 ? 'Попыток нет.' : null}
+      >
+        <table className="w-full text-sm">
+          <thead className="border-b border-line bg-surface font-mono text-[10px] uppercase tracking-widest text-muted">
+            <tr>
+              <th className="px-5 py-3 text-left font-normal">Started</th>
+              <th className="px-5 py-3 text-left font-normal">Level</th>
+              <th className="px-5 py-3 text-left font-normal">Статус</th>
+              <th className="px-5 py-3 text-left font-normal">Оплата</th>
+              <th className="px-5 py-3 text-left font-normal">Band / Score</th>
+              <th className="px-5 py-3 text-left font-normal">Session ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            {attempts.map((a) => (
+              <tr key={a.id} className="border-b border-line-soft last:border-0">
+                <td className="px-5 py-3 font-mono text-xs tabular-nums text-muted">
+                  {fmt(a.started_at)}
+                </td>
+                <td className="px-5 py-3 font-mono text-sm text-ink">{a.level}</td>
+                <td className="px-5 py-3 text-ink">
+                  {a.submitted_at ? 'submitted' : 'in progress'}
+                </td>
+                <td className="px-5 py-3 text-muted">
+                  {a.is_free_test ? 'free' : a.payment_status}
+                </td>
+                <td className="px-5 py-3 font-mono text-sm tabular-nums text-ink">
+                  {extractBand(a.scores) ?? '—'}
+                </td>
+                <td className="px-5 py-3 font-mono text-[11px] text-muted">
+                  {a.session_id.slice(0, 8)}…
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-[#E0DDD6]">
-              {attempts.map((a) => (
-                <tr key={a.id}>
-                  <td className="px-3 py-2 text-[#6B6560]">{fmt(a.started_at)}</td>
-                  <td className="px-3 py-2 text-[#1A1A1A] font-medium">{a.level}</td>
-                  <td className="px-3 py-2 text-[#1A1A1A]">
-                    {a.submitted_at ? 'submitted' : 'in progress'}
-                  </td>
-                  <td className="px-3 py-2 text-[#6B6560]">
-                    {a.is_free_test ? 'free' : a.payment_status}
-                  </td>
-                  <td className="px-3 py-2 text-[#1A1A1A]">{extractBand(a.scores) ?? '—'}</td>
-                  <td className="px-3 py-2 font-mono text-[11px] text-[#6B6560]">
-                    {a.session_id.slice(0, 8)}…
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+            ))}
+          </tbody>
+        </table>
+      </DataSection>
 
       {/* Modules ledger */}
-      <section className="border border-[#E0DDD6] rounded-md bg-white">
-        <header className="px-4 py-3 border-b border-[#E0DDD6] flex items-center justify-between">
-          <h2 className="text-sm font-medium text-[#1A1A1A]">
-            История модулей{' '}
-            <span className="text-[#6B6560] font-normal">({ledger.length})</span>
-          </h2>
-          <span className="text-xs text-[#6B6560]">последние 50</span>
-        </header>
-        {ledger.length === 0 ? (
-          <div className="p-6 text-sm text-[#6B6560]">Операций с модулями нет.</div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-[#F2EFE8] text-[#6B6560] text-xs uppercase tracking-wide">
-              <tr>
-                <th className="px-3 py-2 text-left">Когда</th>
-                <th className="px-3 py-2 text-right">Δ</th>
-                <th className="px-3 py-2 text-left">Причина</th>
-                <th className="px-3 py-2 text-left">Note</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#E0DDD6]">
-              {ledger.map((l) => (
-                <tr key={l.id}>
-                  <td className="px-3 py-2 text-[#6B6560]">{fmt(l.created_at)}</td>
+      <DataSection
+        title="История модулей"
+        count={ledger.length}
+        subtitle="последние 50"
+        empty={ledger.length === 0 ? 'Операций с модулями нет.' : null}
+      >
+        <table className="w-full text-sm">
+          <thead className="border-b border-line bg-surface font-mono text-[10px] uppercase tracking-widest text-muted">
+            <tr>
+              <th className="px-5 py-3 text-left font-normal">Когда</th>
+              <th className="px-5 py-3 text-right font-normal">Δ</th>
+              <th className="px-5 py-3 text-left font-normal">Причина</th>
+              <th className="px-5 py-3 text-left font-normal">Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ledger.map((l) => {
+              const deltaClass =
+                l.delta > 0 ? 'text-accent-ink' : 'text-muted'
+              return (
+                <tr key={l.id} className="border-b border-line-soft last:border-0">
+                  <td className="px-5 py-3 font-mono text-xs tabular-nums text-muted">
+                    {fmt(l.created_at)}
+                  </td>
                   <td
-                    className={`px-3 py-2 text-right font-medium ${
-                      l.delta >= 0 ? 'text-green-700' : 'text-[#8B1A1A]'
-                    }`}
+                    className={`px-5 py-3 text-right font-mono text-sm tabular-nums ${deltaClass}`}
                   >
                     {l.delta >= 0 ? `+${l.delta}` : l.delta}
                   </td>
-                  <td className="px-3 py-2 text-[#1A1A1A] font-mono text-xs">{l.reason}</td>
-                  <td className="px-3 py-2 text-[#6B6560]">{l.note ?? '—'}</td>
+                  <td className="px-5 py-3 font-mono text-[10px] uppercase tracking-widest text-ink-soft">
+                    {l.reason}
+                  </td>
+                  <td className="px-5 py-3 text-sm text-muted">{l.note ?? '—'}</td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+              )
+            })}
+          </tbody>
+        </table>
+      </DataSection>
 
       {/* Promo redemptions */}
-      <section className="border border-[#E0DDD6] rounded-md bg-white">
-        <header className="px-4 py-3 border-b border-[#E0DDD6]">
-          <h2 className="text-sm font-medium text-[#1A1A1A]">
-            Активированные промокоды{' '}
-            <span className="text-[#6B6560] font-normal">({redemptions.length})</span>
-          </h2>
-        </header>
-        {redemptions.length === 0 ? (
-          <div className="p-6 text-sm text-[#6B6560]">Промокоды не активировал.</div>
-        ) : (
-          <ul className="divide-y divide-[#E0DDD6]">
-            {redemptions.map((r) => (
-              <li key={r.id} className="px-4 py-2 text-sm flex justify-between">
-                <span className="font-mono text-xs text-[#6B6560]">{r.promo_id.slice(0, 8)}…</span>
-                <span className="text-green-700 font-medium">+{r.modules_granted}</span>
-                <span className="text-[#6B6560]">{fmt(r.redeemed_at)}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <DataSection
+        title="Активированные промокоды"
+        count={redemptions.length}
+        empty={redemptions.length === 0 ? 'Промокоды не активировал.' : null}
+      >
+        <ul>
+          {redemptions.map((r) => (
+            <li
+              key={r.id}
+              className="flex items-center justify-between gap-4 border-b border-line-soft px-5 py-3 text-sm last:border-0"
+            >
+              <span className="font-mono text-xs text-muted">
+                {r.promo_id.slice(0, 8)}…
+              </span>
+              <span className="font-mono text-sm tabular-nums text-accent-ink">
+                +{r.modules_granted}
+              </span>
+              <span className="font-mono text-xs tabular-nums text-muted">
+                {fmt(r.redeemed_at)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </DataSection>
     </div>
   )
 }
@@ -307,30 +324,47 @@ export default async function AdminUserDetailPage({
 function Meta({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-xs text-[#6B6560] uppercase tracking-wide">{label}</dt>
-      <dd className="text-sm text-[#1A1A1A] mt-0.5">{children}</dd>
+      <dt className="font-mono text-[10px] uppercase tracking-widest text-muted">
+        {label}
+      </dt>
+      <dd className="mt-1 font-mono text-xs tabular-nums text-ink">{children}</dd>
     </div>
   )
 }
 
-function Pill({
+function DataSection({
+  title,
+  count,
+  subtitle,
+  empty,
   children,
-  color,
 }: {
+  title: string
+  count: number
+  subtitle?: string
+  empty: string | null
   children: React.ReactNode
-  color: 'gold' | 'red' | 'blue' | 'neutral'
 }) {
-  const palette =
-    color === 'gold'
-      ? 'bg-[#FAF4DD] text-[#9E7E2C] border-[#E6D8A8]'
-      : color === 'red'
-        ? 'bg-red-50 text-[#8B1A1A] border-red-200'
-        : color === 'blue'
-          ? 'bg-blue-50 text-blue-800 border-blue-200'
-          : 'bg-[#F2EFE8] text-[#6B6560] border-[#E0DDD6]'
   return (
-    <span className={`text-[10px] uppercase tracking-wide border rounded-sm px-2 py-0.5 ${palette}`}>
-      {children}
-    </span>
+    <section className="overflow-hidden rounded-rad border border-line bg-card">
+      <header className="flex items-center justify-between border-b border-line px-5 py-3">
+        <div className="flex items-baseline gap-3">
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            {title}
+          </h2>
+          <span className="font-mono text-xs tabular-nums text-ink-soft">({count})</span>
+        </div>
+        {subtitle && (
+          <span className="font-mono text-[10px] uppercase tracking-wider text-muted">
+            {subtitle}
+          </span>
+        )}
+      </header>
+      {empty ? (
+        <div className="px-5 py-10 text-center font-mono text-xs text-muted">{empty}</div>
+      ) : (
+        <div className="overflow-x-auto">{children}</div>
+      )}
+    </section>
   )
 }

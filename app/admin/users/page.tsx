@@ -114,14 +114,23 @@ export default async function AdminUsersPage({
   const filters = parseFilters(searchParams)
   const { rows, totalMatching, nextCursor } = await loadUsersPage(filters)
 
+  const hasActiveFilter =
+    Boolean(filters.q) || filters.role !== 'all' || filters.status !== 'all'
+
   return (
     <div className="max-w-7xl">
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-[#1A1A1A]">Пользователи</h1>
-        <p className="text-sm text-[#6B6560] mt-1">
-          Всего в базе: <span className="font-medium text-[#1A1A1A]">{totalMatching}</span>
-          {filters.q || filters.role !== 'all' || filters.status !== 'all' ? ' по текущим фильтрам' : ''}
-        </p>
+      <header className="mb-10">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          Admin · users
+        </div>
+        <h1 className="mt-3 font-display text-[44px] leading-[1.05] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
+          Пользователи.
+          <br />
+          <span className="text-ink-soft tabular-nums">
+            {totalMatching.toLocaleString('ru-RU')}
+            {hasActiveFilter ? ' по фильтру.' : ' всего.'}
+          </span>
+        </h1>
       </header>
 
       <UsersTable

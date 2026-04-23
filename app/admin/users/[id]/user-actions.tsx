@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { Modal, ModalField } from '../users-table'
 
 interface UserForActions {
   id: string
@@ -18,19 +19,19 @@ interface Props {
   totalAdmins: number
 }
 
-type Modal = 'grant' | 'toggle-admin' | 'toggle-unlimited' | 'toggle-blocked' | 'delete' | null
+type ModalId = 'grant' | 'toggle-admin' | 'toggle-unlimited' | 'toggle-blocked' | 'delete' | null
 
 export function UserActions({ user, isSelf, totalAdmins }: Props) {
   const router = useRouter()
   const [, startTransition] = useTransition()
-  const [modal, setModal] = useState<Modal>(null)
+  const [modal, setModal] = useState<ModalId>(null)
 
   function refresh() {
     setModal(null)
     startTransition(() => router.refresh())
   }
 
-  // no-self-delete, no-admin-delete (должен сначала сняться is_admin)
+  // no-self-delete, no-admin-delete (admin flag must be removed first)
   const canDelete = !isSelf && !user.isAdmin
   const deleteTooltip = isSelf
     ? 'Нельзя удалить самого себя.'
@@ -38,7 +39,7 @@ export function UserActions({ user, isSelf, totalAdmins }: Props) {
       ? 'Сначала снимите флаг admin.'
       : ''
 
-  // no-last-admin: нельзя снять is_admin у единственного админа
+  // no-last-admin: cannot remove is_admin from the only admin
   const canToggleAdmin = !(user.isAdmin && totalAdmins <= 1) && !(user.isAdmin && isSelf)
   const adminTooltip = user.isAdmin && totalAdmins <= 1
     ? 'Нельзя снять флаг — это единственный админ.'
@@ -47,40 +48,29 @@ export function UserActions({ user, isSelf, totalAdmins }: Props) {
       : ''
 
   return (
-    <section className="border border-[#E0DDD6] rounded-md bg-white p-4">
+    <section className="rounded-rad border border-line bg-card p-5">
       <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setModal('grant')}
-          className="text-sm text-white bg-[#1A1A1A] rounded-md px-4 py-2 hover:bg-[#3A3A3A]"
-        >
-          + Начислить модули
-        </button>
-        <button
+        <ActionButton onClick={() => setModal('grant')}>Начислить модули</ActionButton>
+        <ActionButton
           onClick={() => setModal('toggle-admin')}
           disabled={!canToggleAdmin}
           title={adminTooltip}
-          className="text-sm text-[#1A1A1A] border border-[#E0DDD6] rounded-md px-4 py-2 bg-white hover:bg-[#F2EFE8] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {user.isAdmin ? 'Снять admin' : 'Сделать admin'}
-        </button>
-        <button
-          onClick={() => setModal('toggle-unlimited')}
-          className="text-sm text-[#1A1A1A] border border-[#E0DDD6] rounded-md px-4 py-2 bg-white hover:bg-[#F2EFE8]"
-        >
+        </ActionButton>
+        <ActionButton onClick={() => setModal('toggle-unlimited')}>
           {user.isUnlimited ? 'Снять unlimited' : 'Сделать unlimited'}
-        </button>
-        <button
-          onClick={() => setModal('toggle-blocked')}
-          className="text-sm text-[#1A1A1A] border border-[#E0DDD6] rounded-md px-4 py-2 bg-white hover:bg-[#F2EFE8]"
-        >
+        </ActionButton>
+        <ActionButton onClick={() => setModal('toggle-blocked')}>
           {user.isBlocked ? 'Разблокировать' : 'Заблокировать'}
-        </button>
+        </ActionButton>
         <div className="ml-auto" />
         <button
+          type="button"
           onClick={() => setModal('delete')}
           disabled={!canDelete}
           title={deleteTooltip}
-          className="text-sm text-white bg-[#8B1A1A] rounded-md px-4 py-2 hover:bg-red-900 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center rounded-rad-pill border border-error px-4 py-2 text-sm font-medium text-error transition-colors hover:bg-error-soft disabled:cursor-not-allowed disabled:opacity-40"
         >
           Удалить пользователя
         </button>
@@ -120,7 +110,29 @@ export function UserActions({ user, isSelf, totalAdmins }: Props) {
   )
 }
 
-// ─── Модалки ────────────────────────────────────────────────
+function ActionButton({
+  onClick,
+  children,
+  disabled,
+  title,
+}: {
+  onClick: () => void
+  children: React.ReactNode
+  disabled?: boolean
+  title?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      className="inline-flex items-center rounded-rad-pill border border-line px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:border-ink hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      {children}
+    </button>
+  )
+}
 
 function GrantModal({
   user,
@@ -164,37 +176,42 @@ function GrantModal({
 
   return (
     <Modal title={`Начислить модули: ${user.email}`} onClose={onClose}>
-      <p className="text-sm text-[#6B6560]">
-        Текущий баланс: <span className="font-medium text-[#1A1A1A]">{user.modulesBalance}</span>
+      <p className="text-sm text-ink-soft">
+        Текущий баланс:{' '}
+        <span className="font-mono tabular-nums text-ink">{user.modulesBalance}</span>
       </p>
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="text-[#6B6560]">Количество</span>
+      <ModalField label="Количество">
         <input
           type="number"
           min={1}
           value={count}
           onChange={(e) => setCount(e.target.value)}
-          className="border border-[#E0DDD6] rounded-md px-3 py-1.5 bg-white"
+          className="w-full bg-transparent text-sm text-ink focus:outline-none"
         />
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="text-[#6B6560]">Причина (в modules_ledger.reason)</span>
+      </ModalField>
+      <ModalField label="Причина (в modules_ledger.reason)">
         <input
           type="text"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          className="border border-[#E0DDD6] rounded-md px-3 py-1.5 bg-white"
+          className="w-full bg-transparent text-sm text-ink focus:outline-none"
         />
-      </label>
-      {error && <div className="text-sm text-red-600">{error}</div>}
+      </ModalField>
+      {error && <div className="text-sm text-error">{error}</div>}
       <div className="flex justify-end gap-2 pt-2">
-        <button onClick={onClose} className="text-sm text-[#6B6560]" disabled={saving}>
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={saving}
+          className="inline-flex items-center rounded-rad-pill border border-line px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink disabled:opacity-50"
+        >
           Отмена
         </button>
         <button
+          type="button"
           onClick={submit}
           disabled={saving}
-          className="px-4 py-2 bg-[#1A1A1A] text-white rounded-md text-sm disabled:opacity-40"
+          className="inline-flex items-center rounded-rad-pill bg-ink px-5 py-2 text-sm font-medium text-page transition-colors hover:bg-ink/90 disabled:opacity-50"
         >
           {saving ? 'Начисляем…' : 'Начислить'}
         </button>
@@ -247,31 +264,40 @@ function ToggleModal({
 
   return (
     <Modal title={title} onClose={onClose}>
-      <p className="text-sm text-[#1A1A1A]">
-        Пользователь: <span className="font-mono text-xs">{user.email}</span>
+      <p className="text-sm text-ink-soft">
+        Пользователь: <span className="font-mono text-xs text-ink">{user.email}</span>
       </p>
-      <p className="text-sm text-[#6B6560]">
-        Флаг <strong>{labels[field]}</strong> → {nextValue ? 'включить' : 'выключить'}.
+      <p className="text-sm text-ink-soft">
+        Флаг <strong className="text-ink">{labels[field]}</strong> →{' '}
+        {nextValue ? 'включить' : 'выключить'}.
       </p>
-      {field === 'admin' && nextValue && (
-        <p className="text-xs text-[#C8A84B]">
-          ⚠ Пользователь получит полный доступ к админ-панели.
-        </p>
+      {((field === 'admin' && nextValue) || (field === 'blocked' && nextValue)) && (
+        <div className="rounded-rad-sm border border-line bg-accent-soft px-3 py-2">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-accent-ink">
+            Hinweis
+          </div>
+          <p className="mt-1 text-sm text-accent-ink">
+            {field === 'admin'
+              ? 'Пользователь получит полный доступ к админ-панели.'
+              : 'Заблокированный пользователь не сможет проходить экзамены.'}
+          </p>
+        </div>
       )}
-      {field === 'blocked' && nextValue && (
-        <p className="text-xs text-[#C8A84B]">
-          ⚠ Заблокированный пользователь не сможет проходить экзамены.
-        </p>
-      )}
-      {error && <div className="text-sm text-red-600">{error}</div>}
+      {error && <div className="text-sm text-error">{error}</div>}
       <div className="flex justify-end gap-2 pt-2">
-        <button onClick={onClose} className="text-sm text-[#6B6560]" disabled={saving}>
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={saving}
+          className="inline-flex items-center rounded-rad-pill border border-line px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink disabled:opacity-50"
+        >
           Отмена
         </button>
         <button
+          type="button"
           onClick={submit}
           disabled={saving}
-          className="px-4 py-2 bg-[#1A1A1A] text-white rounded-md text-sm disabled:opacity-40"
+          className="inline-flex items-center rounded-rad-pill bg-ink px-5 py-2 text-sm font-medium text-page transition-colors hover:bg-ink/90 disabled:opacity-50"
         >
           {saving ? 'Сохраняем…' : 'Подтвердить'}
         </button>
@@ -314,83 +340,63 @@ function DeleteModal({
       setError(j.error ?? `HTTP ${res.status}`)
       return
     }
-    // Успех — уводим обратно в список.
     window.location.href = '/admin/users'
     onDone()
   }
 
   return (
     <Modal title={`Удалить: ${user.email}?`} onClose={onClose}>
-      <p className="text-sm text-[#1A1A1A]">
-        Удаление <strong>необратимо</strong>. Каскадно удалятся:
+      <p className="text-sm text-ink-soft">
+        Удаление <strong className="text-ink">необратимо</strong>. Каскадно удалятся:
       </p>
-      <ul className="list-disc list-inside text-sm text-[#6B6560] space-y-0.5">
+      <ul className="list-disc list-inside space-y-0.5 text-sm text-ink-soft">
         <li>все сессии экзаменов (exam_sessions)</li>
         <li>все попытки (user_attempts)</li>
         <li>история modules_ledger</li>
         <li>активации промокодов (promo_redemptions)</li>
       </ul>
-      <p className="text-sm text-[#6B6560]">
-        В <code>deleted_users_audit</code> останется снимок профиля.
+      <p className="text-sm text-ink-soft">
+        В <code className="font-mono text-xs">deleted_users_audit</code> останется снимок
+        профиля.
       </p>
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="text-[#6B6560]">
-          Введите email <span className="font-mono text-xs">{user.email}</span> для подтверждения
-        </span>
+      <ModalField
+        label={`Введите email ${user.email} для подтверждения`}
+      >
         <input
           type="text"
           value={emailConfirm}
           onChange={(e) => setEmailConfirm(e.target.value)}
-          className="border border-[#E0DDD6] rounded-md px-3 py-1.5 bg-white"
+          className="w-full bg-transparent font-mono text-sm text-ink focus:outline-none"
         />
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="text-[#6B6560]">Note (опц., в аудит)</span>
+      </ModalField>
+      <ModalField label="Note (опц., в аудит)">
         <input
           type="text"
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="например, test account cleanup"
-          className="border border-[#E0DDD6] rounded-md px-3 py-1.5 bg-white"
+          className="w-full bg-transparent text-sm text-ink placeholder:text-muted focus:outline-none"
         />
-      </label>
-      {error && <div className="text-sm text-red-600">{error}</div>}
+      </ModalField>
+      {error && <div className="text-sm text-error">{error}</div>}
       <div className="flex justify-end gap-2 pt-2">
-        <button onClick={onClose} className="text-sm text-[#6B6560]" disabled={saving}>
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={saving}
+          className="inline-flex items-center rounded-rad-pill border border-line px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink disabled:opacity-50"
+        >
           Отмена
         </button>
         <button
+          type="button"
           onClick={submit}
           disabled={saving || !matches}
-          className="px-4 py-2 bg-[#8B1A1A] text-white rounded-md text-sm hover:bg-red-900 disabled:opacity-40"
+          className="inline-flex items-center rounded-rad-pill bg-error px-5 py-2 text-sm font-medium text-card transition-colors hover:bg-error/90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? 'Удаляем…' : 'Удалить'}
         </button>
       </div>
     </Modal>
-  )
-}
-
-function Modal({
-  title,
-  children,
-  onClose,
-}: {
-  title: string
-  children: React.ReactNode
-  onClose: () => void
-}) {
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-md border border-[#E0DDD6] w-full max-w-lg max-h-[90vh] overflow-auto">
-        <header className="flex items-center justify-between p-4 border-b border-[#E0DDD6]">
-          <h3 className="text-lg font-medium text-[#1A1A1A]">{title}</h3>
-          <button onClick={onClose} className="text-sm text-[#6B6560] hover:text-[#1A1A1A]">
-            ✕
-          </button>
-        </header>
-        <div className="p-4 space-y-3">{children}</div>
-      </div>
-    </div>
   )
 }
