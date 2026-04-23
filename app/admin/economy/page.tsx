@@ -435,7 +435,7 @@ export default async function AdminEconomyPage() {
               {data.topSessions.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-10 text-center font-mono text-xs text-muted">
-                    Пока ни одной сессии с привязкой session_id — ждём реальную нагрузку после патча логов.
+                    Пока пусто — ждём первые тесты после 23 АПР 2026, когда включился детальный учёт.
                   </td>
                 </tr>
               ) : (
@@ -466,8 +466,7 @@ export default async function AdminEconomyPage() {
         <p className="mt-4 text-sm leading-relaxed text-muted">
           Сессии, которые потратили больше всего AI-бюджета. Нормальные сессии стоят $0.10–$0.30. Сессии выше
           $0.50 — возможные аномалии: ретраи из-за ошибок, очень длинные тексты, баги Claude с форматом ответа.
-          Список берётся по записям после подключения <code className="font-mono text-xs">session_id</code>{' '}
-          в логи (23 апреля 2026), поэтому исторические сессии сюда не попадают.
+          Только сессии с 23 АПР 2026 и новее — до этой даты детального учёта по сессиям не велось.
         </p>
         {data.topSessions.length > 0 && (
           <p className="mt-2 font-mono text-[11px] uppercase tracking-wider text-muted">
