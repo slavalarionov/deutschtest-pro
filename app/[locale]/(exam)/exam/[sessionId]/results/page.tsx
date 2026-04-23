@@ -131,7 +131,7 @@ export default function ResultsPage() {
 
   return (
     <div className="min-h-screen bg-page">
-      <div className="mx-auto max-w-3xl space-y-10 px-4 py-10 sm:px-6 sm:py-14">
+      <div className="mx-auto max-w-3xl space-y-8 px-4 py-8 sm:px-6 sm:py-10">
         {/* ====== Editorial header ====== */}
         <header className="space-y-4">
           <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
@@ -149,20 +149,20 @@ export default function ResultsPage() {
         </header>
 
         {/* ====== Score card ====== */}
-        <div className="rounded-rad border border-line bg-card p-8 text-center sm:p-10">
+        <div className="rounded-rad border border-line bg-card p-6 text-center sm:p-8">
           <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
             {tDetail('resultEyebrow')}
           </div>
           <div
             data-testid="result-score-value"
-            className="mt-3 font-display text-5xl leading-none tracking-[-0.04em] text-ink tabular-nums"
+            className="mt-2 font-display text-4xl leading-none tracking-[-0.04em] text-ink tabular-nums"
           >
             {score ?? '—'}
           </div>
-          <div className="mt-2 font-mono text-xl text-ink-soft">/ 100</div>
+          <div className="mt-1 font-mono text-lg text-ink-soft">/ 100</div>
 
           {score !== undefined && (
-            <div className="mx-auto mt-6 h-2 w-64 overflow-hidden rounded-rad-pill bg-line">
+            <div className="mx-auto mt-4 h-2 w-64 overflow-hidden rounded-rad-pill bg-line">
               <div
                 className={`h-full rounded-rad-pill ${passed ? 'bg-accent' : 'bg-ink'}`}
                 style={{ width: `${Math.min(score, 100)}%` }}
@@ -174,7 +174,7 @@ export default function ResultsPage() {
             <p
               data-testid="result-status"
               data-passed={passed ? 'true' : 'false'}
-              className="mt-3 inline-flex items-center gap-2 text-sm"
+              className="mt-2 inline-flex items-center gap-2 text-sm"
             >
               <span
                 aria-hidden="true"
