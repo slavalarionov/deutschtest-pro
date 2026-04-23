@@ -281,11 +281,13 @@ function StatCard({
   label,
   value,
   hint,
+  reaction,
   description,
 }: {
   label: string
   value: string
   hint?: string
+  reaction?: string
   description?: string
 }) {
   return (
@@ -301,6 +303,11 @@ function StatCard({
           {hint}
         </div>
       )}
+      {reaction && (
+        <div className="mt-1 font-mono text-[11px] uppercase tracking-wider text-muted">
+          {reaction}
+        </div>
+      )}
       {description && (
         <p className="mt-3 text-sm leading-relaxed text-muted">{description}</p>
       )}
@@ -313,28 +320,35 @@ function ModuleMarginCard({
   avgCostUsd,
   sessionCount,
   barShare,
+  allModulesMin,
 }: {
   module: ModuleKey
   avgCostUsd: number
   sessionCount: number
   barShare: number
+  allModulesMin: number
 }) {
+  const hasData = sessionCount > 0
+  const reaction = hasData ? marginReaction(avgCostUsd, allModulesMin) : ''
   return (
     <div className="rounded-rad border border-line bg-card p-6">
       <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
         {MODULE_LABELS[module]}
       </div>
-      <div className="mt-3 font-display text-4xl tracking-tight tabular-nums text-ink">
-        {sessionCount > 0 ? `$${avgCostUsd.toFixed(3)}` : '—'}
+      <div className={`mt-3 font-display text-4xl tracking-tight tabular-nums ${hasData ? 'text-ink' : 'text-muted'}`}>
+        {hasData ? `$${avgCostUsd.toFixed(3)}` : '—'}
       </div>
       <div className="mt-2 font-mono text-[11px] uppercase tracking-wider text-muted tabular-nums">
-        {sessionCount > 0
-          ? `из ${sessionCount} ${sessionPluralizeRu(sessionCount)}`
-          : 'нет данных'}
+        {hasData ? `из ${sessionCount} ${sessionPluralizeRu(sessionCount)}` : 'нет данных'}
       </div>
-      <div className="mt-4 h-[3px] w-full overflow-hidden rounded-full bg-surface">
+      {reaction && (
+        <div className="mt-1 font-mono text-[11px] uppercase tracking-wider text-muted">
+          {reaction}
+        </div>
+      )}
+      <div className="mt-4 h-1 w-full bg-surface">
         <div
-          className="h-full bg-ink"
+          className="h-1 bg-ink"
           style={{ width: `${Math.max(0, Math.min(100, barShare * 100)).toFixed(1)}%` }}
         />
       </div>
@@ -354,39 +368,93 @@ function sessionPluralizeRu(n: number): string {
 function FunnelColumn({
   label,
   count,
-  widthShare,
+  firstStepCount,
+  isReference,
   pctOfPrevious,
-  placeholder,
 }: {
   label: string
   count: number | null
-  widthShare: number
+  firstStepCount: number
+  isReference: boolean
   pctOfPrevious: number | null
-  placeholder?: string
 }) {
-  const widthPct = Math.max(8, Math.min(100, widthShare * 100))
+  const isEmpty = count === null
+  const barWidthPct = isEmpty
+    ? 0
+    : firstStepCount > 0
+      ? Math.max(Math.round((count! / firstStepCount) * 100), 8)
+      : 0
+  const barColor = isReference ? 'bg-ink' : 'bg-accent'
+  const reactionLabel = funnelConversionReaction(isEmpty ? null : pctOfPrevious)
+
   return (
-    <div
-      className="flex min-h-[220px] flex-col justify-end rounded-rad bg-surface p-5"
-      style={{ width: `${widthPct}%` }}
-    >
+    <div className="flex min-h-[240px] flex-col rounded-rad border border-line bg-card p-6">
       <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
         {label}
       </div>
-      <div className="mt-3 font-display text-5xl tracking-tight tabular-nums text-ink">
-        {count !== null ? count.toLocaleString('ru-RU') : placeholder ?? '—'}
+      <div className="mt-4 h-1 w-full bg-surface">
+        <div
+          className={`h-1 ${barColor}`}
+          style={{ width: `${barWidthPct}%` }}
+        />
       </div>
-      {pctOfPrevious !== null && (
-        <div className="mt-2 font-mono text-[11px] uppercase tracking-wider text-muted tabular-nums">
-          {pctOfPrevious}% от предыдущего
+      <div
+        className={`mt-6 font-display text-4xl tracking-tight tabular-nums ${
+          isEmpty ? 'text-muted' : 'text-ink'
+        }`}
+      >
+        {isEmpty ? '—' : count!.toLocaleString('ru-RU')}
+      </div>
+      <div className="mt-auto space-y-1 pt-6">
+        {pctOfPrevious !== null && !isEmpty && (
+          <div className="font-mono text-[11px] uppercase tracking-wider text-muted tabular-nums">
+            {pctOfPrevious}% от предыдущего
+          </div>
+        )}
+        <div className="font-mono text-[11px] uppercase tracking-wider text-muted">
+          {reactionLabel}
         </div>
-      )}
+      </div>
     </div>
   )
 }
 
 function formatUsd(value: number): string {
   return `$${value.toFixed(2)}`
+}
+
+function activationReaction(percent: number | null, sampleSize: number): string {
+  if (sampleSize < 10) return 'Данных мало — ждём рекламу'
+  if (percent === null) return 'Нет данных'
+  if (percent >= 70) return 'Здоровый онбординг'
+  if (percent >= 50) return 'Умеренная активация'
+  if (percent >= 1) return 'Онбординг теряет людей'
+  return 'Никто не активируется'
+}
+
+function retentionReaction(percent: number | null): string {
+  if (percent === null) return 'Когорта меньше 5 — ждём'
+  if (percent >= 40) return 'Сильная возвращаемость'
+  if (percent >= 20) return 'Средняя возвращаемость'
+  if (percent >= 1) return 'Слабая возвращаемость'
+  return 'Не возвращаются'
+}
+
+function funnelConversionReaction(percent: number | null): string {
+  if (percent === null) return 'Ждём эквайринг'
+  if (percent >= 80) return 'Конверсия высокая'
+  if (percent >= 50) return 'Конверсия нормальная'
+  if (percent >= 20) return 'Потеря значительная'
+  if (percent >= 1) return 'Большая потеря'
+  return 'Тупик'
+}
+
+function marginReaction(moduleAvg: number | null, allModulesMin: number): string {
+  if (moduleAvg === null || allModulesMin === 0) return ''
+  const ratio = moduleAvg / allModulesMin
+  if (ratio === 1) return 'Дешевле всех'
+  if (ratio <= 2) return 'Средний'
+  return 'Дороже всех'
 }
 
 function formatPatchDate(date: Date): string {
@@ -407,33 +475,40 @@ export default async function AdminDashboardPage() {
       ? `${Math.round((basic.activeUsers / basic.totalUsers) * 100)}% от всех`
       : undefined
 
-  const maxAvgCost = Math.max(...marginByModule.map((m) => m.avgCostUsd), 0)
+  const withData = marginByModule.filter((m) => m.sessionCount > 0)
+  const maxAvgCost = Math.max(...withData.map((m) => m.avgCostUsd), 0)
+  const minAvgCost = withData.length > 0 ? Math.min(...withData.map((m) => m.avgCostUsd)) : 0
 
-  const funnelMax = funnel.registered || 1
-  const funnelSteps = [
+  const firstStepCount = funnel.registered
+  const funnelSteps: Array<{
+    label: string
+    count: number | null
+    pctOfPrevious: number | null
+    isReference: boolean
+  }> = [
     {
       label: 'Зарегистрирован',
       count: funnel.registered,
-      pctOfPrevious: null as number | null,
-      placeholder: undefined,
+      pctOfPrevious: null,
+      isReference: true,
     },
     {
       label: 'Прошёл первый модуль',
       count: funnel.tookFirstModule,
       pctOfPrevious: pctOfPrev(funnel.tookFirstModule, funnel.registered),
-      placeholder: undefined,
+      isReference: false,
     },
     {
       label: 'Выжег 3 бесплатных',
       count: funnel.spentAllFree,
       pctOfPrevious: pctOfPrev(funnel.spentAllFree, funnel.tookFirstModule),
-      placeholder: undefined,
+      isReference: false,
     },
     {
       label: 'Купил пакет',
       count: funnel.purchased,
-      pctOfPrevious: null as number | null,
-      placeholder: '—',
+      pctOfPrevious: null,
+      isReference: false,
     },
   ]
 
@@ -464,6 +539,10 @@ export default async function AdminDashboardPage() {
             label="С хотя бы одной попыткой"
             value={basic.activeUsers.toLocaleString('ru-RU')}
             hint={activationPct}
+            reaction={activationReaction(
+              basic.totalUsers > 0 ? Math.round((basic.activeUsers / basic.totalUsers) * 100) : null,
+              basic.totalUsers,
+            )}
             description="Люди, которые не только зарегистрировались, но и начали первый модуль. Процент от всех — активация. Если упадёт ниже 50% после рекламы — онбординг теряет людей на пути от регистрации к первому тесту."
           />
           <StatCard
@@ -513,6 +592,7 @@ export default async function AdminDashboardPage() {
               avgCostUsd={row.avgCostUsd}
               sessionCount={row.sessionCount}
               barShare={maxAvgCost > 0 ? row.avgCostUsd / maxAvgCost : 0}
+              allModulesMin={minAvgCost}
             />
           ))}
         </div>
@@ -559,19 +639,15 @@ export default async function AdminDashboardPage() {
         <h3 className="mb-6 font-display text-3xl leading-tight tracking-tight text-ink">
           Путь от регистрации до покупки.
         </h3>
-        <div className="flex items-stretch gap-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {funnelSteps.map((step) => (
             <FunnelColumn
               key={step.label}
               label={step.label}
               count={step.count}
-              widthShare={
-                step.count !== null && funnelMax > 0
-                  ? Math.max(0.12, step.count / funnelMax)
-                  : 0.12
-              }
+              firstStepCount={firstStepCount}
+              isReference={step.isReference}
               pctOfPrevious={step.pctOfPrevious}
-              placeholder={step.placeholder}
             />
           ))}
         </div>
@@ -608,11 +684,14 @@ function RetentionCard({
       <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
         {label}
       </div>
-      <div className="mt-3 font-display text-4xl tracking-tight tabular-nums text-ink">
+      <div className={`mt-3 font-display text-4xl tracking-tight tabular-nums ${showValue ? 'text-ink' : 'text-muted'}`}>
         {value}
       </div>
       <div className="mt-2 font-mono text-[11px] uppercase tracking-wider text-muted tabular-nums">
         {hint}
+      </div>
+      <div className="mt-1 font-mono text-[11px] uppercase tracking-wider text-muted">
+        {retentionReaction(row.retentionPct)}
       </div>
     </div>
   )
