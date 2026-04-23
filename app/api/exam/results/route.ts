@@ -41,6 +41,12 @@ export async function GET(req: NextRequest) {
     }
   } catch { /* non-critical */ }
 
+  const { data: fbRow } = await supabase
+    .from('feedback')
+    .select('id')
+    .eq('attempt_id', attempt.id)
+    .maybeSingle()
+
   return NextResponse.json({
     success: true,
     level: session.level,
@@ -49,5 +55,7 @@ export async function GET(req: NextRequest) {
     aiFeedback: attempt.ai_feedback,
     submittedAt: attempt.submitted_at,
     modulesBalance,
+    attemptId: attempt.id,
+    hasFeedback: Boolean(fbRow),
   })
 }

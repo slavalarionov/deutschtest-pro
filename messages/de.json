@@ -845,6 +845,19 @@
       "confirming": "Wird gestartet…",
       "errorFallback": "Fehler beim Erstellen der neuen Prüfung",
       "errorNetwork": "Netzwerkfehler"
+    },
+    "feedback": {
+      "eyebrow": "FEEDBACK",
+      "title": "Teilen Sie Ihren Eindruck.",
+      "description": "Sagen Sie uns, was gut war und was nicht. Das hilft, die Tests zu verbessern. Alles ist optional.",
+      "ratingLabel": "Bewertung",
+      "messagePlaceholder": "Was ist aufgefallen, was könnte besser sein…",
+      "submit": "Absenden",
+      "submitting": "Wird gesendet…",
+      "success": "Ihr Feedback wurde gespeichert.",
+      "successEyebrow": "DANKE",
+      "validationRequired": "Geben Sie eine Bewertung ab oder schreiben Sie eine Nachricht.",
+      "errorNetwork": "Feedback konnte nicht gesendet werden. Bitte erneut versuchen."
     }
   },
   "errorPages": {

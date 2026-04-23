@@ -845,6 +845,19 @@
       "confirming": "Başlatılıyor…",
       "errorFallback": "Yeni sınav oluşturulurken hata",
       "errorNetwork": "Ağ hatası"
+    },
+    "feedback": {
+      "eyebrow": "FEEDBACK",
+      "title": "İzlenimlerinizi paylaşın.",
+      "description": "Neyi beğendiğinizi ya da beğenmediğinizi anlatın. Bu, testleri iyileştirmeye yardımcı olur. Her şey isteğe bağlıdır.",
+      "ratingLabel": "Puan",
+      "messagePlaceholder": "Ne dikkat çekti, ne daha iyi olabilir…",
+      "submit": "Gönder",
+      "submitting": "Gönderiliyor…",
+      "success": "Geri bildiriminiz kaydedildi.",
+      "successEyebrow": "TEŞEKKÜRLER",
+      "validationRequired": "Bir puan verin ya da mesaj yazın.",
+      "errorNetwork": "Geri bildirim gönderilemedi. Lütfen tekrar deneyin."
     }
   },
   "errorPages": {

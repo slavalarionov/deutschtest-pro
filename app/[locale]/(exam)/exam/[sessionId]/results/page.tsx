@@ -38,6 +38,8 @@ interface ResultsData {
   aiFeedback: Record<string, unknown> | null
   submittedAt: string | null
   modulesBalance: number
+  attemptId: string | null
+  hasFeedback: boolean
 }
 
 const VALID_MODULES = new Set(['lesen', 'horen', 'schreiben', 'sprechen'])
@@ -202,6 +204,14 @@ export default function ResultsPage() {
           }
           return null
         })()}
+
+        {/* ====== Feedback form ====== */}
+        {data.submittedAt && data.attemptId && (
+          <FeedbackSection
+            attemptId={data.attemptId}
+            initiallySubmitted={data.hasFeedback}
+          />
+        )}
 
         {/* ====== Footer actions ====== */}
         <div className="flex flex-col items-center gap-3 pt-6">
@@ -444,6 +454,140 @@ function SprechenDetails({ feedback }: { feedback: SprechenFeedback }) {
         </div>
       )}
     </div>
+  )
+}
+
+function FeedbackSection({
+  attemptId,
+  initiallySubmitted,
+}: {
+  attemptId: string
+  initiallySubmitted: boolean
+}) {
+  const t = useTranslations('results.feedback')
+  const [submitted, setSubmitted] = useState(initiallySubmitted)
+  const [rating, setRating] = useState<number | null>(null)
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  const trimmed = message.trim()
+  const canSubmit = rating !== null || trimmed.length > 0
+  const remaining = 500 - message.length
+
+  if (submitted) {
+    return (
+      <div className="rounded-rad border border-line bg-accent-soft p-6">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-accent-ink">
+          {t('successEyebrow')}
+        </div>
+        <p className="mt-3 text-base text-ink">{t('success')}</p>
+      </div>
+    )
+  }
+
+  async function submit() {
+    if (!canSubmit || saving) return
+    setError(null)
+    setSaving(true)
+    try {
+      const res = await fetch('/api/feedback/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          attempt_id: attemptId,
+          rating: rating ?? undefined,
+          message: trimmed.length > 0 ? trimmed : undefined,
+        }),
+      })
+      const json = (await res.json().catch(() => ({}))) as { code?: string }
+      if (!res.ok) {
+        if (json.code === 'already_submitted') {
+          setSubmitted(true)
+          return
+        }
+        if (json.code === 'validation_required') {
+          setError(t('validationRequired'))
+          return
+        }
+        setError(t('errorNetwork'))
+        return
+      }
+      setSubmitted(true)
+    } catch {
+      setError(t('errorNetwork'))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <section className="space-y-4">
+      <div>
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {t('eyebrow')}
+        </div>
+        <h2 className="mt-3 font-display text-3xl leading-[1.1] tracking-[-0.02em] text-ink sm:text-4xl">
+          {t('title')}
+        </h2>
+        <p className="mt-3 text-sm text-muted">{t('description')}</p>
+      </div>
+
+      <div className="rounded-rad border border-line bg-card p-6 sm:p-8">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {t('ratingLabel')}
+        </div>
+        <div className="mt-3 flex items-center gap-1 font-mono text-sm tabular-nums">
+          {[1, 2, 3, 4, 5].map((n, i) => {
+            const active = rating !== null && rating >= n
+            return (
+              <span key={n} className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setRating(rating === n ? null : n)}
+                  aria-label={String(n)}
+                  aria-pressed={rating === n}
+                  className={`rounded-rad-sm px-2 py-1 text-base transition-colors ${
+                    active
+                      ? 'text-ink'
+                      : 'text-muted hover:text-ink-soft'
+                  }`}
+                >
+                  {n}
+                </button>
+                {i < 4 && <span className="text-muted">·</span>}
+              </span>
+            )
+          })}
+        </div>
+
+        <div className="mt-6">
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value.slice(0, 500))}
+            placeholder={t('messagePlaceholder')}
+            rows={4}
+            className="w-full resize-none rounded-rad-sm border border-line bg-card px-3 py-2 text-sm text-ink placeholder:text-muted transition-colors focus:border-ink focus:outline-none"
+          />
+          <div className="mt-1 flex justify-end font-mono text-xs tabular-nums text-muted">
+            {remaining}
+          </div>
+        </div>
+
+        {error && <div className="mt-4 text-sm text-error">{error}</div>}
+
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            onClick={submit}
+            disabled={!canSubmit || saving}
+            className="rounded-rad-pill bg-ink px-6 py-2.5 text-sm font-medium text-page transition-colors hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {saving ? t('submitting') : t('submit')}
+          </button>
+        </div>
+      </div>
+    </section>
   )
 }
 
