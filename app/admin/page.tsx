@@ -19,7 +19,6 @@ async function loadDashboardStats(): Promise<DashboardStats> {
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
 
-  // Параллельно запускаем все запросы
   const [
     totalUsersResult,
     activeUsersResult,
@@ -51,12 +50,10 @@ async function loadDashboardStats(): Promise<DashboardStats> {
       .gte('created_at', thirtyDaysAgo.toISOString()),
   ])
 
-  // Подсчёт уникальных user_id для активных юзеров
   const activeUserIds = new Set(
     (activeUsersResult.data ?? []).map((row) => row.user_id as string)
   )
 
-  // Хелпер для суммирования cost_usd из массива
   const sumCost = (rows: { cost_usd: number | string | null }[] | null): number => {
     if (!rows) return 0
     return rows.reduce((acc, row) => acc + Number(row.cost_usd ?? 0), 0)
@@ -82,12 +79,18 @@ function StatCard({
   hint?: string
 }) {
   return (
-    <div className="bg-white border border-[#E0DDD6] rounded-lg p-6">
-      <div className="text-xs uppercase tracking-wide text-[#6B6560] font-medium">
+    <div className="rounded-rad border border-line bg-card p-6">
+      <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
         {label}
       </div>
-      <div className="text-3xl font-bold text-[#1A1A1A] mt-2">{value}</div>
-      {hint && <div className="text-xs text-[#6B6560] mt-1">{hint}</div>}
+      <div className="mt-3 font-display text-4xl tracking-tight tabular-nums text-ink">
+        {value}
+      </div>
+      {hint && (
+        <div className="mt-2 font-mono text-[11px] uppercase tracking-wider text-muted">
+          {hint}
+        </div>
+      )}
     </div>
   )
 }
@@ -100,19 +103,23 @@ export default async function AdminDashboardPage() {
   const stats = await loadDashboardStats()
 
   return (
-    <div>
-      <header className="mb-8">
-        <h2 className="text-2xl font-bold text-[#1A1A1A]">Dashboard</h2>
-        <p className="text-sm text-[#6B6560] mt-1">
-          Сводка по проекту на сегодня
-        </p>
+    <div className="max-w-6xl">
+      <header className="mb-10">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          Admin dashboard
+        </div>
+        <h1 className="mt-3 font-display text-[44px] leading-[1.05] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
+          Сводка.
+          <br />
+          <span className="text-ink-soft">Текущие цифры.</span>
+        </h1>
       </header>
 
       <section className="mb-10">
-        <h3 className="text-xs uppercase tracking-wide text-[#6B6560] font-medium mb-3">
+        <h2 className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
           Пользователи
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        </h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <StatCard
             label="Всего зарегистрировано"
             value={stats.totalUsers.toLocaleString('ru-RU')}
@@ -134,23 +141,17 @@ export default async function AdminDashboardPage() {
       </section>
 
       <section>
-        <h3 className="text-xs uppercase tracking-wide text-[#6B6560] font-medium mb-3">
+        <h2 className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
           Расходы на AI
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        </h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <StatCard
             label="Сегодня"
             value={formatUsd(stats.costToday)}
             hint="Anthropic + ElevenLabs + OpenAI"
           />
-          <StatCard
-            label="За 7 дней"
-            value={formatUsd(stats.costWeek)}
-          />
-          <StatCard
-            label="За 30 дней"
-            value={formatUsd(stats.costMonth)}
-          />
+          <StatCard label="За 7 дней" value={formatUsd(stats.costWeek)} />
+          <StatCard label="За 30 дней" value={formatUsd(stats.costMonth)} />
         </div>
       </section>
     </div>
