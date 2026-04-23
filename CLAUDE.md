@@ -38,17 +38,21 @@ deutschtest/
 ├── app/
 │   ├── (auth)/login, /register
 │   ├── (exam)/exam/[sessionId]/
-│   ├── admin/                    ← админ-панель (Шаг 1 готов)
+│   ├── admin/                    ← админ-панель: dashboard, users, prompts, topics, promo
 │   ├── api/
+│   │   ├── admin/{users,prompts,topics,promo}/...  ← admin-only, requireAdminApi()
 │   │   ├── audio/generate
 │   │   ├── auth/{logout,register}
 │   │   ├── exam/{generate,generate-module,submit,results,...}
+│   │   ├── promo/redeem          ← юзер-активация промокода
 │   │   └── sprechen/{transcribe,score}
 │   ├── auth/callback
 │   ├── pricing/page.tsx
+│   ├── promo/page.tsx            ← юзер-страница ввода промокода
 │   ├── layout.tsx
 │   └── page.tsx
 ├── components/
+│   ├── admin/         AdminIcon, Modal, StatusChip
 │   ├── audio/         AudioPlayer, RecordingButton
 │   ├── auth/          AuthNav
 │   ├── exam/          ExamShell, ExamTimerDisplay, AnswerSheet, TimeUpOverlay

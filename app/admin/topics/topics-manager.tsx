@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Modal, ModalField } from '../users/users-table'
+import { Modal, ModalField } from '@/components/admin/Modal'
 
 export interface TopicRow {
   id: string

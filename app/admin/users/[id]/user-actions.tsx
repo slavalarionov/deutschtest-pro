@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Modal, ModalField } from '../users-table'
+import { Modal, ModalField } from '@/components/admin/Modal'
 
 interface UserForActions {
   id: string
