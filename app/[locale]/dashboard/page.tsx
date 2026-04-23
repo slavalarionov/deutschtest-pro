@@ -201,6 +201,11 @@ export default async function DashboardHomePage() {
         </p>
       </header>
 
+      {/* ====== Module launcher ====== */}
+      <ModuleLauncher modulesBalance={stats.modulesBalance} isAdmin={isAdmin} />
+
+      <div className="border-t border-line" />
+
       {/* ====== Stat row ====== */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -304,12 +309,6 @@ export default async function DashboardHomePage() {
         {recentHistory.length === 0 ? (
           <div className="px-5 py-10 text-center">
             <p className="text-sm text-ink-soft">{t('historyEmpty')}</p>
-            <a
-              href="#start"
-              className="mt-3 inline-flex items-center gap-1 text-xs text-ink transition-colors hover:text-ink-soft"
-            >
-              {t('historyStart')}
-            </a>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -371,10 +370,6 @@ export default async function DashboardHomePage() {
         )}
       </section>
 
-      {/* ====== Module launcher (anchor target for primary CTA) ====== */}
-      <section id="start" className="scroll-mt-24 rounded-rad bg-surface p-6 md:p-10">
-        <ModuleLauncher modulesBalance={stats.modulesBalance} isAdmin={isAdmin} />
-      </section>
     </div>
   )
 }
