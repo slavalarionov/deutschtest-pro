@@ -195,7 +195,8 @@ async function handleSchreibenSubmit(
     task.prompt + (task.context ? `\n\nKontext: ${task.context}` : ''),
     task.requiredPoints || [],
     userText,
-    language
+    language,
+    { sessionId: stored.id, userId: stored.userId }
   )
 
   await afterModuleSubmit(stored, { schreiben: feedback.score }, { schreiben: feedback })

@@ -14,6 +14,16 @@ import type { AiUsageStatus } from './ai-usage-error-classifier';
 
 type Provider = 'anthropic' | 'elevenlabs' | 'openai';
 
+/**
+ * Attribution for ai_usage_log rows. Wrapper functions (lib/claude.ts,
+ * lib/elevenlabs.ts, lib/whisper.ts) accept this as an optional parameter
+ * so API routes can thread sessionId / userId from auth context into logs.
+ */
+export interface LogContext {
+  sessionId?: string | null;
+  userId?: string | null;
+}
+
 export interface LogAiUsageParams {
   userId?: string | null;
   sessionId?: string | null;

@@ -11,6 +11,7 @@ const requestSchema = z.object({
   task_topic: z.string().min(1),
   task_points: z.array(z.string()).min(1),
   level: z.enum(['A1', 'A2', 'B1']),
+  sessionId: z.string().uuid().optional(),
 })
 
 export const maxDuration = 60
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { transcript, task_type, task_topic, task_points, level } = parsed.data
+    const { transcript, task_type, task_topic, task_points, level, sessionId } = parsed.data
 
     const { data: profile } = await supabase
       .from('profiles')
@@ -52,7 +53,8 @@ export async function POST(req: NextRequest) {
       task_type,
       task_topic,
       task_points,
-      language
+      language,
+      { sessionId: sessionId ?? null, userId: user.id }
     )
 
     return NextResponse.json({

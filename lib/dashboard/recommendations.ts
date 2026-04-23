@@ -197,7 +197,7 @@ export async function loadRecommendations(
     }
   }
 
-  const recommendations = await generateRecommendations(input, preferredLanguage)
+  const recommendations = await generateRecommendations(input, preferredLanguage, { userId })
   const generatedAt = new Date().toISOString()
 
   const { error: updateError } = await supabase

@@ -351,6 +351,7 @@ function ScriptBlock({
 
 function HorenAudioPlayer({ script }: { script: HorenScript }) {
   const tAudio = useTranslations('exam.audio')
+  const { session } = useExamStore()
   const audioRef = useRef<HTMLAudioElement>(null)
   const shouldAutoPlay = useRef(false)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
@@ -373,10 +374,11 @@ function HorenAudioPlayer({ script }: { script: HorenScript }) {
     try {
       const hasDialogue = Boolean(script.dialogue && script.dialogue.length >= 2)
       const payload = hasDialogue
-        ? { dialogue: script.dialogue }
+        ? { dialogue: script.dialogue, sessionId: session?.id }
         : {
             text: script.script,
             voiceType: script.voiceType,
+            sessionId: session?.id,
           }
 
       if (!hasDialogue && (!script.script || !script.voiceType)) {
@@ -406,7 +408,7 @@ function HorenAudioPlayer({ script }: { script: HorenScript }) {
     } finally {
       setLoading(false)
     }
-  }, [script.dialogue, script.script, script.voiceType])
+  }, [script.dialogue, script.script, script.voiceType, session?.id])
 
   const togglePlay = useCallback(() => {
     if (loading) return

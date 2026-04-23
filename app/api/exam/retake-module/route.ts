@@ -62,12 +62,15 @@ export async function POST(req: NextRequest) {
 
     await deductModuleFromBalance(user.id, 1)
 
+    const newSessionId = randomUUID()
+
     let genContent: Record<string, unknown>
     let genAnswers: Record<string, unknown>
     try {
       const result = await generateExamModule(
         origSession.level as ExamLevel,
         module as ExamModuleKey,
+        { sessionId: newSessionId, userId: user.id },
       )
       genContent = result.content
       genAnswers = result.answers
@@ -82,7 +85,6 @@ export async function POST(req: NextRequest) {
       throw genErr
     }
 
-    const newSessionId = randomUUID()
     const now = new Date()
     const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
 

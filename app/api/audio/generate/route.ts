@@ -8,6 +8,7 @@ import {
   uploadCachedMp3,
 } from '@/lib/supabase-audio-cache'
 import { horenDialogueEmotionSchema } from '@/lib/horen-emotion'
+import { createClient } from '@/lib/supabase/server'
 
 const horenVoiceRoleRequest = z.enum([
   'casual_female',
@@ -39,6 +40,7 @@ const requestSchema = z
       .optional(),
     dialogue: z.array(dialogueLineRequest).min(2).max(80).optional(),
     cacheKey: z.string().optional(),
+    sessionId: z.string().uuid().optional(),
   })
   .refine(
     (b) => {
@@ -60,6 +62,19 @@ export const maxDuration = 60
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const body = await req.json()
     const parsed = requestSchema.safeParse(body)
 
@@ -116,15 +131,17 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    const logContext = { sessionId: data.sessionId ?? null, userId: user.id }
     const audioBuffer = data.dialogue
       ? await generateDialogue(
           data.dialogue.map((l) => ({
             role: l.role,
             text: l.text,
             emotion: l.emotion,
-          }))
+          })),
+          logContext
         )
-      : await generateSpeech(data.text!, data.voiceType!)
+      : await generateSpeech(data.text!, data.voiceType!, logContext)
 
     await uploadCachedMp3(storagePath, audioBuffer)
 

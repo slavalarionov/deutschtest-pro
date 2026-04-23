@@ -25,9 +25,11 @@ import {
 import type { Locale } from '@/i18n/request'
 import { pickRandomTopic, type TopicData, type ExamLevelLower } from '@/lib/topic-sampler'
 import { horenDialogueEmotionSchema, normalizeDialogueEmotion } from '@/lib/horen-emotion'
-import { logAiUsage } from './ai-usage-logger'
+import { logAiUsage, type LogContext } from './ai-usage-logger'
 import { classifyError } from './ai-usage-error-classifier'
 import { calculateAnthropicCost } from './ai-pricing'
+
+export type { LogContext }
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
@@ -95,6 +97,8 @@ interface GenerateWithToolOptions<T> {
   operation?: 'claude_generate' | 'claude_score' | 'claude_recommendations'
   /** Optional hook to defensively normalize the raw tool input before Zod parsing. */
   normalizeInput?: (raw: unknown) => unknown
+  /** Attribution for ai_usage_log rows (session + user). */
+  context?: LogContext
 }
 
 /**
@@ -114,6 +118,7 @@ export async function generateWithTool<T>(opts: GenerateWithToolOptions<T>): Pro
     maxTokens = 4096,
     operation = 'claude_generate',
     normalizeInput,
+    context,
   } = opts
 
   const inputSchema = zodToJsonSchema(schema, {
@@ -178,6 +183,8 @@ export async function generateWithTool<T>(opts: GenerateWithToolOptions<T>): Pro
         status: 'success',
         latencyMs: Date.now() - startedAt,
         attemptNumber: attempt,
+        sessionId: context?.sessionId ?? null,
+        userId: context?.userId ?? null,
       }).catch(() => {})
 
       return validated
@@ -208,6 +215,8 @@ export async function generateWithTool<T>(opts: GenerateWithToolOptions<T>): Pro
         errorStack,
         latencyMs,
         attemptNumber: attempt,
+        sessionId: context?.sessionId ?? null,
+        userId: context?.userId ?? null,
       }).catch(() => {})
 
       const msg = errorMessage
@@ -360,7 +369,7 @@ function toLower(level: ExamLevel): ExamLevelLower {
   return level.toLowerCase() as ExamLevelLower
 }
 
-async function generateTeil1(level: ExamLevel) {
+async function generateTeil1(level: ExamLevel, context?: LogContext) {
   const topic = await pickRandomTopic({ module: 'lesen', level: toLower(level), teil: 1 })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
@@ -369,6 +378,7 @@ async function generateTeil1(level: ExamLevel) {
     toolDescription: 'Liefert den Lesen-Teil-1-Inhalt: Blogtext plus Richtig/Falsch-Aufgaben.',
     schema: teil1Schema,
     maxTokens: 4096,
+    context,
   })
 
   const answers: Record<string, string> = {}
@@ -380,7 +390,7 @@ async function generateTeil1(level: ExamLevel) {
   return { content: { text: validated.text, tasks } as LesenTeil1, answers }
 }
 
-async function generateTeil2(level: ExamLevel) {
+async function generateTeil2(level: ExamLevel, context?: LogContext) {
   const topic = await pickRandomTopic({ module: 'lesen', level: toLower(level), teil: 2 })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
@@ -389,6 +399,7 @@ async function generateTeil2(level: ExamLevel) {
     toolDescription: 'Liefert den Lesen-Teil-2-Inhalt: Zeitungsartikel plus Multiple-Choice-Aufgaben.',
     schema: teil2Schema,
     maxTokens: 4096,
+    context,
   })
 
   const answers: Record<string, string> = {}
@@ -406,7 +417,7 @@ async function generateTeil2(level: ExamLevel) {
   return { content: { text: validated.text, tasks }, answers }
 }
 
-async function generateTeil3(level: ExamLevel) {
+async function generateTeil3(level: ExamLevel, context?: LogContext) {
   const topic = await pickRandomTopic({ module: 'lesen', level: toLower(level), teil: 3 })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
@@ -415,6 +426,7 @@ async function generateTeil3(level: ExamLevel) {
     toolDescription: 'Liefert den Lesen-Teil-3-Inhalt: Regeltext plus Ja/Nein-Aufgaben.',
     schema: teil3Schema,
     maxTokens: 4096,
+    context,
   })
 
   const answers: Record<string, string> = {}
@@ -426,7 +438,7 @@ async function generateTeil3(level: ExamLevel) {
   return { content: { text: validated.text, tasks }, answers }
 }
 
-async function generateTeil4(level: ExamLevel) {
+async function generateTeil4(level: ExamLevel, context?: LogContext) {
   const topic = await pickRandomTopic({ module: 'lesen', level: toLower(level), teil: 4 })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
@@ -435,6 +447,7 @@ async function generateTeil4(level: ExamLevel) {
     toolDescription: 'Liefert den Lesen-Teil-4-Inhalt: Kurztexte mit IDs und Zuordnungssituationen.',
     schema: teil4Schema,
     maxTokens: 4096,
+    context,
   })
 
   const answers: Record<string, string> = {}
@@ -452,7 +465,7 @@ async function generateTeil4(level: ExamLevel) {
   }
 }
 
-async function generateTeil5(level: ExamLevel) {
+async function generateTeil5(level: ExamLevel, context?: LogContext) {
   const topic = await pickRandomTopic({ module: 'lesen', level: toLower(level), teil: 5 })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
@@ -461,6 +474,7 @@ async function generateTeil5(level: ExamLevel) {
     toolDescription: 'Liefert den Lesen-Teil-5-Inhalt: Lückentext plus Lücken mit je drei Optionen.',
     schema: teil5Schema,
     maxTokens: 4096,
+    context,
   })
 
   const answers: Record<string, string> = {}
@@ -474,14 +488,17 @@ async function generateTeil5(level: ExamLevel) {
 
 // --- Full Lesen generation (all 5 Teile in parallel) ---
 
-export async function generateLesenFull(level: ExamLevel): Promise<LesenWithAnswers> {
+export async function generateLesenFull(
+  level: ExamLevel,
+  context?: LogContext
+): Promise<LesenWithAnswers> {
   const delay = 5000
   const [t1, t2, t3, t4, t5] = await Promise.all([
-    generateTeil1(level),
-    sleep(delay * 1).then(() => generateTeil2(level)),
-    sleep(delay * 2).then(() => generateTeil3(level)),
-    sleep(delay * 3).then(() => generateTeil4(level)),
-    sleep(delay * 4).then(() => generateTeil5(level)),
+    generateTeil1(level, context),
+    sleep(delay * 1).then(() => generateTeil2(level, context)),
+    sleep(delay * 2).then(() => generateTeil3(level, context)),
+    sleep(delay * 3).then(() => generateTeil4(level, context)),
+    sleep(delay * 4).then(() => generateTeil5(level, context)),
   ])
 
   const allAnswers = { ...t1.answers, ...t2.answers, ...t3.answers, ...t4.answers, ...t5.answers }
@@ -546,7 +563,10 @@ export interface SchreibenGenResult {
   content: SchreibenContent
 }
 
-export async function generateSchreiben(level: ExamLevel): Promise<SchreibenGenResult> {
+export async function generateSchreiben(
+  level: ExamLevel,
+  context?: LogContext
+): Promise<SchreibenGenResult> {
   const topic = await pickRandomTopic({ module: 'schreiben', level: toLower(level) })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
@@ -555,6 +575,7 @@ export async function generateSchreiben(level: ExamLevel): Promise<SchreibenGenR
     toolDescription: 'Reicht die Schreibaufgabe(n) für das Modul Schreiben ein.',
     schema: schreibenSchema,
     maxTokens: 2048,
+    context,
   })
 
   return {
@@ -584,7 +605,8 @@ export async function scoreSchreiben(
   task: string,
   requiredPoints: string[],
   userText: string,
-  language: Locale
+  language: Locale,
+  context?: LogContext
 ): Promise<SchreibenFeedback> {
   return generateWithTool({
     systemPrompt: buildScoringSystemPrompt('Schreiben', language),
@@ -594,6 +616,7 @@ export async function scoreSchreiben(
     schema: schreibenFeedbackSchema,
     maxTokens: 2048,
     operation: 'claude_score',
+    context,
   })
 }
 
@@ -702,7 +725,8 @@ async function generateHorenTeil(
   teil: number,
   promptBuilder: (level: ExamLevel, topic: TopicData) => Promise<string>,
   toolName: string,
-  toolDescription: string
+  toolDescription: string,
+  context?: LogContext
 ) {
   const topic = await pickRandomTopic({ module: 'horen', level: toLower(level), teil })
   const validated = await generateWithTool({
@@ -713,6 +737,7 @@ async function generateHorenTeil(
     schema: horenTeilSchema,
     maxTokens: 4096,
     normalizeInput: normalizeHorenInput,
+    context,
   })
 
   const answers: Record<string, string> = {}
@@ -750,7 +775,10 @@ async function generateHorenTeil(
   return { content: { scripts }, answers }
 }
 
-export async function generateHorenFull(level: ExamLevel): Promise<HorenWithAnswers> {
+export async function generateHorenFull(
+  level: ExamLevel,
+  context?: LogContext
+): Promise<HorenWithAnswers> {
   const delay = 5000
   const [t1, t2, t3, t4] = await Promise.all([
     generateHorenTeil(
@@ -758,7 +786,8 @@ export async function generateHorenFull(level: ExamLevel): Promise<HorenWithAnsw
       1,
       buildHorenTeil1Prompt,
       'submit_horen_teil1',
-      'Reicht das Hörverstehen-Teil 1 ein: kurze Mono-Ansagen (Durchsage, Anrufbeantworter usw.) mit jeweils einer Richtig/Falsch-Aufgabe.'
+      'Reicht das Hörverstehen-Teil 1 ein: kurze Mono-Ansagen (Durchsage, Anrufbeantworter usw.) mit jeweils einer Richtig/Falsch-Aufgabe.',
+      context
     ),
     sleep(delay).then(() =>
       generateHorenTeil(
@@ -766,7 +795,8 @@ export async function generateHorenFull(level: ExamLevel): Promise<HorenWithAnsw
         2,
         buildHorenTeil2Prompt,
         'submit_horen_teil2',
-        'Reicht das Hörverstehen-Teil 2 ein: ein durchgehender Alltagsdialog (mehrere Mini-Szenen) mit Multiple-Choice-Aufgaben.'
+        'Reicht das Hörverstehen-Teil 2 ein: ein durchgehender Alltagsdialog (mehrere Mini-Szenen) mit Multiple-Choice-Aufgaben.',
+        context
       )
     ),
     sleep(delay * 2).then(() =>
@@ -775,7 +805,8 @@ export async function generateHorenFull(level: ExamLevel): Promise<HorenWithAnsw
         3,
         buildHorenTeil3Prompt,
         'submit_horen_teil3',
-        'Reicht das Hörverstehen-Teil 3 ein: Radio-/Podcast- oder TV-Interview als Dialog mit Richtig/Falsch-Aufgaben.'
+        'Reicht das Hörverstehen-Teil 3 ein: Radio-/Podcast- oder TV-Interview als Dialog mit Richtig/Falsch-Aufgaben.',
+        context
       )
     ),
     sleep(delay * 3).then(() =>
@@ -784,7 +815,8 @@ export async function generateHorenFull(level: ExamLevel): Promise<HorenWithAnsw
         4,
         buildHorenTeil4Prompt,
         'submit_horen_teil4',
-        'Reicht das Hörverstehen-Teil 4 ein: fünf kurze getrennte Alltagsdialoge, je eine Richtig/Falsch-Aufgabe pro Dialog.'
+        'Reicht das Hörverstehen-Teil 4 ein: fünf kurze getrennte Alltagsdialoge, je eine Richtig/Falsch-Aufgabe pro Dialog.',
+        context
       )
     ),
   ])
@@ -832,7 +864,10 @@ export interface SprechenGenResult {
   content: SprechenContent
 }
 
-export async function generateSprechen(level: ExamLevel): Promise<SprechenGenResult> {
+export async function generateSprechen(
+  level: ExamLevel,
+  context?: LogContext
+): Promise<SprechenGenResult> {
   const topic = await pickRandomTopic({ module: 'sprechen', level: toLower(level) })
   const validated = await generateWithTool({
     systemPrompt: SYSTEM_PROMPT_TOOL_GEN,
@@ -841,6 +876,7 @@ export async function generateSprechen(level: ExamLevel): Promise<SprechenGenRes
     toolDescription: 'Reicht die drei Sprechaufgaben (Planning, Presentation, Reaction) für das Modul Sprechen ein.',
     schema: sprechenContentSchema,
     maxTokens: 2048,
+    context,
   })
 
   return {
@@ -862,7 +898,8 @@ export async function scoreSprechen(
   taskType: string,
   taskTopic: string,
   taskPoints: string[],
-  language: Locale
+  language: Locale,
+  context?: LogContext
 ): Promise<SprechenFeedback> {
   return generateWithTool({
     systemPrompt: buildScoringSystemPrompt('Sprechen', language),
@@ -872,6 +909,7 @@ export async function scoreSprechen(
     schema: sprechenFeedbackSchema,
     maxTokens: 2048,
     operation: 'claude_score',
+    context,
   })
 }
 
@@ -916,7 +954,8 @@ Return your answer exclusively via the provided tool.`
 
 export async function generateRecommendations(
   input: RecommendationsInput,
-  language: Locale
+  language: Locale,
+  context?: LogContext
 ): Promise<Recommendations> {
   return generateWithTool({
     systemPrompt: buildRecommendationsSystemPrompt(language),
@@ -927,5 +966,6 @@ export async function generateRecommendations(
     schema: recommendationsSchema,
     maxTokens: 2048,
     operation: 'claude_recommendations',
+    context,
   })
 }

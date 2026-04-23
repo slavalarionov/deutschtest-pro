@@ -243,6 +243,7 @@ interface TeilRecordingViewProps {
 
 function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) {
   const t = useTranslations('exam.modules.sprechen')
+  const { session } = useExamStore()
   const title = t(`teil.${task.type}.title`)
   const desc = t(`teil.${task.type}.desc`)
   const tag = t(`teil.${task.type}.tag`)
@@ -282,6 +283,9 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
 
       const formData = new FormData()
       formData.append('audio', blob, 'recording.webm')
+      if (session?.id) {
+        formData.append('sessionId', session.id)
+      }
 
       const transcribeRes = await fetch('/api/sprechen/transcribe', {
         method: 'POST',
@@ -309,6 +313,7 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
           task_topic: task.topic,
           task_points: task.points,
           level,
+          sessionId: session?.id,
         }),
       })
       const scoreData = await scoreRes.json()
@@ -332,7 +337,7 @@ function TeilRecordingView({ task, level, onComplete }: TeilRecordingViewProps) 
     } catch {
       onComplete({ transcript: '', feedback: null, error: t('errors.network') })
     }
-  }, [task, level, onComplete, t])
+  }, [task, level, onComplete, t, session?.id])
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {

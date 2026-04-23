@@ -68,14 +68,15 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { content: genContent, answers: genAnswers } = await generateExamModule(
-      level,
-      module as ExamModuleKey
-    )
-
     const sessionId = randomUUID()
     const now = new Date()
     const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+
+    const { content: genContent, answers: genAnswers } = await generateExamModule(
+      level,
+      module as ExamModuleKey,
+      { sessionId, userId: user.id }
+    )
 
     await saveSession({
       id: sessionId,

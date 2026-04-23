@@ -3,7 +3,7 @@
 import { getInterLineSilenceMp3 } from '@/lib/audio/silence-between-lines'
 import { resolveVoiceId, type VoiceRole } from '@/lib/voices'
 import { concatenateMp3Buffers } from '@/lib/concat-mp3'
-import { logAiUsage } from './ai-usage-logger'
+import { logAiUsage, type LogContext } from './ai-usage-logger'
 import { classifyError } from './ai-usage-error-classifier'
 import { calculateElevenLabsTtsCost } from './ai-pricing'
 
@@ -61,7 +61,8 @@ function voiceSettings(emotion?: string) {
 async function synthesizeToBuffer(
   text: string,
   voiceId: string,
-  emotion?: string
+  emotion?: string,
+  context?: LogContext
 ): Promise<Buffer> {
   let last429 = false
 
@@ -104,6 +105,8 @@ async function synthesizeToBuffer(
         errorStack: err instanceof Error ? err.stack ?? null : null,
         latencyMs: Date.now() - startedAt,
         attemptNumber,
+        sessionId: context?.sessionId ?? null,
+        userId: context?.userId ?? null,
       }).catch(() => {})
       throw err
     }
@@ -124,6 +127,8 @@ async function synthesizeToBuffer(
         errorMessage: `429: ${errorBody.slice(0, 300)}`,
         latencyMs: Date.now() - startedAt,
         attemptNumber,
+        sessionId: context?.sessionId ?? null,
+        userId: context?.userId ?? null,
       }).catch(() => {})
       continue
     }
@@ -146,6 +151,8 @@ async function synthesizeToBuffer(
         errorMessage: `ElevenLabs ${response.status}: ${errorBody.slice(0, 300)}`,
         latencyMs: Date.now() - startedAt,
         attemptNumber,
+        sessionId: context?.sessionId ?? null,
+        userId: context?.userId ?? null,
       }).catch(() => {})
       throw new Error(`ElevenLabs API error: ${response.status}`)
     }
@@ -162,6 +169,8 @@ async function synthesizeToBuffer(
       status: 'success',
       latencyMs: Date.now() - startedAt,
       attemptNumber,
+      sessionId: context?.sessionId ?? null,
+      userId: context?.userId ?? null,
     }).catch(() => {})
 
     return Buffer.from(arrayBuffer)
@@ -176,15 +185,17 @@ async function synthesizeToBuffer(
 /** Ein Sprecher: Legacy voiceType (male_casual, …) oder VoiceRole (casual_male, …). */
 export async function generateSpeech(
   text: string,
-  voiceType: string
+  voiceType: string,
+  context?: LogContext
 ): Promise<Buffer> {
   const voiceId = resolveVoiceId(voiceType)
-  return synthesizeToBuffer(text, voiceId)
+  return synthesizeToBuffer(text, voiceId, undefined, context)
 }
 
 /** Mehrere Sprecher: standardmäßig strikt nacheinander (vermeidet concurrent_limit_exceeded). */
 export async function generateDialogue(
-  lines: DialogueTtsLine[]
+  lines: DialogueTtsLine[],
+  context?: LogContext
 ): Promise<Buffer> {
   const buffers: Buffer[] = []
   const concurrent = getDialogueTtsConcurrency()
@@ -195,7 +206,8 @@ export async function generateDialogue(
         synthesizeToBuffer(
           line.text,
           resolveVoiceId(line.role),
-          line.emotion
+          line.emotion,
+          context
         )
       )
     )

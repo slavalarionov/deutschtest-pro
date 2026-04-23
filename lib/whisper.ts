@@ -1,7 +1,7 @@
 // server-only — this file must NEVER be imported in client components
 
 import OpenAI from 'openai'
-import { logAiUsage } from './ai-usage-logger'
+import { logAiUsage, type LogContext } from './ai-usage-logger'
 import { classifyError } from './ai-usage-error-classifier'
 import { calculateWhisperCost } from './ai-pricing'
 
@@ -21,7 +21,8 @@ function getOpenAI(): OpenAI {
  */
 export async function transcribeAudio(
   audioBuffer: Buffer,
-  filename = 'recording.webm'
+  filename = 'recording.webm',
+  context?: LogContext
 ): Promise<string> {
   const file = new File(
     [new Uint8Array(audioBuffer)],
@@ -50,6 +51,8 @@ export async function transcribeAudio(
       status: 'success',
       latencyMs: Date.now() - startedAt,
       attemptNumber: 1,
+      sessionId: context?.sessionId ?? null,
+      userId: context?.userId ?? null,
     }).catch(() => {})
 
     return response.text
@@ -64,6 +67,8 @@ export async function transcribeAudio(
       errorStack: err instanceof Error ? err.stack ?? null : null,
       latencyMs: Date.now() - startedAt,
       attemptNumber: 1,
+      sessionId: context?.sessionId ?? null,
+      userId: context?.userId ?? null,
     }).catch(() => {})
     throw err
   }
