@@ -44,12 +44,18 @@ interface FunnelRow {
   purchased: number | null
 }
 
+interface FeedbackStats {
+  avgRating: number | null
+  sampleSize: number
+}
+
 interface DashboardData {
   basic: BasicStats
   marginByModule: ModuleCostRow[]
   retention7d: RetentionRow
   retention30d: RetentionRow
   funnel: FunnelRow
+  feedback30d: FeedbackStats
 }
 
 async function loadBasicStats(): Promise<BasicStats> {
@@ -266,15 +272,37 @@ async function loadFunnel(): Promise<FunnelRow> {
   }
 }
 
+async function loadFeedback30d(): Promise<FeedbackStats> {
+  const supabase = createAdminClient()
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  const { data } = await supabase
+    .from('feedback')
+    .select('rating')
+    .not('rating', 'is', null)
+    .gte('created_at', since.toISOString())
+
+  const ratings = ((data ?? []) as { rating: number | null }[])
+    .map((r) => r.rating)
+    .filter((v): v is number => typeof v === 'number')
+
+  if (ratings.length === 0) {
+    return { avgRating: null, sampleSize: 0 }
+  }
+  const sum = ratings.reduce((a, b) => a + b, 0)
+  return { avgRating: sum / ratings.length, sampleSize: ratings.length }
+}
+
 async function loadDashboardData(): Promise<DashboardData> {
-  const [basic, marginByModule, retention7d, retention30d, funnel] = await Promise.all([
-    loadBasicStats(),
-    loadMarginByModule(),
-    loadRetention(8, 14, 7),
-    loadRetention(31, 60, 30),
-    loadFunnel(),
-  ])
-  return { basic, marginByModule, retention7d, retention30d, funnel }
+  const [basic, marginByModule, retention7d, retention30d, funnel, feedback30d] =
+    await Promise.all([
+      loadBasicStats(),
+      loadMarginByModule(),
+      loadRetention(8, 14, 7),
+      loadRetention(31, 60, 30),
+      loadFunnel(),
+      loadFeedback30d(),
+    ])
+  return { basic, marginByModule, retention7d, retention30d, funnel, feedback30d }
 }
 
 function StatCard({
@@ -466,6 +494,14 @@ function marginReaction(moduleAvg: number | null, allModulesMin: number): string
   return 'Дороже всех'
 }
 
+function feedbackRatingReaction(avg: number | null, sample: number): string {
+  if (avg === null || sample < 5) return 'Данных мало — ждём отзывы'
+  if (avg >= 4.5) return 'Очень высокая оценка'
+  if (avg >= 3.5) return 'Хорошая оценка'
+  if (avg >= 2.5) return 'Средняя оценка'
+  return 'Низкая оценка — нужно разбираться'
+}
+
 function formatPatchDate(date: Date): string {
   const months = ['ЯНВ', 'ФЕВ', 'МАР', 'АПР', 'МАЙ', 'ИЮН', 'ИЮЛ', 'АВГ', 'СЕН', 'ОКТ', 'НОЯ', 'ДЕК']
   return `${date.getUTCDate()} ${months[date.getUTCMonth()]} ${date.getUTCFullYear()}`
@@ -477,7 +513,8 @@ function pctOfPrev(current: number, previous: number | null): number | null {
 }
 
 export default async function AdminDashboardPage() {
-  const { basic, marginByModule, retention7d, retention30d, funnel } = await loadDashboardData()
+  const { basic, marginByModule, retention7d, retention30d, funnel, feedback30d } =
+    await loadDashboardData()
 
   const activationPct =
     basic.totalUsers > 0
@@ -636,6 +673,21 @@ export default async function AdminDashboardPage() {
 
       <section>
         <h2 className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
+          Feedback
+        </h2>
+        <h3 className="mb-6 font-display text-3xl leading-tight tracking-tight text-ink">
+          Насколько нравится продукт.
+        </h3>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <FeedbackRatingCard stats={feedback30d} />
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-muted">
+          Средний rating пользовательских отзывов за последние 30 дней.
+        </p>
+      </section>
+
+      <section>
+        <h2 className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
           Воронка активации
         </h2>
         <h3 className="mb-6 font-display text-3xl leading-tight tracking-tight text-ink">
@@ -694,4 +746,43 @@ function RetentionCard({
       </div>
     </div>
   )
+}
+
+function FeedbackRatingCard({ stats }: { stats: FeedbackStats }) {
+  const hasData = stats.avgRating !== null
+  const value = hasData ? stats.avgRating!.toFixed(1) : '—'
+  const caption = hasData
+    ? `из ${stats.sampleSize} ${reviewPluralizeRu(stats.sampleSize)}`
+    : 'нет отзывов'
+
+  return (
+    <div className="rounded-rad border border-line bg-card p-6">
+      <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+        Средний rating (30д)
+      </div>
+      <div
+        className={`mt-3 font-display text-4xl tracking-tight tabular-nums ${
+          hasData ? 'text-ink' : 'text-muted'
+        }`}
+      >
+        {value}
+        {hasData && <span className="ml-2 text-xl text-ink-soft">/ 5.0</span>}
+      </div>
+      <div className="mt-2 font-mono text-[11px] uppercase tracking-wider text-muted tabular-nums">
+        {caption}
+      </div>
+      <div className="mt-1 font-mono text-[11px] uppercase tracking-wider text-muted">
+        {feedbackRatingReaction(stats.avgRating, stats.sampleSize)}
+      </div>
+    </div>
+  )
+}
+
+function reviewPluralizeRu(n: number): string {
+  const mod10 = n % 10
+  const mod100 = n % 100
+  if (mod100 >= 11 && mod100 <= 14) return 'отзывов'
+  if (mod10 === 1) return 'отзыва'
+  if (mod10 >= 2 && mod10 <= 4) return 'отзывов'
+  return 'отзывов'
 }
