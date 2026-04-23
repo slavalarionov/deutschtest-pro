@@ -16,7 +16,7 @@ export default function NotFound() {
         <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
           {t('eyebrow')}
         </div>
-        <h1 className="font-display text-[44px] leading-[1.05] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
+        <h1 className="text-balance font-display text-[44px] leading-[1.05] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
           {t('titleLine1')}
           <br />
           <span className="text-ink-soft">{t('titleLine2')}</span>
