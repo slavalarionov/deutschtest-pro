@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAdminPage } from '@/lib/admin/require-admin'
+import { StatusChip } from '@/components/admin/StatusChip'
 import { PromptEditor } from './prompt-editor'
 
 export const dynamic = 'force-dynamic'
@@ -37,7 +38,6 @@ async function loadPrompt(key: string) {
     .eq('prompt_key', key)
     .order('version', { ascending: false })
 
-  // Резолвим email для changed_by (если есть)
   const changerIds = Array.from(
     new Set((versions ?? []).map((v) => v.changed_by).filter((x): x is string => !!x))
   )
@@ -69,17 +69,28 @@ export default async function AdminPromptEditorPage({ params }: PageProps) {
 
   return (
     <div className="max-w-6xl">
-      <header className="mb-6">
-        <Link href="/admin/prompts" className="text-xs text-[#6B6560] hover:text-[#1A1A1A]">
-          ← Все промпты
+      <div className="mb-6">
+        <Link
+          href="/admin/prompts"
+          className="text-sm text-ink-soft transition-colors hover:text-ink"
+        >
+          Все промпты
         </Link>
-        <h1 className="text-2xl font-bold text-[#1A1A1A] mt-2 font-mono">{prompt.key}</h1>
+      </div>
+
+      <header className="mb-8">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          Prompt
+        </div>
+        <h1 className="mt-2 break-all font-mono text-2xl tracking-tight text-ink">
+          {prompt.key}
+        </h1>
         {prompt.description && (
-          <p className="text-sm text-[#6B6560] mt-1">{prompt.description}</p>
+          <p className="mt-3 max-w-2xl text-sm text-ink-soft">{prompt.description}</p>
         )}
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <PromptEditor
             promptKey={prompt.key}
@@ -89,7 +100,9 @@ export default async function AdminPromptEditorPage({ params }: PageProps) {
         </div>
 
         <aside className="space-y-3">
-          <h2 className="text-sm uppercase tracking-wide text-[#6B6560]">История версий</h2>
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            История версий
+          </h2>
           <ul className="space-y-2">
             {versions.map((v) => {
               const isActive = v.id === prompt.active_version_id
@@ -97,29 +110,27 @@ export default async function AdminPromptEditorPage({ params }: PageProps) {
               return (
                 <li
                   key={v.id}
-                  className={`rounded-md border px-3 py-2 text-sm ${
+                  className={`rounded-rad-sm border px-4 py-3 text-sm ${
                     isActive
-                      ? 'border-[#C8A84B] bg-[#FAF6E8]'
-                      : 'border-[#E0DDD6] bg-white'
+                      ? 'border-line bg-accent-soft'
+                      : 'border-line bg-card'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium">
-                      v{v.version}
-                      {isActive && (
-                        <span className="ml-2 text-[10px] uppercase tracking-wide text-[#C8A84B]">
-                          активная
-                        </span>
-                      )}
+                    <span className="flex items-center gap-2">
+                      <span className="font-mono text-sm tabular-nums text-ink">
+                        v{v.version}
+                      </span>
+                      {isActive && <StatusChip variant="active">активная</StatusChip>}
                     </span>
                     {!isActive && <RollbackButton promptKey={prompt.key} versionId={v.id} />}
                   </div>
-                  <div className="text-xs text-[#6B6560] mt-1">
+                  <div className="mt-2 font-mono text-xs tabular-nums text-muted">
                     {new Date(v.created_at).toLocaleString('ru-RU')}
-                    {email && ` · ${email}`}
+                    {email && <span className="ml-2 normal-case">· {email}</span>}
                   </div>
                   {v.change_note && (
-                    <div className="text-xs text-[#1A1A1A] mt-1">{v.change_note}</div>
+                    <div className="mt-2 text-sm text-ink-soft">{v.change_note}</div>
                   )}
                 </li>
               )
@@ -132,18 +143,14 @@ export default async function AdminPromptEditorPage({ params }: PageProps) {
 }
 
 function RollbackButton({ promptKey, versionId }: { promptKey: string; versionId: number }) {
-  // Client part lives in prompt-editor.tsx (RollbackControl) — тут серверно рендерим форму с action.
-  // Простой подход: маленькая HTML-форма, POST на API. JS нам не нужен для отката.
+  // Server-rendered HTML form — JS not needed for rollback.
   return (
-    <form
-      action="/api/admin/prompts/rollback"
-      method="post"
-    >
+    <form action="/api/admin/prompts/rollback" method="post">
       <input type="hidden" name="key" value={promptKey} />
       <input type="hidden" name="version_id" value={versionId} />
       <button
         type="submit"
-        className="text-xs text-[#C8A84B] hover:text-[#1A1A1A]"
+        className="font-mono text-[10px] uppercase tracking-wider text-ink-soft underline underline-offset-4 transition-colors hover:text-ink"
       >
         Откатить
       </button>

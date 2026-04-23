@@ -40,11 +40,19 @@ export default async function AdminTopicsPage({
 
   return (
     <div className="max-w-6xl">
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-[#1A1A1A]">Темы генерации</h1>
-        <p className="text-sm text-[#6B6560] mt-1">
-          Sampler случайно выбирает активную тему на каждую генерацию. Минимум 3 темы на связку
-          <span className="font-mono"> module/level/teil</span>, иначе экзамены будут повторяться.
+      <header className="mb-10">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          Admin · topics
+        </div>
+        <h1 className="mt-3 font-display text-[44px] leading-[1.05] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
+          Темы генерации.
+          <br />
+          <span className="text-ink-soft">Sampler вытягивает случайную.</span>
+        </h1>
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-soft">
+          Минимум 3 темы на связку{' '}
+          <code className="font-mono text-xs text-ink">module/level/teil</code>, иначе экзамены
+          начнут повторяться.
         </p>
       </header>
 

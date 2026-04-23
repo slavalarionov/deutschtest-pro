@@ -59,11 +59,18 @@ export default async function AdminPromptsPage() {
 
   return (
     <div className="max-w-5xl">
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-[#1A1A1A]">Промпты</h1>
-        <p className="text-sm text-[#6B6560] mt-1">
-          Активная версия каждого ключа — единственный источник правды для генерации и скоринга.
-          Изменения подхватываются на проде через 60 секунд (TTL кеша).
+      <header className="mb-10">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          Admin · prompts
+        </div>
+        <h1 className="mt-3 font-display text-[44px] leading-[1.05] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
+          Промпты.
+          <br />
+          <span className="text-ink-soft">Единственный источник правды.</span>
+        </h1>
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-soft">
+          Активная версия каждого ключа — то, что крутится на проде. Изменения
+          подхватываются через 60 секунд (TTL кеша).
         </p>
       </header>
 
@@ -83,52 +90,64 @@ function PromptTable({
   if (rows.length === 0) {
     return (
       <section className="mb-8">
-        <h2 className="text-sm uppercase tracking-wide text-[#6B6560] mb-2">{title}</h2>
-        <p className="text-sm text-[#6B6560]">Промпты этой категории ещё не засеяны. Прогони <code className="bg-[#E0DDD6] px-1 rounded">npx tsx scripts/seed-prompts.ts</code>.</p>
+        <h2 className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
+          {title}
+        </h2>
+        <p className="text-sm text-ink-soft">
+          Промпты этой категории ещё не засеяны. Прогони{' '}
+          <code className="rounded-rad-sm border border-line bg-surface px-1.5 py-0.5 font-mono text-xs">
+            npx tsx scripts/seed-prompts.ts
+          </code>
+          .
+        </p>
       </section>
     )
   }
 
   return (
-    <section className="mb-8">
-      <h2 className="text-sm uppercase tracking-wide text-[#6B6560] mb-2">{title}</h2>
-      <div className="overflow-hidden rounded-md border border-[#E0DDD6] bg-white">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-[#F2EFE8] text-left text-xs uppercase tracking-wide text-[#6B6560]">
-              <th className="px-4 py-3 font-medium">Ключ</th>
-              <th className="px-4 py-3 font-medium">Описание</th>
-              <th className="px-4 py-3 font-medium w-24">Версия</th>
-              <th className="px-4 py-3 font-medium w-44">Обновлено</th>
-              <th className="px-4 py-3 font-medium w-24"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => {
-              const href = `/admin/prompts/${row.key}`
-              return (
-                <tr key={row.key} className="border-t border-[#E0DDD6]">
-                  <td className="px-4 py-3 font-mono text-xs">{row.key}</td>
-                  <td className="px-4 py-3 text-[#1A1A1A]">{row.description ?? '—'}</td>
-                  <td className="px-4 py-3 text-[#1A1A1A]">
-                    {row.currentVersion ? `v${row.currentVersion.version}` : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-[#6B6560]">
-                    {row.updated_at ? new Date(row.updated_at).toLocaleString('ru-RU') : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      href={href}
-                      className="text-[#C8A84B] hover:text-[#1A1A1A] text-xs font-medium"
-                    >
-                      Редактировать →
-                    </Link>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+    <section className="mb-10">
+      <h2 className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
+        {title}
+      </h2>
+      <div className="overflow-hidden rounded-rad border border-line bg-card">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[720px] text-sm">
+            <thead className="border-b border-line bg-surface font-mono text-[10px] uppercase tracking-widest text-muted">
+              <tr>
+                <th className="px-5 py-3 text-left font-normal">Ключ</th>
+                <th className="px-5 py-3 text-left font-normal">Описание</th>
+                <th className="w-24 px-5 py-3 text-left font-normal">Версия</th>
+                <th className="w-44 px-5 py-3 text-left font-normal">Обновлено</th>
+                <th className="w-32 px-5 py-3 font-normal"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => {
+                const href = `/admin/prompts/${row.key}`
+                return (
+                  <tr key={row.key} className="border-b border-line-soft last:border-0">
+                    <td className="px-5 py-3 font-mono text-xs text-ink">{row.key}</td>
+                    <td className="px-5 py-3 text-ink-soft">{row.description ?? '—'}</td>
+                    <td className="px-5 py-3 font-mono text-sm tabular-nums text-ink">
+                      {row.currentVersion ? `v${row.currentVersion.version}` : '—'}
+                    </td>
+                    <td className="px-5 py-3 font-mono text-xs tabular-nums text-muted">
+                      {row.updated_at ? new Date(row.updated_at).toLocaleString('ru-RU') : '—'}
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      <Link
+                        href={href}
+                        className="text-xs text-ink-soft underline underline-offset-4 hover:text-ink"
+                      >
+                        Редактировать
+                      </Link>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   )

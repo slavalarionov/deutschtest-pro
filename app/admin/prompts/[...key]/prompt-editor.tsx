@@ -59,52 +59,65 @@ export function PromptEditor({ promptKey, initialContent, currentVersion }: Prop
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex items-baseline justify-between">
-        <span className="text-xs text-[#6B6560]">
-          Редактируется v{currentVersion} → сохранится как v{currentVersion + 1}
+        <span className="font-mono text-xs tabular-nums text-muted">
+          v{currentVersion} → v{currentVersion + 1}
         </span>
-        {dirty && <span className="text-xs text-[#C8A84B]">● изменения не сохранены</span>}
+        {dirty && (
+          <span className="font-mono text-[10px] uppercase tracking-widest text-accent-ink">
+            ● изменения не сохранены
+          </span>
+        )}
       </div>
 
       <textarea
-        className="w-full h-[540px] font-mono text-xs leading-relaxed border border-[#E0DDD6] rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-[#C8A84B] bg-white"
+        className="h-[540px] w-full rounded-rad border border-line bg-card p-4 font-mono text-xs leading-relaxed text-ink transition-colors focus:border-ink focus:outline-none"
         value={content}
         onChange={(e) => setContent(e.target.value)}
         spellCheck={false}
       />
 
-      <div className="text-xs text-[#6B6560]">
-        <span className="font-medium">Плейсхолдеры в шаблоне:</span>{' '}
-        {placeholders.length === 0 ? (
-          <span className="italic">— нет —</span>
-        ) : (
-          placeholders.map((p) => (
-            <code key={p} className="bg-[#F2EFE8] px-1.5 py-0.5 rounded mr-1">
-              {p}
-            </code>
-          ))
-        )}
+      <div className="rounded-rad-sm border border-line bg-surface px-4 py-3">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          Плейсхолдеры
+        </div>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {placeholders.length === 0 ? (
+            <span className="text-sm italic text-muted">— нет —</span>
+          ) : (
+            placeholders.map((p) => (
+              <code
+                key={p}
+                className="rounded-rad-sm border border-line-soft bg-card px-1.5 py-0.5 font-mono text-xs text-ink"
+              >
+                {p}
+              </code>
+            ))
+          )}
+        </div>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-xs text-[#6B6560] block">Комментарий к изменению (обязателен)</label>
+      <label className="block rounded-rad-sm border border-line bg-card px-3 py-2 transition-colors focus-within:border-ink">
+        <div className="mb-1 font-mono text-[10px] uppercase tracking-widest text-muted">
+          Комментарий к изменению (обязателен)
+        </div>
         <input
           type="text"
           value={changeNote}
           onChange={(e) => setChangeNote(e.target.value)}
-          placeholder="Например: усилил инструкцию по разнообразию тем"
-          className="w-full border border-[#E0DDD6] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C8A84B] bg-white"
+          placeholder="напр., усилил инструкцию по разнообразию тем"
+          className="w-full bg-transparent text-sm text-ink placeholder:text-muted focus:outline-none"
         />
-      </div>
+      </label>
 
-      {error && <div className="text-sm text-red-600">{error}</div>}
+      {error && <div className="text-sm text-error">{error}</div>}
 
       <div className="flex items-center gap-3">
         <button
           onClick={handleSave}
           disabled={pending || !dirty}
-          className="px-4 py-2 bg-[#1A1A1A] text-white rounded-md text-sm font-medium hover:bg-[#3A3A3A] disabled:opacity-40"
+          className="inline-flex items-center rounded-rad-pill bg-ink px-5 py-2 text-sm font-medium text-page transition-colors hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {pending ? 'Сохранение…' : 'Сохранить новую версию'}
         </button>
@@ -114,7 +127,7 @@ export function PromptEditor({ promptKey, initialContent, currentVersion }: Prop
               setContent(initialContent)
               setError(null)
             }}
-            className="text-sm text-[#6B6560] hover:text-[#1A1A1A]"
+            className="text-sm text-muted underline underline-offset-4 transition-colors hover:text-ink"
           >
             Сбросить
           </button>

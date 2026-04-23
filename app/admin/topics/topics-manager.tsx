@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { Modal, ModalField } from '../users/users-table'
 
 export interface TopicRow {
   id: string
@@ -35,7 +36,7 @@ function teilOptionsFor(module: string): Array<{ value: string; label: string }>
   return [{ value: 'null', label: '—' }]
 }
 
-function defaultTopicShape(module: string, teil: string): string {
+function defaultTopicShape(module: string, _teil: string): string {
   if (module === 'schreiben') {
     return JSON.stringify(
       {
@@ -144,95 +145,118 @@ export function TopicsManager({ initialTopics, filters }: Props) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-end gap-3 p-4 rounded-md border border-[#E0DDD6] bg-white">
-        <FilterSelect
-          label="Модуль"
-          value={filters.module ?? ''}
-          onChange={(v) => updateFilter('module', v)}
-          options={[{ value: '', label: 'Все' }, ...MODULES.map((m) => ({ value: m, label: m }))]}
-        />
-        <FilterSelect
-          label="Уровень"
-          value={filters.level ?? ''}
-          onChange={(v) => updateFilter('level', v)}
-          options={[
-            { value: '', label: 'Все' },
-            ...LEVELS.map((l) => ({ value: l, label: l.toUpperCase() })),
-          ]}
-        />
-        <FilterSelect
-          label="Teil"
-          value={filters.teil ?? ''}
-          onChange={(v) => updateFilter('teil', v)}
-          options={[
-            { value: '', label: 'Все' },
-            { value: 'null', label: '— (Schreiben/Sprechen)' },
-            { value: '1', label: '1' },
-            { value: '2', label: '2' },
-            { value: '3', label: '3' },
-            { value: '4', label: '4' },
-            { value: '5', label: '5' },
-          ]}
-        />
-        <FilterSelect
-          label="Статус"
-          value={filters.active ?? ''}
-          onChange={(v) => updateFilter('active', v)}
-          options={[
-            { value: '', label: 'Все' },
-            { value: '1', label: 'Активные' },
-            { value: '0', label: 'Выключенные' },
-          ]}
-        />
-        <div className="ml-auto">
+    <div className="space-y-6">
+      {/* Filters */}
+      <div className="rounded-rad border border-line bg-surface p-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <FilterCard label="Модуль">
+            <FilterSelect
+              value={filters.module ?? ''}
+              onChange={(v) => updateFilter('module', v)}
+              options={[{ value: '', label: 'Все' }, ...MODULES.map((m) => ({ value: m, label: m }))]}
+            />
+          </FilterCard>
+          <FilterCard label="Уровень">
+            <FilterSelect
+              value={filters.level ?? ''}
+              onChange={(v) => updateFilter('level', v)}
+              options={[
+                { value: '', label: 'Все' },
+                ...LEVELS.map((l) => ({ value: l, label: l.toUpperCase() })),
+              ]}
+            />
+          </FilterCard>
+          <FilterCard label="Teil">
+            <FilterSelect
+              value={filters.teil ?? ''}
+              onChange={(v) => updateFilter('teil', v)}
+              options={[
+                { value: '', label: 'Все' },
+                { value: 'null', label: '— (Schreiben/Sprechen)' },
+                { value: '1', label: '1' },
+                { value: '2', label: '2' },
+                { value: '3', label: '3' },
+                { value: '4', label: '4' },
+                { value: '5', label: '5' },
+              ]}
+            />
+          </FilterCard>
+          <FilterCard label="Статус">
+            <FilterSelect
+              value={filters.active ?? ''}
+              onChange={(v) => updateFilter('active', v)}
+              options={[
+                { value: '', label: 'Все' },
+                { value: '1', label: 'Активные' },
+                { value: '0', label: 'Выключенные' },
+              ]}
+            />
+          </FilterCard>
+        </div>
+        <div className="mt-4 flex justify-end">
           <button
             onClick={() => setCreating(true)}
-            className="px-4 py-2 bg-[#1A1A1A] text-white rounded-md text-sm font-medium hover:bg-[#3A3A3A]"
+            className="inline-flex items-center rounded-rad-pill bg-ink px-5 py-2 text-sm font-medium text-page transition-colors hover:bg-ink/90"
           >
-            + Добавить тему
+            Добавить тему
           </button>
         </div>
       </div>
 
       {initialTopics.length === 0 ? (
-        <div className="p-8 text-center text-sm text-[#6B6560] border border-dashed border-[#E0DDD6] rounded-md bg-white">
-          Тем по выбранным фильтрам нет.
+        <div className="rounded-rad border border-line bg-card p-14 text-center">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            Keine Themen
+          </div>
+          <p className="mt-3 text-sm text-ink-soft">
+            Тем по выбранным фильтрам нет.
+          </p>
         </div>
       ) : (
         <div className="space-y-6">
           {Array.from(grouped.entries()).map(([groupKey, items]) => {
             const [module, level, teilRaw] = groupKey.split(':')
             const teilLabel = teilRaw === 'null' ? '—' : `Teil ${teilRaw}`
-            const warn = items.filter((t) => t.is_active).length < 3
+            const activeCount = items.filter((t) => t.is_active).length
+            const warn = activeCount < 3
             return (
-              <section key={groupKey} className="border border-[#E0DDD6] rounded-md bg-white">
-                <header className="flex items-center justify-between px-4 py-2 border-b border-[#E0DDD6] bg-[#F2EFE8]">
-                  <div className="text-xs uppercase tracking-wide text-[#6B6560] font-mono">
-                    {module} · {level.toUpperCase()} · {teilLabel}
-                    <span className="ml-3 text-[#1A1A1A] normal-case">
-                      {items.filter((t) => t.is_active).length} активных / {items.length} всего
+              <section
+                key={groupKey}
+                className="overflow-hidden rounded-rad border border-line bg-card"
+              >
+                <header className="flex items-center justify-between border-b border-line bg-surface px-5 py-3">
+                  <div className="flex items-baseline gap-3 font-mono text-[10px] uppercase tracking-widest text-muted">
+                    <span>
+                      {module} · {level.toUpperCase()} · {teilLabel}
+                    </span>
+                    <span className="tabular-nums text-ink-soft">
+                      {activeCount}/{items.length}
                     </span>
                   </div>
                   {warn && (
-                    <span className="text-xs text-[#C8A84B]">
-                      ⚠ &lt; 3 активных — экзамены будут повторяться
-                    </span>
+                    <div className="rounded-rad-sm border border-line bg-accent-soft px-3 py-1">
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-accent-ink">
+                        Hinweis · &lt; 3 активных
+                      </span>
+                    </div>
                   )}
                 </header>
-                <ul className="divide-y divide-[#E0DDD6]">
+                <ul>
                   {items.map((t) => (
-                    <li key={t.id} className="px-4 py-3 flex items-start gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm text-[#1A1A1A]">
+                    <li
+                      key={t.id}
+                      className="flex items-start gap-4 border-b border-line-soft px-5 py-4 last:border-0"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm text-ink">
                           {String(t.topic_data?.['situation'] ?? '(без situation)')}
                         </div>
-                        <pre className="text-xs text-[#6B6560] mt-1 whitespace-pre-wrap break-words font-mono">
+                        <pre className="mt-1 whitespace-pre-wrap break-words font-mono text-xs text-muted">
                           {JSON.stringify(t.topic_data, null, 0).slice(0, 280)}
                         </pre>
                       </div>
-                      <div className="flex items-center gap-3 shrink-0">
-                        <label className="flex items-center gap-1 text-xs text-[#6B6560]">
+                      <div className="flex shrink-0 items-center gap-4">
+                        <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted">
                           <input
                             type="checkbox"
                             checked={t.is_active}
@@ -243,14 +267,14 @@ export function TopicsManager({ initialTopics, filters }: Props) {
                         </label>
                         <button
                           onClick={() => setEditing(t)}
-                          className="text-xs text-[#C8A84B] hover:text-[#1A1A1A]"
+                          className="text-xs text-ink-soft underline underline-offset-4 hover:text-ink"
                         >
                           Редактировать
                         </button>
                         <button
                           onClick={() => deleteTopic(t.id)}
-                          className="text-xs text-red-600 hover:text-red-800"
                           disabled={pending}
+                          className="text-xs text-muted underline underline-offset-4 transition-colors hover:text-error disabled:opacity-40"
                         >
                           Удалить
                         </button>
@@ -282,32 +306,38 @@ export function TopicsManager({ initialTopics, filters }: Props) {
   )
 }
 
+function FilterCard({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-rad-sm border border-line bg-card px-3 py-2 transition-colors focus-within:border-ink">
+      <div className="mb-1 font-mono text-[10px] uppercase tracking-widest text-muted">
+        {label}
+      </div>
+      {children}
+    </div>
+  )
+}
+
 function FilterSelect({
-  label,
   value,
   onChange,
   options,
 }: {
-  label: string
   value: string
   onChange: (v: string) => void
   options: Array<{ value: string; label: string }>
 }) {
   return (
-    <label className="flex flex-col gap-1 text-xs text-[#6B6560]">
-      <span>{label}</span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="border border-[#E0DDD6] rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#C8A84B]"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </label>
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full bg-transparent text-sm text-ink focus:outline-none"
+    >
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </select>
   )
 }
 
@@ -378,81 +408,78 @@ function TopicModal({
   const teilOptions = teilOptionsFor(module)
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-md border border-[#E0DDD6] w-full max-w-3xl max-h-[90vh] overflow-auto">
-        <header className="flex items-center justify-between p-4 border-b border-[#E0DDD6]">
-          <h3 className="text-lg font-medium text-[#1A1A1A]">
-            {initial ? 'Редактировать тему' : 'Новая тема'}
-          </h3>
-          <button onClick={onClose} className="text-sm text-[#6B6560] hover:text-[#1A1A1A]">
-            ✕
-          </button>
-        </header>
-
-        <div className="p-4 space-y-4">
-          <div className="grid grid-cols-3 gap-3">
-            <FilterSelect
-              label="Модуль"
-              value={module}
-              onChange={onModuleChange}
-              options={MODULES.map((m) => ({ value: m, label: m }))}
-            />
-            <FilterSelect
-              label="Уровень"
-              value={level}
-              onChange={setLevel}
-              options={LEVELS.map((l) => ({ value: l, label: l.toUpperCase() }))}
-            />
-            <FilterSelect label="Teil" value={teil} onChange={setTeil} options={teilOptions} />
-          </div>
-
-          <label className="flex items-center gap-2 text-sm text-[#1A1A1A]">
-            <input
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-            />
-            Активна (участвует в sampler&apos;е)
-          </label>
-
-          <div>
-            <label className="text-xs text-[#6B6560] block mb-1">
-              topic_data (JSON-объект)
-            </label>
-            <textarea
-              className="w-full h-72 font-mono text-xs leading-relaxed border border-[#E0DDD6] rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-[#C8A84B] bg-white"
-              value={jsonText}
-              onChange={(e) => setJsonText(e.target.value)}
-              spellCheck={false}
-            />
-            <p className="text-xs text-[#6B6560] mt-1">
-              Поля зависят от модуля. Примеры:{' '}
-              <code>situation</code>, <code>recipient</code>, <code>taskHints[]</code>,{' '}
-              <code>category</code>, <code>sceneHint</code>, <code>tone</code>,{' '}
-              <code>taskType</code>.
-            </p>
-          </div>
-
-          {error && <div className="text-sm text-red-600">{error}</div>}
-        </div>
-
-        <footer className="flex items-center justify-end gap-3 p-4 border-t border-[#E0DDD6]">
-          <button
-            onClick={onClose}
-            className="text-sm text-[#6B6560] hover:text-[#1A1A1A]"
-            disabled={saving}
-          >
-            Отмена
-          </button>
-          <button
-            onClick={save}
-            disabled={saving}
-            className="px-4 py-2 bg-[#1A1A1A] text-white rounded-md text-sm font-medium hover:bg-[#3A3A3A] disabled:opacity-40"
-          >
-            {saving ? 'Сохранение…' : initial ? 'Сохранить' : 'Создать'}
-          </button>
-        </footer>
+    <Modal title={initial ? 'Редактировать тему' : 'Новая тема'} onClose={onClose}>
+      <div className="grid grid-cols-3 gap-3">
+        <ModalField label="Модуль">
+          <FilterSelect
+            value={module}
+            onChange={onModuleChange}
+            options={MODULES.map((m) => ({ value: m, label: m }))}
+          />
+        </ModalField>
+        <ModalField label="Уровень">
+          <FilterSelect
+            value={level}
+            onChange={setLevel}
+            options={LEVELS.map((l) => ({ value: l, label: l.toUpperCase() }))}
+          />
+        </ModalField>
+        <ModalField label="Teil">
+          <FilterSelect value={teil} onChange={setTeil} options={teilOptions} />
+        </ModalField>
       </div>
-    </div>
+
+      <label className="flex items-center gap-2 text-sm text-ink">
+        <input
+          type="checkbox"
+          checked={isActive}
+          onChange={(e) => setIsActive(e.target.checked)}
+        />
+        <span>Активна (участвует в sampler&apos;е)</span>
+      </label>
+
+      <div>
+        <label className="mb-1 block font-mono text-[10px] uppercase tracking-widest text-muted">
+          topic_data (JSON-объект)
+        </label>
+        <textarea
+          className="h-72 w-full rounded-rad border border-line bg-card p-3 font-mono text-xs leading-relaxed text-ink transition-colors focus:border-ink focus:outline-none"
+          value={jsonText}
+          onChange={(e) => setJsonText(e.target.value)}
+          spellCheck={false}
+        />
+        <p className="mt-2 text-xs text-muted">
+          Поля зависят от модуля. Примеры:{' '}
+          <code className="font-mono text-xs text-ink-soft">situation</code>,{' '}
+          <code className="font-mono text-xs text-ink-soft">recipient</code>,{' '}
+          <code className="font-mono text-xs text-ink-soft">taskHints[]</code>,{' '}
+          <code className="font-mono text-xs text-ink-soft">category</code>,{' '}
+          <code className="font-mono text-xs text-ink-soft">sceneHint</code>,{' '}
+          <code className="font-mono text-xs text-ink-soft">tone</code>,{' '}
+          <code className="font-mono text-xs text-ink-soft">taskType</code>.
+        </p>
+      </div>
+
+      {error && <div className="text-sm text-error">{error}</div>}
+
+      <div className="flex justify-end gap-2 pt-2">
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={saving}
+          className="inline-flex items-center rounded-rad-pill border border-line px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink disabled:opacity-50"
+        >
+          Отмена
+        </button>
+        <button
+          type="button"
+          onClick={save}
+          disabled={saving}
+          className="inline-flex items-center rounded-rad-pill bg-ink px-5 py-2 text-sm font-medium text-page transition-colors hover:bg-ink/90 disabled:opacity-50"
+        >
+          {saving ? 'Сохранение…' : initial ? 'Сохранить' : 'Создать'}
+        </button>
+      </div>
+    </Modal>
   )
 }
