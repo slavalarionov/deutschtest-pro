@@ -144,6 +144,7 @@ async function loadEconomyData(): Promise<EconomyData> {
       totalCost: total,
       pctOfTotal: providerGrandTotal > 0 ? (total / providerGrandTotal) * 100 : 0,
     }))
+    .filter((op) => op.calls > 0)
     .sort((a, b) => b.totalCost - a.totalCost)
 
   // --- Sections 3 + 4: require session_id --------------------------------
@@ -267,6 +268,12 @@ function formatDate(iso: string | null): string {
   return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' })
 }
 
+const PATCH_MONTHS_RU = ['ЯНВ', 'ФЕВ', 'МАР', 'АПР', 'МАЙ', 'ИЮН', 'ИЮЛ', 'АВГ', 'СЕН', 'ОКТ', 'НОЯ', 'ДЕК']
+
+function formatPatchDate(date: Date): string {
+  return `${date.getUTCDate()} ${PATCH_MONTHS_RU[date.getUTCMonth()]} ${date.getUTCFullYear()}`
+}
+
 function sessionShort(id: string): string {
   return id.slice(0, 8)
 }
@@ -309,20 +316,32 @@ export default async function AdminEconomyPage() {
               </tr>
             </thead>
             <tbody>
-              {data.providerSummary.map((p) => (
-                <tr
-                  key={p.provider}
-                  className="border-b border-line-soft last:border-0"
-                >
-                  <td className="px-4 py-3 text-ink">{p.label}</td>
-                  <td className="px-4 py-3 text-right font-mono text-sm tabular-nums text-ink">
-                    {formatUsd(p.totalUsd)}
-                  </td>
-                  <td className="px-4 py-3 text-right font-mono text-xs tabular-nums text-muted">
-                    {p.pctOfTotal.toFixed(1)}%
-                  </td>
-                </tr>
-              ))}
+              {data.providerSummary.map((p) => {
+                const isZero = p.totalUsd === 0
+                return (
+                  <tr
+                    key={p.provider}
+                    className="border-b border-line-soft last:border-0"
+                  >
+                    <td className="px-4 py-3 text-ink">{p.label}</td>
+                    <td
+                      className={`px-4 py-3 text-right font-mono text-sm tabular-nums ${
+                        isZero ? 'text-muted' : 'text-ink'
+                      }`}
+                    >
+                      {formatUsd(p.totalUsd)}
+                    </td>
+                    <td className="px-4 py-3 text-right font-mono text-xs tabular-nums text-muted">
+                      <div>{p.pctOfTotal.toFixed(1)}%</div>
+                      {isZero && (
+                        <div className="mt-1 font-mono text-[11px] uppercase tracking-wider text-muted">
+                          нет вызовов за период
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -396,7 +415,7 @@ export default async function AdminEconomyPage() {
       {/* Section 3: Top-10 expensive sessions */}
       <section>
         <h2 className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
-          Топ-10 дорогих сессий · после подключения логов
+          Топ-10 дорогих сессий · с {formatPatchDate(LOGGING_PATCH_DATE)}
         </h2>
         <h3 className="mb-6 font-display text-3xl leading-tight tracking-tight text-ink">
           Самые прожорливые сессии.
@@ -465,7 +484,7 @@ export default async function AdminEconomyPage() {
       {/* Section 4: By level */}
       <section>
         <h2 className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
-          Себестоимость по уровням · после подключения логов
+          Себестоимость по уровням · с {formatPatchDate(LOGGING_PATCH_DATE)}
         </h2>
         <h3 className="mb-6 font-display text-3xl leading-tight tracking-tight text-ink">
           A1 / A2 / B1 — где дороже.
@@ -500,10 +519,9 @@ export default async function AdminEconomyPage() {
           })}
         </div>
         <p className="mt-4 text-sm leading-relaxed text-muted">
-          B1 обычно дороже, чем A1 — более длинные тексты и более сложная оценка. Разница в стоимости между
-          уровнями — база для решения, нужно ли дифференцировать цену модулей по уровням (пока решено не
-          делать, все пакеты одинаковые). Карточка показывает «—», если на уровне меньше 3 сессий после
-          подключения <code className="font-mono text-xs">session_id</code> в логи.
+          B1 обычно дороже, чем A1 — более длинные тексты и сложная оценка. Разница — база для решения,
+          дифференцировать ли цену модулей (пока решено не делать). Карточка показывает «—», если на
+          уровне меньше 3 тестов за период.
         </p>
       </section>
 
