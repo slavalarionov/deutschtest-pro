@@ -460,13 +460,22 @@
         "fallbackMuted": "Deine Entwicklung."
       },
       "chart": {
-        "eyebrow": "Ø PUNKTZAHL · WÖCHENTLICH",
+        "eyebrow": "PUNKTZAHL · WÖCHENTLICH · NACH MODUL",
+        "moduleHeadline": "Fortschritt nach Modul.",
         "outOf100": "/ 100",
         "legendYou": "DU",
         "legendPassLine": "BESTEHEN",
         "passLabel": "BESTEHEN · 60",
         "emptyTitle": "KEINE DATEN",
-        "emptyLead": "Nach den ersten Prüfungen erscheint hier dein Fortschritt."
+        "emptyLead": "Nach den ersten Prüfungen erscheint hier dein Fortschritt.",
+        "emptyStateForLevel": "Auf Stufe {level} gibt es noch keine Versuche.",
+        "emptyStateCta": "Modul starten",
+        "levelToggle": {
+          "aria": "Stufenauswahl"
+        },
+        "tooltip": {
+          "attempts": "{count, plural, one {# Versuch} other {# Versuche}}"
+        }
       },
       "perModule": {
         "previousLabel": "Vorher: {prev}",

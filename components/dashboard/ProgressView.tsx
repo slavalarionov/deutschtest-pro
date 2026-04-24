@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import {
@@ -13,14 +14,17 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import type { ProgressData, ProgressModule } from '@/lib/dashboard/progress'
+import type { ProgressData, ProgressLevel, ProgressModule } from '@/lib/dashboard/progress'
 import {
-  bucketPointsByWeek,
+  bucketPointsByWeekPerModule,
   computeModuleDeltas,
-  type WeeklyBucket,
+  countAttemptsByLevel,
+  countAttemptsByModuleForLevel,
+  type PerModuleWeeklyBucket,
 } from '@/lib/dashboard/progress-client'
 
 const MODULES: ProgressModule[] = ['lesen', 'horen', 'schreiben', 'sprechen']
+const LEVELS: ProgressLevel[] = ['A1', 'A2', 'B1']
 
 // Hardcoded German labels — per design spec these are not localised.
 const MODULE_LABELS: Record<ProgressModule, string> = {
@@ -30,12 +34,40 @@ const MODULE_LABELS: Record<ProgressModule, string> = {
   sprechen: 'SPRECHEN',
 }
 
+const MODULE_STROKES: Record<ProgressModule, string> = {
+  lesen: 'var(--ink)',
+  horen: 'var(--accent)',
+  schreiben: 'var(--ink-soft)',
+  sprechen: 'var(--muted)',
+}
+
+function parseLevelParam(raw: string | null): ProgressLevel | null {
+  if (!raw) return null
+  const upper = raw.toUpperCase()
+  return (LEVELS as string[]).includes(upper) ? (upper as ProgressLevel) : null
+}
+
+function pickDefaultLevel(points: ProgressData['points']): ProgressLevel {
+  const counts = countAttemptsByLevel(points)
+  let best: ProgressLevel = 'A1'
+  let bestCount = counts.A1
+  for (const lvl of LEVELS) {
+    if (counts[lvl] > bestCount) {
+      best = lvl
+      bestCount = counts[lvl]
+    }
+  }
+  return best
+}
+
 export function ProgressView() {
   const t = useTranslations('dashboard.progress')
+  const searchParams = useSearchParams()
   const [data, setData] = useState<ProgressData | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [reloadToken, setReloadToken] = useState(0)
+  const [selectedLevel, setSelectedLevel] = useState<ProgressLevel | null>(null)
 
   useEffect(() => {
     let active = true
@@ -65,19 +97,26 @@ export function ProgressView() {
     }
   }, [t, reloadToken])
 
-  const weeklyBuckets = useMemo<WeeklyBucket[]>(
-    () => (data ? bucketPointsByWeek(data.points, 12) : []),
-    [data]
-  )
+  // Resolve initial level: ?level= query wins; otherwise the level with the
+  // most attempts; otherwise A1. Only commit once per data load so URL param
+  // is not overwritten on re-renders.
+  useEffect(() => {
+    if (!data || selectedLevel !== null) return
+    const fromQuery = parseLevelParam(searchParams.get('level'))
+    setSelectedLevel(fromQuery ?? pickDefaultLevel(data.points))
+  }, [data, searchParams, selectedLevel])
+
+  const handleLevelChange = (level: ProgressLevel) => {
+    setSelectedLevel(level)
+    if (typeof window === 'undefined') return
+    const url = new URL(window.location.href)
+    url.searchParams.set('level', level.toLowerCase())
+    window.history.replaceState(null, '', url.toString())
+  }
 
   const moduleDeltas = useMemo(
     () => (data ? computeModuleDeltas(data.points) : null),
     [data]
-  )
-
-  const nonNullWeekCount = useMemo(
-    () => weeklyBuckets.filter((b) => b.score !== null).length,
-    [weeklyBuckets]
   )
 
   if (loading) {
@@ -134,16 +173,16 @@ export function ProgressView() {
   }
 
   const delta = data.monthlyTrend.delta
-  const currentMonthAvg = data.monthlyTrend.currentMonthAverage
+  const level = selectedLevel ?? pickDefaultLevel(data.points)
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10 space-y-6">
       <Header delta={delta} />
 
-      <WeeklyChart
-        buckets={weeklyBuckets}
-        hasData={nonNullWeekCount >= 2}
-        currentMonthAverage={currentMonthAvg}
+      <ModuleLinesChart
+        points={data.points}
+        selectedLevel={level}
+        onLevelChange={handleLevelChange}
       />
 
       {moduleDeltas && <PerModuleGrid deltas={moduleDeltas} />}
@@ -190,170 +229,344 @@ function Header({ delta }: { delta: number | null }) {
   )
 }
 
-interface WeeklyChartProps {
-  buckets: WeeklyBucket[]
-  hasData: boolean
-  currentMonthAverage: number | null
+interface ModuleLinesChartProps {
+  points: ProgressData['points']
+  selectedLevel: ProgressLevel
+  onLevelChange: (level: ProgressLevel) => void
 }
 
-function WeeklyChart({ buckets, hasData, currentMonthAverage }: WeeklyChartProps) {
+function ModuleLinesChart({
+  points,
+  selectedLevel,
+  onLevelChange,
+}: ModuleLinesChartProps) {
   const t = useTranslations('dashboard.progress')
 
-  if (!hasData) {
-    return (
-      <section className="rounded-rad border border-line bg-card p-8">
-        <div className="font-mono text-xs uppercase tracking-wider text-muted">
-          {t('chart.emptyTitle')}
-        </div>
-        <p className="mt-4 text-ink-soft">{t('chart.emptyLead')}</p>
-      </section>
-    )
-  }
+  const buckets = useMemo<PerModuleWeeklyBucket[]>(
+    () => bucketPointsByWeekPerModule(points, selectedLevel, 12),
+    [points, selectedLevel]
+  )
 
-  // Find the last non-null bucket index so we can paint that dot accent.
-  let lastIdx = -1
-  for (let i = buckets.length - 1; i >= 0; i--) {
-    if (buckets[i].score !== null) {
-      lastIdx = i
-      break
-    }
+  const attemptsByModule = useMemo(
+    () => countAttemptsByModuleForLevel(points, selectedLevel),
+    [points, selectedLevel]
+  )
+
+  const totalOnLevel =
+    attemptsByModule.lesen +
+    attemptsByModule.horen +
+    attemptsByModule.schreiben +
+    attemptsByModule.sprechen
+
+  const [hoveredLine, setHoveredLine] = useState<ProgressModule | null>(null)
+  const [hiddenLines, setHiddenLines] = useState<Set<ProgressModule>>(
+    () => new Set()
+  )
+
+  const toggleHidden = (m: ProgressModule) => {
+    setHiddenLines((prev) => {
+      const next = new Set(prev)
+      if (next.has(m)) next.delete(m)
+      else next.add(m)
+      return next
+    })
   }
 
   return (
-    <section className="rounded-rad border border-line bg-card p-8">
-      <div className="flex items-end justify-between mb-6 flex-wrap gap-4">
+    <section className="rounded-rad border border-line bg-card p-6 md:p-8">
+      <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
         <div>
           <div className="font-mono text-xs uppercase tracking-wider text-muted">
             {t('chart.eyebrow')}
           </div>
-          <div className="mt-1 font-display text-5xl md:text-6xl tracking-[-0.025em] leading-none text-ink">
-            {currentMonthAverage ?? '—'}
-            <span className="text-xl text-muted"> {t('chart.outOf100')}</span>
-          </div>
+          <h2 className="mt-1 font-display text-3xl md:text-4xl tracking-[-0.025em] leading-none text-ink">
+            {t('chart.moduleHeadline')}
+          </h2>
         </div>
-        <div className="flex items-center gap-4 font-mono text-xs uppercase tracking-wider text-ink-soft">
-          <div className="flex items-center gap-2">
-            <span className="inline-block w-3 h-0.5 bg-ink" />
-            {t('chart.legendYou')}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-block w-3 border-t border-dashed border-muted" />
-            {t('chart.legendPassLine')}
-          </div>
-        </div>
+        <LevelToggle selected={selectedLevel} onChange={onLevelChange} />
       </div>
 
-      <ResponsiveContainer width="100%" height={280}>
-        <LineChart
-          data={buckets}
-          margin={{ top: 10, right: 24, left: 0, bottom: 0 }}
-        >
-          <CartesianGrid strokeDasharray="2 4" stroke="var(--line)" />
-          <XAxis
-            dataKey="week"
-            stroke="var(--muted)"
-            tickLine={false}
-            axisLine={{ stroke: 'var(--line)' }}
-            tick={{
-              fontSize: 10,
-              fontFamily: 'JetBrains Mono, monospace',
-              fill: 'var(--muted)',
-            }}
+      {totalOnLevel === 0 ? (
+        <EmptyStateForLevel level={selectedLevel} />
+      ) : (
+        <>
+          <ResponsiveContainer width="100%" height={320}>
+            <LineChart
+              key={selectedLevel}
+              data={buckets}
+              margin={{ top: 10, right: 24, left: 0, bottom: 0 }}
+              onMouseLeave={() => setHoveredLine(null)}
+            >
+              <CartesianGrid strokeDasharray="2 4" stroke="var(--line-soft)" />
+              <XAxis
+                dataKey="week"
+                stroke="var(--muted)"
+                tickLine={false}
+                axisLine={{ stroke: 'var(--line)' }}
+                tick={{
+                  fontSize: 10,
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fill: 'var(--muted)',
+                }}
+              />
+              <YAxis
+                domain={[0, 100]}
+                ticks={[0, 25, 50, 75, 100]}
+                stroke="var(--muted)"
+                tickLine={false}
+                axisLine={{ stroke: 'var(--line)' }}
+                tick={{
+                  fontSize: 10,
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fill: 'var(--muted)',
+                }}
+              />
+              <ReferenceLine
+                y={60}
+                stroke="var(--muted)"
+                strokeDasharray="3 3"
+                label={{
+                  value: t('chart.passLabel'),
+                  position: 'insideTopRight',
+                  fontSize: 10,
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fill: 'var(--muted)',
+                }}
+              />
+              <Tooltip
+                content={
+                  <MultiTooltip
+                    hoveredLine={hoveredLine}
+                    hiddenLines={hiddenLines}
+                  />
+                }
+                cursor={{ stroke: 'var(--line)' }}
+              />
+              {MODULES.map((m) => {
+                if (hiddenLines.has(m)) return null
+                const isHovered = hoveredLine === m
+                const isDimmed = hoveredLine !== null && !isHovered
+                return (
+                  <Line
+                    key={m}
+                    type="monotone"
+                    dataKey={m}
+                    stroke={MODULE_STROKES[m]}
+                    strokeWidth={isHovered ? 3 : 2}
+                    strokeOpacity={isDimmed ? 0.2 : 1}
+                    connectNulls={false}
+                    isAnimationActive={true}
+                    animationDuration={1000}
+                    animationEasing="ease-in-out"
+                    dot={false}
+                    activeDot={{
+                      r: 4,
+                      fill: MODULE_STROKES[m],
+                      stroke: 'var(--card)',
+                      strokeWidth: 2,
+                      onMouseEnter: () => setHoveredLine(m),
+                    }}
+                  />
+                )
+              })}
+            </LineChart>
+          </ResponsiveContainer>
+
+          <ChartLegend
+            attempts={attemptsByModule}
+            hiddenLines={hiddenLines}
+            hoveredLine={hoveredLine}
+            onToggle={toggleHidden}
+            onHover={setHoveredLine}
           />
-          <YAxis
-            domain={[0, 100]}
-            ticks={[0, 25, 50, 75, 100]}
-            stroke="var(--muted)"
-            tickLine={false}
-            axisLine={{ stroke: 'var(--line)' }}
-            tick={{
-              fontSize: 10,
-              fontFamily: 'JetBrains Mono, monospace',
-              fill: 'var(--muted)',
-            }}
-          />
-          <ReferenceLine
-            y={60}
-            stroke="var(--muted)"
-            strokeDasharray="3 3"
-            label={{
-              value: t('chart.passLabel'),
-              position: 'insideTopRight',
-              fontSize: 10,
-              fontFamily: 'JetBrains Mono, monospace',
-              fill: 'var(--muted)',
-            }}
-          />
-          <Tooltip content={<WeeklyTooltip />} cursor={{ stroke: 'var(--line)' }} />
-          <Line
-            type="monotone"
-            dataKey="score"
-            stroke="var(--ink)"
-            strokeWidth={2}
-            connectNulls={false}
-            dot={(props) => {
-              const { cx, cy, index, payload } = props as {
-                cx: number
-                cy: number
-                index: number
-                payload: WeeklyBucket
-              }
-              if (payload.score === null) {
-                return <g key={`empty-${index}`} />
-              }
-              const isLast = index === lastIdx
-              return (
-                <circle
-                  key={`dot-${index}`}
-                  cx={cx}
-                  cy={cy}
-                  r={isLast ? 5 : 3}
-                  fill={isLast ? 'var(--accent)' : 'var(--ink)'}
-                  stroke="var(--card)"
-                  strokeWidth={2}
-                />
-              )
-            }}
-            activeDot={{
-              r: 6,
-              fill: 'var(--accent)',
-              stroke: 'var(--card)',
-              strokeWidth: 2,
-            }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+        </>
+      )}
     </section>
   )
 }
 
-interface TooltipPayloadItem {
-  value: number | null
-  payload: WeeklyBucket
+function LevelToggle({
+  selected,
+  onChange,
+}: {
+  selected: ProgressLevel
+  onChange: (level: ProgressLevel) => void
+}) {
+  const t = useTranslations('dashboard.progress')
+  return (
+    <div
+      role="tablist"
+      aria-label={t('chart.levelToggle.aria')}
+      className="inline-flex items-center rounded-rad-pill border border-line bg-page p-1"
+    >
+      {LEVELS.map((lvl) => {
+        const isActive = lvl === selected
+        return (
+          <button
+            key={lvl}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            onClick={() => onChange(lvl)}
+            className={`rounded-rad-pill px-3 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors ${
+              isActive
+                ? 'bg-ink text-card'
+                : 'text-ink-soft hover:text-ink'
+            }`}
+          >
+            {lvl}
+          </button>
+        )
+      })}
+    </div>
+  )
 }
 
-function WeeklyTooltip({
+function EmptyStateForLevel({ level }: { level: ProgressLevel }) {
+  const t = useTranslations('dashboard.progress')
+  return (
+    <div className="rounded-rad-sm border border-dashed border-line p-10 text-center">
+      <div className="font-mono text-xs uppercase tracking-wider text-muted">
+        {t('chart.emptyTitle')}
+      </div>
+      <p className="mt-4 text-ink-soft">
+        {t('chart.emptyStateForLevel', { level })}
+      </p>
+      <Link
+        href="/dashboard"
+        className="mt-6 inline-flex items-center rounded-rad-pill bg-ink px-5 py-2.5 font-mono text-xs uppercase tracking-wider text-page hover:opacity-90"
+      >
+        {t('chart.emptyStateCta')}
+      </Link>
+    </div>
+  )
+}
+
+interface TooltipPayloadItem {
+  dataKey?: string
+  value?: number | null
+  payload?: PerModuleWeeklyBucket
+}
+
+function MultiTooltip({
   active,
   payload,
+  hoveredLine,
+  hiddenLines,
 }: {
   active?: boolean
   payload?: TooltipPayloadItem[]
+  hoveredLine: ProgressModule | null
+  hiddenLines: Set<ProgressModule>
 }) {
   const t = useTranslations('dashboard.progress')
   if (!active || !payload || payload.length === 0) return null
-  const item = payload[0]
-  if (!item || item.value === null || item.value === undefined) return null
+  const bucket = payload[0]?.payload
+  if (!bucket) return null
+
+  const countField: Record<ProgressModule, keyof PerModuleWeeklyBucket> = {
+    lesen: 'lesenCount',
+    horen: 'horenCount',
+    schreiben: 'schreibenCount',
+    sprechen: 'sprechenCount',
+  }
+
   return (
-    <div className="rounded-rad-sm border border-line bg-card p-3 shadow-lift">
-      <div className="font-mono text-xs uppercase tracking-wider text-muted">
-        {item.payload.week}
+    <div className="rounded-rad border border-line bg-card px-3 py-2 shadow-lift">
+      <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+        {bucket.week}
       </div>
-      <div className="mt-1 font-display text-2xl tracking-[-0.025em] leading-none text-ink">
-        {item.value}
-      </div>
-      <div className="mt-1 font-mono text-[10px] uppercase tracking-wider text-muted">
-        {t('tooltip.scoreLabel')}
-      </div>
+      <ul className="mt-1 space-y-0.5">
+        {MODULES.map((m) => {
+          const isHidden = hiddenLines.has(m)
+          const value = bucket[m] as number | null
+          const count = bucket[countField[m]] as number
+          const isActive = hoveredLine === m
+          const toneClass = isHidden
+            ? 'text-muted opacity-50'
+            : isActive
+              ? 'text-ink'
+              : hoveredLine !== null
+                ? 'text-muted'
+                : 'text-ink'
+          return (
+            <li
+              key={m}
+              className={`flex items-baseline gap-2 font-mono text-xs tabular-nums ${toneClass}`}
+            >
+              <span
+                aria-hidden="true"
+                className="block h-2 w-2 rounded-full"
+                style={{ background: MODULE_STROKES[m] }}
+              />
+              <span className="flex-1">{MODULE_LABELS[m]}</span>
+              <span>
+                {value === null ? '—' : value}
+                {value !== null && count > 0 && (
+                  <span className="ml-2 text-muted">
+                    · {t('chart.tooltip.attempts', { count })}
+                  </span>
+                )}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
+function ChartLegend({
+  attempts,
+  hiddenLines,
+  hoveredLine,
+  onToggle,
+  onHover,
+}: {
+  attempts: Record<ProgressModule, number>
+  hiddenLines: Set<ProgressModule>
+  hoveredLine: ProgressModule | null
+  onToggle: (m: ProgressModule) => void
+  onHover: (m: ProgressModule | null) => void
+}) {
+  const t = useTranslations('dashboard.progress')
+  return (
+    <div className="mt-6 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:gap-6">
+      {MODULES.map((m) => {
+        const isHidden = hiddenLines.has(m)
+        const count = attempts[m]
+        const isActive = hoveredLine === m
+        return (
+          <button
+            key={m}
+            type="button"
+            aria-pressed={!isHidden}
+            onClick={() => onToggle(m)}
+            onMouseEnter={() => onHover(m)}
+            onMouseLeave={() => onHover(null)}
+            onFocus={() => onHover(m)}
+            onBlur={() => onHover(null)}
+            className={`inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider transition-colors ${
+              isHidden
+                ? 'text-muted line-through opacity-60'
+                : isActive
+                  ? 'text-ink'
+                  : 'text-ink-soft hover:text-ink'
+            }`}
+          >
+            <span
+              aria-hidden="true"
+              className="block h-3 w-3 rounded-full"
+              style={{
+                background: MODULE_STROKES[m],
+                opacity: isHidden ? 0.4 : 1,
+              }}
+            />
+            <span>{MODULE_LABELS[m]}</span>
+            <span className="text-muted">· {count}</span>
+          </button>
+        )
+      })}
     </div>
   )
 }

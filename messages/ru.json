@@ -460,13 +460,22 @@
         "fallbackMuted": "Ваше развитие."
       },
       "chart": {
-        "eyebrow": "Ø БАЛЛ · ЕЖЕНЕДЕЛЬНО",
+        "eyebrow": "БАЛЛ · ПО НЕДЕЛЯМ · ПО МОДУЛЯМ",
+        "moduleHeadline": "Прогресс по модулям.",
         "outOf100": "/ 100",
         "legendYou": "ВЫ",
         "legendPassLine": "ПРОХОД",
         "passLabel": "ПРОХОД · 60",
         "emptyTitle": "НЕТ ДАННЫХ",
-        "emptyLead": "После первых экзаменов здесь появится ваш прогресс."
+        "emptyLead": "После первых экзаменов здесь появится ваш прогресс.",
+        "emptyStateForLevel": "На уровне {level} ещё нет попыток.",
+        "emptyStateCta": "Пройти модуль",
+        "levelToggle": {
+          "aria": "Выбор уровня"
+        },
+        "tooltip": {
+          "attempts": "{count, plural, one {# попытка} few {# попытки} many {# попыток} other {# попытки}}"
+        }
       },
       "perModule": {
         "previousLabel": "Было: {prev}",

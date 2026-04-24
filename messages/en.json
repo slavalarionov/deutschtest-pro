@@ -460,13 +460,22 @@
         "fallbackMuted": "Your growth."
       },
       "chart": {
-        "eyebrow": "Ø SCORE · WEEKLY",
+        "eyebrow": "SCORE · WEEKLY · PER MODULE",
+        "moduleHeadline": "Progress by module.",
         "outOf100": "/ 100",
         "legendYou": "YOU",
         "legendPassLine": "PASS",
         "passLabel": "PASS · 60",
         "emptyTitle": "NO DATA",
-        "emptyLead": "After the first exams, your progress will show up here."
+        "emptyLead": "After the first exams, your progress will show up here.",
+        "emptyStateForLevel": "No attempts on {level} yet.",
+        "emptyStateCta": "Start a module",
+        "levelToggle": {
+          "aria": "Level selector"
+        },
+        "tooltip": {
+          "attempts": "{count, plural, one {# attempt} other {# attempts}}"
+        }
       },
       "perModule": {
         "previousLabel": "Before: {prev}",

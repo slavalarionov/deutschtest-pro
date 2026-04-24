@@ -460,13 +460,22 @@
         "fallbackMuted": "Gelişiminiz."
       },
       "chart": {
-        "eyebrow": "Ø PUAN · HAFTALIK",
+        "eyebrow": "PUAN · HAFTALIK · MODÜL BAZINDA",
+        "moduleHeadline": "Modül bazında ilerleme.",
         "outOf100": "/ 100",
         "legendYou": "SEN",
         "legendPassLine": "GEÇER",
         "passLabel": "GEÇER · 60",
         "emptyTitle": "VERİ YOK",
-        "emptyLead": "İlk sınavlardan sonra ilerlemeniz burada görünecek."
+        "emptyLead": "İlk sınavlardan sonra ilerlemeniz burada görünecek.",
+        "emptyStateForLevel": "{level} seviyesinde henüz deneme yok.",
+        "emptyStateCta": "Modül başlat",
+        "levelToggle": {
+          "aria": "Seviye seçimi"
+        },
+        "tooltip": {
+          "attempts": "{count, plural, one {# deneme} other {# deneme}}"
+        }
       },
       "perModule": {
         "previousLabel": "Önceden: {prev}",

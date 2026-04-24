@@ -9,7 +9,7 @@
 //
 // Used by components/dashboard/ProgressView.tsx.
 
-import type { ProgressModule, ProgressPoint } from './progress'
+import type { ProgressLevel, ProgressModule, ProgressPoint } from './progress'
 
 export interface WeeklyBucket {
   /** Short label, chronological: "W1" oldest, "W{weeksCount}" newest. */
@@ -18,6 +18,19 @@ export interface WeeklyBucket {
   weekStart: string
   /** Mean of all scores submitted inside this week, or null if none. */
   score: number | null
+}
+
+export interface PerModuleWeeklyBucket {
+  week: string
+  weekStart: string
+  lesen: number | null
+  horen: number | null
+  schreiben: number | null
+  sprechen: number | null
+  lesenCount: number
+  horenCount: number
+  schreibenCount: number
+  sprechenCount: number
 }
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
@@ -74,6 +87,97 @@ export function bucketPointsByWeek(
         ? null
         : Math.round(b.scores.reduce((a, s) => a + s, 0) / b.scores.length),
   }))
+}
+
+/**
+ * Per-module weekly averages for a given level. Produces weeksCount buckets
+ * ending at the current week (UTC Monday). Empty weeks carry `null` per module
+ * so recharts can break each line independently via connectNulls={false}.
+ */
+export function bucketPointsByWeekPerModule(
+  points: ProgressPoint[],
+  level: ProgressLevel,
+  weeksCount: number = 12
+): PerModuleWeeklyBucket[] {
+  const now = new Date()
+  const currentMondayIso = isoMonday(now)
+  const currentMonday = new Date(`${currentMondayIso}T00:00:00.000Z`)
+
+  type Slot = {
+    start: Date
+    startIso: string
+    lesen: number[]
+    horen: number[]
+    schreiben: number[]
+    sprechen: number[]
+  }
+  const buckets: Slot[] = []
+  for (let i = weeksCount - 1; i >= 0; i--) {
+    const start = new Date(currentMonday.getTime() - i * MS_PER_WEEK)
+    buckets.push({
+      start,
+      startIso: start.toISOString().slice(0, 10),
+      lesen: [],
+      horen: [],
+      schreiben: [],
+      sprechen: [],
+    })
+  }
+
+  const firstStart = buckets[0]?.start.getTime() ?? currentMonday.getTime()
+  const windowEnd = currentMonday.getTime() + MS_PER_WEEK
+
+  for (const p of points) {
+    if (p.level !== level) continue
+    const ts = new Date(p.submittedAt).getTime()
+    if (Number.isNaN(ts)) continue
+    if (ts < firstStart || ts >= windowEnd) continue
+    const idx = Math.floor((ts - firstStart) / MS_PER_WEEK)
+    if (idx < 0 || idx >= buckets.length) continue
+    buckets[idx][p.module].push(p.score)
+  }
+
+  const mean = (xs: number[]): number | null =>
+    xs.length === 0 ? null : Math.round(xs.reduce((a, s) => a + s, 0) / xs.length)
+
+  return buckets.map((b, i) => ({
+    week: `W${i + 1}`,
+    weekStart: b.startIso,
+    lesen: mean(b.lesen),
+    horen: mean(b.horen),
+    schreiben: mean(b.schreiben),
+    sprechen: mean(b.sprechen),
+    lesenCount: b.lesen.length,
+    horenCount: b.horen.length,
+    schreibenCount: b.schreiben.length,
+    sprechenCount: b.sprechen.length,
+  }))
+}
+
+/** Total attempts per level (for default-level auto-selection). */
+export function countAttemptsByLevel(
+  points: ProgressPoint[]
+): Record<ProgressLevel, number> {
+  const out: Record<ProgressLevel, number> = { A1: 0, A2: 0, B1: 0 }
+  for (const p of points) out[p.level] += 1
+  return out
+}
+
+/** Total attempts per module on a given level. */
+export function countAttemptsByModuleForLevel(
+  points: ProgressPoint[],
+  level: ProgressLevel
+): Record<ProgressModule, number> {
+  const out: Record<ProgressModule, number> = {
+    lesen: 0,
+    horen: 0,
+    schreiben: 0,
+    sprechen: 0,
+  }
+  for (const p of points) {
+    if (p.level === level) out[p.module] += 1
+  }
+  return out
 }
 
 export interface ModuleDelta {
