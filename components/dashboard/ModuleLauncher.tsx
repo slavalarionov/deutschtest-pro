@@ -216,7 +216,7 @@ export function ModuleLauncher({
         <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
           {isAdmin
             ? t('adminUnlimitedMono')
-            : t('creditsVerbose', { count: modulesBalance })}
+            : t('balanceVerbose', { count: modulesBalance })}
         </div>
 
         {hasCredits ? (

@@ -223,7 +223,7 @@ export default async function DashboardHomePage() {
           suffix={stats.bestScore !== null ? '/ 100' : undefined}
         />
         <StatCard
-          label={t('stats.credits')}
+          label={t('stats.balance')}
           value={isAdmin ? '∞' : String(stats.modulesBalance)}
         />
       </div>

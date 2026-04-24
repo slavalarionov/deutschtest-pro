@@ -63,7 +63,7 @@ export default async function DashboardPaymentsPage() {
         <div className="mt-10 border-t border-line pt-8">
           <p className="eyebrow">{t('hintEyebrow')}</p>
           <p className="mt-3 text-ink-soft">
-            {isAdmin ? t('adminHint') : t('creditExplanation')}
+            {isAdmin ? t('adminHint') : t('balanceExplanation')}
           </p>
         </div>
       </section>

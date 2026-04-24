@@ -63,18 +63,18 @@ export default async function PricingPage(_: {
         </div>
       </section>
 
-      {/* Auth-aware banner (only for logged-in users with remaining credits) */}
+      {/* Auth-aware banner (only for logged-in users with remaining balance) */}
       {showAuthBanner && (
         <div className="mx-auto max-w-3xl px-4 pb-4 sm:pb-6">
           <div className="flex flex-col gap-4 rounded-rad border border-accent/30 bg-accent-soft p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
             <p className="text-sm leading-relaxed text-ink">
-              {tStandalone('authBanner.hasCredits', { count: modulesBalance })}
+              {tStandalone('authBanner.hasBalance', { count: modulesBalance })}
             </p>
             <Link
               href="/dashboard"
               className="inline-flex flex-none items-center gap-2 rounded-rad-pill bg-ink px-5 py-2.5 text-sm font-medium text-card transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
             >
-              {tStandalone('authBanner.hasCreditsCta')}
+              {tStandalone('authBanner.hasBalanceCta')}
               <ArrowIcon />
             </Link>
           </div>

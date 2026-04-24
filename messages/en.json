@@ -32,7 +32,7 @@
       "subtitleGuest": "Sign up and get a free test.",
       "subtitleFreeAvailable": "Your free trial test is waiting for you.",
       "subtitlePaidTests": "{count, plural, one {You have # test available.} other {You have # tests available.}}",
-      "subtitleModules": "Module credits: {count} (1 credit per module)",
+      "subtitleModules": "Balance: {count, plural, one {# module} other {# modules}}",
       "ctaRegister": "Sign up free & try it",
       "ctaDashboard": "Go to dashboard",
       "alreadyRegistered": "Already registered? → Log in",
@@ -55,12 +55,12 @@
         "durationSchreiben": "60 min",
         "durationSprechen": "15 min"
       },
-      "modulesHint": "Pick a single module for focused practice. 1 credit = 1 module.",
+      "modulesHint": "Pick a single module for focused practice.",
       "buyPrompt": "You've already used your free test. Buy more tests to keep going.",
       "loadingHint": "Generating the module — please wait a moment…",
       "errors": {
-        "noCredits": "You have no module credits left. Please buy more credits.",
-        "insufficientBalanceFallback": "Not enough module credits.",
+        "noBalance": "Your balance is empty. Please top up your balance.",
+        "insufficientBalanceFallback": "Not enough balance.",
         "generateFailed": "Couldn't generate the exam. Please try again in a bit."
       },
       "stats": {
@@ -102,7 +102,7 @@
     "pricing": {
       "eyebrow": "03 — PRICING",
       "title": "Simple pricing",
-      "subtitle": "Pick a module pack and spend your credits on any of the four types: Lesen, Hören, Schreiben, Sprechen."
+      "subtitle": "Pick a module pack and spend your balance on any of the four types: Lesen, Hören, Schreiben, Sprechen."
     },
     "faq": {
       "eyebrow": "04 — ANSWERS",
@@ -222,8 +222,8 @@
       "subtitle": "Practice at your own pace — pay only when you need more.",
       "eyebrow": "PRICING",
       "authBanner": {
-        "hasCredits": "You have {count, plural, one {# module} other {# modules}} remaining.",
-        "hasCreditsCta": "Go to dashboard"
+        "hasBalance": "You have {count, plural, one {# module} other {# modules}} remaining.",
+        "hasBalanceCta": "Go to dashboard"
       },
       "meta": {
         "title": "Pricing · DeutschTest.pro — Goethe Preparation",
@@ -238,7 +238,7 @@
       "backHome": "← Back to home",
       "logout": "Log out",
       "konto": "ACCOUNT",
-      "credits": "CREDITS",
+      "balance": "BALANCE",
       "modulesLeft": "modules left",
       "nav": {
         "dashboard": "Dashboard",
@@ -258,7 +258,7 @@
         "absolviert": "COMPLETED",
         "durchschnitt": "AVERAGE",
         "bestesErgebnis": "BEST",
-        "credits": "CREDITS"
+        "balance": "BALANCE"
       },
       "chartPreviewTitle": "Progress · last 12 exams",
       "chartEmpty": "No exams yet. Start your first test.",
@@ -280,7 +280,7 @@
     },
     "launcher": {
       "title": "Start a new test",
-      "subtitle": "Pick a level and a module — 1 credit per module.",
+      "subtitle": "Pick a level and a module.",
       "eyebrow": "START EXAM",
       "headline": "Your next exam.",
       "levelLabel": "Level",
@@ -292,12 +292,12 @@
       "buyModules": "Buy modules",
       "adminUnlimited": "Admin mode — unlimited",
       "adminUnlimitedMono": "ADMIN — UNLIMITED",
-      "creditsAvailable": "Credits available: {count}",
-      "creditsVerbose": "{count, plural, one {# MODULE AVAILABLE} other {# MODULES AVAILABLE}}",
+      "balanceAvailable": "Balance available: {count}",
+      "balanceVerbose": "{count, plural, one {# MODULE AVAILABLE} other {# MODULES AVAILABLE}}",
       "errorEyebrow": "ERROR",
       "insufficientHint": "Please buy modules.",
       "shopLink": "To shop",
-      "insufficientBalance": "Not enough module credits.",
+      "insufficientBalance": "Not enough balance.",
       "generateFailed": "Couldn't generate the exam. Please try again in a bit.",
       "levels": {
         "a1": "Start Deutsch 1",
@@ -528,7 +528,7 @@
       "balanceUnlimited": "Unlimited",
       "balanceUnit": "{count, plural, one {module} other {modules}}",
       "adminHint": "Admin mode — no limits.",
-      "creditExplanation": "1 credit is one exam module (Lesen, Hören, Schreiben or Sprechen).",
+      "balanceExplanation": "1 balance unit is one exam module (Lesen, Hören, Schreiben or Sprechen).",
       "buyTitle": "Buy modules",
       "buyHint": "Pick a package — purchased modules can be used freely across Lesen, Hören, Schreiben and Sprechen.",
       "viewPackages": "View packages"

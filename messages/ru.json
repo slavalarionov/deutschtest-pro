@@ -32,7 +32,7 @@
       "subtitleGuest": "Зарегистрируйтесь и получите бесплатный тест.",
       "subtitleFreeAvailable": "Вас ждёт бесплатный пробный тест.",
       "subtitlePaidTests": "{count, plural, one {У вас доступен # тест.} few {У вас доступно # теста.} many {У вас доступно # тестов.} other {У вас доступно # теста.}}",
-      "subtitleModules": "Кредиты модулей: {count} (1 кредит на модуль)",
+      "subtitleModules": "Баланс: {count, plural, one {# модуль} few {# модуля} many {# модулей} other {# модулей}}",
       "ctaRegister": "Зарегистрироваться и попробовать",
       "ctaDashboard": "В личный кабинет",
       "alreadyRegistered": "Уже зарегистрированы? → Войти",
@@ -55,12 +55,12 @@
         "durationSchreiben": "60 мин",
         "durationSprechen": "15 мин"
       },
-      "modulesHint": "Выберите модуль для целевой тренировки. 1 кредит = 1 модуль.",
+      "modulesHint": "Выберите модуль для целевой тренировки.",
       "buyPrompt": "Вы уже использовали бесплатный тест. Купите ещё, чтобы продолжить.",
       "loadingHint": "Генерируем модуль — подождите немного…",
       "errors": {
-        "noCredits": "У вас закончились кредиты модулей. Купите ещё, пожалуйста.",
-        "insufficientBalanceFallback": "Недостаточно кредитов модулей.",
+        "noBalance": "На балансе закончились модули. Пополните баланс, пожалуйста.",
+        "insufficientBalanceFallback": "Недостаточно модулей на балансе.",
         "generateFailed": "Не удалось сгенерировать экзамен. Попробуйте чуть позже."
       },
       "stats": {
@@ -222,8 +222,8 @@
       "subtitle": "Занимайтесь в своём ритме — платите только когда нужно.",
       "eyebrow": "ЦЕНЫ",
       "authBanner": {
-        "hasCredits": "У вас {count, plural, one {# модуль} few {# модуля} many {# модулей} other {# модулей}}.",
-        "hasCreditsCta": "В личный кабинет"
+        "hasBalance": "У вас {count, plural, one {# модуль} few {# модуля} many {# модулей} other {# модулей}}.",
+        "hasBalanceCta": "В личный кабинет"
       },
       "meta": {
         "title": "Цены · DeutschTest.pro — подготовка к Goethe",
@@ -238,7 +238,7 @@
       "backHome": "← На главную",
       "logout": "Выйти",
       "konto": "АККАУНТ",
-      "credits": "КРЕДИТЫ",
+      "balance": "БАЛАНС",
       "modulesLeft": "модулей осталось",
       "nav": {
         "dashboard": "Дашборд",
@@ -258,7 +258,7 @@
         "absolviert": "ПРОЙДЕНО",
         "durchschnitt": "СРЕДНИЙ",
         "bestesErgebnis": "ЛУЧШИЙ",
-        "credits": "КРЕДИТЫ"
+        "balance": "БАЛАНС"
       },
       "chartPreviewTitle": "Прогресс · последние 12 экзаменов",
       "chartEmpty": "Пока нет экзаменов. Начните первый тест.",
@@ -280,7 +280,7 @@
     },
     "launcher": {
       "title": "Начать новый тест",
-      "subtitle": "Выберите уровень и модуль — 1 кредит за модуль.",
+      "subtitle": "Выберите уровень и модуль.",
       "eyebrow": "НАЧАТЬ ЭКЗАМЕН",
       "headline": "Ваш следующий экзамен.",
       "levelLabel": "Уровень",
@@ -292,12 +292,12 @@
       "buyModules": "Купить модули",
       "adminUnlimited": "Режим админа — без ограничений",
       "adminUnlimitedMono": "АДМИН — БЕЗ ЛИМИТА",
-      "creditsAvailable": "Доступно кредитов: {count}",
-      "creditsVerbose": "{count, plural, one {# МОДУЛЬ ДОСТУПЕН} few {# МОДУЛЯ ДОСТУПНО} many {# МОДУЛЕЙ ДОСТУПНО} other {# МОДУЛЯ ДОСТУПНО}}",
+      "balanceAvailable": "Доступно на балансе: {count}",
+      "balanceVerbose": "{count, plural, one {# МОДУЛЬ ДОСТУПЕН} few {# МОДУЛЯ ДОСТУПНО} many {# МОДУЛЕЙ ДОСТУПНО} other {# МОДУЛЯ ДОСТУПНО}}",
       "errorEyebrow": "ОШИБКА",
       "insufficientHint": "Пожалуйста, купите модули.",
       "shopLink": "В магазин",
-      "insufficientBalance": "Недостаточно кредитов модулей.",
+      "insufficientBalance": "Недостаточно модулей на балансе.",
       "generateFailed": "Не удалось сгенерировать экзамен. Попробуйте чуть позже.",
       "levels": {
         "a1": "Start Deutsch 1",
@@ -528,7 +528,7 @@
       "balanceUnlimited": "Без ограничений",
       "balanceUnit": "{count, plural, one {модуль} few {модуля} many {модулей} other {модуля}}",
       "adminHint": "Режим админа — без лимитов.",
-      "creditExplanation": "1 кредит соответствует одному модулю экзамена (Lesen, Hören, Schreiben или Sprechen).",
+      "balanceExplanation": "1 модуль баланса — это один модуль экзамена (Lesen, Hören, Schreiben или Sprechen).",
       "buyTitle": "Купить модули",
       "buyHint": "Выберите пакет — купленные модули можно тратить на любой из четырёх: Lesen, Hören, Schreiben, Sprechen.",
       "viewPackages": "Посмотреть пакеты"

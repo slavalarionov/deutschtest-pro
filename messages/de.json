@@ -32,7 +32,7 @@
       "subtitleGuest": "Registrieren Sie sich und erhalten Sie einen kostenlosen Test.",
       "subtitleFreeAvailable": "Ihr kostenloser Probetest wartet auf Sie.",
       "subtitlePaidTests": "{count, plural, one {Sie haben # Test verfügbar.} other {Sie haben # Tests verfügbar.}}",
-      "subtitleModules": "Modul-Credits: {count} (1 Credit pro Modul)",
+      "subtitleModules": "Guthaben: {count, plural, one {# Modul} other {# Module}}",
       "ctaRegister": "Kostenlos registrieren & testen",
       "ctaDashboard": "Zum Dashboard",
       "alreadyRegistered": "Schon registriert? → Anmelden",
@@ -55,12 +55,12 @@
         "durationSchreiben": "60 Min",
         "durationSprechen": "15 Min"
       },
-      "modulesHint": "Wählen Sie ein Modul für ein gezieltes Training. 1 Credit = 1 Modul.",
+      "modulesHint": "Wählen Sie ein Modul für ein gezieltes Training.",
       "buyPrompt": "Sie haben bereits Ihren kostenlosen Test verwendet. Kaufen Sie weitere Tests, um fortzufahren.",
       "loadingHint": "Modul wird generiert — bitte einen Moment warten…",
       "errors": {
-        "noCredits": "Sie haben keine Modul-Credits mehr. Bitte kaufen Sie weitere Credits.",
-        "insufficientBalanceFallback": "Nicht genug Modul-Credits.",
+        "noBalance": "Ihr Guthaben ist aufgebraucht. Bitte laden Sie Ihr Guthaben auf.",
+        "insufficientBalanceFallback": "Nicht genug Guthaben.",
         "generateFailed": "Die Prüfung konnte nicht generiert werden. Bitte versuchen Sie es etwas später erneut."
       },
       "stats": {
@@ -102,7 +102,7 @@
     "pricing": {
       "eyebrow": "03 — PREISE",
       "title": "Einfache Preisgestaltung",
-      "subtitle": "Wählen Sie ein Paket mit Modul-Guthaben und setzen Sie es flexibel für Lesen, Hören, Schreiben oder Sprechen ein."
+      "subtitle": "Wählen Sie ein Paket mit Guthaben und setzen Sie es flexibel für Lesen, Hören, Schreiben oder Sprechen ein."
     },
     "faq": {
       "eyebrow": "04 — ANTWORTEN",
@@ -222,8 +222,8 @@
       "subtitle": "Flexibel üben — bezahlen, wenn Sie es brauchen.",
       "eyebrow": "PREISE",
       "authBanner": {
-        "hasCredits": "Sie haben noch {count, plural, one {# Modul} other {# Module}}.",
-        "hasCreditsCta": "Zum Dashboard"
+        "hasBalance": "Sie haben noch {count, plural, one {# Modul} other {# Module}}.",
+        "hasBalanceCta": "Zum Dashboard"
       },
       "meta": {
         "title": "Preise · DeutschTest.pro — Goethe-Vorbereitung",
@@ -238,7 +238,7 @@
       "backHome": "← Zur Startseite",
       "logout": "Abmelden",
       "konto": "KONTO",
-      "credits": "CREDITS",
+      "balance": "GUTHABEN",
       "modulesLeft": "Module übrig",
       "nav": {
         "dashboard": "Dashboard",
@@ -258,7 +258,7 @@
         "absolviert": "ABSOLVIERT",
         "durchschnitt": "DURCHSCHNITT",
         "bestesErgebnis": "BESTES ERGEBNIS",
-        "credits": "CREDITS"
+        "balance": "GUTHABEN"
       },
       "chartPreviewTitle": "Fortschritt · letzte 12 Prüfungen",
       "chartEmpty": "Noch keine Prüfungen. Starten Sie Ihren ersten Test.",
@@ -280,7 +280,7 @@
     },
     "launcher": {
       "title": "Neuen Test starten",
-      "subtitle": "Wählen Sie Niveau und Modul — 1 Credit pro Modul.",
+      "subtitle": "Wählen Sie Niveau und Modul.",
       "eyebrow": "PRÜFUNG STARTEN",
       "headline": "Ihre nächste Prüfung.",
       "levelLabel": "Niveau",
@@ -292,12 +292,12 @@
       "buyModules": "Module kaufen",
       "adminUnlimited": "Admin-Modus — unbegrenzt",
       "adminUnlimitedMono": "ADMIN — UNBEGRENZT",
-      "creditsAvailable": "Verfügbare Credits: {count}",
-      "creditsVerbose": "{count, plural, one {# MODUL VERFÜGBAR} other {# MODULE VERFÜGBAR}}",
+      "balanceAvailable": "Verfügbares Guthaben: {count}",
+      "balanceVerbose": "{count, plural, one {# MODUL VERFÜGBAR} other {# MODULE VERFÜGBAR}}",
       "errorEyebrow": "FEHLER",
       "insufficientHint": "Bitte kaufe Module.",
       "shopLink": "Zum Shop",
-      "insufficientBalance": "Nicht genug Modul-Credits.",
+      "insufficientBalance": "Nicht genug Guthaben.",
       "generateFailed": "Die Prüfung konnte nicht generiert werden. Bitte versuchen Sie es etwas später erneut.",
       "levels": {
         "a1": "Start Deutsch 1",
@@ -528,7 +528,7 @@
       "balanceUnlimited": "Unbegrenzt",
       "balanceUnit": "{count, plural, one {Modul} other {Module}}",
       "adminHint": "Admin-Modus — keine Limits.",
-      "creditExplanation": "1 Credit entspricht einem Prüfungsmodul (Lesen, Hören, Schreiben oder Sprechen).",
+      "balanceExplanation": "1 Guthaben-Einheit entspricht einem Prüfungsmodul (Lesen, Hören, Schreiben oder Sprechen).",
       "buyTitle": "Module kaufen",
       "buyHint": "Wählen Sie ein Paket — gekaufte Module sind frei kombinierbar zwischen Lesen, Hören, Schreiben und Sprechen.",
       "viewPackages": "Pakete ansehen"

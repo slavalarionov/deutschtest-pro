@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: `Nicht genug Modul-Credits (${availability.modulesBalance ?? 0} verfügbar, 1 benötigt). Bitte kaufen Sie weitere Module.`,
+          error: `Nicht genug Guthaben (${availability.modulesBalance ?? 0} Module verfügbar, 1 benötigt). Bitte laden Sie Ihr Guthaben auf.`,
           code: 'insufficient_balance',
           redirect: '/pricing',
         },

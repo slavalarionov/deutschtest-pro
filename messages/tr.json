@@ -32,7 +32,7 @@
       "subtitleGuest": "Kayıt olun ve ücretsiz testinizi alın.",
       "subtitleFreeAvailable": "Ücretsiz deneme testiniz sizi bekliyor.",
       "subtitlePaidTests": "{count, plural, other {# test kullanıma hazır.}}",
-      "subtitleModules": "Modül kredisi: {count} (modül başına 1 kredi)",
+      "subtitleModules": "Bakiye: {count, plural, other {# modül}}",
       "ctaRegister": "Ücretsiz kayıt ol ve dene",
       "ctaDashboard": "Panele git",
       "alreadyRegistered": "Zaten kayıtlı mısın? → Giriş yap",
@@ -55,12 +55,12 @@
         "durationSchreiben": "60 dk",
         "durationSprechen": "15 dk"
       },
-      "modulesHint": "Odaklı pratik için tek bir modül seçin. 1 kredi = 1 modül.",
+      "modulesHint": "Odaklı pratik için tek bir modül seçin.",
       "buyPrompt": "Ücretsiz testinizi zaten kullandınız. Devam etmek için yeni test satın alın.",
       "loadingHint": "Modül hazırlanıyor — biraz bekleyin…",
       "errors": {
-        "noCredits": "Modül krediniz kalmadı. Lütfen yeni kredi satın alın.",
-        "insufficientBalanceFallback": "Yeterli modül kredisi yok.",
+        "noBalance": "Bakiyeniz tükendi. Lütfen bakiyenizi yükleyin.",
+        "insufficientBalanceFallback": "Yeterli bakiye yok.",
         "generateFailed": "Sınav üretilemedi. Biraz sonra tekrar deneyin."
       },
       "stats": {
@@ -102,7 +102,7 @@
     "pricing": {
       "eyebrow": "03 — FİYATLAR",
       "title": "Basit fiyatlandırma",
-      "subtitle": "Bir modül paketi seçin ve kredilerinizi dört modül tipinden herhangi birinde kullanın: Lesen, Hören, Schreiben, Sprechen."
+      "subtitle": "Bir modül paketi seçin ve bakiyenizi dört modül tipinden herhangi birinde kullanın: Lesen, Hören, Schreiben, Sprechen."
     },
     "faq": {
       "eyebrow": "04 — CEVAPLAR",
@@ -222,8 +222,8 @@
       "subtitle": "Kendi hızınızda çalışın — yalnızca ihtiyaç duyduğunuzda ödeyin.",
       "eyebrow": "FİYATLAR",
       "authBanner": {
-        "hasCredits": "{count} modülünüz kaldı.",
-        "hasCreditsCta": "Panele git"
+        "hasBalance": "{count} modülünüz kaldı.",
+        "hasBalanceCta": "Panele git"
       },
       "meta": {
         "title": "Fiyatlar · DeutschTest.pro — Goethe Hazırlık",
@@ -238,7 +238,7 @@
       "backHome": "← Anasayfaya",
       "logout": "Çıkış yap",
       "konto": "HESAP",
-      "credits": "KREDİLER",
+      "balance": "BAKİYE",
       "modulesLeft": "modül kaldı",
       "nav": {
         "dashboard": "Panel",
@@ -258,7 +258,7 @@
         "absolviert": "TAMAMLANDI",
         "durchschnitt": "ORTALAMA",
         "bestesErgebnis": "EN İYİ",
-        "credits": "KREDİLER"
+        "balance": "BAKİYE"
       },
       "chartPreviewTitle": "İlerleme · son 12 sınav",
       "chartEmpty": "Henüz sınav yok. İlk testinizi başlatın.",
@@ -280,7 +280,7 @@
     },
     "launcher": {
       "title": "Yeni test başlat",
-      "subtitle": "Seviye ve modül seçin — modül başına 1 kredi.",
+      "subtitle": "Seviye ve modül seçin.",
       "eyebrow": "SINAV BAŞLAT",
       "headline": "Bir sonraki sınavınız.",
       "levelLabel": "Seviye",
@@ -292,12 +292,12 @@
       "buyModules": "Modül satın al",
       "adminUnlimited": "Admin modu — sınırsız",
       "adminUnlimitedMono": "YÖNETİCİ — SINIRSIZ",
-      "creditsAvailable": "Mevcut kredi: {count}",
-      "creditsVerbose": "{count, plural, other {# MODÜL MEVCUT}}",
+      "balanceAvailable": "Mevcut bakiye: {count}",
+      "balanceVerbose": "{count, plural, other {# MODÜL MEVCUT}}",
       "errorEyebrow": "HATA",
       "insufficientHint": "Lütfen modül satın alın.",
       "shopLink": "Mağazaya",
-      "insufficientBalance": "Yeterli modül kredisi yok.",
+      "insufficientBalance": "Yeterli bakiye yok.",
       "generateFailed": "Sınav üretilemedi. Biraz sonra tekrar deneyin.",
       "levels": {
         "a1": "Start Deutsch 1",
@@ -528,7 +528,7 @@
       "balanceUnlimited": "Sınırsız",
       "balanceUnit": "{count, plural, other {modül}}",
       "adminHint": "Admin modu — limit yok.",
-      "creditExplanation": "1 kredi, bir sınav modülüne karşılık gelir (Lesen, Hören, Schreiben veya Sprechen).",
+      "balanceExplanation": "1 bakiye birimi bir sınav modülüne karşılık gelir (Lesen, Hören, Schreiben veya Sprechen).",
       "buyTitle": "Modül satın al",
       "buyHint": "Bir paket seçin — satın alınan modüller Lesen, Hören, Schreiben ve Sprechen arasında serbestçe kullanılabilir.",
       "viewPackages": "Paketleri gör"

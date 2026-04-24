@@ -198,11 +198,11 @@ export function DashboardShell({ email, modulesBalance, children }: DashboardShe
         </nav>
       </div>
 
-      {/* CREDITS card */}
+      {/* BALANCE card */}
       <div className="mt-4 rounded-rad-sm border border-line bg-card p-4">
         <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-muted">
           <SidebarIcon name="bolt" className="h-[11px] w-[11px]" />
-          <span>{t('credits')}</span>
+          <span>{t('balance')}</span>
         </div>
         <div className="mt-2 font-display text-2xl tracking-tight text-ink">
           {modulesBalance}
@@ -265,9 +265,9 @@ export function DashboardShell({ email, modulesBalance, children }: DashboardShe
         </button>
       </header>
 
-      {/* Sidebar (off-canvas on mobile, static on desktop) */}
+      {/* Sidebar (off-canvas on mobile, sticky on desktop) */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-[260px] border-r border-line bg-page transition-transform lg:static lg:w-[220px] lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-[260px] border-r border-line bg-page transition-transform lg:sticky lg:top-0 lg:h-screen lg:w-[220px] lg:translate-x-0 lg:self-start lg:overflow-y-auto ${
           open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
