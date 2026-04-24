@@ -1,6 +1,7 @@
 export type AdminIconName =
   | 'dashboard'
   | 'users'
+  | 'referral-sources'
   | 'prompts'
   | 'topics'
   | 'promo'
@@ -33,6 +34,13 @@ export function AdminIcon({
         <path d="M3.5 19a5.5 5.5 0 0 1 11 0" />
         <path d="M16 11a3 3 0 0 0 0-6" />
         <path d="M20.5 19a5.5 5.5 0 0 0-4-5.3" />
+      </>
+    ),
+    'referral-sources': (
+      <>
+        <circle cx="12" cy="12" r="8.5" />
+        <path d="m10 14 4-8 2 8z" />
+        <path d="M10 14h6" />
       </>
     ),
     prompts: (

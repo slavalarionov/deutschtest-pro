@@ -6,6 +6,7 @@ import type { AdminIconName } from '@/components/admin/AdminIcon'
 const NAV_ITEMS: ReadonlyArray<{ href: string; label: string; icon: AdminIconName }> = [
   { href: '/admin', label: 'Dashboard', icon: 'dashboard' },
   { href: '/admin/users', label: 'Пользователи', icon: 'users' },
+  { href: '/admin/referral-sources', label: 'Источники', icon: 'referral-sources' },
   { href: '/admin/prompts', label: 'Промпты', icon: 'prompts' },
   { href: '/admin/topics', label: 'Темы', icon: 'topics' },
   { href: '/admin/promo', label: 'Промо', icon: 'promo' },
