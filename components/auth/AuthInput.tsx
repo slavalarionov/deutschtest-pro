@@ -13,6 +13,8 @@ interface AuthInputProps {
   icon?: 'mail' | 'lock'
   hint?: string
   minLength?: number
+  maxLength?: number
+  testId?: string
 }
 
 function MailIcon() {
@@ -67,6 +69,8 @@ export function AuthInput({
   icon,
   hint,
   minLength,
+  maxLength,
+  testId,
 }: AuthInputProps) {
   return (
     <div className="space-y-2">
@@ -89,6 +93,8 @@ export function AuthInput({
           disabled={disabled}
           autoComplete={autoComplete}
           minLength={minLength}
+          maxLength={maxLength}
+          data-testid={testId}
           className="w-full bg-transparent text-sm text-ink placeholder:text-muted focus:outline-none disabled:opacity-50"
         />
       </div>

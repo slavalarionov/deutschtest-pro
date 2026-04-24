@@ -157,6 +157,9 @@
       "eyebrow": "KAYIT",
       "subtitle": "DeutschTest.pro hesabınızı oluşturun",
       "googleButton": "Google ile kayıt ol",
+      "nameLabel": "İsim",
+      "namePlaceholder": "Size nasıl hitap edelim?",
+      "nameOptional": "İsteğe bağlı — daha sonra ayarlardan ekleyebilirsiniz.",
       "emailLabel": "E-posta",
       "emailPlaceholder": "sizin.email@example.com",
       "passwordLabel": "Şifre",
@@ -252,6 +255,7 @@
     "overview": {
       "eyebrow": "GENEL BAKIŞ",
       "greeting": "İyi günler, <name></name>.",
+      "greetingBare": "İyi günler.",
       "stats": {
         "absolviert": "TAMAMLANDI",
         "durchschnitt": "ORTALAMA",

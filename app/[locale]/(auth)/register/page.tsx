@@ -15,6 +15,7 @@ export default function RegisterPage() {
   const tCommon = useTranslations('common')
   const locale = useLocale()
 
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
@@ -58,6 +59,7 @@ export default function RegisterPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          name: name.trim() || undefined,
           email,
           password,
           turnstileToken,
@@ -155,6 +157,19 @@ export default function RegisterPage() {
       <AuthDivider label={tCommon('or')} />
 
       <form onSubmit={handleEmailRegister} className="space-y-4">
+        <AuthInput
+          id="name"
+          type="text"
+          label={t('nameLabel')}
+          placeholder={t('namePlaceholder')}
+          value={name}
+          onChange={setName}
+          autoComplete="given-name"
+          maxLength={50}
+          hint={t('nameOptional')}
+          testId="register-name-input"
+        />
+
         <AuthInput
           id="email"
           type="email"

@@ -157,6 +157,9 @@
       "eyebrow": "РЕГИСТРАЦИЯ",
       "subtitle": "Создайте аккаунт DeutschTest.pro",
       "googleButton": "Зарегистрироваться через Google",
+      "nameLabel": "Имя",
+      "namePlaceholder": "Как к вам обращаться?",
+      "nameOptional": "Не обязательно — можно заполнить позже в настройках.",
       "emailLabel": "E-mail",
       "emailPlaceholder": "your.email@example.com",
       "passwordLabel": "Пароль",
@@ -252,6 +255,7 @@
     "overview": {
       "eyebrow": "ОБЗОР",
       "greeting": "Добрый день, <name></name>.",
+      "greetingBare": "Добрый день.",
       "stats": {
         "absolviert": "ПРОЙДЕНО",
         "durchschnitt": "СРЕДНИЙ",

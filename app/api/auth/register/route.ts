@@ -9,6 +9,7 @@ const REGISTER_API_HEADER = 'X-Deutschtest-Register-Api'
 const REGISTER_API_VALUE = 'v4-resend-confirm'
 
 const bodySchema = z.object({
+  name: z.string().trim().max(50).optional(),
   email: z.string().email(),
   password: z.string().min(8, 'Passwort muss mindestens 8 Zeichen enthalten'),
   turnstileToken: z.string().optional(),
@@ -75,7 +76,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { email: rawEmail, password, turnstileToken, preferredLanguage } = parsed.data
+    const { name, email: rawEmail, password, turnstileToken, preferredLanguage } = parsed.data
 
     const captchaOk = await verifyTurnstile(turnstileToken, ip)
     if (!captchaOk) {
@@ -114,15 +115,16 @@ export async function POST(req: NextRequest) {
     // на языке профиля. См. lib/email.ts.
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(req.url).origin
     const language: EmailLocale = preferredLanguage ?? 'de'
+    const trimmedName = name?.trim()
+    const userMeta: Record<string, string> = { preferred_language: language }
+    if (trimmedName) userMeta.name = trimmedName
     const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
       type: 'signup',
       email,
       password,
       options: {
         redirectTo: `${baseUrl}/auth/callback`,
-        data: {
-          preferred_language: language,
-        },
+        data: userMeta,
       },
     })
 

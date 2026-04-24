@@ -157,6 +157,9 @@
       "eyebrow": "SIGN UP",
       "subtitle": "Create your DeutschTest.pro account",
       "googleButton": "Sign up with Google",
+      "nameLabel": "Name",
+      "namePlaceholder": "How should we call you?",
+      "nameOptional": "Optional — you can add it later in settings.",
       "emailLabel": "Email",
       "emailPlaceholder": "your.email@example.com",
       "passwordLabel": "Password",
@@ -252,6 +255,7 @@
     "overview": {
       "eyebrow": "OVERVIEW",
       "greeting": "Good afternoon, <name></name>.",
+      "greetingBare": "Good afternoon.",
       "stats": {
         "absolviert": "COMPLETED",
         "durchschnitt": "AVERAGE",

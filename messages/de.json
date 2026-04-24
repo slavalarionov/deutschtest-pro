@@ -157,6 +157,9 @@
       "eyebrow": "REGISTRIEREN",
       "subtitle": "Erstellen Sie Ihr DeutschTest.pro Konto",
       "googleButton": "Mit Google registrieren",
+      "nameLabel": "Name",
+      "namePlaceholder": "Wie sollen wir Sie anreden?",
+      "nameOptional": "Optional — Sie können den Namen später in den Einstellungen ergänzen.",
       "emailLabel": "E-Mail",
       "emailPlaceholder": "ihre.email@example.com",
       "passwordLabel": "Passwort",
@@ -252,6 +255,7 @@
     "overview": {
       "eyebrow": "ÜBERSICHT",
       "greeting": "Guten Tag, <name></name>.",
+      "greetingBare": "Guten Tag.",
       "stats": {
         "absolviert": "ABSOLVIERT",
         "durchschnitt": "DURCHSCHNITT",

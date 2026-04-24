@@ -24,12 +24,6 @@ function formatDateTime(iso: string): string {
   }
 }
 
-/** Capitalize first letter of the email handle as a friendly fallback for the greeting. */
-function humanizeHandle(handle: string): string {
-  if (!handle) return ''
-  return handle.charAt(0).toUpperCase() + handle.slice(1)
-}
-
 /**
  * Render the 12-point sparkline in the Overview chart preview.
  * Mirrors the prototype (docs/Redesign.html:777-790): padded viewBox, dashed
@@ -145,10 +139,12 @@ export default async function DashboardHomePage() {
   ])
 
   const isAdmin = profileRes.data?.is_admin === true
-  const displayName =
-    typeof profileRes.data?.display_name === 'string' && profileRes.data.display_name.trim()
+  const storedName =
+    typeof profileRes.data?.display_name === 'string'
       ? profileRes.data.display_name.trim()
-      : humanizeHandle((user.email ?? '').split('@')[0] ?? '')
+      : ''
+  const emailHandle = (user.email ?? '').split('@')[0] ?? ''
+  const displayName = storedName || emailHandle
 
   const moduleLabels: Record<DashboardModule, string> = {
     lesen: tModules('lesen'),
@@ -182,13 +178,17 @@ export default async function DashboardHomePage() {
           {t('eyebrow')}
         </div>
         <h1 className="mt-3 font-display text-[44px] leading-[1.05] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
-          {t.rich('greeting', {
-            name: () => (
-              <span className="font-display-tight font-normal italic">
-                {displayName}
-              </span>
-            ),
-          })}
+          {displayName ? (
+            t.rich('greeting', {
+              name: () => (
+                <span className="font-display-tight font-normal italic">
+                  {displayName}
+                </span>
+              ),
+            })
+          ) : (
+            t('greetingBare')
+          )}
         </h1>
       </header>
 
