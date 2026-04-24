@@ -252,13 +252,17 @@
     "overview": {
       "eyebrow": "OVERVIEW",
       "greeting": "Good afternoon, <name></name>.",
-      "leadWithAttempts": "Average across {total, plural, one {# module} other {# modules}} — {avg}. Keep the pace.",
-      "leadEmpty": "Run your first module and we'll start pointing you at what to work on.",
       "stats": {
         "absolviert": "COMPLETED",
         "durchschnitt": "AVERAGE",
         "bestesErgebnis": "BEST",
         "balance": "BALANCE"
+      },
+      "statCaptions": {
+        "absolviert": "modules total",
+        "durchschnitt": "across all modules",
+        "balanceAdmin": "Admin – unlimited",
+        "balanceAvailable": "{count, plural, one {# module available} other {# modules available}}"
       },
       "chartPreviewTitle": "Progress · last 12 exams",
       "chartEmpty": "No exams yet. Start your first test.",

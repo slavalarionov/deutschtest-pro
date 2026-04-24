@@ -252,13 +252,17 @@
     "overview": {
       "eyebrow": "ОБЗОР",
       "greeting": "Добрый день, <name></name>.",
-      "leadWithAttempts": "Средний балл за {total, plural, one {# модуль} few {# модуля} many {# модулей} other {# модулей}} — {avg}. Продолжайте в том же темпе.",
-      "leadEmpty": "Пройдите первый модуль — и мы подскажем, над чем работать дальше.",
       "stats": {
         "absolviert": "ПРОЙДЕНО",
         "durchschnitt": "СРЕДНИЙ",
         "bestesErgebnis": "ЛУЧШИЙ",
         "balance": "БАЛАНС"
+      },
+      "statCaptions": {
+        "absolviert": "модулей за всё время",
+        "durchschnitt": "по всем модулям",
+        "balanceAdmin": "админ — без лимита",
+        "balanceAvailable": "{count, plural, one {# модуль доступен} few {# модуля доступно} many {# модулей доступно} other {# модулей доступно}}"
       },
       "chartPreviewTitle": "Прогресс · последние 12 экзаменов",
       "chartEmpty": "Пока нет экзаменов. Начните первый тест.",

@@ -173,8 +173,6 @@ export default async function DashboardHomePage() {
     ? cachedRecs!.studyPlan!.slice(0, 2)
     : []
 
-  const hasAttempts = stats.totalModules > 0
-
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       {/* ====== Greeting ====== */}
@@ -191,14 +189,6 @@ export default async function DashboardHomePage() {
             ),
           })}
         </h1>
-        <p className="mt-3 max-w-xl text-sm text-ink-soft">
-          {hasAttempts
-            ? t('leadWithAttempts', {
-                total: stats.totalModules,
-                avg: stats.averageScore ?? 0,
-              })
-            : t('leadEmpty')}
-        </p>
       </header>
 
       {/* ====== Module launcher ====== */}
@@ -211,20 +201,36 @@ export default async function DashboardHomePage() {
         <StatCard
           label={t('stats.absolviert')}
           value={String(stats.totalModules)}
+          caption={t('statCaptions.absolviert')}
         />
         <StatCard
           label={t('stats.durchschnitt')}
           value={stats.averageScore !== null ? String(stats.averageScore) : '—'}
           suffix={stats.averageScore !== null ? '/ 100' : undefined}
+          caption={
+            stats.averageScore !== null
+              ? t('statCaptions.durchschnitt')
+              : undefined
+          }
         />
         <StatCard
           label={t('stats.bestesErgebnis')}
           value={stats.bestScore !== null ? String(stats.bestScore) : '—'}
           suffix={stats.bestScore !== null ? '/ 100' : undefined}
+          caption={
+            stats.bestAttempt
+              ? `${moduleLabels[stats.bestAttempt.moduleId]} · ${stats.bestAttempt.level}`
+              : undefined
+          }
         />
         <StatCard
           label={t('stats.balance')}
           value={isAdmin ? '∞' : String(stats.modulesBalance)}
+          caption={
+            isAdmin
+              ? t('statCaptions.balanceAdmin')
+              : t('statCaptions.balanceAvailable', { count: stats.modulesBalance })
+          }
         />
       </div>
 
@@ -379,10 +385,12 @@ function StatCard({
   label,
   value,
   suffix,
+  caption,
 }: {
   label: string
   value: string
   suffix?: string
+  caption?: string
 }) {
   return (
     <div className="rounded-rad-sm border border-line bg-card p-5">
@@ -395,6 +403,11 @@ function StatCard({
           <span className="text-sm font-normal text-muted"> {suffix}</span>
         )}
       </div>
+      {caption && (
+        <div className="mt-2 font-mono text-[11px] uppercase tracking-wider text-muted">
+          {caption}
+        </div>
+      )}
     </div>
   )
 }

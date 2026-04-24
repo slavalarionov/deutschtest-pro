@@ -252,13 +252,17 @@
     "overview": {
       "eyebrow": "GENEL BAKIŞ",
       "greeting": "İyi günler, <name></name>.",
-      "leadWithAttempts": "{total, plural, one {# modül} other {# modül}} ortalaması — {avg}. Tempoyu koruyun.",
-      "leadEmpty": "İlk modülünüzü tamamlayın, ardından nelere odaklanmanız gerektiğini gösterelim.",
       "stats": {
         "absolviert": "TAMAMLANDI",
         "durchschnitt": "ORTALAMA",
         "bestesErgebnis": "EN İYİ",
         "balance": "BAKİYE"
+      },
+      "statCaptions": {
+        "absolviert": "toplam modül",
+        "durchschnitt": "tüm modüller",
+        "balanceAdmin": "Admin – sınırsız",
+        "balanceAvailable": "{count, plural, other {# modül mevcut}}"
       },
       "chartPreviewTitle": "İlerleme · son 12 sınav",
       "chartEmpty": "Henüz sınav yok. İlk testinizi başlatın.",

@@ -252,13 +252,17 @@
     "overview": {
       "eyebrow": "ÜBERSICHT",
       "greeting": "Guten Tag, <name></name>.",
-      "leadWithAttempts": "Durchschnitt über {total, plural, one {# Modul} other {# Module}} — {avg}. Halten Sie das Tempo.",
-      "leadEmpty": "Starten Sie Ihr erstes Modul — wir zeigen Ihnen anschließend, woran Sie arbeiten sollten.",
       "stats": {
         "absolviert": "ABSOLVIERT",
         "durchschnitt": "DURCHSCHNITT",
         "bestesErgebnis": "BESTES ERGEBNIS",
         "balance": "GUTHABEN"
+      },
+      "statCaptions": {
+        "absolviert": "Module insgesamt",
+        "durchschnitt": "über alle Module",
+        "balanceAdmin": "Admin – unbegrenzt",
+        "balanceAvailable": "{count, plural, one {# Modul verfügbar} other {# Module verfügbar}}"
       },
       "chartPreviewTitle": "Fortschritt · letzte 12 Prüfungen",
       "chartEmpty": "Noch keine Prüfungen. Starten Sie Ihren ersten Test.",

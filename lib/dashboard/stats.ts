@@ -10,10 +10,18 @@ export interface LastModuleStat {
   submittedAt: string
 }
 
+export interface BestAttemptStat {
+  moduleId: DashboardModule
+  score: number
+  level: string
+  submittedAt: string
+}
+
 export interface DashboardStats {
   totalModules: number
   averageScore: number | null
   bestScore: number | null
+  bestAttempt: BestAttemptStat | null
   lastModule: LastModuleStat | null
   modulesBalance: number
 }
@@ -69,14 +77,28 @@ export async function loadDashboardStats(
   let totalModules = 0
   let scoreSum = 0
   let bestScore: number | null = null
+  let bestAttempt: BestAttemptStat | null = null
   let lastModule: LastModuleStat | null = null
 
+  // Rows arrive ordered submitted_at DESC. Updating bestAttempt on `>=` means
+  // the final write is the *oldest* attempt with the max score — first time the
+  // user hit their best, which reads as the stronger narrative.
   for (const row of rows) {
     const pair = extractModuleScore(row.scores)
     if (!pair) continue
     totalModules += 1
     scoreSum += pair.score
-    if (bestScore === null || pair.score > bestScore) bestScore = pair.score
+    if (bestScore === null || pair.score >= bestScore) {
+      bestScore = pair.score
+      if (row.submitted_at) {
+        bestAttempt = {
+          moduleId: pair.moduleId,
+          score: pair.score,
+          level: row.level as string,
+          submittedAt: row.submitted_at as string,
+        }
+      }
+    }
     if (!lastModule && row.submitted_at) {
       lastModule = {
         moduleId: pair.moduleId,
@@ -93,6 +115,7 @@ export async function loadDashboardStats(
     totalModules,
     averageScore,
     bestScore,
+    bestAttempt,
     lastModule,
     modulesBalance,
   }
