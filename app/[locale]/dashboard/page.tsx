@@ -5,6 +5,7 @@ import { loadDashboardStats, type DashboardModule } from '@/lib/dashboard/stats'
 import { loadUserHistory, type HistoryItem } from '@/lib/dashboard/history'
 import { loadProgressData, type ProgressPoint } from '@/lib/dashboard/progress'
 import { ModuleLauncher } from '@/components/dashboard/ModuleLauncher'
+import { MotivationalQuoteBlock } from '@/components/dashboard/MotivationalQuoteBlock'
 
 export const dynamic = 'force-dynamic'
 
@@ -190,6 +191,9 @@ export default async function DashboardHomePage() {
           })}
         </h1>
       </header>
+
+      {/* ====== Random motivational quote ====== */}
+      <MotivationalQuoteBlock />
 
       {/* ====== Module launcher ====== */}
       <ModuleLauncher modulesBalance={stats.modulesBalance} isAdmin={isAdmin} />
