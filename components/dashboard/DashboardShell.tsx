@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { Link, usePathname, useRouter } from '@/i18n/routing'
 import { createClient } from '@/lib/supabase/client'
 import { LanguageSwitcher } from '@/components/common/LanguageSwitcher'
+import { ReferralSourcePrompt } from '@/components/dashboard/ReferralSourcePrompt'
 
 type IconName =
   | 'home'
@@ -121,10 +122,16 @@ const ACCOUNT_ITEMS: readonly NavItem[] = [
 interface DashboardShellProps {
   email: string
   modulesBalance: number
+  showReferralSurvey: boolean
   children: React.ReactNode
 }
 
-export function DashboardShell({ email, modulesBalance, children }: DashboardShellProps) {
+export function DashboardShell({
+  email,
+  modulesBalance,
+  showReferralSurvey,
+  children,
+}: DashboardShellProps) {
   const pathname = usePathname()
   const router = useRouter()
   const t = useTranslations('dashboard.shell')
@@ -287,6 +294,8 @@ export function DashboardShell({ email, modulesBalance, children }: DashboardShe
       <main className="flex-1 overflow-x-hidden px-4 pb-12 pt-20 sm:px-8 lg:pt-8">
         {children}
       </main>
+
+      <ReferralSourcePrompt initiallyAsked={!showReferralSurvey} />
     </div>
   )
 }

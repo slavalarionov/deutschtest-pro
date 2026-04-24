@@ -117,6 +117,14 @@ test.describe('Lesen exam golden path', () => {
         expires: Math.floor(Date.now() / 1000) + 34_560_000,
       })),
     )
+
+    // Pre-skip the onboarding referral-source survey so the modal
+    // doesn't overlay the dashboard and intercept ModuleLauncher clicks.
+    // Uses relative path — picks up baseURL from playwright.config.ts.
+    // Idempotent on the server: 2nd+ calls are no-ops.
+    await context.request.post('/api/user/referral-source', {
+      data: { source: 'skipped' },
+    })
   })
 
   test('B1 Lesen: dashboard → generate → 5 Teils → submit → results', async ({

@@ -252,6 +252,22 @@
         "settings": "Einstellungen"
       }
     },
+    "referralSurvey": {
+      "eyebrow": "EINE FRAGE",
+      "title": "Woher haben Sie von uns erfahren?",
+      "subtitle": "So verstehen wir, welche Kanäle funktionieren. Dauert nur eine Sekunde.",
+      "skip": "Überspringen",
+      "close": "Schließen",
+      "options": {
+        "ai": "KI (ChatGPT, Claude usw.)",
+        "search": "Suchmaschine (Google, Bing)",
+        "friend": "Von Bekannten",
+        "teacher": "Von einer Lehrkraft",
+        "ads": "Werbung",
+        "social": "Soziale Netzwerke (YouTube, TikTok, Telegram)",
+        "other": "Anderes"
+      }
+    },
     "overview": {
       "eyebrow": "ÜBERSICHT",
       "greeting": "Guten Tag, <name></name>.",

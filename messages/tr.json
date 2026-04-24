@@ -252,6 +252,22 @@
         "settings": "Ayarlar"
       }
     },
+    "referralSurvey": {
+      "eyebrow": "BİR SORU",
+      "title": "Bizi nereden duydunuz?",
+      "subtitle": "Hangi kanalların işe yaradığını anlamamıza yardımcı olur. Bir saniye sürer.",
+      "skip": "Atla",
+      "close": "Kapat",
+      "options": {
+        "ai": "YZ (ChatGPT, Claude vb.)",
+        "search": "Arama motoru (Google, Bing)",
+        "friend": "Bir arkadaştan",
+        "teacher": "Bir öğretmenden",
+        "ads": "Reklam",
+        "social": "Sosyal medya (YouTube, TikTok, Telegram)",
+        "other": "Diğer"
+      }
+    },
     "overview": {
       "eyebrow": "GENEL BAKIŞ",
       "greeting": "İyi günler, <name></name>.",

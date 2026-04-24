@@ -252,6 +252,22 @@
         "settings": "Настройки"
       }
     },
+    "referralSurvey": {
+      "eyebrow": "ОДИН ВОПРОС",
+      "title": "Откуда вы о нас узнали?",
+      "subtitle": "Это помогает нам понимать, какие каналы работают. Займёт секунду.",
+      "skip": "Пропустить",
+      "close": "Закрыть",
+      "options": {
+        "ai": "ИИ (ChatGPT, Claude и др.)",
+        "search": "Поисковик (Google, Яндекс)",
+        "friend": "От знакомого",
+        "teacher": "От преподавателя",
+        "ads": "Реклама",
+        "social": "Соцсети (YouTube, TikTok, Telegram)",
+        "other": "Другое"
+      }
+    },
     "overview": {
       "eyebrow": "ОБЗОР",
       "greeting": "Добрый день, <name></name>.",

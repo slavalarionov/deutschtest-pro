@@ -252,6 +252,22 @@
         "settings": "Settings"
       }
     },
+    "referralSurvey": {
+      "eyebrow": "ONE QUESTION",
+      "title": "How did you hear about us?",
+      "subtitle": "It helps us understand which channels actually work. Takes a second.",
+      "skip": "Skip",
+      "close": "Close",
+      "options": {
+        "ai": "AI (ChatGPT, Claude, etc.)",
+        "search": "Search engine (Google, Bing)",
+        "friend": "From a friend",
+        "teacher": "From a teacher",
+        "ads": "Advertisement",
+        "social": "Social media (YouTube, TikTok, Telegram)",
+        "other": "Other"
+      }
+    },
     "overview": {
       "eyebrow": "OVERVIEW",
       "greeting": "Good afternoon, <name></name>.",
