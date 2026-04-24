@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server'
+import { Link } from '@/i18n/routing'
 import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@/lib/supabase-server'
 import { loadDashboardStats, type DashboardModule } from '@/lib/dashboard/stats'
@@ -242,16 +243,29 @@ export default async function DashboardHomePage() {
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-5">
         {/* Chart preview */}
         <section className="rounded-rad-sm border border-line bg-card p-5 lg:col-span-3">
-          <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="mb-1 flex items-center justify-between gap-3">
             <h2 className="text-sm font-medium text-ink">
               {t('chartPreviewTitle')}
             </h2>
           </div>
+          <p className="mb-4 text-sm text-muted">
+            {t('chartPreviewExplanation')}
+          </p>
           {sparklinePoints.length > 0 ? (
-            <ProgressSparkline
-              points={sparklinePoints}
-              label={t('chartPreviewTitle')}
-            />
+            <>
+              <ProgressSparkline
+                points={sparklinePoints}
+                label={t('chartPreviewTitle')}
+              />
+              <div className="mt-3 flex justify-end">
+                <Link
+                  href="/dashboard/progress"
+                  className="text-sm text-ink-soft transition-colors hover:text-ink"
+                >
+                  {t('chartPreviewMoreDetails')}
+                </Link>
+              </div>
+            </>
           ) : (
             <div className="flex h-[180px] flex-col items-start justify-center">
               <div className="font-mono text-[10px] uppercase tracking-widest text-muted">

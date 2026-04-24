@@ -149,3 +149,23 @@
 
 /* Selection follows accent */
 ::selection { background: var(--accent-soft); color: var(--accent-ink); }
+
+/* Thin editorial scrollbar used on horizontally-scrolling chart containers. */
+.chart-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+.chart-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.chart-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chart-scroll::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 3px;
+}
+.chart-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-soft);
+}

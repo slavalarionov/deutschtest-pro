@@ -285,6 +285,8 @@
         "balanceAvailable": "{count, plural, one {# module available} other {# modules available}}"
       },
       "chartPreviewTitle": "Progress · last 12 exams",
+      "chartPreviewExplanation": "Average score across all modules and levels, last 12 attempts.",
+      "chartPreviewMoreDetails": "See details →",
       "chartEmpty": "No exams yet. Start your first test.",
       "recommendationsPreviewTitle": "AI recommendations",
       "recommendationsAll": "All recommendations →",
@@ -460,21 +462,26 @@
         "fallbackMuted": "Your growth."
       },
       "chart": {
-        "eyebrow": "SCORE · WEEKLY · PER MODULE",
+        "eyebrow": "SCORE · PER ATTEMPT · PER MODULE",
         "moduleHeadline": "Progress by module.",
         "outOf100": "/ 100",
         "legendYou": "YOU",
         "legendPassLine": "PASS",
         "passLabel": "PASS · 60",
+        "xAxisLabel": "Attempt #",
         "emptyTitle": "NO DATA",
         "emptyLead": "After the first exams, your progress will show up here.",
         "emptyStateForLevel": "No attempts on {level} yet.",
         "emptyStateCta": "Start a module",
+        "legend": {
+          "noAttempts": "no attempts"
+        },
         "levelToggle": {
           "aria": "Level selector"
         },
         "tooltip": {
-          "attempts": "{count, plural, one {# attempt} other {# attempts}}"
+          "attemptLabel": "ATTEMPT {index}",
+          "scoreLine": "{score} of 100"
         }
       },
       "perModule": {
@@ -484,10 +491,6 @@
       },
       "tooltip": {
         "scoreLabel": "POINTS"
-      },
-      "byLevel": {
-        "eyebrow": "BY LEVEL",
-        "attempts": "× {attempts, plural, one {# module} other {# modules}}"
       },
       "empty": {
         "title": "No progress yet.",

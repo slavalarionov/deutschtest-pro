@@ -285,6 +285,8 @@
         "balanceAvailable": "{count, plural, other {# modül mevcut}}"
       },
       "chartPreviewTitle": "İlerleme · son 12 sınav",
+      "chartPreviewExplanation": "Tüm modül ve seviyelerdeki ortalama puan, son 12 deneme.",
+      "chartPreviewMoreDetails": "Ayrıntılar →",
       "chartEmpty": "Henüz sınav yok. İlk testinizi başlatın.",
       "recommendationsPreviewTitle": "AI önerileri",
       "recommendationsAll": "Tüm öneriler →",
@@ -460,21 +462,26 @@
         "fallbackMuted": "Gelişiminiz."
       },
       "chart": {
-        "eyebrow": "PUAN · HAFTALIK · MODÜL BAZINDA",
+        "eyebrow": "PUAN · DENEMEYE GÖRE · MODÜL BAZINDA",
         "moduleHeadline": "Modül bazında ilerleme.",
         "outOf100": "/ 100",
         "legendYou": "SEN",
         "legendPassLine": "GEÇER",
         "passLabel": "GEÇER · 60",
+        "xAxisLabel": "Deneme No.",
         "emptyTitle": "VERİ YOK",
         "emptyLead": "İlk sınavlardan sonra ilerlemeniz burada görünecek.",
         "emptyStateForLevel": "{level} seviyesinde henüz deneme yok.",
         "emptyStateCta": "Modül başlat",
+        "legend": {
+          "noAttempts": "deneme yok"
+        },
         "levelToggle": {
           "aria": "Seviye seçimi"
         },
         "tooltip": {
-          "attempts": "{count, plural, one {# deneme} other {# deneme}}"
+          "attemptLabel": "DENEME {index}",
+          "scoreLine": "100 üzerinden {score}"
         }
       },
       "perModule": {
@@ -484,10 +491,6 @@
       },
       "tooltip": {
         "scoreLabel": "PUAN"
-      },
-      "byLevel": {
-        "eyebrow": "SEVİYEYE GÖRE",
-        "attempts": "× {attempts, plural, other {# modül}}"
       },
       "empty": {
         "title": "Henüz ilerleme yok.",

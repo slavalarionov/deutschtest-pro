@@ -1,26 +1,25 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import {
   CartesianGrid,
   Line,
   LineChart,
   ReferenceLine,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts'
 import type { ProgressData, ProgressLevel, ProgressModule } from '@/lib/dashboard/progress'
 import {
-  bucketPointsByWeekPerModule,
+  buildPerAttemptSeriesForLevel,
   computeModuleDeltas,
   countAttemptsByLevel,
   countAttemptsByModuleForLevel,
-  type PerModuleWeeklyBucket,
+  type PerAttemptPoint,
 } from '@/lib/dashboard/progress-client'
 
 const MODULES: ProgressModule[] = ['lesen', 'horen', 'schreiben', 'sprechen']
@@ -40,6 +39,9 @@ const MODULE_STROKES: Record<ProgressModule, string> = {
   schreiben: 'var(--ink-soft)',
   sprechen: 'var(--muted)',
 }
+
+const CHART_HEIGHT = 320
+const MIN_STEP_PX = 44
 
 function parseLevelParam(raw: string | null): ProgressLevel | null {
   if (!raw) return null
@@ -186,8 +188,6 @@ export function ProgressView() {
       />
 
       {moduleDeltas && <PerModuleGrid deltas={moduleDeltas} />}
-
-      {data.levelAverages.length >= 2 && <ByLevelBlock levels={data.levelAverages} />}
     </div>
   )
 }
@@ -241,22 +241,14 @@ function ModuleLinesChart({
   onLevelChange,
 }: ModuleLinesChartProps) {
   const t = useTranslations('dashboard.progress')
+  const locale = useLocale()
 
-  const buckets = useMemo<PerModuleWeeklyBucket[]>(
-    () => bucketPointsByWeekPerModule(points, selectedLevel, 12),
+  const { series, counts, maxCount } = useMemo(
+    () => buildPerAttemptSeriesForLevel(points, selectedLevel),
     [points, selectedLevel]
   )
 
-  const attemptsByModule = useMemo(
-    () => countAttemptsByModuleForLevel(points, selectedLevel),
-    [points, selectedLevel]
-  )
-
-  const totalOnLevel =
-    attemptsByModule.lesen +
-    attemptsByModule.horen +
-    attemptsByModule.schreiben +
-    attemptsByModule.sprechen
+  const totalOnLevel = counts.lesen + counts.horen + counts.schreiben + counts.sprechen
 
   const [hoveredLine, setHoveredLine] = useState<ProgressModule | null>(null)
   const [hiddenLines, setHiddenLines] = useState<Set<ProgressModule>>(
@@ -264,6 +256,7 @@ function ModuleLinesChart({
   )
 
   const toggleHidden = (m: ProgressModule) => {
+    if (counts[m] === 0) return
     setHiddenLines((prev) => {
       const next = new Set(prev)
       if (next.has(m)) next.delete(m)
@@ -271,6 +264,24 @@ function ModuleLinesChart({
       return next
     })
   }
+
+  // Measure wrapper width so we can widen the chart and trigger horizontal
+  // scroll when attempts are numerous. Fixed-width LineChart is needed because
+  // ResponsiveContainer would clamp us back to the wrapper width.
+  const wrapperRef = useRef<HTMLDivElement | null>(null)
+  const [wrapperWidth, setWrapperWidth] = useState(800)
+
+  useEffect(() => {
+    const el = wrapperRef.current
+    if (!el) return
+    const update = () => setWrapperWidth(el.clientWidth)
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  const chartWidth = Math.max(wrapperWidth, maxCount * MIN_STEP_PX)
 
   return (
     <section className="rounded-rad border border-line bg-card p-6 md:p-8">
@@ -290,20 +301,37 @@ function ModuleLinesChart({
         <EmptyStateForLevel level={selectedLevel} />
       ) : (
         <>
-          <ResponsiveContainer width="100%" height={320}>
+          <div
+            ref={wrapperRef}
+            className="chart-scroll overflow-x-auto overflow-y-hidden"
+          >
             <LineChart
               key={selectedLevel}
-              data={buckets}
-              margin={{ top: 10, right: 24, left: 0, bottom: 0 }}
+              width={chartWidth}
+              height={CHART_HEIGHT}
+              data={series}
+              margin={{ top: 10, right: 24, left: 0, bottom: 20 }}
               onMouseLeave={() => setHoveredLine(null)}
             >
               <CartesianGrid strokeDasharray="2 4" stroke="var(--line-soft)" />
               <XAxis
-                dataKey="week"
+                type="number"
+                dataKey="attemptIndex"
+                domain={[1, Math.max(maxCount, 1)]}
+                allowDecimals={false}
+                ticks={buildXTicks(maxCount)}
                 stroke="var(--muted)"
                 tickLine={false}
                 axisLine={{ stroke: 'var(--line)' }}
                 tick={{
+                  fontSize: 10,
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fill: 'var(--muted)',
+                }}
+                label={{
+                  value: t('chart.xAxisLabel'),
+                  position: 'insideBottom',
+                  offset: -8,
                   fontSize: 10,
                   fontFamily: 'JetBrains Mono, monospace',
                   fill: 'var(--muted)',
@@ -335,17 +363,20 @@ function ModuleLinesChart({
               />
               <Tooltip
                 content={
-                  <MultiTooltip
+                  <AttemptTooltip
                     hoveredLine={hoveredLine}
                     hiddenLines={hiddenLines}
+                    level={selectedLevel}
+                    locale={locale}
                   />
                 }
                 cursor={{ stroke: 'var(--line)' }}
               />
               {MODULES.map((m) => {
-                if (hiddenLines.has(m)) return null
+                if (hiddenLines.has(m) || counts[m] === 0) return null
                 const isHovered = hoveredLine === m
                 const isDimmed = hoveredLine !== null && !isHovered
+                const singleAttempt = counts[m] === 1
                 return (
                   <Line
                     key={m}
@@ -358,7 +389,11 @@ function ModuleLinesChart({
                     isAnimationActive={true}
                     animationDuration={1000}
                     animationEasing="ease-in-out"
-                    dot={false}
+                    dot={
+                      singleAttempt
+                        ? { r: 5, fill: MODULE_STROKES[m], stroke: 'var(--card)', strokeWidth: 2 }
+                        : false
+                    }
                     activeDot={{
                       r: 4,
                       fill: MODULE_STROKES[m],
@@ -370,10 +405,10 @@ function ModuleLinesChart({
                 )
               })}
             </LineChart>
-          </ResponsiveContainer>
+          </div>
 
           <ChartLegend
-            attempts={attemptsByModule}
+            counts={counts}
             hiddenLines={hiddenLines}
             hoveredLine={hoveredLine}
             onToggle={toggleHidden}
@@ -383,6 +418,21 @@ function ModuleLinesChart({
       )}
     </section>
   )
+}
+
+/**
+ * Pick integer ticks along the attempt axis. Up to 20 attempts — every step.
+ * Beyond that — every other or every fifth, always keeping 1 and maxCount.
+ */
+function buildXTicks(maxCount: number): number[] {
+  if (maxCount <= 1) return [1]
+  let step = 1
+  if (maxCount > 50) step = 5
+  else if (maxCount > 20) step = 2
+  const ticks: number[] = []
+  for (let i = 1; i <= maxCount; i += step) ticks.push(i)
+  if (ticks[ticks.length - 1] !== maxCount) ticks.push(maxCount)
+  return ticks
 }
 
 function LevelToggle({
@@ -443,87 +493,101 @@ function EmptyStateForLevel({ level }: { level: ProgressLevel }) {
 }
 
 interface TooltipPayloadItem {
-  dataKey?: string
+  dataKey?: string | number
   value?: number | null
-  payload?: PerModuleWeeklyBucket
+  payload?: PerAttemptPoint
 }
 
-function MultiTooltip({
+function formatAttemptTimestamp(iso: string, locale: string): string {
+  try {
+    const d = new Date(iso)
+    const day = d.toLocaleDateString(locale, { day: 'numeric', month: 'short' })
+    const time = d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
+    return `${day} · ${time}`
+  } catch {
+    return '—'
+  }
+}
+
+function AttemptTooltip({
   active,
   payload,
   hoveredLine,
   hiddenLines,
+  level,
+  locale,
 }: {
   active?: boolean
   payload?: TooltipPayloadItem[]
   hoveredLine: ProgressModule | null
   hiddenLines: Set<ProgressModule>
+  level: ProgressLevel
+  locale: string
 }) {
   const t = useTranslations('dashboard.progress')
   if (!active || !payload || payload.length === 0) return null
-  const bucket = payload[0]?.payload
-  if (!bucket) return null
+  const row = payload[0]?.payload
+  if (!row) return null
 
-  const countField: Record<ProgressModule, keyof PerModuleWeeklyBucket> = {
-    lesen: 'lesenCount',
-    horen: 'horenCount',
-    schreiben: 'schreibenCount',
-    sprechen: 'sprechenCount',
-  }
+  // Prefer the hovered line's value; fall back to any non-null module on this
+  // column in a fixed module order.
+  const visibleModule: ProgressModule | null = (() => {
+    if (hoveredLine && !hiddenLines.has(hoveredLine) && row[hoveredLine] !== null) {
+      return hoveredLine
+    }
+    for (const m of MODULES) {
+      if (hiddenLines.has(m)) continue
+      if (row[m] !== null) return m
+    }
+    return null
+  })()
+
+  if (!visibleModule) return null
+
+  const score = row[visibleModule] as number
+  const atKey = `${visibleModule}At` as
+    | 'lesenAt'
+    | 'horenAt'
+    | 'schreibenAt'
+    | 'sprechenAt'
+  const at = row[atKey] as string | null
 
   return (
-    <div className="rounded-rad border border-line bg-card px-3 py-2 shadow-lift">
+    <div className="rounded-rad border border-line bg-card px-3 py-2 shadow-lift min-w-[180px]">
       <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-        {bucket.week}
+        {t('chart.tooltip.attemptLabel', { index: row.attemptIndex })}
       </div>
-      <ul className="mt-1 space-y-0.5">
-        {MODULES.map((m) => {
-          const isHidden = hiddenLines.has(m)
-          const value = bucket[m] as number | null
-          const count = bucket[countField[m]] as number
-          const isActive = hoveredLine === m
-          const toneClass = isHidden
-            ? 'text-muted opacity-50'
-            : isActive
-              ? 'text-ink'
-              : hoveredLine !== null
-                ? 'text-muted'
-                : 'text-ink'
-          return (
-            <li
-              key={m}
-              className={`flex items-baseline gap-2 font-mono text-xs tabular-nums ${toneClass}`}
-            >
-              <span
-                aria-hidden="true"
-                className="block h-2 w-2 rounded-full"
-                style={{ background: MODULE_STROKES[m] }}
-              />
-              <span className="flex-1">{MODULE_LABELS[m]}</span>
-              <span>
-                {value === null ? '—' : value}
-                {value !== null && count > 0 && (
-                  <span className="ml-2 text-muted">
-                    · {t('chart.tooltip.attempts', { count })}
-                  </span>
-                )}
-              </span>
-            </li>
-          )
-        })}
-      </ul>
+      <div className="mt-1.5 border-t border-line-soft pt-1.5">
+        <div className="flex items-center gap-2 font-mono text-xs tabular-nums text-ink">
+          <span
+            aria-hidden="true"
+            className="block h-2 w-2 rounded-full"
+            style={{ background: MODULE_STROKES[visibleModule] }}
+          />
+          <span>{MODULE_LABELS[visibleModule]}</span>
+          <span className="text-muted">· {level}</span>
+        </div>
+        {at && (
+          <div className="mt-0.5 font-mono text-[10px] text-muted">
+            {formatAttemptTimestamp(at, locale)}
+          </div>
+        )}
+        <div className="mt-1 font-mono text-sm text-ink tabular-nums">
+          {t('chart.tooltip.scoreLine', { score })}
+        </div>
+      </div>
     </div>
   )
 }
 
 function ChartLegend({
-  attempts,
+  counts,
   hiddenLines,
   hoveredLine,
   onToggle,
   onHover,
 }: {
-  attempts: Record<ProgressModule, number>
+  counts: Record<ProgressModule, number>
   hiddenLines: Set<ProgressModule>
   hoveredLine: ProgressModule | null
   onToggle: (m: ProgressModule) => void
@@ -533,25 +597,29 @@ function ChartLegend({
   return (
     <div className="mt-6 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:gap-6">
       {MODULES.map((m) => {
+        const count = counts[m]
+        const isEmpty = count === 0
         const isHidden = hiddenLines.has(m)
-        const count = attempts[m]
         const isActive = hoveredLine === m
         return (
           <button
             key={m}
             type="button"
-            aria-pressed={!isHidden}
+            disabled={isEmpty}
+            aria-pressed={!isEmpty && !isHidden}
             onClick={() => onToggle(m)}
-            onMouseEnter={() => onHover(m)}
+            onMouseEnter={() => !isEmpty && onHover(m)}
             onMouseLeave={() => onHover(null)}
-            onFocus={() => onHover(m)}
+            onFocus={() => !isEmpty && onHover(m)}
             onBlur={() => onHover(null)}
             className={`inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider transition-colors ${
-              isHidden
-                ? 'text-muted line-through opacity-60'
-                : isActive
-                  ? 'text-ink'
-                  : 'text-ink-soft hover:text-ink'
+              isEmpty
+                ? 'text-muted cursor-default'
+                : isHidden
+                  ? 'text-muted line-through opacity-60'
+                  : isActive
+                    ? 'text-ink'
+                    : 'text-ink-soft hover:text-ink'
             }`}
           >
             <span
@@ -559,11 +627,13 @@ function ChartLegend({
               className="block h-3 w-3 rounded-full"
               style={{
                 background: MODULE_STROKES[m],
-                opacity: isHidden ? 0.4 : 1,
+                opacity: isEmpty || isHidden ? 0.4 : 1,
               }}
             />
             <span>{MODULE_LABELS[m]}</span>
-            <span className="text-muted">· {count}</span>
+            <span className="text-muted">
+              {isEmpty ? `· ${t('chart.legend.noAttempts')}` : `· ${count}`}
+            </span>
           </button>
         )
       })}
@@ -636,43 +706,6 @@ function PerModuleGrid({
           </div>
         )
       })}
-    </section>
-  )
-}
-
-function ByLevelBlock({
-  levels,
-}: {
-  levels: { level: string; averageScore: number; attempts: number }[]
-}) {
-  const t = useTranslations('dashboard.progress')
-
-  return (
-    <section className="rounded-rad border border-line bg-card p-8">
-      <div className="font-mono text-xs uppercase tracking-wider text-muted mb-6">
-        {t('byLevel.eyebrow')}
-      </div>
-      <div className="space-y-4">
-        {levels.map((lvl) => (
-          <div key={lvl.level} className="flex items-center gap-4">
-            <div className="w-12 font-mono text-xs uppercase tracking-wider text-ink">
-              {lvl.level}
-            </div>
-            <div className="flex-1 h-2 bg-line rounded-rad-pill overflow-hidden">
-              <div
-                className={`h-full ${lvl.averageScore >= 60 ? 'bg-accent' : 'bg-ink'}`}
-                style={{ width: `${lvl.averageScore}%` }}
-              />
-            </div>
-            <div className="w-12 text-right font-mono text-sm text-ink">
-              {lvl.averageScore}
-            </div>
-            <div className="font-mono text-xs text-muted whitespace-nowrap">
-              {t('byLevel.attempts', { attempts: lvl.attempts })}
-            </div>
-          </div>
-        ))}
-      </div>
     </section>
   )
 }

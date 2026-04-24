@@ -285,6 +285,8 @@
         "balanceAvailable": "{count, plural, one {# модуль доступен} few {# модуля доступно} many {# модулей доступно} other {# модулей доступно}}"
       },
       "chartPreviewTitle": "Прогресс · последние 12 экзаменов",
+      "chartPreviewExplanation": "Средний балл по всем модулям и уровням, последние 12 попыток.",
+      "chartPreviewMoreDetails": "Подробнее →",
       "chartEmpty": "Пока нет экзаменов. Начните первый тест.",
       "recommendationsPreviewTitle": "ИИ-рекомендации",
       "recommendationsAll": "Все рекомендации →",
@@ -460,21 +462,26 @@
         "fallbackMuted": "Ваше развитие."
       },
       "chart": {
-        "eyebrow": "БАЛЛ · ПО НЕДЕЛЯМ · ПО МОДУЛЯМ",
+        "eyebrow": "БАЛЛ · ПО ПОПЫТКАМ · ПО МОДУЛЯМ",
         "moduleHeadline": "Прогресс по модулям.",
         "outOf100": "/ 100",
         "legendYou": "ВЫ",
         "legendPassLine": "ПРОХОД",
         "passLabel": "ПРОХОД · 60",
+        "xAxisLabel": "Попытка №",
         "emptyTitle": "НЕТ ДАННЫХ",
         "emptyLead": "После первых экзаменов здесь появится ваш прогресс.",
         "emptyStateForLevel": "На уровне {level} ещё нет попыток.",
         "emptyStateCta": "Пройти модуль",
+        "legend": {
+          "noAttempts": "нет попыток"
+        },
         "levelToggle": {
           "aria": "Выбор уровня"
         },
         "tooltip": {
-          "attempts": "{count, plural, one {# попытка} few {# попытки} many {# попыток} other {# попытки}}"
+          "attemptLabel": "ПОПЫТКА {index}",
+          "scoreLine": "{score} из 100"
         }
       },
       "perModule": {
@@ -484,10 +491,6 @@
       },
       "tooltip": {
         "scoreLabel": "БАЛЛЫ"
-      },
-      "byLevel": {
-        "eyebrow": "ПО УРОВНЮ",
-        "attempts": "× {attempts, plural, one {# модуль} few {# модуля} many {# модулей} other {# модуля}}"
       },
       "empty": {
         "title": "Пока нет прогресса.",

@@ -285,6 +285,8 @@
         "balanceAvailable": "{count, plural, one {# Modul verfügbar} other {# Module verfügbar}}"
       },
       "chartPreviewTitle": "Fortschritt · letzte 12 Prüfungen",
+      "chartPreviewExplanation": "Durchschnittliche Punktzahl aller Module und Stufen, letzte 12 Versuche.",
+      "chartPreviewMoreDetails": "Mehr Details →",
       "chartEmpty": "Noch keine Prüfungen. Starten Sie Ihren ersten Test.",
       "recommendationsPreviewTitle": "KI-Empfehlungen",
       "recommendationsAll": "Alle Empfehlungen →",
@@ -460,21 +462,26 @@
         "fallbackMuted": "Deine Entwicklung."
       },
       "chart": {
-        "eyebrow": "PUNKTZAHL · WÖCHENTLICH · NACH MODUL",
+        "eyebrow": "PUNKTZAHL · PRO VERSUCH · NACH MODUL",
         "moduleHeadline": "Fortschritt nach Modul.",
         "outOf100": "/ 100",
         "legendYou": "DU",
         "legendPassLine": "BESTEHEN",
         "passLabel": "BESTEHEN · 60",
+        "xAxisLabel": "Versuch Nr.",
         "emptyTitle": "KEINE DATEN",
         "emptyLead": "Nach den ersten Prüfungen erscheint hier dein Fortschritt.",
         "emptyStateForLevel": "Auf Stufe {level} gibt es noch keine Versuche.",
         "emptyStateCta": "Modul starten",
+        "legend": {
+          "noAttempts": "keine Versuche"
+        },
         "levelToggle": {
           "aria": "Stufenauswahl"
         },
         "tooltip": {
-          "attempts": "{count, plural, one {# Versuch} other {# Versuche}}"
+          "attemptLabel": "VERSUCH {index}",
+          "scoreLine": "{score} von 100"
         }
       },
       "perModule": {
@@ -484,10 +491,6 @@
       },
       "tooltip": {
         "scoreLabel": "PUNKTE"
-      },
-      "byLevel": {
-        "eyebrow": "NACH NIVEAU",
-        "attempts": "× {attempts, plural, one {# Modul} other {# Module}}"
       },
       "empty": {
         "title": "Noch keine Fortschritte.",
