@@ -22,10 +22,10 @@ const TEIL_KEYS = ['teil1', 'teil2', 'teil3', 'teil4'] as const
 // ============================================================
 
 const SHELL = 'rounded-rad border border-line bg-card'
-const TASK_SHELL_BASE = 'rounded-rad border p-5 transition'
-const TASK_SHELL_NEUTRAL = 'border-line bg-card'
-const TASK_SHELL_CORRECT = 'border-accent/40 bg-accent-soft/40'
-const TASK_SHELL_WRONG = 'border-error/40 bg-error-soft/40'
+const TASK_ROW_BASE = 'border-l-2 py-4 pl-3 transition'
+const TASK_ROW_NEUTRAL = 'border-transparent'
+const TASK_ROW_CORRECT = 'border-accent/60'
+const TASK_ROW_WRONG = 'border-error/60'
 
 const EYEBROW = 'font-mono text-[11px] uppercase tracking-wider text-muted'
 const TASK_ID_BADGE =
@@ -59,11 +59,11 @@ function optionClass(params: {
   return OPTION_NEUTRAL
 }
 
-function taskShellClass(submitted: boolean, detail?: { isCorrect: boolean }): string {
+function taskRowClass(submitted: boolean, detail?: { isCorrect: boolean }): string {
   if (submitted && detail) {
-    return `${TASK_SHELL_BASE} ${detail.isCorrect ? TASK_SHELL_CORRECT : TASK_SHELL_WRONG}`
+    return `${TASK_ROW_BASE} ${detail.isCorrect ? TASK_ROW_CORRECT : TASK_ROW_WRONG}`
   }
-  return `${TASK_SHELL_BASE} ${TASK_SHELL_NEUTRAL}`
+  return `${TASK_ROW_BASE} ${TASK_ROW_NEUTRAL}`
 }
 
 function AnswerBadge({ isCorrect }: { isCorrect: boolean }) {
@@ -286,7 +286,7 @@ function HorenTeilView({
   number: number
 }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-10">
       <div className={`${SHELL} p-5`}>
         <div className={EYEBROW}>
           Teil {number} · {tag}
@@ -323,25 +323,26 @@ function ScriptBlock({
   const tAudio = useTranslations('exam.audio')
 
   return (
-    <div className="space-y-3">
-      <div className={`${SHELL} p-5`}>
-        <div className="mb-3 flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 rounded-rad-pill border border-line px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wider text-ink">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            {tAudio('scriptHeader', { id: script.id, count: script.playCount })}
-          </span>
-        </div>
-        <HorenAudioPlayer script={script} />
+    <section className="space-y-3">
+      <div className="flex items-center gap-1.5">
+        <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+        <span className={EYEBROW}>
+          {tAudio('scriptHeader', { id: script.id, count: script.playCount })}
+        </span>
       </div>
 
-      {script.tasks.map((task) =>
-        task.type === 'rf' ? (
-          <HorenRFRow key={task.id} task={task} answers={answers} setAnswer={setAnswer} submitted={submitted} results={results} />
-        ) : (
-          <HorenMCRow key={task.id} task={task} answers={answers} setAnswer={setAnswer} submitted={submitted} results={results} />
-        )
-      )}
-    </div>
+      <HorenAudioPlayer script={script} />
+
+      <div className="divide-y divide-line/60 pl-4 sm:pl-6">
+        {script.tasks.map((task) =>
+          task.type === 'rf' ? (
+            <HorenRFRow key={task.id} task={task} answers={answers} setAnswer={setAnswer} submitted={submitted} results={results} />
+          ) : (
+            <HorenMCRow key={task.id} task={task} answers={answers} setAnswer={setAnswer} submitted={submitted} results={results} />
+          )
+        )}
+      </div>
+    </section>
   )
 }
 
@@ -524,7 +525,7 @@ function HorenRFRow({ task, answers, setAnswer, submitted, results }: TeilViewPr
   const detail = results?.details[key]
 
   return (
-    <div data-testid="exam-task" className={taskShellClass(submitted, detail)}>
+    <div data-testid="exam-task" className={taskRowClass(submitted, detail)}>
       <div className="flex items-start justify-between gap-4">
         <p className="text-sm leading-relaxed text-ink">
           <span className={TASK_ID_BADGE}>{task.id}</span>
@@ -564,7 +565,7 @@ function HorenMCRow({ task, answers, setAnswer, submitted, results }: TeilViewPr
   const detail = results?.details[key]
 
   return (
-    <div data-testid="exam-task" className={taskShellClass(submitted, detail)}>
+    <div data-testid="exam-task" className={taskRowClass(submitted, detail)}>
       <p className="mb-3 text-sm font-medium text-ink">
         <span className={TASK_ID_BADGE}>{task.id}</span>
         {task.question}
