@@ -852,7 +852,7 @@
     "feedback": {
       "eyebrow": "FEEDBACK",
       "title": "Teilen Sie Ihren Eindruck.",
-      "description": "Sagen Sie uns, was gut war und was nicht. Das hilft, die Tests zu verbessern. Alles ist optional.",
+      "description": "Teilen Sie mit, was Ihnen gefallen hat oder nicht. Das hilft uns, die Tests zu verbessern.",
       "ratingLabel": "Bewertung",
       "messagePlaceholder": "Was ist aufgefallen, was könnte besser sein…",
       "submit": "Absenden",

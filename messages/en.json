@@ -852,7 +852,7 @@
     "feedback": {
       "eyebrow": "FEEDBACK",
       "title": "Share your impression.",
-      "description": "Tell us what worked and what didn't. It helps us improve the tests. Everything is optional.",
+      "description": "Tell us what you liked or didn't. This helps us improve the tests.",
       "ratingLabel": "Rating",
       "messagePlaceholder": "What stood out, what could be better…",
       "submit": "Submit",

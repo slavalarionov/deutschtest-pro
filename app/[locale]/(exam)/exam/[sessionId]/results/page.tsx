@@ -537,26 +537,24 @@ function FeedbackSection({
         <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
           {t('ratingLabel')}
         </div>
-        <div className="mt-3 flex items-center gap-1 font-mono text-sm tabular-nums">
-          {[1, 2, 3, 4, 5].map((n, i) => {
-            const active = rating !== null && rating >= n
+        <div className="mt-3 flex items-center gap-2">
+          {[1, 2, 3, 4, 5].map((n) => {
+            const active = rating === n
             return (
-              <span key={n} className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setRating(rating === n ? null : n)}
-                  aria-label={String(n)}
-                  aria-pressed={rating === n}
-                  className={`rounded-rad-sm px-2 py-1 text-base transition-colors ${
-                    active
-                      ? 'text-ink'
-                      : 'text-muted hover:text-ink-soft'
-                  }`}
-                >
-                  {n}
-                </button>
-                {i < 4 && <span className="text-muted">·</span>}
-              </span>
+              <button
+                key={n}
+                type="button"
+                onClick={() => setRating(rating === n ? null : n)}
+                aria-label={String(n)}
+                aria-pressed={active}
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-full font-mono text-base tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 focus-visible:ring-offset-card ${
+                  active
+                    ? 'bg-ink text-card'
+                    : 'text-ink hover:bg-surface'
+                }`}
+              >
+                {n}
+              </button>
             )
           })}
         </div>

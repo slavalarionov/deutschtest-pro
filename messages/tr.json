@@ -852,7 +852,7 @@
     "feedback": {
       "eyebrow": "FEEDBACK",
       "title": "İzlenimlerinizi paylaşın.",
-      "description": "Neyi beğendiğinizi ya da beğenmediğinizi anlatın. Bu, testleri iyileştirmeye yardımcı olur. Her şey isteğe bağlıdır.",
+      "description": "Neyin hoşunuza gittiğini veya gitmediğini bize bildirin. Bu, testleri iyileştirmemize yardımcı olur.",
       "ratingLabel": "Puan",
       "messagePlaceholder": "Ne dikkat çekti, ne daha iyi olabilir…",
       "submit": "Gönder",
