@@ -839,6 +839,16 @@
       "loadFailed": "Sonuçlar yüklenemedi.",
       "network": "Sonuçlar yüklenirken ağ hatası."
     },
+    "scoreCard": {
+      "eyebrow": "{module} · {level} · {date} · {time}",
+      "outOf": "/ 100",
+      "summary": {
+        "high":    { "title": "Mükemmel!",              "subtitle": "Güvenle geçildi." },
+        "midHigh": { "title": "İyi.",                   "subtitle": "Geçildi." },
+        "midLow":  { "title": "Yakın.",                 "subtitle": "Geçilmedi." },
+        "low":     { "title": "Daha fazla pratik gerekli.", "subtitle": "Geçilmedi." }
+      }
+    },
     "userInput": {
       "schreibenLabel": "CEVABINIZ",
       "sprechenLabel": "KONUŞMANIZ (TRANSKRIPT)",

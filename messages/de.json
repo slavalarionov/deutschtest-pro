@@ -839,6 +839,16 @@
       "loadFailed": "Ergebnisse konnten nicht geladen werden.",
       "network": "Netzwerkfehler beim Laden der Ergebnisse."
     },
+    "scoreCard": {
+      "eyebrow": "{module} · {level} · {date} · {time}",
+      "outOf": "/ 100",
+      "summary": {
+        "high":    { "title": "Hervorragend!",       "subtitle": "Sicher bestanden." },
+        "midHigh": { "title": "Gut.",                "subtitle": "Bestanden." },
+        "midLow":  { "title": "Knapp.",              "subtitle": "Nicht bestanden." },
+        "low":     { "title": "Mehr Übung nötig.",   "subtitle": "Nicht bestanden." }
+      }
+    },
     "userInput": {
       "schreibenLabel": "IHRE ANTWORT",
       "sprechenLabel": "IHRE REDE (TRANSKRIPT)",

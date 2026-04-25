@@ -26,6 +26,17 @@
     --error:       oklch(0.52 0.17 22);
     --error-soft:  oklch(0.95 0.03 22);
 
+    /* ---------- Score-gradation tones ----------
+       Used as an accent stripe on the result-page hero card and anywhere a
+       4-level score band (low / mid-low / mid-high / high) needs a colour cue.
+       Hue picked to read as "warm but cautious" (warn) and "calm pass" (success);
+       --warn is intentionally distinct from --chart-schreiben to keep chart
+       semantics independent. */
+    --warn:         oklch(0.66 0.12 75);
+    --warn-soft:    oklch(0.95 0.04 75);
+    --success:      oklch(0.55 0.13 155);
+    --success-soft: oklch(0.94 0.04 155);
+
     /* ---------- Surface ladder (light) ---------- */
     --bg:        oklch(0.985 0.003 250);
     --surface:   oklch(0.975 0.004 250);
@@ -103,6 +114,10 @@
     --accent-ink:  oklch(0.78 0.14 var(--accent-h));
     --error:       oklch(0.62 0.17 22);
     --error-soft:  oklch(0.28 0.09 22);
+    --warn:         oklch(0.74 0.12 75);
+    --warn-soft:    oklch(0.30 0.08 75);
+    --success:      oklch(0.66 0.13 155);
+    --success-soft: oklch(0.28 0.08 155);
   }
 }
 

@@ -839,6 +839,16 @@
       "loadFailed": "Не удалось загрузить результаты.",
       "network": "Ошибка сети при загрузке результатов."
     },
+    "scoreCard": {
+      "eyebrow": "{module} · {level} · {date} · {time}",
+      "outOf": "/ 100",
+      "summary": {
+        "high":    { "title": "Отлично!",            "subtitle": "Уверенно сдан." },
+        "midHigh": { "title": "Хорошо.",             "subtitle": "Сдан." },
+        "midLow":  { "title": "Близко.",             "subtitle": "Не сдан." },
+        "low":     { "title": "Нужно ещё практики.", "subtitle": "Не сдан." }
+      }
+    },
     "userInput": {
       "schreibenLabel": "ВАШ ОТВЕТ",
       "sprechenLabel": "ВАША РЕЧЬ (РАСШИФРОВКА)",

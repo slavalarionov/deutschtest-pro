@@ -128,9 +128,14 @@ export default function ResultsPage() {
   const activeModule = VALID_MODULES.has(mode) ? mode : 'lesen'
   const moduleLabel = tModules(activeModule as 'lesen' | 'horen' | 'schreiben' | 'sprechen')
   const score = scores ? (scores as Record<string, number>)[activeModule] : undefined
-  const passed = score !== undefined && score >= 60
   const formattedDate = data.submittedAt
     ? formatEditorialDate(data.submittedAt, locale)
+    : null
+  const formattedTime = data.submittedAt
+    ? new Date(data.submittedAt).toLocaleTimeString(locale, {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
     : null
 
   return (
@@ -143,53 +148,17 @@ export default function ResultsPage() {
           </div>
           <h1 className="font-display text-[44px] leading-[1.05] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
             {moduleLabel}.
-            {formattedDate && (
-              <>
-                <br />
-                <span className="text-ink-soft">{formattedDate}.</span>
-              </>
-            )}
           </h1>
         </header>
 
-        {/* ====== Score card ====== */}
-        <div className="rounded-rad border border-line bg-card p-6 text-center sm:p-8">
-          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-            {tDetail('resultEyebrow')}
-          </div>
-          <div
-            data-testid="result-score-value"
-            className="mt-2 font-display text-4xl leading-none tracking-[-0.04em] text-ink tabular-nums"
-          >
-            {score ?? '—'}
-          </div>
-          <div className="mt-1 font-mono text-lg text-ink-soft">/ 100</div>
-
-          {score !== undefined && (
-            <div className="mx-auto mt-4 h-2 w-64 overflow-hidden rounded-rad-pill bg-line">
-              <div
-                className={`h-full rounded-rad-pill ${passed ? 'bg-accent' : 'bg-ink'}`}
-                style={{ width: `${Math.min(score, 100)}%` }}
-              />
-            </div>
-          )}
-
-          {score !== undefined && (
-            <p
-              data-testid="result-status"
-              data-passed={passed ? 'true' : 'false'}
-              className="mt-2 inline-flex items-center gap-2 text-sm"
-            >
-              <span
-                aria-hidden="true"
-                className={`block h-1.5 w-1.5 rounded-full ${passed ? 'bg-accent' : 'bg-ink'}`}
-              />
-              <span className={passed ? 'text-ink-soft' : 'text-muted'}>
-                {passed ? t('passed') : t('failed')}
-              </span>
-            </p>
-          )}
-        </div>
+        {/* ====== Hero score card ====== */}
+        <ScoreHero
+          score={score}
+          moduleLabel={moduleLabel.toLocaleUpperCase(locale)}
+          level={level.toUpperCase()}
+          date={formattedDate}
+          time={formattedTime}
+        />
 
         {/* ====== User input (Schreiben text / Sprechen transcript) ====== */}
         {(activeModule === 'schreiben' || activeModule === 'sprechen') && (
@@ -270,6 +239,106 @@ export default function ResultsPage() {
         moduleLabel={moduleLabel}
         modulesBalance={data?.modulesBalance ?? 0}
       />
+    </div>
+  )
+}
+
+type ScoreTone = 'high' | 'midHigh' | 'midLow' | 'low'
+
+/**
+ * Goethe-Zertifikat pass threshold is 60/100. The 4-band split mirrors that
+ * boundary: 60 lands in midHigh (passed), 59 falls into midLow (not passed),
+ * so the visual border on the card flips at the same number that decides
+ * the certificate. Cobalt (--accent) carries "passed but not stellar" so
+ * green stays meaningful for the genuinely strong attempts.
+ */
+function getScoreTone(score: number): {
+  tone: ScoreTone
+  color: string
+  passed: boolean
+} {
+  if (score >= 80) return { tone: 'high',    color: 'var(--success)', passed: true  }
+  if (score >= 60) return { tone: 'midHigh', color: 'var(--accent)',  passed: true  }
+  if (score >= 40) return { tone: 'midLow',  color: 'var(--warn)',    passed: false }
+  return                  { tone: 'low',     color: 'var(--error)',   passed: false }
+}
+
+function ScoreHero({
+  score,
+  moduleLabel,
+  level,
+  date,
+  time,
+}: {
+  score: number | undefined
+  moduleLabel: string
+  level: string
+  date: string | null
+  time: string | null
+}) {
+  const t = useTranslations('results.scoreCard')
+  const eyebrow =
+    date && time
+      ? t('eyebrow', { module: moduleLabel, level, date, time })
+      : `${moduleLabel} · ${level}`
+
+  if (score === undefined) {
+    return (
+      <div
+        data-testid="result-score-hero"
+        className="rounded-rad border border-line bg-card p-6 sm:p-10"
+      >
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {eyebrow}
+        </div>
+        <div
+          data-testid="result-score-value"
+          className="mt-6 font-display text-[80px] leading-none tracking-[-0.04em] text-ink tabular-nums sm:text-[120px] md:text-[140px]"
+        >
+          —
+        </div>
+      </div>
+    )
+  }
+
+  const { tone, color, passed } = getScoreTone(score)
+
+  return (
+    <div
+      data-testid="result-score-hero"
+      className="rounded-rad border border-l-2 border-line bg-card p-6 sm:border-l-4 sm:p-10"
+      style={{ borderLeftColor: color }}
+    >
+      <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+        {eyebrow}
+      </div>
+
+      <div className="mt-6 flex flex-col gap-6 sm:mt-8 sm:flex-row sm:items-center sm:gap-10">
+        <div className="flex items-end gap-3">
+          <div
+            data-testid="result-score-value"
+            className="font-display text-[80px] leading-none tracking-[-0.04em] text-ink tabular-nums sm:text-[120px] md:text-[140px]"
+          >
+            {score}
+          </div>
+          <div className="pb-2 font-mono text-sm text-muted sm:pb-4">
+            {t('outOf')}
+          </div>
+        </div>
+
+        <div
+          data-testid="result-status"
+          data-passed={passed ? 'true' : 'false'}
+          className="space-y-1"
+        >
+          <div className="font-display text-3xl leading-tight tracking-[-0.02em] text-ink sm:text-4xl">
+            {t(`summary.${tone}.title`)}
+          </div>
+          <div className="text-base text-muted">
+            {t(`summary.${tone}.subtitle`)}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

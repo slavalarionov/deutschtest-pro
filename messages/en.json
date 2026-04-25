@@ -839,6 +839,16 @@
       "loadFailed": "Couldn't load results.",
       "network": "Network error while loading results."
     },
+    "scoreCard": {
+      "eyebrow": "{module} · {level} · {date} · {time}",
+      "outOf": "/ 100",
+      "summary": {
+        "high":    { "title": "Excellent!",          "subtitle": "Confidently passed." },
+        "midHigh": { "title": "Good.",               "subtitle": "Passed." },
+        "midLow":  { "title": "Close.",              "subtitle": "Not passed." },
+        "low":     { "title": "More practice needed.", "subtitle": "Not passed." }
+      }
+    },
     "userInput": {
       "schreibenLabel": "YOUR ANSWER",
       "sprechenLabel": "YOUR SPEECH (TRANSCRIPT)",
