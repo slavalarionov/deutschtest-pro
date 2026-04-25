@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { Link, useRouter } from '@/i18n/routing'
 import { RetakeModuleModal } from '@/components/exam/RetakeModuleModal'
 import { formatEditorialDate } from '@/lib/format/date'
+import { userInputSchema, type UserInput } from '@/types/exam'
 
 interface ModuleScores {
   lesen?: number
@@ -36,6 +37,7 @@ interface ResultsData {
   mode: string
   scores: ModuleScores | null
   aiFeedback: Record<string, unknown> | null
+  userInput: unknown | null
   submittedAt: string | null
   modulesBalance: number
   attemptId: string | null
@@ -188,6 +190,11 @@ export default function ResultsPage() {
             </p>
           )}
         </div>
+
+        {/* ====== User input (Schreiben text / Sprechen transcript) ====== */}
+        {(activeModule === 'schreiben' || activeModule === 'sprechen') && (
+          <UserInputBlock module={activeModule} raw={data.userInput} />
+        )}
 
         {/* ====== Detailed feedback ====== */}
         {aiFeedback && (() => {
@@ -585,6 +592,76 @@ function FeedbackSection({
           </button>
         </div>
       </div>
+    </section>
+  )
+}
+
+/**
+ * "Your answer" block. Renders the user-submitted Schreiben text or the
+ * Sprechen transcript above the AI feedback so the user can re-read what
+ * they wrote/said before reading the critique. Old attempts (before
+ * migration 025) have raw === null and we render an explanatory empty
+ * state instead.
+ */
+function UserInputBlock({
+  module,
+  raw,
+}: {
+  module: 'schreiben' | 'sprechen'
+  raw: unknown
+}) {
+  const t = useTranslations('results.userInput')
+  const parsed: UserInput = (() => {
+    const result = userInputSchema.safeParse(raw)
+    return result.success ? result.data : {}
+  })()
+
+  const payload = module === 'schreiben' ? parsed.schreiben : parsed.sprechen
+  const hasContent = payload && (
+    module === 'schreiben'
+      ? Boolean((payload as { text?: string }).text?.trim())
+      : Boolean((payload as { transcript?: string }).transcript?.trim())
+  )
+
+  const eyebrow = module === 'schreiben' ? t('schreibenLabel') : t('sprechenLabel')
+
+  return (
+    <section
+      data-testid={`result-user-input-${module}`}
+      className="rounded-rad border border-line bg-card p-6 sm:p-8"
+    >
+      <div className="flex items-baseline justify-between gap-4">
+        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {eyebrow}
+        </div>
+        {hasContent && module === 'schreiben' && (
+          <div className="font-mono text-xs tabular-nums text-muted">
+            {t('wordCount', {
+              count: (payload as { wordCount?: number; text: string }).wordCount
+                ?? (payload as { text: string }).text.trim().split(/\s+/).length,
+            })}
+          </div>
+        )}
+      </div>
+
+      {hasContent ? (
+        <div className="mt-4 border-l-2 border-line pl-4">
+          <p className="whitespace-pre-wrap text-base leading-relaxed text-ink">
+            {module === 'schreiben'
+              ? (payload as { text: string }).text
+              : (payload as { transcript: string }).transcript}
+          </p>
+        </div>
+      ) : (
+        <div className="mt-4 border-l-2 border-line pl-4">
+          <p className="text-base leading-relaxed text-ink-soft">
+            {t('notSavedLabel')}
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            {t('notSavedExplanation')}
+          </p>
+        </div>
+      )}
     </section>
   )
 }

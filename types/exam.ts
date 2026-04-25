@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 export type ExamLevel = 'A1' | 'A2' | 'B1'
 export type ExamModule = 'lesen' | 'horen' | 'schreiben' | 'sprechen'
 /** Single module id, comma-separated list, or legacy `full` */
@@ -251,3 +253,29 @@ export interface SprechenTask {
   topic: string
   points: string[]
 }
+
+// --- User input (persisted on user_attempts.user_input) ---
+//
+// Schreiben: the text the user wrote.
+// Sprechen:  the Whisper transcript of the user's recording (joined across
+//            teils on the client before submit).
+// Lesen / Hören: not stored — clicked answers already live in scores.
+
+export const userInputSchreibenSchema = z.object({
+  text: z.string(),
+  wordCount: z.number().int().nonnegative().optional(),
+})
+
+export const userInputSprechenSchema = z.object({
+  transcript: z.string(),
+  durationSeconds: z.number().nonnegative().optional(),
+})
+
+export const userInputSchema = z.object({
+  schreiben: userInputSchreibenSchema.optional(),
+  sprechen: userInputSprechenSchema.optional(),
+})
+
+export type UserInput = z.infer<typeof userInputSchema>
+export type UserInputSchreiben = z.infer<typeof userInputSchreibenSchema>
+export type UserInputSprechen = z.infer<typeof userInputSprechenSchema>

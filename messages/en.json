@@ -839,6 +839,13 @@
       "loadFailed": "Couldn't load results.",
       "network": "Network error while loading results."
     },
+    "userInput": {
+      "schreibenLabel": "YOUR ANSWER",
+      "sprechenLabel": "YOUR SPEECH (TRANSCRIPT)",
+      "wordCount": "{count, plural, one {# word} other {# words}}",
+      "notSavedLabel": "Answer not saved.",
+      "notSavedExplanation": "This attempt was completed before the update where we started saving your text. In future attempts your answer will appear here."
+    },
     "lesenHoren": {
       "title": "{module} — detailed results",
       "correct": "correct",

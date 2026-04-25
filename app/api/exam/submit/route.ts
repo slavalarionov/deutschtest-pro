@@ -78,7 +78,8 @@ export async function POST(req: NextRequest) {
 async function saveAttempt(
   sessionId: string,
   scores: Record<string, number>,
-  aiFeedback: Record<string, unknown>
+  aiFeedback: Record<string, unknown>,
+  userInput?: Record<string, unknown>
 ) {
   const supabase = createServerClient()
   const { error } = await supabase
@@ -87,6 +88,7 @@ async function saveAttempt(
       scores: scores as unknown as Json,
       ai_feedback: aiFeedback as unknown as Json,
       submitted_at: new Date().toISOString(),
+      ...(userInput ? { user_input: userInput as unknown as Json } : {}),
     })
     .eq('session_id', sessionId)
 
@@ -98,9 +100,10 @@ async function saveAttempt(
 async function afterModuleSubmit(
   stored: StoredSession,
   scores: Record<string, number>,
-  aiFeedback: Record<string, unknown>
+  aiFeedback: Record<string, unknown>,
+  userInput?: Record<string, unknown>
 ) {
-  await saveAttempt(stored.id, scores, aiFeedback)
+  await saveAttempt(stored.id, scores, aiFeedback, userInput)
   await deductModuleBalanceIfNeeded(stored.userId, stored.id)
 }
 
@@ -199,7 +202,16 @@ async function handleSchreibenSubmit(
     { sessionId: stored.id, userId: stored.userId }
   )
 
-  await afterModuleSubmit(stored, { schreiben: feedback.score }, { schreiben: feedback })
+  const wordCount = userText.trim().length === 0
+    ? 0
+    : userText.trim().split(/\s+/).length
+
+  await afterModuleSubmit(
+    stored,
+    { schreiben: feedback.score },
+    { schreiben: feedback },
+    { schreiben: { text: userText, wordCount } }
+  )
 
   return NextResponse.json({
     success: true,

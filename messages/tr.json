@@ -839,6 +839,13 @@
       "loadFailed": "Sonuçlar yüklenemedi.",
       "network": "Sonuçlar yüklenirken ağ hatası."
     },
+    "userInput": {
+      "schreibenLabel": "CEVABINIZ",
+      "sprechenLabel": "KONUŞMANIZ (TRANSKRIPT)",
+      "wordCount": "{count, plural, other {# kelime}}",
+      "notSavedLabel": "Cevap kaydedilmedi.",
+      "notSavedExplanation": "Bu deneme, metninizi kaydetmeye başladığımız güncellemeden önce tamamlandı. Yeni denemelerde cevabınız burada görünecektir."
+    },
     "lesenHoren": {
       "title": "{module} — ayrıntılı sonuçlar",
       "correct": "doğru",

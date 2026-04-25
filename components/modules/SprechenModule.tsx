@@ -90,12 +90,20 @@ export function SprechenModule() {
     setFinalizeError(null)
     if (finalizeStarted.current) return
     finalizeStarted.current = true
+    const aggTranscript = Array.from({ length: taskCount }, (_, i) => teilResults[i]?.transcript ?? '')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0)
+      .join('\n\n—\n\n')
     ;(async () => {
       try {
         const res = await fetch('/api/exam/finalize-sprechen', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId: session.id, feedback: agg }),
+          body: JSON.stringify({
+            sessionId: session.id,
+            feedback: agg,
+            transcript: aggTranscript || undefined,
+          }),
         })
         const data = await res.json()
         if (data.success) {

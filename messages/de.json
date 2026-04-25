@@ -839,6 +839,13 @@
       "loadFailed": "Ergebnisse konnten nicht geladen werden.",
       "network": "Netzwerkfehler beim Laden der Ergebnisse."
     },
+    "userInput": {
+      "schreibenLabel": "IHRE ANTWORT",
+      "sprechenLabel": "IHRE REDE (TRANSKRIPT)",
+      "wordCount": "{count, plural, one {# Wort} other {# Wörter}}",
+      "notSavedLabel": "Antwort nicht gespeichert.",
+      "notSavedExplanation": "Dieser Versuch wurde vor dem Update absolviert, in dem wir angefangen haben, Ihren Text zu speichern. In neuen Versuchen wird Ihre Antwort hier angezeigt."
+    },
     "lesenHoren": {
       "title": "{module} — Detailergebnisse",
       "correct": "richtig",

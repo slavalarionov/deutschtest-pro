@@ -21,6 +21,7 @@ const bodySchema = z.object({
     criteria: criteriaSchema,
     comment: z.string(),
   }),
+  transcript: z.string().optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { sessionId, feedback } = parsed.data
+    const { sessionId, feedback, transcript } = parsed.data
     const stored = await getSession(sessionId)
 
     if (!stored) {
@@ -55,12 +56,16 @@ export async function POST(req: NextRequest) {
     }
 
     const serviceClient = createServerClient()
+    const trimmedTranscript = transcript?.trim() ?? ''
     const { error: updateError } = await serviceClient
       .from('user_attempts')
       .update({
         scores: { sprechen: feedback.score } as unknown as Json,
         ai_feedback: { sprechen: feedback } as unknown as Json,
         submitted_at: new Date().toISOString(),
+        ...(trimmedTranscript.length > 0
+          ? { user_input: { sprechen: { transcript: trimmedTranscript } } as unknown as Json }
+          : {}),
       })
       .eq('session_id', sessionId)
 

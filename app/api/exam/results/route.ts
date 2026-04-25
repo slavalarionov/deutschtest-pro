@@ -53,6 +53,7 @@ export async function GET(req: NextRequest) {
     mode: session.mode,
     scores: attempt.scores,
     aiFeedback: attempt.ai_feedback,
+    userInput: attempt.user_input,
     submittedAt: attempt.submitted_at,
     modulesBalance,
     attemptId: attempt.id,
