@@ -45,10 +45,11 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // Public shareable result pages — canonical URL is /result/{public_id} with no
-  // locale prefix. Bypass both Supabase session refresh (page is anonymous) and
-  // next-intl rewrite so the URL stays clean for OG bots and pasted links.
-  if (pathname.startsWith('/result/')) {
+  // Public shareable result pages — canonical URL is /result/{public_id} or
+  // /recommendations/{public_id} with no locale prefix. Bypass both Supabase
+  // session refresh (page is anonymous) and next-intl rewrite so the URL stays
+  // clean for OG bots and pasted links.
+  if (pathname.startsWith('/result/') || pathname.startsWith('/recommendations/')) {
     return NextResponse.next()
   }
 

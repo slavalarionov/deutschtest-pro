@@ -938,7 +938,9 @@
       "pdfHint": "PDF gewünscht? Drücken Sie Cmd+P (Strg+P unter Windows) und wählen Sie „Als PDF speichern“ im Druckdialog.",
       "message": "Mein Ergebnis bei DeutschTest.pro: {module} — {score} ({status}). {url}",
       "emailSubject": "Mein Ergebnis: {module} — {score}",
-      "errorGeneric": "Vorgang fehlgeschlagen. Bitte erneut versuchen."
+      "errorGeneric": "Vorgang fehlgeschlagen. Bitte erneut versuchen.",
+      "recommendationsMessage": "Mein Lernplan auf DeutschTest.pro: {url}",
+      "recommendationsEmailSubject": "Mein Lernplan — Goethe-Zertifikat"
     },
     "public": {
       "cta": "Machen Sie denselben Test kostenlos.",
@@ -966,6 +968,32 @@
     "loading": {
       "eyebrow": "LÄDT",
       "label": "Inhalte werden vorbereitet"
+    }
+  },
+  "recommendations": {
+    "public": {
+      "eyebrow": "LERNPLAN · DEUTSCHTEST.PRO",
+      "headline": "Ihr Lernplan.",
+      "summaryEyebrow": "ÜBERBLICK",
+      "areasEyebrow": "{count, plural, one {# WACHSTUMSFELD} other {# WACHSTUMSFELDER}}",
+      "severity": {
+        "high": "Hohe Priorität",
+        "medium": "Mittlere Priorität",
+        "low": "Feinschliff"
+      },
+      "resourcesLabel": "PASSENDE MATERIALIEN",
+      "resourcesEmpty": "Passende Materialien werden in Kürze hinzugefügt.",
+      "cta": "Machen Sie eine Prüfung und holen Sie sich einen neuen Lernplan.",
+      "ctaSubtitle": "3 Module gratis bei der Registrierung — keine Zahlung nötig.",
+      "ctaButton": "Kostenlos starten"
+    },
+    "resourceTypes": {
+      "book": "Buch",
+      "video": "Video",
+      "exercise": "Übung",
+      "website": "Website",
+      "app": "App",
+      "article": "Artikel"
     }
   }
 }

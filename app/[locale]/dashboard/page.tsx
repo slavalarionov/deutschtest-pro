@@ -1,4 +1,4 @@
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
 import { Link } from '@/i18n/routing'
 import { createClient } from '@/lib/supabase/server'
 import { createServerClient } from '@/lib/supabase-server'
@@ -7,6 +7,9 @@ import { loadUserHistory, type HistoryItem } from '@/lib/dashboard/history'
 import { loadProgressData, type ProgressPoint } from '@/lib/dashboard/progress'
 import { ModuleLauncher } from '@/components/dashboard/ModuleLauncher'
 import { MotivationalQuoteBlock } from '@/components/dashboard/MotivationalQuoteBlock'
+import { getTagLabel, type LearningTag } from '@/lib/learning-tags'
+import type { Locale } from '@/i18n/request'
+import type { WeakArea } from '@/lib/claude'
 
 export const dynamic = 'force-dynamic'
 
@@ -126,18 +129,21 @@ export default async function DashboardHomePage() {
 
   const serverDb = createServerClient()
 
-  const [stats, profileRes, history, progress, t, tModules] = await Promise.all([
+  const [stats, profileRes, history, progress, t, tModules, locale] = await Promise.all([
     loadDashboardStats(user.id),
     serverDb
       .from('profiles')
-      .select('is_admin, display_name, cached_recommendations')
+      .select('is_admin, display_name, current_recommendations_id')
       .eq('id', user.id)
       .maybeSingle(),
     loadUserHistory(user.id),
     loadProgressData(user.id),
     getTranslations('dashboard.overview'),
     getTranslations('modules'),
+    getLocale(),
   ])
+
+  const recsLocale = locale as Locale
 
   const isAdmin = profileRes.data?.is_admin === true
   const storedName =
@@ -158,18 +164,23 @@ export default async function DashboardHomePage() {
   const recentHistory: HistoryItem[] = history.slice(0, 5)
   const sparklinePoints = progress.points.slice(-12)
 
-  // Derive the top-2 study-plan items from cached recommendations. We read
-  // the cache directly and never trigger Claude — the Overview is a cheap
-  // summary surface. Full generation lives on /dashboard/recommendations.
-  const cachedRecs = profileRes.data?.cached_recommendations as
-    | { studyPlan?: Array<{ title: string; description: string }> }
-    | null
-    | undefined
-  const topRecs: Array<{ title: string; description: string }> = Array.isArray(
-    cachedRecs?.studyPlan
-  )
-    ? cachedRecs!.studyPlan!.slice(0, 2)
-    : []
+  // Derive the top-2 weak areas from the latest snapshot, if any. We point
+  // through profiles.current_recommendations_id and read whatever is there
+  // without re-running Claude — Overview is a cheap summary surface, full
+  // generation lives on /dashboard/recommendations.
+  let topRecs: Array<{ title: string; description: string }> = []
+  if (profileRes.data?.current_recommendations_id) {
+    const { data: snapshot } = await serverDb
+      .from('user_recommendations')
+      .select('weak_areas')
+      .eq('id', profileRes.data.current_recommendations_id)
+      .maybeSingle()
+    const areas = (snapshot?.weak_areas as WeakArea[] | null) ?? []
+    topRecs = areas.slice(0, 2).map((a) => ({
+      title: getTagLabel(a.topic as LearningTag, recsLocale),
+      description: a.reason,
+    }))
+  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">

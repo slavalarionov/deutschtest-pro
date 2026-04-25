@@ -3,12 +3,22 @@
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 
-interface ShareSectionProps {
+type ShareKind = 'result' | 'recommendations'
+
+interface ShareSectionResultProps {
+  kind: 'result'
   sessionId: string
   module: 'lesen' | 'horen' | 'schreiben' | 'sprechen'
   moduleLabel: string
   score: number | undefined
 }
+
+interface ShareSectionRecommendationsProps {
+  kind: 'recommendations'
+  recommendationId: string
+}
+
+type ShareSectionProps = ShareSectionResultProps | ShareSectionRecommendationsProps
 
 type ToneKey = 'high' | 'midHigh' | 'midLow' | 'low'
 
@@ -20,9 +30,25 @@ function toneFor(score: number | undefined): ToneKey {
   return 'low'
 }
 
-export function ShareSection({ sessionId, module, moduleLabel, score }: ShareSectionProps) {
+function urlsFor(kind: ShareKind, id: string) {
+  if (kind === 'result') {
+    return {
+      api: `/api/exam/${id}/share`,
+      publicPath: (publicId: string) => `/result/${publicId}`,
+    }
+  }
+  return {
+    api: `/api/recommendations/${id}/share`,
+    publicPath: (publicId: string) => `/recommendations/${publicId}`,
+  }
+}
+
+export function ShareSection(props: ShareSectionProps) {
   const t = useTranslations('results.share')
   const tScoreCard = useTranslations('results.scoreCard')
+
+  const entityId = props.kind === 'result' ? props.sessionId : props.recommendationId
+  const { api, publicPath } = urlsFor(props.kind, entityId)
 
   const [publicId, setPublicId] = useState<string | null>(null)
   const [isPublic, setIsPublic] = useState(true)
@@ -35,7 +61,7 @@ export function ShareSection({ sessionId, module, moduleLabel, score }: ShareSec
     let cancelled = false
     async function bootstrap() {
       try {
-        const res = await fetch(`/api/exam/${sessionId}/share`, { method: 'POST' })
+        const res = await fetch(api, { method: 'POST' })
         const json = await res.json().catch(() => ({}))
         if (cancelled) return
         if (res.ok && json.success) {
@@ -54,14 +80,14 @@ export function ShareSection({ sessionId, module, moduleLabel, score }: ShareSec
     return () => {
       cancelled = true
     }
-  }, [sessionId, t])
+  }, [api, t])
 
   async function togglePrivacy() {
     if (togglePending) return
     setTogglePending(true)
     const next = !isPublic
     try {
-      const res = await fetch(`/api/exam/${sessionId}/share`, {
+      const res = await fetch(api, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isPublic: next }),
@@ -79,21 +105,27 @@ export function ShareSection({ sessionId, module, moduleLabel, score }: ShareSec
   }
 
   const publicUrl = publicId && typeof window !== 'undefined'
-    ? `${window.location.origin}/result/${publicId}`
+    ? `${window.location.origin}${publicPath(publicId)}`
     : ''
-  const tone = toneFor(score)
-  const status = tScoreCard(`summary.${tone}.subtitle`).replace(/[.!]+$/, '')
-  const scoreText = score !== undefined ? `${score}/100` : '—/100'
-  const message = t('message', {
-    module: moduleLabel,
-    score: scoreText,
-    status,
-    url: publicUrl,
-  })
-  const emailSubject = t('emailSubject', {
-    module: moduleLabel,
-    score: scoreText,
-  })
+
+  let message: string
+  let emailSubject: string
+
+  if (props.kind === 'result') {
+    const tone = toneFor(props.score)
+    const status = tScoreCard(`summary.${tone}.subtitle`).replace(/[.!]+$/, '')
+    const scoreText = props.score !== undefined ? `${props.score}/100` : '—/100'
+    message = t('message', {
+      module: props.moduleLabel,
+      score: scoreText,
+      status,
+      url: publicUrl,
+    })
+    emailSubject = t('emailSubject', { module: props.moduleLabel, score: scoreText })
+  } else {
+    message = t('recommendationsMessage', { url: publicUrl })
+    emailSubject = t('recommendationsEmailSubject')
+  }
 
   const disabled = loading || !publicId || !isPublic
   const whatsappHref = disabled
@@ -101,9 +133,7 @@ export function ShareSection({ sessionId, module, moduleLabel, score }: ShareSec
     : `https://wa.me/?text=${encodeURIComponent(message)}`
   const telegramHref = disabled
     ? undefined
-    : `https://t.me/share/url?url=${encodeURIComponent(publicUrl)}&text=${encodeURIComponent(
-        message,
-      )}`
+    : `https://t.me/share/url?url=${encodeURIComponent(publicUrl)}&text=${encodeURIComponent(message)}`
   const emailHref = disabled
     ? undefined
     : `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(message)}`
@@ -126,24 +156,9 @@ export function ShareSection({ sessionId, module, moduleLabel, score }: ShareSec
       </div>
 
       <div className="mt-5 flex flex-wrap gap-3">
-        <ShareButton
-          href={whatsappHref}
-          disabled={disabled}
-          label={t('whatsapp')}
-          onClick={undefined}
-        />
-        <ShareButton
-          href={telegramHref}
-          disabled={disabled}
-          label={t('telegram')}
-          onClick={undefined}
-        />
-        <ShareButton
-          href={emailHref}
-          disabled={disabled}
-          label={t('email')}
-          onClick={undefined}
-        />
+        <ShareButton href={whatsappHref} disabled={disabled} label={t('whatsapp')} onClick={undefined} />
+        <ShareButton href={telegramHref} disabled={disabled} label={t('telegram')} onClick={undefined} />
+        <ShareButton href={emailHref} disabled={disabled} label={t('email')} onClick={undefined} />
         <ShareButton
           href={undefined}
           disabled={disabled}
@@ -216,12 +231,7 @@ function ShareButton({
   }
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={`${baseClass} ${stateClass}`}
-    >
+    <button type="button" onClick={onClick} disabled={disabled} className={`${baseClass} ${stateClass}`}>
       {label}
     </button>
   )

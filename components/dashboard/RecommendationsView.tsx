@@ -3,9 +3,17 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/routing'
-import type { Recommendations } from '@/lib/claude'
+import type { WeakArea } from '@/lib/claude'
+import type {
+  MatchedResource,
+  MatchedResourcesIndex,
+  RecommendationsSnapshot,
+} from '@/lib/recommendations/snapshot'
 import type { RecommendationsPayload } from '@/lib/dashboard/recommendations'
 import { formatEditorialDate } from '@/lib/format/date'
+import { getTagLabel, type LearningTag } from '@/lib/learning-tags'
+import { ShareSection } from '@/components/exam/ShareSection'
+import type { Locale } from '@/i18n/request'
 
 export function RecommendationsView() {
   const t = useTranslations('dashboard.recommendations')
@@ -39,7 +47,7 @@ export function RecommendationsView() {
         else setLoading(false)
       }
     },
-    [t]
+    [t],
   )
 
   useEffect(() => {
@@ -52,11 +60,11 @@ export function RecommendationsView() {
         <LoadingState />
       ) : error ? (
         <ErrorState message={error} onRetry={() => load()} />
-      ) : !data || !data.recommendations ? (
+      ) : !data || !data.snapshot ? (
         <EmptyState />
       ) : (
         <LoadedState
-          data={data}
+          snapshot={data.snapshot}
           refreshing={refreshing}
           onRefresh={() => load({ refresh: true })}
         />
@@ -127,111 +135,135 @@ function EmptyState() {
   )
 }
 
+const SEVERITY_COLOR: Record<WeakArea['severity'], string> = {
+  high: 'var(--error)',
+  medium: 'var(--warn)',
+  low: 'var(--accent)',
+}
+
 function LoadedState({
-  data,
+  snapshot,
   refreshing,
   onRefresh,
 }: {
-  data: RecommendationsPayload
+  snapshot: RecommendationsSnapshot
   refreshing: boolean
   onRefresh: () => void
 }) {
   const t = useTranslations('dashboard.recommendations')
-  const locale = useLocale()
-  const recs = data.recommendations!
-  const dateLabel = data.generatedAt
-    ? formatEditorialDate(data.generatedAt, locale).toLocaleUpperCase(locale)
-    : '—'
+  const tModules = useTranslations('modules')
+  const tPublic = useTranslations('recommendations.public')
+  const tTypes = useTranslations('recommendations.resourceTypes')
+  const locale = useLocale() as Locale
+
+  const dateLabel = formatEditorialDate(snapshot.generated_at, locale).toLocaleUpperCase(locale)
+  const matched = snapshot.matched_resources as MatchedResourcesIndex
 
   return (
     <div className="space-y-10">
       <Header
-        attemptsCount={data.attemptsCount}
+        attemptsCount={snapshot.attempts_count}
         dateLabel={dateLabel}
         refreshing={refreshing}
         onRefresh={onRefresh}
       />
 
+      <section className="rounded-rad border border-line bg-card p-8">
+        <Eyebrow>{tPublic('summaryEyebrow')}</Eyebrow>
+        <p className="mt-4 whitespace-pre-wrap text-lg leading-relaxed text-ink">
+          {snapshot.summary_text}
+        </p>
+      </section>
+
       <div className="space-y-5">
-        <section className="rounded-rad border border-line bg-card p-8">
-          <Eyebrow>{t('sections.overallEyebrow')}</Eyebrow>
-          <p className="mt-4 whitespace-pre-wrap text-lg leading-relaxed text-ink">
-            {recs.overallAssessment}
-          </p>
-        </section>
+        <Eyebrow>{tPublic('areasEyebrow', { count: snapshot.weak_areas.length })}</Eyebrow>
 
-        {recs.strengths.length > 0 && (
-          <section className="rounded-rad border border-line bg-card p-8">
-            <Eyebrow>{t('sections.strengthsEyebrow')}</Eyebrow>
-            <ul className="mt-4 space-y-3">
-              {recs.strengths.map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span
-                    className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-accent"
-                    aria-hidden="true"
-                  />
-                  <span className="text-base text-ink-soft">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+        {snapshot.weak_areas.map((area, i) => {
+          const key = `${area.module}:${area.level}:${area.topic}`
+          const resources = matched[key] ?? []
+          const moduleLabel = tModules(area.module)
+          const tagLabel = getTagLabel(area.topic as LearningTag, locale)
 
-        {recs.weaknesses.length > 0 && (
-          <section className="rounded-rad border border-line bg-card p-8">
-            <Eyebrow>{t('sections.weaknessesEyebrow')}</Eyebrow>
-            <ul className="mt-4 space-y-3">
-              {recs.weaknesses.map((item, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span
-                    className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-muted"
-                    aria-hidden="true"
-                  />
-                  <span className="text-base text-ink-soft">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+          return (
+            <article
+              key={i}
+              className="rounded-rad border border-l-2 border-line bg-card p-6 sm:border-l-4 sm:p-8"
+              style={{ borderLeftColor: SEVERITY_COLOR[area.severity] }}
+            >
+              <div className="flex flex-wrap items-baseline gap-3 font-mono text-[10px] uppercase tracking-widest text-muted">
+                <span>{moduleLabel.toLocaleUpperCase(locale)}</span>
+                <span>·</span>
+                <span>{area.level.toUpperCase()}</span>
+                <span>·</span>
+                <span style={{ color: SEVERITY_COLOR[area.severity] }}>
+                  {tPublic(`severity.${area.severity}`)}
+                </span>
+              </div>
+              <h2 className="mt-4 font-display text-3xl leading-tight tracking-[-0.02em] text-ink sm:text-4xl">
+                {tagLabel}
+              </h2>
+              <p className="mt-3 text-base leading-relaxed text-ink-soft">{area.reason}</p>
 
-        {recs.studyPlan.length > 0 && (
-          <section className="rounded-rad border border-line bg-card p-8">
-            <Eyebrow>
-              {t('sections.studyPlanEyebrow', { count: recs.studyPlan.length })}
-            </Eyebrow>
-            <ol className="mt-6">
-              {recs.studyPlan.map((step, i) => (
-                <li
-                  key={i}
-                  className="mb-5 flex items-start gap-4 border-b border-line pb-5 last:mb-0 last:border-0 last:pb-0"
-                >
-                  <span className="w-6 flex-shrink-0 pt-0.5 font-mono text-sm text-muted">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <div className="flex-1">
-                    <p className="font-display text-lg text-ink tracking-[-0.02em]">
-                      {step.title}
-                    </p>
-                    <p className="mt-1 text-base leading-relaxed text-ink-soft">
-                      {step.description}
-                    </p>
+              {resources.length === 0 ? (
+                <div className="mt-6 border-t border-line-soft pt-4">
+                  <p className="text-sm italic text-muted">{tPublic('resourcesEmpty')}</p>
+                </div>
+              ) : (
+                <div className="mt-6 space-y-3 border-t border-line-soft pt-4">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                    {tPublic('resourcesLabel')}
                   </div>
-                </li>
-              ))}
-            </ol>
-          </section>
-        )}
-
-        <section className="rounded-rad border border-accent/20 bg-accent-soft p-8">
-          <div className="font-mono text-[11px] uppercase tracking-[0.02em] text-accent-ink">
-            {t('sections.motivationEyebrow')}
-          </div>
-          <p className="mt-4 whitespace-pre-wrap text-lg leading-relaxed text-accent-ink">
-            {recs.motivation}
-          </p>
-        </section>
+                  <ul className="space-y-3">
+                    {resources.map((r) => (
+                      <ResourceCard
+                        key={r.id}
+                        resource={r}
+                        typeLabel={tTypes(r.resource_type)}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </article>
+          )
+        })}
       </div>
+
+      <ShareSection kind="recommendations" recommendationId={snapshot.id} />
     </div>
+  )
+}
+
+function ResourceCard({
+  resource,
+  typeLabel,
+}: {
+  resource: MatchedResource
+  typeLabel: string
+}) {
+  return (
+    <li className="flex items-start gap-3">
+      <span
+        aria-hidden="true"
+        className="mt-2 inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-ink-soft"
+      />
+      <div className="min-w-0 flex-1">
+        <a
+          href={resource.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-ink underline underline-offset-4 transition-colors hover:text-accent-ink"
+        >
+          {resource.title}
+        </a>
+        <span className="ml-2 font-mono text-[10px] uppercase tracking-widest text-muted">
+          {typeLabel}
+        </span>
+        {resource.description && (
+          <p className="mt-1 text-sm text-ink-soft">{resource.description}</p>
+        )}
+      </div>
+    </li>
   )
 }
 
@@ -272,11 +304,7 @@ function Header({
         disabled={refreshing}
         className="inline-flex flex-shrink-0 items-center gap-2 rounded-rad-pill border border-line px-4 py-2 text-sm text-ink-soft transition-colors hover:text-ink disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {refreshing ? (
-          <SpinnerIcon />
-        ) : (
-          <RefreshIcon />
-        )}
+        {refreshing ? <SpinnerIcon /> : <RefreshIcon />}
         {refreshing ? t('refresh.busy') : t('refresh.button')}
       </button>
     </header>

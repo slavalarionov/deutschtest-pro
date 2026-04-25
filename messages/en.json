@@ -938,7 +938,9 @@
       "pdfHint": "Need a PDF? Press Cmd+P (Ctrl+P on Windows) and select \"Save as PDF\" in the print dialog.",
       "message": "My DeutschTest.pro result: {module} — {score} ({status}). {url}",
       "emailSubject": "My result: {module} — {score}",
-      "errorGeneric": "Action failed. Please try again."
+      "errorGeneric": "Action failed. Please try again.",
+      "recommendationsMessage": "My DeutschTest.pro study plan: {url}",
+      "recommendationsEmailSubject": "My study plan — Goethe-Zertifikat"
     },
     "public": {
       "cta": "Take the same test for free.",
@@ -966,6 +968,32 @@
     "loading": {
       "eyebrow": "LOADING",
       "label": "Preparing content"
+    }
+  },
+  "recommendations": {
+    "public": {
+      "eyebrow": "STUDY PLAN · DEUTSCHTEST.PRO",
+      "headline": "Your study plan.",
+      "summaryEyebrow": "OVERVIEW",
+      "areasEyebrow": "{count, plural, one {# GROWTH AREA} other {# GROWTH AREAS}}",
+      "severity": {
+        "high": "High priority",
+        "medium": "Medium priority",
+        "low": "Polish"
+      },
+      "resourcesLabel": "MATCHING MATERIALS",
+      "resourcesEmpty": "Matching materials will be added soon.",
+      "cta": "Take a test and get a fresh study plan.",
+      "ctaSubtitle": "3 modules free at sign-up — no payment required.",
+      "ctaButton": "Start for free"
+    },
+    "resourceTypes": {
+      "book": "Book",
+      "video": "Video",
+      "exercise": "Exercise",
+      "website": "Website",
+      "app": "App",
+      "article": "Article"
     }
   }
 }

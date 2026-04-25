@@ -938,7 +938,9 @@
       "pdfHint": "PDF gerekli mi? Cmd+P (Windows'ta Ctrl+P) tuşlarına basın ve yazdırma diyaloğunda \"PDF olarak kaydet\" seçeneğini seçin.",
       "message": "DeutschTest.pro sonucum: {module} — {score} ({status}). {url}",
       "emailSubject": "Sonucum: {module} — {score}",
-      "errorGeneric": "İşlem başarısız oldu. Lütfen tekrar deneyin."
+      "errorGeneric": "İşlem başarısız oldu. Lütfen tekrar deneyin.",
+      "recommendationsMessage": "DeutschTest.pro çalışma planım: {url}",
+      "recommendationsEmailSubject": "Çalışma planım — Goethe-Zertifikat"
     },
     "public": {
       "cta": "Aynı testi ücretsiz çöz.",
@@ -966,6 +968,32 @@
     "loading": {
       "eyebrow": "YÜKLENİYOR",
       "label": "İçerik hazırlanıyor"
+    }
+  },
+  "recommendations": {
+    "public": {
+      "eyebrow": "ÇALIŞMA PLANI · DEUTSCHTEST.PRO",
+      "headline": "Çalışma planınız.",
+      "summaryEyebrow": "GENEL BAKIŞ",
+      "areasEyebrow": "{count, plural, one {# GELİŞİM ALANI} other {# GELİŞİM ALANI}}",
+      "severity": {
+        "high": "Yüksek öncelik",
+        "medium": "Orta öncelik",
+        "low": "İnce ayar"
+      },
+      "resourcesLabel": "UYGUN MATERYALLER",
+      "resourcesEmpty": "Uygun materyaller yakında eklenecek.",
+      "cta": "Bir sınav çöz ve yeni bir çalışma planı al.",
+      "ctaSubtitle": "Kayıtta 3 modül ücretsiz — ödeme gerekmez.",
+      "ctaButton": "Ücretsiz başla"
+    },
+    "resourceTypes": {
+      "book": "Kitap",
+      "video": "Video",
+      "exercise": "Alıştırma",
+      "website": "Web sitesi",
+      "app": "Uygulama",
+      "article": "Makale"
     }
   }
 }

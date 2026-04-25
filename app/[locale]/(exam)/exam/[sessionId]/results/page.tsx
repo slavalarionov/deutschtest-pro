@@ -185,6 +185,7 @@ export default function ResultsPage() {
         {/* ====== Share ====== */}
         {data.submittedAt && (
           <ShareSection
+            kind="result"
             sessionId={params.sessionId}
             module={activeModule as 'lesen' | 'horen' | 'schreiben' | 'sprechen'}
             moduleLabel={moduleLabel}

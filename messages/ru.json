@@ -938,7 +938,9 @@
       "pdfHint": "Нужен PDF? Нажмите Cmd+P (Ctrl+P на Windows) и выберите «Сохранить как PDF» в диалоге печати.",
       "message": "Мой результат на DeutschTest.pro: {module} — {score} ({status}). {url}",
       "emailSubject": "Мой результат: {module} — {score}",
-      "errorGeneric": "Не удалось выполнить операцию. Попробуйте ещё раз."
+      "errorGeneric": "Не удалось выполнить операцию. Попробуйте ещё раз.",
+      "recommendationsMessage": "Мой план развития на DeutschTest.pro: {url}",
+      "recommendationsEmailSubject": "Мой план учёбы — Goethe-Zertifikat"
     },
     "public": {
       "cta": "Пройдите такой же тест бесплатно.",
@@ -966,6 +968,32 @@
     "loading": {
       "eyebrow": "ЗАГРУЗКА",
       "label": "Готовим содержимое"
+    }
+  },
+  "recommendations": {
+    "public": {
+      "eyebrow": "ПЛАН РАЗВИТИЯ · DEUTSCHTEST.PRO",
+      "headline": "Ваш план учёбы.",
+      "summaryEyebrow": "ОБЗОР",
+      "areasEyebrow": "{count, plural, one {# ЗОНА РОСТА} few {# ЗОНЫ РОСТА} other {# ЗОН РОСТА}}",
+      "severity": {
+        "high": "Высокий приоритет",
+        "medium": "Средний приоритет",
+        "low": "Доработка"
+      },
+      "resourcesLabel": "ПОДХОДЯЩИЕ МАТЕРИАЛЫ",
+      "resourcesEmpty": "Подходящие материалы будут добавлены в ближайшее время.",
+      "cta": "Пройди тест и получи новый план развития.",
+      "ctaSubtitle": "3 модуля при регистрации, без оплаты.",
+      "ctaButton": "Начать бесплатно"
+    },
+    "resourceTypes": {
+      "book": "Книга",
+      "video": "Видео",
+      "exercise": "Упражнение",
+      "website": "Сайт",
+      "app": "Приложение",
+      "article": "Статья"
     }
   }
 }
