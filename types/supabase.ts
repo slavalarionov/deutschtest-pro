@@ -25,6 +25,8 @@ export interface Database {
           expires_at: string
           retake_of: string | null
           retake_module: string | null
+          public_id: string | null
+          is_public: boolean
         }
         Insert: {
           id?: string
@@ -41,6 +43,8 @@ export interface Database {
           expires_at?: string
           retake_of?: string | null
           retake_module?: string | null
+          public_id?: string | null
+          is_public?: boolean
         }
         Update: {
           id?: string
@@ -57,6 +61,8 @@ export interface Database {
           expires_at?: string
           retake_of?: string | null
           retake_module?: string | null
+          public_id?: string | null
+          is_public?: boolean
         }
         Relationships: []
       }
