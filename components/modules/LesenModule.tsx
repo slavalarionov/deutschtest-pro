@@ -32,14 +32,12 @@ const TASK_SHELL_NEUTRAL = 'border-line bg-card'
 const TASK_SHELL_CORRECT = 'border-accent/40 bg-accent-soft/40'
 const TASK_SHELL_WRONG = 'border-error/40 bg-error-soft/40'
 
-// Two-column layout (Teil 1/3/5 on lg+): each column gets its own scroll
-// area. Height is fixed so the page itself does not scroll — text and
-// questions live side by side without losing position. min-h prevents the
-// columns from collapsing on very short viewports.
-const TWO_COL_PANE =
-  'lg:h-[calc(100vh-22rem)] lg:min-h-[420px] lg:overflow-y-auto chart-scroll'
-const TWO_COL_PANE_LEFT = `${TWO_COL_PANE} lg:pr-8`
-const TWO_COL_PANE_RIGHT = `${TWO_COL_PANE} lg:border-l lg:border-line lg:pl-8 space-y-4`
+// Two-column layout (all Teil views on lg+): columns flow with the page —
+// no inner scroll containers. Default grid align-items: stretch keeps the
+// vertical divider on the right column running the full row height, even
+// when one side is shorter than the other.
+const TWO_COL_LEFT = 'lg:pr-8'
+const TWO_COL_RIGHT = 'lg:border-l lg:border-line lg:pl-8 space-y-4'
 
 const EYEBROW = 'font-mono text-[11px] uppercase tracking-wider text-muted'
 const TASK_ID_BADGE =
@@ -141,16 +139,8 @@ export function LesenModule() {
     )
   }
 
-  // Teil 1, 3, 5 use a wider canvas on lg+ to host the two-column layout.
-  // Teil 2 / 4 stay narrow because their content is structurally fragmented.
-  const isWideTeil = currentTeil === 0 || currentTeil === 2 || currentTeil === 4
-
   return (
-    <div
-      className={`mx-auto ${
-        isWideTeil ? 'max-w-4xl lg:max-w-7xl' : 'max-w-4xl'
-      } space-y-5 transition-[max-width] duration-200`}
-    >
+    <div className="mx-auto max-w-4xl lg:max-w-7xl space-y-5">
       {timeUp && session && <TimeUpOverlay detail={postSubmit ? tTimer('redirecting') : undefined} />}
 
       {/* Header with timer */}
@@ -287,7 +277,6 @@ function OptionLetter({ letter }: { letter: string }) {
 
 function Teil1View({ data, answers, setAnswer, submitted, results }: TeilViewProps & { data: LesenTeil1 }) {
   const t = useTranslations('exam.modules.lesen.teil1')
-  const tShared = useTranslations('exam.modules.shared')
   const example = data.tasks.find((task) => task.isExample)
   const tasks = data.tasks.filter((task) => !task.isExample)
 
@@ -295,10 +284,10 @@ function Teil1View({ data, answers, setAnswer, submitted, results }: TeilViewPro
     <div className="space-y-4">
       <TeilHeader number={1} title={t('title')} desc={t('desc')} tag={t('tag')} />
       <div className="lg:grid lg:grid-cols-2 lg:gap-0">
-        <div tabIndex={0} role="region" aria-label={tShared('paneTextAria')} className={TWO_COL_PANE_LEFT}>
+        <div className={TWO_COL_LEFT}>
           <TextBlock text={data.text} />
         </div>
-        <div tabIndex={0} role="region" aria-label={tShared('paneQuestionsAria')} className={TWO_COL_PANE_RIGHT}>
+        <div className={TWO_COL_RIGHT}>
           {example && <ExampleRF task={example} />}
           {tasks.map((task) => (
             <RFRow key={task.id} task={task} prefix="t1" answers={answers} setAnswer={setAnswer} submitted={submitted} results={results} />
@@ -322,59 +311,65 @@ function Teil2View({ data, answers, setAnswer, submitted, results }: TeilViewPro
   return (
     <div className="space-y-4">
       <TeilHeader number={2} title={t('title')} desc={t('desc')} tag={t('tag')} />
-      <TextBlock text={data.text} />
-      {example && (
-        <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
-          <div className={EYEBROW}>{tShared('example')}</div>
-          <p className="mb-3 mt-2 text-sm font-medium text-ink">{example.question}</p>
-          <div className="flex flex-wrap gap-2">
-            {(['a', 'b', 'c'] as const).map((opt) => (
-              <span
-                key={opt}
-                className={`inline-flex items-center rounded-rad border px-3 py-1.5 text-xs font-medium ${
-                  opt === example.answer ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'
-                }`}
-              >
-                <OptionLetter letter={opt} />
-                {example.options[opt]}
-              </span>
-            ))}
-          </div>
+      <div className="lg:grid lg:grid-cols-2 lg:gap-0">
+        <div className={TWO_COL_LEFT}>
+          <TextBlock text={data.text} />
         </div>
-      )}
-      {tasks.map((task: LesenMCTask) => {
-        const key = `t2_${task.id}`
-        const userAnswer = answers[key] as string | undefined
-        const detail = results?.details[key]
-        return (
-          <div key={task.id} data-testid="exam-task" className={taskShellClass(submitted, detail)}>
-            <p className="mb-3 text-sm font-medium text-ink">
-              <span className={TASK_ID_BADGE}>{task.id}</span>
-              {task.question}
-              {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
-            </p>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              {(['a', 'b', 'c'] as const).map((opt) => (
-                <button
-                  key={opt}
-                  data-testid={`answer-option-${key}-${opt}`}
-                  onClick={() => !submitted && setAnswer(key, opt)}
-                  disabled={submitted}
-                  className={`flex-1 ${OPTION_BASE} ${optionClass({
-                    isSelected: userAnswer === opt,
-                    isCorrectAnswer: detail?.correctAnswer === opt,
-                    submitted,
-                    detailIsCorrect: detail?.isCorrect,
-                  })} ${submitted ? OPTION_DISABLED : ''}`}
-                >
-                  <OptionLetter letter={opt} />
-                  {task.options[opt]}
-                </button>
-              ))}
+        <div className={TWO_COL_RIGHT}>
+          {example && (
+            <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
+              <div className={EYEBROW}>{tShared('example')}</div>
+              <p className="mb-3 mt-2 text-sm font-medium text-ink">{example.question}</p>
+              <div className="flex flex-wrap gap-2">
+                {(['a', 'b', 'c'] as const).map((opt) => (
+                  <span
+                    key={opt}
+                    className={`inline-flex items-center rounded-rad border px-3 py-1.5 text-xs font-medium ${
+                      opt === example.answer ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'
+                    }`}
+                  >
+                    <OptionLetter letter={opt} />
+                    {example.options[opt]}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
-        )
-      })}
+          )}
+          {tasks.map((task: LesenMCTask) => {
+            const key = `t2_${task.id}`
+            const userAnswer = answers[key] as string | undefined
+            const detail = results?.details[key]
+            return (
+              <div key={task.id} data-testid="exam-task" className={taskShellClass(submitted, detail)}>
+                <p className="mb-3 text-sm font-medium text-ink">
+                  <span className={TASK_ID_BADGE}>{task.id}</span>
+                  {task.question}
+                  {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
+                </p>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  {(['a', 'b', 'c'] as const).map((opt) => (
+                    <button
+                      key={opt}
+                      data-testid={`answer-option-${key}-${opt}`}
+                      onClick={() => !submitted && setAnswer(key, opt)}
+                      disabled={submitted}
+                      className={`flex-1 ${OPTION_BASE} ${optionClass({
+                        isSelected: userAnswer === opt,
+                        isCorrectAnswer: detail?.correctAnswer === opt,
+                        submitted,
+                        detailIsCorrect: detail?.isCorrect,
+                      })} ${submitted ? OPTION_DISABLED : ''}`}
+                    >
+                      <OptionLetter letter={opt} />
+                      {task.options[opt]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
@@ -394,10 +389,10 @@ function Teil3View({ data, answers, setAnswer, submitted, results }: TeilViewPro
     <div className="space-y-4">
       <TeilHeader number={3} title={t('title')} desc={t('desc')} tag={t('tag')} />
       <div className="lg:grid lg:grid-cols-2 lg:gap-0">
-        <div tabIndex={0} role="region" aria-label={tShared('paneTextAria')} className={TWO_COL_PANE_LEFT}>
+        <div className={TWO_COL_LEFT}>
           <TextBlock text={data.text} />
         </div>
-        <div tabIndex={0} role="region" aria-label={tShared('paneQuestionsAria')} className={TWO_COL_PANE_RIGHT}>
+        <div className={TWO_COL_RIGHT}>
           {example && (
             <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
               <div className={EYEBROW}>{tShared('example')}</div>
@@ -467,62 +462,66 @@ function Teil4View({ data, answers, setAnswer, submitted, results }: TeilViewPro
   return (
     <div className="space-y-4">
       <TeilHeader number={4} title={t('title')} desc={t('desc')} tag={t('tag')} />
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        {data.texts?.map((text) => (
-          <div key={String(text.id)} className={`${SHELL} p-4`}>
-            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-ink/20 font-mono text-[11px] font-semibold text-ink">
-              {String(text.id).toUpperCase()}
-            </span>
-            <p className="mt-2 text-sm leading-relaxed text-ink">{text.text}</p>
+      <div className="lg:grid lg:grid-cols-2 lg:gap-0">
+        <div className={TWO_COL_LEFT}>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            {data.texts?.map((text) => (
+              <div key={String(text.id)} className={`${SHELL} p-4`}>
+                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-ink/20 font-mono text-[11px] font-semibold text-ink">
+                  {String(text.id).toUpperCase()}
+                </span>
+                <p className="mt-2 text-sm leading-relaxed text-ink">{text.text}</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-
-      {example && (
-        <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
-          <div className={EYEBROW}>{tShared('example')}</div>
-          <p className="mt-2 text-sm text-ink">{example.situation}</p>
-          <span className="mt-3 inline-flex items-center rounded-rad border border-accent/60 bg-accent-soft px-3 py-1 font-mono text-xs font-semibold text-ink">
-            → {String(example.answer).toUpperCase()}
-          </span>
         </div>
-      )}
-
-      {situations.map((s: LesenTeil4Situation) => {
-        const key = `t4_${s.id}`
-        const userAnswer = answers[key] as string | undefined
-        const detail = results?.details[key]
-        return (
-          <div key={s.id} data-testid="exam-task" className={taskShellClass(submitted, detail)}>
-            <p className="mb-3 text-sm text-ink">
-              <span className={TASK_ID_BADGE}>{s.id}</span>
-              {s.situation}
-              {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {textOptions.map((opt) => (
-                <button
-                  key={opt}
-                  data-testid={`answer-option-${key}-${opt}`}
-                  onClick={() => !submitted && setAnswer(key, opt)}
-                  disabled={submitted}
-                  className={`inline-flex items-center rounded-rad border px-3 py-1.5 text-xs font-semibold uppercase transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink ${optionClass({
-                    isSelected: userAnswer === opt,
-                    isCorrectAnswer: detail?.correctAnswer === opt,
-                    submitted,
-                    detailIsCorrect: detail?.isCorrect,
-                  })} ${submitted ? OPTION_DISABLED : ''}`}
-                >
-                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-current font-mono text-[10px]">
-                    {opt.toUpperCase()}
-                  </span>
-                </button>
-              ))}
+        <div className={TWO_COL_RIGHT}>
+          {example && (
+            <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
+              <div className={EYEBROW}>{tShared('example')}</div>
+              <p className="mt-2 text-sm text-ink">{example.situation}</p>
+              <span className="mt-3 inline-flex items-center rounded-rad border border-accent/60 bg-accent-soft px-3 py-1 font-mono text-xs font-semibold text-ink">
+                → {String(example.answer).toUpperCase()}
+              </span>
             </div>
-          </div>
-        )
-      })}
+          )}
+
+          {situations.map((s: LesenTeil4Situation) => {
+            const key = `t4_${s.id}`
+            const userAnswer = answers[key] as string | undefined
+            const detail = results?.details[key]
+            return (
+              <div key={s.id} data-testid="exam-task" className={taskShellClass(submitted, detail)}>
+                <p className="mb-3 text-sm text-ink">
+                  <span className={TASK_ID_BADGE}>{s.id}</span>
+                  {s.situation}
+                  {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {textOptions.map((opt) => (
+                    <button
+                      key={opt}
+                      data-testid={`answer-option-${key}-${opt}`}
+                      onClick={() => !submitted && setAnswer(key, opt)}
+                      disabled={submitted}
+                      className={`inline-flex items-center rounded-rad border px-3 py-1.5 text-xs font-semibold uppercase transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink ${optionClass({
+                        isSelected: userAnswer === opt,
+                        isCorrectAnswer: detail?.correctAnswer === opt,
+                        submitted,
+                        detailIsCorrect: detail?.isCorrect,
+                      })} ${submitted ? OPTION_DISABLED : ''}`}
+                    >
+                      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-current font-mono text-[10px]">
+                        {opt.toUpperCase()}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
@@ -557,14 +556,14 @@ function Teil5View({ data, answers, setAnswer, submitted, results }: TeilViewPro
     <div className="space-y-4">
       <TeilHeader number={5} title={t('title')} desc={t('desc')} tag={t('tag')} />
       <div className="lg:grid lg:grid-cols-2 lg:gap-0">
-        <div tabIndex={0} role="region" aria-label={tShared('paneTextAria')} className={TWO_COL_PANE_LEFT}>
+        <div className={TWO_COL_LEFT}>
           <TextBlockWithGaps
             text={data.text}
             activeGapId={submitted ? null : activeGapId}
             answeredGapIds={answeredGapIds}
           />
         </div>
-        <div tabIndex={0} role="region" aria-label={tShared('paneQuestionsAria')} className={TWO_COL_PANE_RIGHT}>
+        <div className={TWO_COL_RIGHT}>
           {example && (
             <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
               <div className={EYEBROW}>{t('exampleLabel')}</div>

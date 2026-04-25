@@ -666,9 +666,7 @@
         "example": "Пример",
         "gapLabel": "Пропуск ({id})",
         "taskNumber": "Задание {id}",
-        "teilLabel": "Teil {n}",
-        "paneTextAria": "Текст задания",
-        "paneQuestionsAria": "Вопросы и ответы"
+        "teilLabel": "Teil {n}"
       },
       "lesen": {
         "loading": "Загружаем модуль Lesen…",

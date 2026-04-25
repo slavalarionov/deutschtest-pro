@@ -666,9 +666,7 @@
         "example": "Örnek",
         "gapLabel": "Boşluk ({id})",
         "taskNumber": "Görev {id}",
-        "teilLabel": "Teil {n}",
-        "paneTextAria": "Görev metni",
-        "paneQuestionsAria": "Sorular ve yanıtlar"
+        "teilLabel": "Teil {n}"
       },
       "lesen": {
         "loading": "Lesen modülü yükleniyor…",
