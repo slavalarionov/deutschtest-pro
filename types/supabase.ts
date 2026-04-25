@@ -126,6 +126,7 @@ export interface Database {
           display_name: string | null
           preferred_language: 'de' | 'ru' | 'en' | 'tr'
           cached_recommendations_language: 'de' | 'ru' | 'en' | 'tr' | null
+          current_recommendations_id: string | null
         }
         Insert: {
           id: string
@@ -144,6 +145,7 @@ export interface Database {
           display_name?: string | null
           preferred_language?: 'de' | 'ru' | 'en' | 'tr'
           cached_recommendations_language?: 'de' | 'ru' | 'en' | 'tr' | null
+          current_recommendations_id?: string | null
         }
         Update: {
           id?: string
@@ -162,6 +164,91 @@ export interface Database {
           display_name?: string | null
           preferred_language?: 'de' | 'ru' | 'en' | 'tr'
           cached_recommendations_language?: 'de' | 'ru' | 'en' | 'tr' | null
+          current_recommendations_id?: string | null
+        }
+        Relationships: []
+      }
+      learning_resources: {
+        Row: {
+          id: string
+          module: 'lesen' | 'horen' | 'schreiben' | 'sprechen'
+          level: 'a1' | 'a2' | 'b1'
+          topic: string
+          title: string
+          url: string
+          resource_type: 'book' | 'video' | 'exercise' | 'website' | 'app' | 'article'
+          description: string | null
+          language: 'de' | 'ru' | 'en'
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          module: 'lesen' | 'horen' | 'schreiben' | 'sprechen'
+          level: 'a1' | 'a2' | 'b1'
+          topic: string
+          title: string
+          url: string
+          resource_type: 'book' | 'video' | 'exercise' | 'website' | 'app' | 'article'
+          description?: string | null
+          language?: 'de' | 'ru' | 'en'
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          module?: 'lesen' | 'horen' | 'schreiben' | 'sprechen'
+          level?: 'a1' | 'a2' | 'b1'
+          topic?: string
+          title?: string
+          url?: string
+          resource_type?: 'book' | 'video' | 'exercise' | 'website' | 'app' | 'article'
+          description?: string | null
+          language?: 'de' | 'ru' | 'en'
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_recommendations: {
+        Row: {
+          id: string
+          user_id: string
+          public_id: string | null
+          is_public: boolean
+          weak_areas: Json
+          summary_text: string
+          matched_resources: Json
+          attempts_count: number
+          language: 'de' | 'ru' | 'en' | 'tr'
+          generated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          public_id?: string | null
+          is_public?: boolean
+          weak_areas: Json
+          summary_text: string
+          matched_resources: Json
+          attempts_count: number
+          language: 'de' | 'ru' | 'en' | 'tr'
+          generated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          public_id?: string | null
+          is_public?: boolean
+          weak_areas?: Json
+          summary_text?: string
+          matched_resources?: Json
+          attempts_count?: number
+          language?: 'de' | 'ru' | 'en' | 'tr'
+          generated_at?: string
         }
         Relationships: []
       }
