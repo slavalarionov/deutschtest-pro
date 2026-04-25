@@ -843,10 +843,22 @@
       "eyebrow": "{module} · {level} · {date} · {time}",
       "outOf": "/ 100",
       "summary": {
-        "high":    { "title": "Excellent!",          "subtitle": "Confidently passed." },
-        "midHigh": { "title": "Good.",               "subtitle": "Passed." },
-        "midLow":  { "title": "Close.",              "subtitle": "Not passed." },
-        "low":     { "title": "More practice needed.", "subtitle": "Not passed." }
+        "high": {
+          "title": "Excellent!",
+          "subtitle": "Confidently passed."
+        },
+        "midHigh": {
+          "title": "Good.",
+          "subtitle": "Passed."
+        },
+        "midLow": {
+          "title": "Close.",
+          "subtitle": "Not passed."
+        },
+        "low": {
+          "title": "More practice needed.",
+          "subtitle": "Not passed."
+        }
       }
     },
     "userInput": {
@@ -911,6 +923,27 @@
       "successEyebrow": "THANK YOU",
       "validationRequired": "Pick a rating or write a message.",
       "errorNetwork": "Couldn't send feedback. Please try again."
+    },
+    "share": {
+      "title": "Share result",
+      "whatsapp": "WhatsApp",
+      "telegram": "Telegram",
+      "email": "Email",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "makePrivate": "Make private",
+      "makePublic": "Make public again",
+      "publicNote": "Public link active",
+      "privateNote": "Link disabled",
+      "pdfHint": "Need a PDF? Press Cmd+P (Ctrl+P on Windows) and select \"Save as PDF\" in the print dialog.",
+      "message": "My DeutschTest.pro result: {module} — {score} ({status}). {url}",
+      "emailSubject": "My result: {module} — {score}",
+      "errorGeneric": "Action failed. Please try again."
+    },
+    "public": {
+      "cta": "Take the same test for free.",
+      "ctaSubtitle": "3 modules free at sign-up — no payment required.",
+      "ctaButton": "Start for free"
     }
   },
   "errorPages": {

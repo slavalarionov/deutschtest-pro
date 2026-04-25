@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { Link, useRouter } from '@/i18n/routing'
 import { RetakeModuleModal } from '@/components/exam/RetakeModuleModal'
+import { ShareSection } from '@/components/exam/ShareSection'
 import { formatEditorialDate } from '@/lib/format/date'
 import { userInputSchema, type UserInput } from '@/types/exam'
 
@@ -180,6 +181,16 @@ export default function ResultsPage() {
           }
           return null
         })()}
+
+        {/* ====== Share ====== */}
+        {data.submittedAt && (
+          <ShareSection
+            sessionId={params.sessionId}
+            module={activeModule as 'lesen' | 'horen' | 'schreiben' | 'sprechen'}
+            moduleLabel={moduleLabel}
+            score={score}
+          />
+        )}
 
         {/* ====== Feedback form ====== */}
         {data.submittedAt && data.attemptId && (

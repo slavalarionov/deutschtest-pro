@@ -45,6 +45,13 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
+  // Public shareable result pages — canonical URL is /result/{public_id} with no
+  // locale prefix. Bypass both Supabase session refresh (page is anonymous) and
+  // next-intl rewrite so the URL stays clean for OG bots and pasted links.
+  if (pathname.startsWith('/result/')) {
+    return NextResponse.next()
+  }
+
   // Refresh Supabase session first, so we know the user when deciding on locale redirects.
   const { response: supabaseResponse, user } = await updateSession(request)
 

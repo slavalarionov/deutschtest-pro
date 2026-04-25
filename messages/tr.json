@@ -843,10 +843,22 @@
       "eyebrow": "{module} · {level} · {date} · {time}",
       "outOf": "/ 100",
       "summary": {
-        "high":    { "title": "Mükemmel!",              "subtitle": "Güvenle geçildi." },
-        "midHigh": { "title": "İyi.",                   "subtitle": "Geçildi." },
-        "midLow":  { "title": "Yakın.",                 "subtitle": "Geçilmedi." },
-        "low":     { "title": "Daha fazla pratik gerekli.", "subtitle": "Geçilmedi." }
+        "high": {
+          "title": "Mükemmel!",
+          "subtitle": "Güvenle geçildi."
+        },
+        "midHigh": {
+          "title": "İyi.",
+          "subtitle": "Geçildi."
+        },
+        "midLow": {
+          "title": "Yakın.",
+          "subtitle": "Geçilmedi."
+        },
+        "low": {
+          "title": "Daha fazla pratik gerekli.",
+          "subtitle": "Geçilmedi."
+        }
       }
     },
     "userInput": {
@@ -911,6 +923,27 @@
       "successEyebrow": "TEŞEKKÜRLER",
       "validationRequired": "Bir puan verin ya da mesaj yazın.",
       "errorNetwork": "Geri bildirim gönderilemedi. Lütfen tekrar deneyin."
+    },
+    "share": {
+      "title": "Sonucu paylaş",
+      "whatsapp": "WhatsApp",
+      "telegram": "Telegram",
+      "email": "E-posta",
+      "copy": "Bağlantıyı kopyala",
+      "copied": "Kopyalandı",
+      "makePrivate": "Gizli yap",
+      "makePublic": "Tekrar herkese açık yap",
+      "publicNote": "Herkese açık bağlantı aktif",
+      "privateNote": "Bağlantı devre dışı",
+      "pdfHint": "PDF gerekli mi? Cmd+P (Windows'ta Ctrl+P) tuşlarına basın ve yazdırma diyaloğunda \"PDF olarak kaydet\" seçeneğini seçin.",
+      "message": "DeutschTest.pro sonucum: {module} — {score} ({status}). {url}",
+      "emailSubject": "Sonucum: {module} — {score}",
+      "errorGeneric": "İşlem başarısız oldu. Lütfen tekrar deneyin."
+    },
+    "public": {
+      "cta": "Aynı testi ücretsiz çöz.",
+      "ctaSubtitle": "Kayıtta 3 modül ücretsiz — ödeme gerekmez.",
+      "ctaButton": "Ücretsiz başla"
     }
   },
   "errorPages": {

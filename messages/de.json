@@ -843,10 +843,22 @@
       "eyebrow": "{module} · {level} · {date} · {time}",
       "outOf": "/ 100",
       "summary": {
-        "high":    { "title": "Hervorragend!",       "subtitle": "Sicher bestanden." },
-        "midHigh": { "title": "Gut.",                "subtitle": "Bestanden." },
-        "midLow":  { "title": "Knapp.",              "subtitle": "Nicht bestanden." },
-        "low":     { "title": "Mehr Übung nötig.",   "subtitle": "Nicht bestanden." }
+        "high": {
+          "title": "Hervorragend!",
+          "subtitle": "Sicher bestanden."
+        },
+        "midHigh": {
+          "title": "Gut.",
+          "subtitle": "Bestanden."
+        },
+        "midLow": {
+          "title": "Knapp.",
+          "subtitle": "Nicht bestanden."
+        },
+        "low": {
+          "title": "Mehr Übung nötig.",
+          "subtitle": "Nicht bestanden."
+        }
       }
     },
     "userInput": {
@@ -911,6 +923,27 @@
       "successEyebrow": "DANKE",
       "validationRequired": "Geben Sie eine Bewertung ab oder schreiben Sie eine Nachricht.",
       "errorNetwork": "Feedback konnte nicht gesendet werden. Bitte erneut versuchen."
+    },
+    "share": {
+      "title": "Ergebnis teilen",
+      "whatsapp": "WhatsApp",
+      "telegram": "Telegram",
+      "email": "E-Mail",
+      "copy": "Link kopieren",
+      "copied": "Kopiert",
+      "makePrivate": "Privat machen",
+      "makePublic": "Wieder öffentlich machen",
+      "publicNote": "Öffentlicher Link aktiv",
+      "privateNote": "Link deaktiviert",
+      "pdfHint": "PDF gewünscht? Drücken Sie Cmd+P (Strg+P unter Windows) und wählen Sie „Als PDF speichern“ im Druckdialog.",
+      "message": "Mein Ergebnis bei DeutschTest.pro: {module} — {score} ({status}). {url}",
+      "emailSubject": "Mein Ergebnis: {module} — {score}",
+      "errorGeneric": "Vorgang fehlgeschlagen. Bitte erneut versuchen."
+    },
+    "public": {
+      "cta": "Machen Sie denselben Test kostenlos.",
+      "ctaSubtitle": "3 Module gratis bei der Registrierung — keine Zahlung nötig.",
+      "ctaButton": "Kostenlos starten"
     }
   },
   "errorPages": {

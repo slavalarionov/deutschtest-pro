@@ -843,10 +843,22 @@
       "eyebrow": "{module} · {level} · {date} · {time}",
       "outOf": "/ 100",
       "summary": {
-        "high":    { "title": "Отлично!",            "subtitle": "Уверенно сдан." },
-        "midHigh": { "title": "Хорошо.",             "subtitle": "Сдан." },
-        "midLow":  { "title": "Близко.",             "subtitle": "Не сдан." },
-        "low":     { "title": "Нужно ещё практики.", "subtitle": "Не сдан." }
+        "high": {
+          "title": "Отлично!",
+          "subtitle": "Уверенно сдан."
+        },
+        "midHigh": {
+          "title": "Хорошо.",
+          "subtitle": "Сдан."
+        },
+        "midLow": {
+          "title": "Близко.",
+          "subtitle": "Не сдан."
+        },
+        "low": {
+          "title": "Нужно ещё практики.",
+          "subtitle": "Не сдан."
+        }
       }
     },
     "userInput": {
@@ -911,6 +923,27 @@
       "successEyebrow": "СПАСИБО",
       "validationRequired": "Поставьте оценку или напишите сообщение.",
       "errorNetwork": "Не удалось отправить отзыв. Попробуйте ещё раз."
+    },
+    "share": {
+      "title": "Поделиться результатом",
+      "whatsapp": "WhatsApp",
+      "telegram": "Telegram",
+      "email": "Email",
+      "copy": "Скопировать ссылку",
+      "copied": "Скопировано",
+      "makePrivate": "Сделать приватным",
+      "makePublic": "Снова сделать публичным",
+      "publicNote": "Публичная ссылка активна",
+      "privateNote": "Ссылка отключена",
+      "pdfHint": "Нужен PDF? Нажмите Cmd+P (Ctrl+P на Windows) и выберите «Сохранить как PDF» в диалоге печати.",
+      "message": "Мой результат на DeutschTest.pro: {module} — {score} ({status}). {url}",
+      "emailSubject": "Мой результат: {module} — {score}",
+      "errorGeneric": "Не удалось выполнить операцию. Попробуйте ещё раз."
+    },
+    "public": {
+      "cta": "Пройдите такой же тест бесплатно.",
+      "ctaSubtitle": "3 модуля при регистрации, без оплаты.",
+      "ctaButton": "Начать бесплатно"
     }
   },
   "errorPages": {
