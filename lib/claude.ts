@@ -917,37 +917,51 @@ export async function scoreSprechen(
 // RECOMMENDATIONS — Dashboard AI-Empfehlungen
 // ====================================================================
 
+const weakAreaSchema = z.object({
+  topic: z.enum([
+    'modal-verben',
+    'perfekt',
+    'prateritum',
+    'konjunktiv',
+    'prapositionen',
+    'cases',
+    'briefe',
+    'inhaltspunkte',
+    'wortschatz',
+    'aussprache',
+    'dialoge',
+    'texts-reading',
+    'audio-listening',
+    'general',
+  ]),
+  level: z.enum(['a1', 'a2', 'b1']),
+  module: z.enum(['lesen', 'horen', 'schreiben', 'sprechen']),
+  severity: z.enum(['high', 'medium', 'low']),
+  reason: z.string().min(10).max(300),
+})
+
 const recommendationsSchema = z.object({
-  overallAssessment: z.string().min(20).max(800),
-  strengths: z.array(z.string().min(5).max(300)).min(1).max(5),
-  weaknesses: z.array(z.string().min(5).max(300)).min(1).max(5),
-  studyPlan: z
-    .array(
-      z.object({
-        title: z.string().min(3).max(120),
-        description: z.string().min(10).max(500),
-      })
-    )
-    .min(2)
-    .max(6),
-  motivation: z.string().min(10).max(400),
+  weak_areas: z.array(weakAreaSchema).min(1).max(8),
+  summary_text: z.string().min(50).max(1500),
 })
 
 export type Recommendations = z.infer<typeof recommendationsSchema>
+export type WeakArea = z.infer<typeof weakAreaSchema>
 
 function buildRecommendationsSystemPrompt(language: Locale): string {
-  return `You are an AI tutor for DeutschTest.pro, a Goethe-Zertifikat exam simulator. You analyze a learner's exam attempts and give personalized, data-driven, motivating recommendations.
+  return `You are an AI tutor for DeutschTest.pro, a Goethe-Zertifikat exam simulator. You analyze a learner's exam attempts and classify their weak areas using a fixed taxonomy of grammar, vocabulary, and skill topics. The server then matches your topic tags to a curated catalog of learning materials — your job is precise classification, NOT inventing URLs or specific resources.
 
 CRITICAL OUTPUT LANGUAGE: ${LANGUAGE_NAME[language]} (code: "${language}")
-- "de" → all string fields of the JSON response in German
-- "ru" → all string fields of the JSON response in Russian
-- "en" → all string fields of the JSON response in English
-- "tr" → all string fields of the JSON response in Turkish
+All natural-language fields (reason, summary_text) MUST be in this language.
 
 KEEP IN GERMAN regardless of output language (these are Goethe exam terms):
-Lesen, Hören, Schreiben, Sprechen, Teil 1-5, A1, A2, B1, Goethe-Zertifikat, DeutschTest.pro
+Lesen, Hören, Schreiben, Sprechen, Teil 1-5, A1, A2, B1, Goethe-Zertifikat, DeutschTest.pro.
 
-Tone: friendly, motivating, specific. Avoid generic phrases ("study more"), give concrete recommendations ("complete 3-4 Sprechen modules at A2/B1 to get familiar with the format").
+CRITICAL — TOPIC TAGS:
+- topic field is a CLOSED ENUM. You MUST pick exactly one of the listed values per weak area. Do not invent new tags.
+- If a weakness does not match any specific tag, use "general".
+
+Tone: friendly, motivating, specific. Address the learner in second person.
 
 Return your answer exclusively via the provided tool.`
 }
@@ -962,7 +976,7 @@ export async function generateRecommendations(
     userPrompt: getRecommendationsPrompt(input, language),
     toolName: 'submit_recommendations',
     toolDescription:
-      'Reicht personalisierte Lernempfehlungen für den Prüfling ein: Gesamteinschätzung, Stärken, Schwächen, Studienplan und Motivation.',
+      'Reicht eine strukturierte Klassifikation der Schwachstellen des Prüflings ein. weak_areas: 1–8 Einträge mit topic (closed enum), level, module, severity und einer kurzen reason-Begründung. summary_text: ein zusammenfassender Absatz.',
     schema: recommendationsSchema,
     maxTokens: 2048,
     operation: 'claude_recommendations',

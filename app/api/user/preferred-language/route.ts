@@ -29,10 +29,13 @@ export async function POST(req: NextRequest) {
       .from('profiles')
       .update({
         preferred_language: parsed.data.language,
+        // Drop both legacy jsonb cache (migration 012) and the snapshot pointer
+        // (migration 028) — the next dashboard hit regenerates in the new locale.
         cached_recommendations: null,
         cached_recommendations_language: null,
         recommendations_attempts_count: null,
         recommendations_generated_at: null,
+        current_recommendations_id: null,
       })
       .eq('id', user.id)
 

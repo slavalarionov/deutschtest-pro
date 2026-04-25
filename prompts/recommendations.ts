@@ -1,14 +1,16 @@
-// Промпт для генерации персональных рекомендаций в /dashboard/recommendations.
-// Принимает краткую сводку всех user_attempts пользователя и код языка вывода.
-// Claude возвращает overallAssessment / strengths / weaknesses / studyPlan /
-// motivation на языке пользователя. Данные о попытках остаются на немецком
-// (модуль, уровень, AI-фидбек) — это часть симуляции Goethe.
+// Промпт для генерации рекомендаций — новый flow: Claude классифицирует слабые
+// зоны через закрытый enum топиков, summary_text — свободный обзорный текст.
+// Сервер потом матчит топики с learning_resources и рендерит ссылки.
 //
 // Changelog:
-// - 2026-04-18: добавлен параметр language (de/ru/en/tr), инструкции о языке
-//   вывода вынесены в начало промпта, термины Goethe остаются на немецком.
+// - 2026-04-25: переработан под Tool Use со структурой weak_areas[] + summary_text.
+//   Список 14 закреплённых топиков (lib/learning-tags.ts), Claude обязан выбирать
+//   только из этого списка — иначе Zod упадёт и сработает ретрай. Старая схема
+//   strengths/weaknesses/studyPlan/motivation удалена.
+// - 2026-04-18: добавлен параметр language (de/ru/en/tr).
 
 import type { Locale } from '@/i18n/request'
+import { LEARNING_TAGS, TAG_LABELS } from '@/lib/learning-tags'
 
 export type RecommendationsModule = 'lesen' | 'horen' | 'schreiben' | 'sprechen'
 export type RecommendationsLevel = 'A1' | 'A2' | 'B1'
@@ -56,6 +58,13 @@ function formatAttempt(a: RecommendationsAttemptSummary, idx: number): string {
   return `${base}\n   Prüfer-Kommentar: ${shortened}`
 }
 
+function topicCatalogBlock(language: Locale): string {
+  return LEARNING_TAGS.map((tag) => {
+    const label = TAG_LABELS[tag][language]
+    return `- "${tag}" — ${label}`
+  }).join('\n')
+}
+
 export function getRecommendationsPrompt(
   input: RecommendationsInput,
   language: Locale
@@ -73,9 +82,9 @@ export function getRecommendationsPrompt(
   const strongest = input.strongestModule ? MODULE_LABEL[input.strongestModule] : '—'
   const weakest = input.weakestModule ? MODULE_LABEL[input.weakestModule] : '—'
 
-  return `REMINDER: Write all string fields of your tool-call response in ${LANGUAGE_NAME[language]} (code: "${language}"). Keep these German exam terms unchanged: Lesen, Hören, Schreiben, Sprechen, Teil 1-5, A1, A2, B1, Goethe-Zertifikat, DeutschTest.pro.
+  return `REMINDER: Write all string fields (reason, summary_text) of your tool-call response in ${LANGUAGE_NAME[language]} (code: "${language}"). Keep these German exam terms unchanged: Lesen, Hören, Schreiben, Sprechen, Teil 1-5, A1, A2, B1, Goethe-Zertifikat, DeutschTest.pro.
 
-The learner's training data is provided in German below. Analyze it and give personalized recommendations.
+The learner's training data is provided in German below. Analyze it and identify 1–8 specific weak areas to address.
 
 GESAMTSTATISTIK:
 - Absolvierte Module: ${input.totalAttempts}
@@ -93,18 +102,27 @@ ${levelAveragesBlock}
 EINZELNE MODUL-ERGEBNISSE (chronologisch, ältestes zuerst):
 ${attemptsBlock}
 
-Produce the following structured output (all prose in ${LANGUAGE_NAME[language]}, German exam terms preserved):
+CRITICAL — TOPIC TAG ENUM (closed list, you MUST pick exactly one of these for each weak_area.topic):
+${topicCatalogBlock(language)}
 
-1. overallAssessment: 2–4 sentences — honest but encouraging assessment of the current preparation level.
-2. strengths: 2–4 specific strengths grounded in the data.
-3. weaknesses: 2–4 specific weaknesses or areas to work on.
-4. studyPlan: 3–5 concrete next steps. Each step has a short \`title\` (1 line) and a \`description\` (2–3 sentences with practical guidance, referencing German module names and suggested module counts).
-5. motivation: 1–2 motivating sentences — personal, not generic.
+DO NOT invent new topic tags. If a weakness does not fit any specific tag, use "general". Use "wortschatz" for vocabulary gaps, "aussprache" only when feedback explicitly mentions pronunciation.
+
+Produce structured output via the tool:
+
+1. weak_areas: array of 1–8 items, each:
+   - topic: one of the enum values above (lowercase, exact match)
+   - level: "a1" | "a2" | "b1" (the level where this weakness shows up — use lowercase)
+   - module: "lesen" | "horen" | "schreiben" | "sprechen"
+   - severity: "high" | "medium" | "low" — high = blocks passing the exam, medium = noticeable gap, low = polish point
+   - reason: 1–2 sentences (10–300 chars) directly addressing the learner ("du" / "ты" / "you" / "sen" per language) and grounded in the data above
+
+2. summary_text: 2–4 sentences (50–1500 chars) — honest but encouraging assessment of the current preparation level. No bullets, no markdown.
 
 Rules:
-- Address the learner directly in the second person (use the native equivalent: "du" for de, "ты" for ru, "you" for en, "sen" for tr).
+- Address the learner directly in the second person.
 - Do not mention AI, Claude, or any provider.
-- If the learner has only completed 1 module, be appropriately cautious about trends.
-- Realistic plan: 1 module costs 1 credit on our platform, so recommend concrete numbers (e.g. "2 more Schreiben modules at A2").
+- If only 1 module was completed, be cautious about trends.
+- Order weak_areas by severity (high first).
+- Each weak_area should be specific and actionable, not generic.
 - Return the answer exclusively via the provided tool.`
 }
