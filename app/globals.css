@@ -40,6 +40,16 @@
     --line:      oklch(0.92 0.004 260);
     --line-soft: oklch(0.955 0.003 260);
 
+    /* ---------- Chart palette (per module) ----------
+       Centralised hex values — the only place chart colours live. Used by
+       every <Line>, legend dot, tooltip dot and per-module bar in the
+       progress chart. Do not reference --ink/--accent/--muted for chart
+       lines elsewhere; route through these tokens instead. */
+    --chart-lesen:     var(--ink);     /* graphite */
+    --chart-horen:     var(--accent);  /* cobalt */
+    --chart-schreiben: #B8860B;        /* dark goldenrod */
+    --chart-sprechen:  #8B2635;        /* burgundy */
+
     /* ---------- Type scale ---------- */
     --fs-mono-cap:   11px;
     --fs-xs:         12px;

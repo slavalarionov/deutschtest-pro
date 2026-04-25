@@ -29,10 +29,15 @@ export interface PerAttemptSeries {
   series: PerAttemptPoint[]
   counts: Record<ProgressModule, number>
   maxCount: number
+  axisLength: number
 }
 
 const MODULES: ProgressModule[] = ['lesen', 'horen', 'schreiben', 'sprechen']
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000
+
+// Minimum number of attempt slots to show on the X axis. Below this, the
+// axis is padded with empty ticks so users see the runway ahead.
+const MIN_AXIS_SLOTS = 20
 
 /**
  * Build a per-attempt series for a given level.
@@ -62,9 +67,10 @@ export function buildPerAttemptSeriesForLevel(
     sprechen: perModule.sprechen.length,
   }
   const maxCount = Math.max(counts.lesen, counts.horen, counts.schreiben, counts.sprechen)
+  const axisLength = Math.max(MIN_AXIS_SLOTS, maxCount)
 
   const series: PerAttemptPoint[] = []
-  for (let i = 0; i < maxCount; i++) {
+  for (let i = 0; i < axisLength; i++) {
     series.push({
       attemptIndex: i + 1,
       lesen: perModule.lesen[i]?.score ?? null,
@@ -78,7 +84,7 @@ export function buildPerAttemptSeriesForLevel(
     })
   }
 
-  return { series, counts, maxCount }
+  return { series, counts, maxCount, axisLength }
 }
 
 /** Total attempts per level (for default-level auto-selection). */
@@ -161,6 +167,46 @@ export function computeModuleDeltas(
       previous: prev,
       delta: cur !== null && prev !== null ? cur - prev : null,
     }
+  }
+  return result
+}
+
+export interface LastThreeAverage {
+  /** Rounded average of the last three attempts. null when count < 3. */
+  avg: number | null
+  /** Total attempts the user has on this module across all levels. */
+  count: number
+}
+
+/**
+ * Per-module average over the last three attempts (across all levels),
+ * ordered chronologically by submittedAt. Used by per-module dashboard
+ * cards to show recent stability rather than lifetime averages.
+ *
+ * Input `points` is expected sorted ascending by submittedAt.
+ */
+export function computeLastThreeAverages(
+  points: ProgressPoint[]
+): Record<ProgressModule, LastThreeAverage> {
+  const buckets: Record<ProgressModule, ProgressPoint[]> = {
+    lesen: [],
+    horen: [],
+    schreiben: [],
+    sprechen: [],
+  }
+  for (const p of points) buckets[p.module].push(p)
+
+  const result = {} as Record<ProgressModule, LastThreeAverage>
+  for (const m of MODULES) {
+    const all = buckets[m]
+    const count = all.length
+    if (count < 3) {
+      result[m] = { avg: null, count }
+      continue
+    }
+    const lastThree = all.slice(-3)
+    const sum = lastThree.reduce((acc, p) => acc + p.score, 0)
+    result[m] = { avg: Math.round(sum / 3), count }
   }
   return result
 }

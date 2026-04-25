@@ -485,9 +485,10 @@
         }
       },
       "perModule": {
-        "previousLabel": "Vorher: {prev}",
-        "noPrev": "Vorher: —",
-        "noDeltaPlaceholder": "—"
+        "noDeltaPlaceholder": "—",
+        "avgLastThree": "Durchschnitt der letzten 3 Versuche",
+        "needMoreAttempts": "Noch {count, plural, one {# Versuch} other {# Versuche}} nötig",
+        "unlockExplanation": "Um den Durchschnitt der letzten 3 Versuche zu sehen"
       },
       "tooltip": {
         "scoreLabel": "PUNKTE"

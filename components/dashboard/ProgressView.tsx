@@ -16,9 +16,10 @@ import {
 import type { ProgressData, ProgressLevel, ProgressModule } from '@/lib/dashboard/progress'
 import {
   buildPerAttemptSeriesForLevel,
+  computeLastThreeAverages,
   computeModuleDeltas,
   countAttemptsByLevel,
-  countAttemptsByModuleForLevel,
+  type LastThreeAverage,
   type PerAttemptPoint,
 } from '@/lib/dashboard/progress-client'
 
@@ -34,10 +35,10 @@ const MODULE_LABELS: Record<ProgressModule, string> = {
 }
 
 const MODULE_STROKES: Record<ProgressModule, string> = {
-  lesen: 'var(--ink)',
-  horen: 'var(--accent)',
-  schreiben: 'var(--ink-soft)',
-  sprechen: 'var(--muted)',
+  lesen: 'var(--chart-lesen)',
+  horen: 'var(--chart-horen)',
+  schreiben: 'var(--chart-schreiben)',
+  sprechen: 'var(--chart-sprechen)',
 }
 
 const CHART_HEIGHT = 320
@@ -121,6 +122,11 @@ export function ProgressView() {
     [data]
   )
 
+  const lastThreeAvgs = useMemo(
+    () => (data ? computeLastThreeAverages(data.points) : null),
+    [data]
+  )
+
   if (loading) {
     return (
       <div className="mx-auto max-w-5xl px-6 py-10">
@@ -187,7 +193,9 @@ export function ProgressView() {
         onLevelChange={handleLevelChange}
       />
 
-      {moduleDeltas && <PerModuleGrid deltas={moduleDeltas} />}
+      {moduleDeltas && lastThreeAvgs && (
+        <PerModuleGrid deltas={moduleDeltas} lastThreeAvgs={lastThreeAvgs} />
+      )}
     </div>
   )
 }
@@ -243,7 +251,7 @@ function ModuleLinesChart({
   const t = useTranslations('dashboard.progress')
   const locale = useLocale()
 
-  const { series, counts, maxCount } = useMemo(
+  const { series, counts, axisLength } = useMemo(
     () => buildPerAttemptSeriesForLevel(points, selectedLevel),
     [points, selectedLevel]
   )
@@ -281,7 +289,7 @@ function ModuleLinesChart({
     return () => ro.disconnect()
   }, [])
 
-  const chartWidth = Math.max(wrapperWidth, maxCount * MIN_STEP_PX)
+  const chartWidth = Math.max(wrapperWidth, axisLength * MIN_STEP_PX)
 
   return (
     <section className="rounded-rad border border-line bg-card p-6 md:p-8">
@@ -317,9 +325,9 @@ function ModuleLinesChart({
               <XAxis
                 type="number"
                 dataKey="attemptIndex"
-                domain={[1, Math.max(maxCount, 1)]}
+                domain={[1, axisLength]}
                 allowDecimals={false}
-                ticks={buildXTicks(maxCount)}
+                ticks={buildXTicks(axisLength)}
                 stroke="var(--muted)"
                 tickLine={false}
                 axisLine={{ stroke: 'var(--line)' }}
@@ -421,17 +429,17 @@ function ModuleLinesChart({
 }
 
 /**
- * Pick integer ticks along the attempt axis. Up to 20 attempts — every step.
- * Beyond that — every other or every fifth, always keeping 1 and maxCount.
+ * Pick integer ticks along the attempt axis. Up to 20 slots — every step.
+ * Beyond that — every other or every fifth, always keeping 1 and the last slot.
  */
-function buildXTicks(maxCount: number): number[] {
-  if (maxCount <= 1) return [1]
+function buildXTicks(axisLength: number): number[] {
+  if (axisLength <= 1) return [1]
   let step = 1
-  if (maxCount > 50) step = 5
-  else if (maxCount > 20) step = 2
+  if (axisLength > 50) step = 5
+  else if (axisLength > 20) step = 2
   const ticks: number[] = []
-  for (let i = 1; i <= maxCount; i += step) ticks.push(i)
-  if (ticks[ticks.length - 1] !== maxCount) ticks.push(maxCount)
+  for (let i = 1; i <= axisLength; i += step) ticks.push(i)
+  if (ticks[ticks.length - 1] !== axisLength) ticks.push(axisLength)
   return ticks
 }
 
@@ -643,8 +651,10 @@ function ChartLegend({
 
 function PerModuleGrid({
   deltas,
+  lastThreeAvgs,
 }: {
   deltas: Record<ProgressModule, { current: number | null; previous: number | null; delta: number | null }>
+  lastThreeAvgs: Record<ProgressModule, LastThreeAverage>
 }) {
   const t = useTranslations('dashboard.progress')
 
@@ -652,9 +662,9 @@ function PerModuleGrid({
     <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {MODULES.map((m) => {
         const d = deltas[m]
-        const cur = d.current
-        const prev = d.previous
         const deltaVal = d.delta
+        const { avg, count } = lastThreeAvgs[m]
+        const isUnlocked = count >= 3 && avg !== null
 
         const deltaChip =
           deltaVal === null
@@ -671,8 +681,7 @@ function PerModuleGrid({
                 ? 'text-muted'
                 : 'text-muted'
 
-        const barWidth = cur ?? 0
-        const barFill = cur !== null && cur >= 60 ? 'bg-accent' : 'bg-ink'
+        const remaining = Math.max(0, 3 - count)
 
         return (
           <div
@@ -683,26 +692,40 @@ function PerModuleGrid({
               <span className="font-mono text-xs uppercase tracking-wider text-muted">
                 {MODULE_LABELS[m]}
               </span>
-              <span className={`font-mono text-xs ${deltaClass}`}>
-                {deltaChip}
-              </span>
-            </div>
-            <div className="font-display text-5xl tracking-[-0.03em] leading-none text-ink">
-              {cur ?? '—'}
-            </div>
-            <div className="mt-1 font-mono text-xs text-muted">
-              {prev === null
-                ? t('perModule.noPrev')
-                : t('perModule.previousLabel', { prev })}
-            </div>
-            <div className="mt-4 h-2 w-full bg-line rounded-rad-pill overflow-hidden">
-              {cur !== null && (
-                <div
-                  className={`h-full ${barFill}`}
-                  style={{ width: `${barWidth}%` }}
-                />
+              {isUnlocked && (
+                <span className={`font-mono text-xs ${deltaClass}`}>
+                  {deltaChip}
+                </span>
               )}
             </div>
+            {isUnlocked ? (
+              <>
+                <div className="font-display text-5xl tracking-[-0.03em] leading-none text-ink tabular-nums">
+                  {avg}
+                </div>
+                <div className="mt-2 font-mono text-xs text-muted">
+                  {t('perModule.avgLastThree')}
+                </div>
+                <div className="mt-4 h-2 w-full bg-line rounded-rad-pill overflow-hidden">
+                  <div
+                    className="h-full"
+                    style={{
+                      width: `${avg}%`,
+                      background: MODULE_STROKES[m],
+                    }}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="font-display text-2xl tracking-[-0.025em] leading-tight text-ink-soft">
+                  {t('perModule.needMoreAttempts', { count: remaining })}
+                </div>
+                <div className="mt-2 font-mono text-xs text-muted">
+                  {t('perModule.unlockExplanation')}
+                </div>
+              </>
+            )}
           </div>
         )
       })}

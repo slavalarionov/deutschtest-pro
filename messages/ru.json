@@ -485,9 +485,10 @@
         }
       },
       "perModule": {
-        "previousLabel": "Было: {prev}",
-        "noPrev": "Было: —",
-        "noDeltaPlaceholder": "—"
+        "noDeltaPlaceholder": "—",
+        "avgLastThree": "Средний балл за последние 3 попытки",
+        "needMoreAttempts": "Нужно ещё {count, plural, one {# попытка} few {# попытки} many {# попыток} other {# попытки}}",
+        "unlockExplanation": "Чтобы увидеть средний балл за последние 3 попытки"
       },
       "tooltip": {
         "scoreLabel": "БАЛЛЫ"

@@ -485,9 +485,10 @@
         }
       },
       "perModule": {
-        "previousLabel": "Önceden: {prev}",
-        "noPrev": "Önceden: —",
-        "noDeltaPlaceholder": "—"
+        "noDeltaPlaceholder": "—",
+        "avgLastThree": "Son 3 denemenin ortalaması",
+        "needMoreAttempts": "{count, plural, other {# deneme daha gerekli}}",
+        "unlockExplanation": "Son 3 denemenin ortalamasını görmek için"
       },
       "tooltip": {
         "scoreLabel": "PUAN"

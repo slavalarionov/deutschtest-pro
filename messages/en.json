@@ -485,9 +485,10 @@
         }
       },
       "perModule": {
-        "previousLabel": "Before: {prev}",
-        "noPrev": "Before: —",
-        "noDeltaPlaceholder": "—"
+        "noDeltaPlaceholder": "—",
+        "avgLastThree": "Average of last 3 attempts",
+        "needMoreAttempts": "{count, plural, one {# more attempt} other {# more attempts}} needed",
+        "unlockExplanation": "To see your average of the last 3 attempts"
       },
       "tooltip": {
         "scoreLabel": "POINTS"
