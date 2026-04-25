@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useExamStore } from '@/store/examStore'
@@ -31,6 +31,15 @@ const TASK_SHELL_BASE = 'rounded-rad border p-5 transition'
 const TASK_SHELL_NEUTRAL = 'border-line bg-card'
 const TASK_SHELL_CORRECT = 'border-accent/40 bg-accent-soft/40'
 const TASK_SHELL_WRONG = 'border-error/40 bg-error-soft/40'
+
+// Two-column layout (Teil 1/3/5 on lg+): each column gets its own scroll
+// area. Height is fixed so the page itself does not scroll — text and
+// questions live side by side without losing position. min-h prevents the
+// columns from collapsing on very short viewports.
+const TWO_COL_PANE =
+  'lg:h-[calc(100vh-22rem)] lg:min-h-[420px] lg:overflow-y-auto chart-scroll'
+const TWO_COL_PANE_LEFT = `${TWO_COL_PANE} lg:pr-8`
+const TWO_COL_PANE_RIGHT = `${TWO_COL_PANE} lg:border-l lg:border-line lg:pl-8 space-y-4`
 
 const EYEBROW = 'font-mono text-[11px] uppercase tracking-wider text-muted'
 const TASK_ID_BADGE =
@@ -132,8 +141,16 @@ export function LesenModule() {
     )
   }
 
+  // Teil 1, 3, 5 use a wider canvas on lg+ to host the two-column layout.
+  // Teil 2 / 4 stay narrow because their content is structurally fragmented.
+  const isWideTeil = currentTeil === 0 || currentTeil === 2 || currentTeil === 4
+
   return (
-    <div className="mx-auto max-w-4xl space-y-5">
+    <div
+      className={`mx-auto ${
+        isWideTeil ? 'max-w-4xl lg:max-w-7xl' : 'max-w-4xl'
+      } space-y-5 transition-[max-width] duration-200`}
+    >
       {timeUp && session && <TimeUpOverlay detail={postSubmit ? tTimer('redirecting') : undefined} />}
 
       {/* Header with timer */}
@@ -270,17 +287,24 @@ function OptionLetter({ letter }: { letter: string }) {
 
 function Teil1View({ data, answers, setAnswer, submitted, results }: TeilViewProps & { data: LesenTeil1 }) {
   const t = useTranslations('exam.modules.lesen.teil1')
+  const tShared = useTranslations('exam.modules.shared')
   const example = data.tasks.find((task) => task.isExample)
   const tasks = data.tasks.filter((task) => !task.isExample)
 
   return (
     <div className="space-y-4">
       <TeilHeader number={1} title={t('title')} desc={t('desc')} tag={t('tag')} />
-      <TextBlock text={data.text} />
-      {example && <ExampleRF task={example} />}
-      {tasks.map((task) => (
-        <RFRow key={task.id} task={task} prefix="t1" answers={answers} setAnswer={setAnswer} submitted={submitted} results={results} />
-      ))}
+      <div className="lg:grid lg:grid-cols-2 lg:gap-0">
+        <div tabIndex={0} role="region" aria-label={tShared('paneTextAria')} className={TWO_COL_PANE_LEFT}>
+          <TextBlock text={data.text} />
+        </div>
+        <div tabIndex={0} role="region" aria-label={tShared('paneQuestionsAria')} className={TWO_COL_PANE_RIGHT}>
+          {example && <ExampleRF task={example} />}
+          {tasks.map((task) => (
+            <RFRow key={task.id} task={task} prefix="t1" answers={answers} setAnswer={setAnswer} submitted={submitted} results={results} />
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
@@ -369,56 +393,62 @@ function Teil3View({ data, answers, setAnswer, submitted, results }: TeilViewPro
   return (
     <div className="space-y-4">
       <TeilHeader number={3} title={t('title')} desc={t('desc')} tag={t('tag')} />
-      <TextBlock text={data.text} />
-      {example && (
-        <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
-          <div className={EYEBROW}>{tShared('example')}</div>
-          <div className="mt-2 flex items-start justify-between gap-4">
-            <p className="text-sm text-ink">
-              <span className="mr-2 font-mono text-xs text-muted">0</span>
-              {example.statement}
-            </p>
-            <div className="flex shrink-0 gap-2">
-              <span className={`rounded-rad border px-3 py-1.5 text-xs font-semibold ${example.answer === 'ja' ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'}`}>{tAnswers('ja')}</span>
-              <span className={`rounded-rad border px-3 py-1.5 text-xs font-semibold ${example.answer === 'nein' ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'}`}>{tAnswers('nein')}</span>
-            </div>
-          </div>
+      <div className="lg:grid lg:grid-cols-2 lg:gap-0">
+        <div tabIndex={0} role="region" aria-label={tShared('paneTextAria')} className={TWO_COL_PANE_LEFT}>
+          <TextBlock text={data.text} />
         </div>
-      )}
-      {tasks.map((task) => {
-        const key = `t3_${task.id}`
-        const userAnswer = answers[key] as string | undefined
-        const detail = results?.details[key]
-        return (
-          <div key={task.id} data-testid="exam-task" className={taskShellClass(submitted, detail)}>
-            <div className="flex items-start justify-between gap-4">
-              <p className="text-sm leading-relaxed text-ink">
-                <span className={TASK_ID_BADGE}>{task.id}</span>
-                {task.statement}
-                {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
-              </p>
-              <div className="grid shrink-0 grid-cols-2 gap-2">
-                {(['ja', 'nein'] as const).map((opt) => (
-                  <button
-                    key={opt}
-                    data-testid={`answer-${opt}-${key}`}
-                    onClick={() => !submitted && setAnswer(key, opt)}
-                    disabled={submitted}
-                    className={`rounded-rad border px-4 py-1.5 text-xs font-semibold capitalize transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink ${optionClass({
-                      isSelected: userAnswer === opt,
-                      isCorrectAnswer: detail?.correctAnswer === opt,
-                      submitted,
-                      detailIsCorrect: detail?.isCorrect,
-                    })} ${submitted ? OPTION_DISABLED : ''}`}
-                  >
-                    {tAnswers(opt)}
-                  </button>
-                ))}
+        <div tabIndex={0} role="region" aria-label={tShared('paneQuestionsAria')} className={TWO_COL_PANE_RIGHT}>
+          {example && (
+            <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
+              <div className={EYEBROW}>{tShared('example')}</div>
+              <div className="mt-2 flex items-start justify-between gap-4">
+                <p className="text-sm text-ink">
+                  <span className="mr-2 font-mono text-xs text-muted">0</span>
+                  {example.statement}
+                </p>
+                <div className="flex shrink-0 gap-2">
+                  <span className={`rounded-rad border px-3 py-1.5 text-xs font-semibold ${example.answer === 'ja' ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'}`}>{tAnswers('ja')}</span>
+                  <span className={`rounded-rad border px-3 py-1.5 text-xs font-semibold ${example.answer === 'nein' ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'}`}>{tAnswers('nein')}</span>
+                </div>
               </div>
             </div>
-          </div>
-        )
-      })}
+          )}
+          {tasks.map((task) => {
+            const key = `t3_${task.id}`
+            const userAnswer = answers[key] as string | undefined
+            const detail = results?.details[key]
+            return (
+              <div key={task.id} data-testid="exam-task" className={taskShellClass(submitted, detail)}>
+                <div className="flex items-start justify-between gap-4">
+                  <p className="text-sm leading-relaxed text-ink">
+                    <span className={TASK_ID_BADGE}>{task.id}</span>
+                    {task.statement}
+                    {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
+                  </p>
+                  <div className="grid shrink-0 grid-cols-2 gap-2">
+                    {(['ja', 'nein'] as const).map((opt) => (
+                      <button
+                        key={opt}
+                        data-testid={`answer-${opt}-${key}`}
+                        onClick={() => !submitted && setAnswer(key, opt)}
+                        disabled={submitted}
+                        className={`rounded-rad border px-4 py-1.5 text-xs font-semibold capitalize transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink ${optionClass({
+                          isSelected: userAnswer === opt,
+                          isCorrectAnswer: detail?.correctAnswer === opt,
+                          submitted,
+                          detailIsCorrect: detail?.isCorrect,
+                        })} ${submitted ? OPTION_DISABLED : ''}`}
+                      >
+                        {tAnswers(opt)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
@@ -507,63 +537,154 @@ function Teil5View({ data, answers, setAnswer, submitted, results }: TeilViewPro
   const example = data.gaps?.find((g: LesenGap) => g.isExample)
   const gaps = data.gaps?.filter((g: LesenGap) => !g.isExample) ?? []
 
+  // activeGapId — gap currently hovered or focused via the right column
+  // (reset to null on leave/blur). answeredGapIds — set of gap ids the
+  // user has already chosen an option for; derived from the global answers
+  // map. Together they drive the highlight state of the inline gap markers
+  // in the left column.
+  const [activeGapId, setActiveGapId] = useState<number | null>(null)
+  const answeredGapIds = useMemo(() => {
+    const set = new Set<number>()
+    for (const k of Object.keys(answers)) {
+      if (!k.startsWith('t5_')) continue
+      const id = Number(k.slice(3))
+      if (Number.isFinite(id)) set.add(id)
+    }
+    return set
+  }, [answers])
+
   return (
     <div className="space-y-4">
       <TeilHeader number={5} title={t('title')} desc={t('desc')} tag={t('tag')} />
-      <TextBlock text={data.text} />
-
-      {example && (
-        <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
-          <div className={EYEBROW}>{t('exampleLabel')}</div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {(['a', 'b', 'c'] as const).map((opt) => (
-              <span
-                key={opt}
-                className={`inline-flex items-center rounded-rad border px-3 py-1.5 text-xs font-medium ${
-                  opt === example.answer ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'
-                }`}
-              >
-                <OptionLetter letter={opt} />
-                {example.options[opt]}
-              </span>
-            ))}
-          </div>
+      <div className="lg:grid lg:grid-cols-2 lg:gap-0">
+        <div tabIndex={0} role="region" aria-label={tShared('paneTextAria')} className={TWO_COL_PANE_LEFT}>
+          <TextBlockWithGaps
+            text={data.text}
+            activeGapId={submitted ? null : activeGapId}
+            answeredGapIds={answeredGapIds}
+          />
         </div>
-      )}
-
-      {gaps.map((gap: LesenGap) => {
-        const key = `t5_${gap.id}`
-        const userAnswer = answers[key] as string | undefined
-        const detail = results?.details[key]
-        return (
-          <div key={gap.id} data-testid="exam-task" className={taskShellClass(submitted, detail)}>
-            <p className="mb-3 text-sm font-medium text-ink">
-              <span className={TASK_ID_BADGE}>{gap.id}</span>
-              {tShared('gapLabel', { id: gap.id })}
-              {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
-            </p>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              {(['a', 'b', 'c'] as const).map((opt) => (
-                <button
-                  key={opt}
-                  data-testid={`answer-option-${key}-${opt}`}
-                  onClick={() => !submitted && setAnswer(key, opt)}
-                  disabled={submitted}
-                  className={`flex-1 ${OPTION_BASE} ${optionClass({
-                    isSelected: userAnswer === opt,
-                    isCorrectAnswer: detail?.correctAnswer === opt,
-                    submitted,
-                    detailIsCorrect: detail?.isCorrect,
-                  })} ${submitted ? OPTION_DISABLED : ''}`}
-                >
-                  <OptionLetter letter={opt} />
-                  {gap.options[opt]}
-                </button>
-              ))}
+        <div tabIndex={0} role="region" aria-label={tShared('paneQuestionsAria')} className={TWO_COL_PANE_RIGHT}>
+          {example && (
+            <div className="rounded-rad border border-dashed border-line bg-surface/50 p-5">
+              <div className={EYEBROW}>{t('exampleLabel')}</div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {(['a', 'b', 'c'] as const).map((opt) => (
+                  <span
+                    key={opt}
+                    className={`inline-flex items-center rounded-rad border px-3 py-1.5 text-xs font-medium ${
+                      opt === example.answer ? 'border-accent/60 bg-accent-soft text-ink' : 'border-line text-muted'
+                    }`}
+                  >
+                    <OptionLetter letter={opt} />
+                    {example.options[opt]}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
-        )
-      })}
+          )}
+
+          {gaps.map((gap: LesenGap) => {
+            const key = `t5_${gap.id}`
+            const userAnswer = answers[key] as string | undefined
+            const detail = results?.details[key]
+            return (
+              <div
+                key={gap.id}
+                data-testid="exam-task"
+                data-question-id={gap.id}
+                className={taskShellClass(submitted, detail)}
+                onMouseEnter={() => setActiveGapId(gap.id)}
+                onMouseLeave={() => setActiveGapId((id) => (id === gap.id ? null : id))}
+                onFocusCapture={() => setActiveGapId(gap.id)}
+                onBlurCapture={(e) => {
+                  // Only clear when focus actually leaves this row.
+                  if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                    setActiveGapId((id) => (id === gap.id ? null : id))
+                  }
+                }}
+              >
+                <p className="mb-3 text-sm font-medium text-ink">
+                  <span className={TASK_ID_BADGE}>{gap.id}</span>
+                  {tShared('gapLabel', { id: gap.id })}
+                  {submitted && detail && <AnswerBadge isCorrect={detail.isCorrect} />}
+                </p>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  {(['a', 'b', 'c'] as const).map((opt) => (
+                    <button
+                      key={opt}
+                      data-testid={`answer-option-${key}-${opt}`}
+                      onClick={() => !submitted && setAnswer(key, opt)}
+                      disabled={submitted}
+                      className={`flex-1 ${OPTION_BASE} ${optionClass({
+                        isSelected: userAnswer === opt,
+                        isCorrectAnswer: detail?.correctAnswer === opt,
+                        submitted,
+                        detailIsCorrect: detail?.isCorrect,
+                      })} ${submitted ? OPTION_DISABLED : ''}`}
+                    >
+                      <OptionLetter letter={opt} />
+                      {gap.options[opt]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Inline gap markers (___(N)___) are wrapped in a <span data-gap-id> so the
+// right column can paint them on hover/focus and keep them tinted while an
+// answer is selected. The visible text stays identical to the source — we
+// only style the wrapper, never replace the marker contents.
+function TextBlockWithGaps({
+  text,
+  activeGapId,
+  answeredGapIds,
+}: {
+  text: string
+  activeGapId: number | null
+  answeredGapIds: Set<number>
+}) {
+  const paragraphs = text.split('\n')
+  const gapRegex = /___\((\d+)\)___/g
+
+  return (
+    <div className={`${SHELL} p-6 sm:p-8`}>
+      <div className="prose prose-sm max-w-none leading-relaxed text-ink">
+        {paragraphs.map((paragraph, pi) => {
+          const parts = paragraph.split(gapRegex)
+          return (
+            <p key={pi} className={pi > 0 ? 'mt-3' : ''}>
+              {parts.map((chunk, ci) => {
+                // Even indices = plain text, odd indices = gap id captured by the regex.
+                if (ci % 2 === 0) return <span key={ci}>{chunk}</span>
+                const id = Number(chunk)
+                const isAnswered = answeredGapIds.has(id)
+                const isActive = activeGapId === id
+                const cls = isAnswered
+                  ? 'border-accent/60 bg-accent-soft/60 text-ink'
+                  : isActive
+                    ? 'border-accent/40 bg-accent-soft/40 text-ink'
+                    : 'border-line text-muted'
+                return (
+                  <span
+                    key={ci}
+                    data-gap-id={id}
+                    className={`mx-0.5 rounded-rad border px-1.5 py-0.5 font-mono text-xs transition-colors ${cls}`}
+                  >
+                    ___({id})___
+                  </span>
+                )
+              })}
+            </p>
+          )
+        })}
+      </div>
     </div>
   )
 }

@@ -666,7 +666,9 @@
         "example": "Example",
         "gapLabel": "Gap ({id})",
         "taskNumber": "Task {id}",
-        "teilLabel": "Teil {n}"
+        "teilLabel": "Teil {n}",
+        "paneTextAria": "Task text",
+        "paneQuestionsAria": "Questions and answers"
       },
       "lesen": {
         "loading": "Loading Lesen module…",

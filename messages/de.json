@@ -666,7 +666,9 @@
         "example": "Beispiel",
         "gapLabel": "Lücke ({id})",
         "taskNumber": "Aufgabe {id}",
-        "teilLabel": "Teil {n}"
+        "teilLabel": "Teil {n}",
+        "paneTextAria": "Aufgabentext",
+        "paneQuestionsAria": "Fragen und Antworten"
       },
       "lesen": {
         "loading": "Lesen-Modul wird geladen…",
