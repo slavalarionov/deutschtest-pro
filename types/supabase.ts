@@ -70,6 +70,7 @@ export interface Database {
           submitted_at: string | null
           scores: Json | null
           ai_feedback: Json | null
+          user_input: Json | null
           is_free_test: boolean
           payment_status: 'free' | 'paid' | 'pending'
         }
@@ -82,6 +83,7 @@ export interface Database {
           submitted_at?: string | null
           scores?: Json | null
           ai_feedback?: Json | null
+          user_input?: Json | null
           is_free_test?: boolean
           payment_status?: 'free' | 'paid' | 'pending'
         }
@@ -94,6 +96,7 @@ export interface Database {
           submitted_at?: string | null
           scores?: Json | null
           ai_feedback?: Json | null
+          user_input?: Json | null
           is_free_test?: boolean
           payment_status?: 'free' | 'paid' | 'pending'
         }
