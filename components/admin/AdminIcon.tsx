@@ -4,6 +4,7 @@ export type AdminIconName =
   | 'referral-sources'
   | 'prompts'
   | 'topics'
+  | 'learning-resources'
   | 'promo'
   | 'economy'
   | 'feedback'
@@ -56,6 +57,13 @@ export function AdminIcon({
         <path d="M4 17h12" />
         <path d="M17 4l3 3-3 3" />
         <path d="M20 17l-3 3-3-3" />
+      </>
+    ),
+    'learning-resources': (
+      <>
+        <path d="M4 5a2 2 0 0 1 2-2h6v16H6a2 2 0 0 1-2-2V5z" />
+        <path d="M20 5a2 2 0 0 0-2-2h-6v16h6a2 2 0 0 0 2-2V5z" />
+        <path d="M12 3v16" />
       </>
     ),
     promo: (
