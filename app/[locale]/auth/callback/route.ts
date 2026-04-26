@@ -60,13 +60,5 @@ export async function GET(request: Request) {
     ? `${fwdProto}://${fwdHost}`
     : process.env.NEXT_PUBLIC_APP_URL || requestUrl.origin
 
-  console.log('[auth/callback] redirect base resolution', {
-    fwdHost,
-    fwdProto,
-    envApp: process.env.NEXT_PUBLIC_APP_URL ?? null,
-    reqOrigin: requestUrl.origin,
-    chosen: baseUrl,
-  })
-
   return NextResponse.redirect(new URL(safeNext, baseUrl))
 }
