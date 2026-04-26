@@ -34,11 +34,7 @@ function getRequestBaseUrl(request: NextRequest): string {
 function buildLocalizedUrl(request: NextRequest, locale: string): URL {
   const u = new URL(request.url)
   const suffix = u.pathname === '/' ? '' : u.pathname
-  const base = new URL(getRequestBaseUrl(request))
-  u.protocol = base.protocol
-  u.host = base.host
-  u.pathname = `/${locale}${suffix}`
-  return u
+  return new URL(`/${locale}${suffix}${u.search}${u.hash}`, getRequestBaseUrl(request))
 }
 
 export async function middleware(request: NextRequest) {
