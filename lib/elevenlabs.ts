@@ -7,7 +7,15 @@ import { logAiUsage, type LogContext } from './ai-usage-logger'
 import { classifyError } from './ai-usage-error-classifier'
 import { calculateElevenLabsTtsCost } from './ai-pricing'
 
-const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1'
+const ELEVENLABS_API_URL =
+  process.env.ELEVENLABS_API_URL_OVERRIDE || 'https://api.elevenlabs.io/v1'
+
+function getProxyHeaders(): Record<string, string> {
+  if (!process.env.ELEVENLABS_API_URL_OVERRIDE) return {}
+  const secret = process.env.ELEVENLABS_PROXY_SECRET
+  if (!secret) return {}
+  return { 'x-proxy-secret': secret }
+}
 
 const TTS_MAX_RETRIES = 6
 
@@ -87,6 +95,7 @@ async function synthesizeToBuffer(
             'xi-api-key': process.env.ELEVENLABS_API_KEY!,
             'User-Agent': 'Mozilla/5.0 (compatible; DeutschTest/1.0; +https://deutschtest.pro)',
             'Accept': 'audio/mpeg',
+            ...getProxyHeaders(),
           },
           body: JSON.stringify({
             text,
@@ -244,6 +253,7 @@ export async function transcribeSpeech(
     headers: {
       'xi-api-key': process.env.ELEVENLABS_API_KEY!,
       'User-Agent': 'Mozilla/5.0 (compatible; DeutschTest/1.0; +https://deutschtest.pro)',
+      ...getProxyHeaders(),
     },
     body: formData,
   })
