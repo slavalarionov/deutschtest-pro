@@ -54,5 +54,6 @@ export async function GET(request: Request) {
       ? rawNext
       : '/dashboard'
 
-  return NextResponse.redirect(new URL(safeNext, requestUrl.origin))
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || requestUrl.origin
+  return NextResponse.redirect(new URL(safeNext, baseUrl))
 }

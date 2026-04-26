@@ -22,9 +22,16 @@ function hasLocalePrefix(pathname: string): boolean {
   return LOCALE_PREFIX_RE.test(pathname)
 }
 
+function getRequestBaseUrl(request: NextRequest): string {
+  return process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin
+}
+
 function buildLocalizedUrl(request: NextRequest, locale: string): URL {
   const u = new URL(request.url)
   const suffix = u.pathname === '/' ? '' : u.pathname
+  const base = new URL(getRequestBaseUrl(request))
+  u.protocol = base.protocol
+  u.host = base.host
   u.pathname = `/${locale}${suffix}`
   return u
 }
@@ -37,7 +44,7 @@ export async function middleware(request: NextRequest) {
     const { response, user } = await updateSession(request)
 
     if (pathname.startsWith('/admin') && !user) {
-      const loginUrl = new URL('/login', request.url)
+      const loginUrl = new URL('/login', getRequestBaseUrl(request))
       loginUrl.searchParams.set('next', pathname)
       return NextResponse.redirect(loginUrl)
     }
@@ -99,7 +106,7 @@ export async function middleware(request: NextRequest) {
   // Dashboard guard — same as before but locale-aware.
   const pathWithoutLocale = stripLocalePrefix(pathname)
   if (pathWithoutLocale.startsWith('/dashboard') && !user) {
-    const loginUrl = new URL('/login', request.url)
+    const loginUrl = new URL('/login', getRequestBaseUrl(request))
     loginUrl.searchParams.set('next', pathname)
     return NextResponse.redirect(loginUrl)
   }
