@@ -85,6 +85,8 @@ async function synthesizeToBuffer(
           headers: {
             'Content-Type': 'application/json',
             'xi-api-key': process.env.ELEVENLABS_API_KEY!,
+            'User-Agent': 'Mozilla/5.0 (compatible; DeutschTest/1.0; +https://deutschtest.pro)',
+            'Accept': 'audio/mpeg',
           },
           body: JSON.stringify({
             text,
@@ -241,6 +243,7 @@ export async function transcribeSpeech(
     method: 'POST',
     headers: {
       'xi-api-key': process.env.ELEVENLABS_API_KEY!,
+      'User-Agent': 'Mozilla/5.0 (compatible; DeutschTest/1.0; +https://deutschtest.pro)',
     },
     body: formData,
   })
