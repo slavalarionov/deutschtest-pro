@@ -6,6 +6,7 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@ffmpeg-installer/ffmpeg'],
+    isrFlushToDisk: false,
   },
   images: {
     dangerouslyAllowSVG: true,
