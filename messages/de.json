@@ -985,7 +985,8 @@
       "resourcesEmpty": "Passende Materialien werden in Kürze hinzugefügt.",
       "cta": "Machen Sie eine Prüfung und holen Sie sich einen neuen Lernplan.",
       "ctaSubtitle": "3 Module gratis bei der Registrierung — keine Zahlung nötig.",
-      "ctaButton": "Kostenlos starten"
+      "ctaButton": "Kostenlos starten",
+      "strengthsEyebrow": "{count, plural, one {# STÄRKE} other {# STÄRKEN}}"
     },
     "resourceTypes": {
       "book": "Buch",

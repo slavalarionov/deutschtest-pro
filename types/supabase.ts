@@ -220,6 +220,7 @@ export interface Database {
           public_id: string | null
           is_public: boolean
           weak_areas: Json
+          strengths: Json
           summary_text: string
           matched_resources: Json
           attempts_count: number
@@ -232,6 +233,7 @@ export interface Database {
           public_id?: string | null
           is_public?: boolean
           weak_areas: Json
+          strengths?: Json
           summary_text: string
           matched_resources: Json
           attempts_count: number
@@ -244,6 +246,7 @@ export interface Database {
           public_id?: string | null
           is_public?: boolean
           weak_areas?: Json
+          strengths?: Json
           summary_text?: string
           matched_resources?: Json
           attempts_count?: number

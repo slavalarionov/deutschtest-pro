@@ -940,19 +940,32 @@ const weakAreaSchema = z.object({
   reason: z.string().min(10).max(300),
 })
 
+const strengthSchema = z.object({
+  module: z.enum(['lesen', 'horen', 'schreiben', 'sprechen']),
+  level: z.enum(['a1', 'a2', 'b1']),
+  what_works: z.string().min(10).max(200),
+  evidence: z.string().min(20).max(400),
+})
+
 const recommendationsSchema = z.object({
   weak_areas: z.array(weakAreaSchema).min(1).max(8),
+  // Adaptive: empty array is valid — Claude returns [] when nothing reaches
+  // the "real achievement" bar and there is no relative strength either.
+  // Required (no .default) so missing field triggers the standard tool-use
+  // retry instead of silently dropping data the model meant to send.
+  strengths: z.array(strengthSchema).max(4),
   summary_text: z.string().min(50).max(1500),
 })
 
 export type Recommendations = z.infer<typeof recommendationsSchema>
 export type WeakArea = z.infer<typeof weakAreaSchema>
+export type Strength = z.infer<typeof strengthSchema>
 
 function buildRecommendationsSystemPrompt(language: Locale): string {
   return `You are an AI tutor for DeutschTest.pro, a Goethe-Zertifikat exam simulator. You analyze a learner's exam attempts and classify their weak areas using a fixed taxonomy of grammar, vocabulary, and skill topics. The server then matches your topic tags to a curated catalog of learning materials — your job is precise classification, NOT inventing URLs or specific resources.
 
 CRITICAL OUTPUT LANGUAGE: ${LANGUAGE_NAME[language]} (code: "${language}")
-All natural-language fields (reason, summary_text) MUST be in this language.
+All natural-language fields (reason, what_works, evidence, summary_text) MUST be in this language.
 
 KEEP IN GERMAN regardless of output language (these are Goethe exam terms):
 Lesen, Hören, Schreiben, Sprechen, Teil 1-5, A1, A2, B1, Goethe-Zertifikat, DeutschTest.pro.
@@ -960,6 +973,15 @@ Lesen, Hören, Schreiben, Sprechen, Teil 1-5, A1, A2, B1, Goethe-Zertifikat, Deu
 CRITICAL — TOPIC TAGS:
 - topic field is a CLOSED ENUM. You MUST pick exactly one of the listed values per weak area. Do not invent new tags.
 - If a weakness does not match any specific tag, use "general".
+
+STRENGTHS (adaptive — may be empty):
+- Identify 0-4 relative strengths grounded in concrete data. NOT generic encouragement.
+- A confident strength: average score in some module/level >= 60.
+- A relative strength: average score 40-59 BUT noticeably above the learner's other modules — phrase carefully ("im Vergleich zu deinen anderen Modulen").
+- If everything is below 40 and there is no relative strength, return strengths: [] and DO NOT invent praise.
+- 1-2 specific strengths beat 4 vague ones.
+- Do not echo summary_text verbatim; strengths are precise skills, summary is the overview.
+- Forbidden phrasing: "Молодец!", "Toll gemacht!", "You're doing great!" — only concrete facts with numbers in evidence.
 
 Tone: friendly, motivating, specific. Address the learner in second person.
 
@@ -976,7 +998,7 @@ export async function generateRecommendations(
     userPrompt: getRecommendationsPrompt(input, language),
     toolName: 'submit_recommendations',
     toolDescription:
-      'Reicht eine strukturierte Klassifikation der Schwachstellen des Prüflings ein. weak_areas: 1–8 Einträge mit topic (closed enum), level, module, severity und einer kurzen reason-Begründung. summary_text: ein zusammenfassender Absatz.',
+      'Reicht eine strukturierte Diagnose des Prüflings ein. weak_areas: 1–8 Einträge mit topic (closed enum), level, module, severity, reason. strengths: 0–4 Einträge mit module, level, what_works (kurzer Titel) und evidence (konkrete Begründung mit Zahlen). summary_text: ein zusammenfassender Absatz.',
     schema: recommendationsSchema,
     maxTokens: 2048,
     operation: 'claude_recommendations',

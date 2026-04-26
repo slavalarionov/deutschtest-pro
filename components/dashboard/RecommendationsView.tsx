@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/routing'
-import type { WeakArea } from '@/lib/claude'
+import type { WeakArea, Strength } from '@/lib/claude'
 import type {
   MatchedResource,
   MatchedResourcesIndex,
@@ -175,6 +175,22 @@ function LoadedState({
         </p>
       </section>
 
+      {snapshot.strengths.length > 0 && (
+        <div className="space-y-5">
+          <Eyebrow>
+            {tPublic('strengthsEyebrow', { count: snapshot.strengths.length })}
+          </Eyebrow>
+          {snapshot.strengths.map((s, i) => (
+            <StrengthCard
+              key={i}
+              strength={s}
+              moduleLabel={tModules(s.module)}
+              locale={locale}
+            />
+          ))}
+        </div>
+      )}
+
       <div className="space-y-5">
         <Eyebrow>{tPublic('areasEyebrow', { count: snapshot.weak_areas.length })}</Eyebrow>
 
@@ -231,6 +247,33 @@ function LoadedState({
 
       <ShareSection kind="recommendations" recommendationId={snapshot.id} />
     </div>
+  )
+}
+
+function StrengthCard({
+  strength,
+  moduleLabel,
+  locale,
+}: {
+  strength: Strength
+  moduleLabel: string
+  locale: Locale
+}) {
+  return (
+    <article
+      className="rounded-rad border border-l-2 border-line bg-card p-6 sm:border-l-4 sm:p-8"
+      style={{ borderLeftColor: 'var(--success)' }}
+    >
+      <div className="flex flex-wrap items-baseline gap-3 font-mono text-[10px] uppercase tracking-widest text-muted">
+        <span>{moduleLabel.toLocaleUpperCase(locale)}</span>
+        <span>·</span>
+        <span>{strength.level.toUpperCase()}</span>
+      </div>
+      <h2 className="mt-4 font-display text-2xl leading-tight tracking-[-0.02em] text-ink sm:text-3xl">
+        {strength.what_works}
+      </h2>
+      <p className="mt-3 text-base leading-relaxed text-ink-soft">{strength.evidence}</p>
+    </article>
   )
 }
 

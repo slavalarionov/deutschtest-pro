@@ -5,7 +5,12 @@
 //   3. INSERT a new user_recommendations row, update profiles pointer
 
 import { createServerClient } from '@/lib/supabase-server'
-import { generateRecommendations, type WeakArea, type Recommendations } from '@/lib/claude'
+import {
+  generateRecommendations,
+  type WeakArea,
+  type Strength,
+  type Recommendations,
+} from '@/lib/claude'
 import { defaultLocale, locales, type Locale } from '@/i18n/request'
 import type { Json } from '@/types/supabase'
 import type {
@@ -50,6 +55,7 @@ export interface RecommendationsSnapshot {
   public_id: string | null
   is_public: boolean
   weak_areas: WeakArea[]
+  strengths: Strength[]
   summary_text: string
   matched_resources: MatchedResourcesIndex
   attempts_count: number
@@ -278,6 +284,7 @@ export async function generateAndStoreSnapshot(
     .insert({
       user_id: userId,
       weak_areas: result.weak_areas as unknown as Json,
+      strengths: result.strengths as unknown as Json,
       summary_text: result.summary_text,
       matched_resources: matched as unknown as Json,
       attempts_count: input.totalAttempts,
@@ -302,6 +309,7 @@ export async function generateAndStoreSnapshot(
     public_id: inserted.public_id,
     is_public: inserted.is_public,
     weak_areas: result.weak_areas,
+    strengths: result.strengths,
     summary_text: result.summary_text,
     matched_resources: matched,
     attempts_count: inserted.attempts_count,
@@ -359,6 +367,7 @@ export async function getOrGenerateSnapshot(
         public_id: existing.public_id,
         is_public: existing.is_public,
         weak_areas: existing.weak_areas as unknown as WeakArea[],
+        strengths: (existing.strengths as unknown as Strength[] | null) ?? [],
         summary_text: existing.summary_text,
         matched_resources: existing.matched_resources as unknown as MatchedResourcesIndex,
         attempts_count: existing.attempts_count,

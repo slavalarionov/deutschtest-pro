@@ -116,12 +116,26 @@ Produce structured output via the tool:
    - severity: "high" | "medium" | "low" — high = blocks passing the exam, medium = noticeable gap, low = polish point
    - reason: 1–2 sentences (10–300 chars) directly addressing the learner ("du" / "ты" / "you" / "sen" per language) and grounded in the data above
 
-2. summary_text: 2–4 sentences (50–1500 chars) — honest but encouraging assessment of the current preparation level. No bullets, no markdown.
+2. strengths: array of 0–4 items (empty array is valid), each:
+   - module: "lesen" | "horen" | "schreiben" | "sprechen"
+   - level: "a1" | "a2" | "b1"
+   - what_works: short title (10–200 chars) — a concrete skill, e.g. "Struktur von Briefen", "Понимание основной идеи", "Aufgabenerfüllung in Schreiben". NO generic praise.
+   - evidence: 1–2 sentences (20–400 chars) with specific numbers/facts grounded in the data above, e.g. "В последних 3 попытках Schreiben на A1 средний балл 78/100, особенно сильно с Inhaltspunkten."
+
+   Rules for strengths:
+   - Confident strength: a module/level average >= 60. Add it.
+   - Relative strength: average 40–59 but noticeably higher than the learner's other modules. Add with cautious phrasing.
+   - Everything below 40 and no relative strength: return [] (empty array). DO NOT invent praise.
+   - Do not duplicate summary_text wording verbatim.
+   - Forbidden phrasings: "Молодец!", "You're doing great!", "Toll gemacht!" — only concrete facts.
+   - Prefer 1–2 sharp strengths over 4 vague ones.
+
+3. summary_text: 2–4 sentences (50–1500 chars) — honest but encouraging assessment of the current preparation level. No bullets, no markdown.
 
 Rules:
 - Address the learner directly in the second person.
 - Do not mention AI, Claude, or any provider.
-- If only 1 module was completed, be cautious about trends.
+- If only 1 module was completed, be cautious about trends and likely return strengths: [] (one attempt is not a trend).
 - Order weak_areas by severity (high first).
 - Each weak_area should be specific and actionable, not generic.
 - Return the answer exclusively via the provided tool.`

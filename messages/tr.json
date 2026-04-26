@@ -985,7 +985,8 @@
       "resourcesEmpty": "Uygun materyaller yakında eklenecek.",
       "cta": "Bir sınav çöz ve yeni bir çalışma planı al.",
       "ctaSubtitle": "Kayıtta 3 modül ücretsiz — ödeme gerekmez.",
-      "ctaButton": "Ücretsiz başla"
+      "ctaButton": "Ücretsiz başla",
+      "strengthsEyebrow": "{count} GÜÇLÜ YÖN"
     },
     "resourceTypes": {
       "book": "Kitap",

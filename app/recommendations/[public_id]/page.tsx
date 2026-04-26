@@ -5,12 +5,13 @@ import { getTranslations } from 'next-intl/server'
 import { createServerClient } from '@/lib/supabase-server'
 import { formatEditorialDate } from '@/lib/format/date'
 import { getTagLabel } from '@/lib/learning-tags'
-import type { WeakArea } from '@/lib/claude'
+import type { WeakArea, Strength } from '@/lib/claude'
 import type { MatchedResource, MatchedResourcesIndex } from '@/lib/recommendations/snapshot'
 import type { Locale } from '@/i18n/request'
 
 interface PublicRecommendationData {
   weakAreas: WeakArea[]
+  strengths: Strength[]
   summaryText: string
   matchedResources: MatchedResourcesIndex
   generatedAt: string
@@ -25,7 +26,7 @@ async function loadPublicRecommendation(
   const { data: row } = await supabase
     .from('user_recommendations')
     .select(
-      'weak_areas, summary_text, matched_resources, generated_at, attempts_count, language, is_public, public_id',
+      'weak_areas, strengths, summary_text, matched_resources, generated_at, attempts_count, language, is_public, public_id',
     )
     .eq('public_id', publicId)
     .maybeSingle()
@@ -34,6 +35,7 @@ async function loadPublicRecommendation(
 
   return {
     weakAreas: row.weak_areas as unknown as WeakArea[],
+    strengths: (row.strengths as unknown as Strength[] | null) ?? [],
     summaryText: row.summary_text,
     matchedResources: row.matched_resources as unknown as MatchedResourcesIndex,
     generatedAt: row.generated_at,
@@ -82,7 +84,7 @@ export default async function PublicRecommendationsPage({
   const data = await loadPublicRecommendation(params.public_id)
   if (!data) notFound()
 
-  const { locale, weakAreas, summaryText, matchedResources, generatedAt, attemptsCount } = data
+  const { locale, weakAreas, strengths, summaryText, matchedResources, generatedAt, attemptsCount } = data
 
   const [t, tModules, tPublic, tTypes] = await Promise.all([
     getTranslations({ locale, namespace: 'dashboard.recommendations' }),
@@ -128,6 +130,37 @@ export default async function PublicRecommendationsPage({
             {summaryText}
           </p>
         </section>
+
+        {/* Strengths — only if any */}
+        {strengths.length > 0 && (
+          <section className="space-y-5">
+            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+              {tPublic('strengthsEyebrow', { count: strengths.length })}
+            </div>
+            {strengths.map((s, i) => {
+              const moduleLabel = tModules(s.module)
+              return (
+                <article
+                  key={i}
+                  className="rounded-rad border border-l-2 border-line bg-card p-6 sm:border-l-4 sm:p-8"
+                  style={{ borderLeftColor: 'var(--success)' }}
+                >
+                  <div className="flex flex-wrap items-baseline gap-3 font-mono text-[10px] uppercase tracking-widest text-muted">
+                    <span>{moduleLabel.toLocaleUpperCase(locale)}</span>
+                    <span>·</span>
+                    <span>{s.level.toUpperCase()}</span>
+                  </div>
+                  <h2 className="mt-4 font-display text-2xl leading-tight tracking-[-0.02em] text-ink sm:text-3xl">
+                    {s.what_works}
+                  </h2>
+                  <p className="mt-3 text-base leading-relaxed text-ink-soft">
+                    {s.evidence}
+                  </p>
+                </article>
+              )
+            })}
+          </section>
+        )}
 
         {/* Weak areas + resources */}
         <section className="space-y-5">

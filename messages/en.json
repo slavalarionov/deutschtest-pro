@@ -985,7 +985,8 @@
       "resourcesEmpty": "Matching materials will be added soon.",
       "cta": "Take a test and get a fresh study plan.",
       "ctaSubtitle": "3 modules free at sign-up — no payment required.",
-      "ctaButton": "Start for free"
+      "ctaButton": "Start for free",
+      "strengthsEyebrow": "{count, plural, one {# STRENGTH} other {# STRENGTHS}}"
     },
     "resourceTypes": {
       "book": "Book",
