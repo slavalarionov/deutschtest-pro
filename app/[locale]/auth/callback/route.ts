@@ -54,6 +54,19 @@ export async function GET(request: Request) {
       ? rawNext
       : '/dashboard'
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || requestUrl.origin
+  const fwdHost = request.headers.get('x-forwarded-host')
+  const fwdProto = request.headers.get('x-forwarded-proto') || 'https'
+  const baseUrl = fwdHost
+    ? `${fwdProto}://${fwdHost}`
+    : process.env.NEXT_PUBLIC_APP_URL || requestUrl.origin
+
+  console.log('[auth/callback] redirect base resolution', {
+    fwdHost,
+    fwdProto,
+    envApp: process.env.NEXT_PUBLIC_APP_URL ?? null,
+    reqOrigin: requestUrl.origin,
+    chosen: baseUrl,
+  })
+
   return NextResponse.redirect(new URL(safeNext, baseUrl))
 }

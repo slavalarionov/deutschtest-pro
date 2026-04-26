@@ -23,6 +23,11 @@ function hasLocalePrefix(pathname: string): boolean {
 }
 
 function getRequestBaseUrl(request: NextRequest): string {
+  const fwdHost = request.headers.get('x-forwarded-host')
+  const fwdProto = request.headers.get('x-forwarded-proto') || 'https'
+  if (fwdHost) {
+    return `${fwdProto}://${fwdHost}`
+  }
   return process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin
 }
 
