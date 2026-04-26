@@ -22,7 +22,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { rateLimit, getClientIp } from '@/lib/rate-limit'
+import { rateLimit } from '@/lib/rate-limit'
+import { getClientIp } from '@/lib/get-client-ip'
 
 interface Body {
   code?: string
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const ip = getClientIp(req.headers)
+  const ip = getClientIp(req) ?? 'unknown'
   const limit = rateLimit(`promo:${ip}`, 5, 60 * 60 * 1000)
   if (!limit.allowed) {
     const resetIn = Math.max(0, Math.ceil((limit.resetAt - Date.now()) / 1000 / 60))

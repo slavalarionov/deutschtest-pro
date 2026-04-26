@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createServerClient as createSupabaseAdmin } from '@/lib/supabase-server'
 import { normalizeEmail } from '@/lib/email-normalize'
-import { rateLimit, getClientIp } from '@/lib/rate-limit'
+import { rateLimit } from '@/lib/rate-limit'
+import { getClientIp } from '@/lib/get-client-ip'
 import { sendConfirmationEmail, type EmailLocale } from '@/lib/email'
 
 const REGISTER_API_HEADER = 'X-Deutschtest-Register-Api'
@@ -54,7 +55,7 @@ async function verifyTurnstile(token: string | undefined, ip: string): Promise<b
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = getClientIp(req.headers)
+    const ip = getClientIp(req) ?? 'unknown'
     const limit = rateLimit(`register:${ip}`, 3, 60 * 60 * 1000)
     if (!limit.allowed) {
       const retryAfter = Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000))

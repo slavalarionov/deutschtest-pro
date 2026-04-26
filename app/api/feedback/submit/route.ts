@@ -11,7 +11,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { rateLimit, getClientIp } from '@/lib/rate-limit'
+import { rateLimit } from '@/lib/rate-limit'
+import { getClientIp } from '@/lib/get-client-ip'
 
 export const maxDuration = 10
 
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized', code: 'unauthorized' }, { status: 401 })
   }
 
-  const ip = getClientIp(req.headers)
+  const ip = getClientIp(req) ?? 'unknown'
   const limit = rateLimit(`feedback:${ip}`, 20, 60 * 60 * 1000)
   if (!limit.allowed) {
     return NextResponse.json({ error: 'Too many requests', code: 'rate_limited' }, { status: 429 })
