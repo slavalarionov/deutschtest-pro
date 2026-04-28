@@ -72,7 +72,10 @@
     },
     "heroQuiz": {
       "feedbackLabel": "AI feedback",
+      "liveBadge": "Live",
       "nextButton": "Next",
+      "aufgabeLabel": "Task",
+      "ergebnisLabel": "Result",
       "typeLabels": {
         "verb-form": "VERB FORM",
         "article": "ARTICLE",
@@ -80,9 +83,8 @@
         "translation": "VOCABULARY"
       },
       "final": {
-        "title": "Ready for the real exam?",
-        "subtitle": "3 modules free after sign-up",
-        "cta": "Sign up →"
+        "question": "Ready for the real exam?",
+        "cta": "Start free"
       }
     },
     "features": {

@@ -3,7 +3,8 @@
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
-import { HeroQuiz } from './HeroQuiz'
+import { HeroQuizDesktop } from './hero-quiz/HeroQuizDesktop'
+import { HeroQuizMobile } from './hero-quiz/HeroQuizMobile'
 
 interface HeroSectionProps {
   /**
@@ -17,10 +18,11 @@ interface HeroSectionProps {
 /**
  * Landing Hero — editorial layout (Phase 3 Redesign).
  *
- * Big display typography, ß grapheme background, scrolling letters strip,
- * and an interactive 10-question quiz that replaces the previous static
- * floating preview cards. The quiz is rendered in two places — once in
- * the desktop right column and once between CTA and stats-row on mobile.
+ * Big display typography on the left, ß grapheme + two living quiz cards
+ * on the right (KI-Feedback hint above, task/result below). The grapheme
+ * stays visible between the cards — the editorial composition from
+ * `docs/Redesign.html` (lines 311–409) is preserved; the cards are now
+ * interactive instead of static previews.
  */
 export function HeroSection({ isLoggedIn }: HeroSectionProps) {
   const t = useTranslations('landing.hero')
@@ -107,7 +109,7 @@ export function HeroSection({ isLoggedIn }: HeroSectionProps) {
           {/* Mobile-only quiz: between CTA and stats-row.
               Desktop instance lives in the right column below. */}
           <div className="mt-10 lg:hidden">
-            <HeroQuiz />
+            <HeroQuizMobile />
           </div>
 
           {/* Stats row */}
@@ -131,42 +133,14 @@ export function HeroSection({ isLoggedIn }: HeroSectionProps) {
           </div>
         </motion.div>
 
-        {/* Right: ß grapheme + interactive quiz card (desktop only) */}
+        {/* Right: ß grapheme + interactive floating quiz cards (desktop only) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
-          className="relative hidden h-[520px] lg:col-span-5 lg:block"
+          className="hidden lg:col-span-5 lg:block"
         >
-          {/* ß grapheme — decorative background */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <div
-              className="font-display leading-none text-ink"
-              style={{
-                fontSize: 520,
-                letterSpacing: '-0.06em',
-                fontWeight: 400,
-              }}
-            >
-              ß
-            </div>
-          </div>
-
-          {/* Unicode label — decorative */}
-          <div
-            aria-hidden="true"
-            className="absolute left-0 top-4 flex gap-2 font-mono text-[11px] text-muted"
-          >
-            <span>U+00DF</span>
-            <span>·</span>
-            <span>LATIN SMALL LETTER SHARP S</span>
-          </div>
-
-          {/* Interactive quiz card — sits over the ß */}
-          <HeroQuiz className="absolute -right-2 bottom-2 w-[340px]" />
+          <HeroQuizDesktop />
         </motion.div>
       </div>
 

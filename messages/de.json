@@ -72,7 +72,10 @@
     },
     "heroQuiz": {
       "feedbackLabel": "KI-Feedback",
+      "liveBadge": "Live",
       "nextButton": "Weiter",
+      "aufgabeLabel": "Aufgabe",
+      "ergebnisLabel": "Ergebnis",
       "typeLabels": {
         "verb-form": "VERBFORM",
         "article": "ARTIKEL",
@@ -80,9 +83,8 @@
         "translation": "WORTSCHATZ"
       },
       "final": {
-        "title": "Bereit für die echte Prüfung?",
-        "subtitle": "3 Module kostenlos nach der Registrierung",
-        "cta": "Registrieren →"
+        "question": "Bereit für die echte Prüfung?",
+        "cta": "Kostenlos starten"
       }
     },
     "features": {

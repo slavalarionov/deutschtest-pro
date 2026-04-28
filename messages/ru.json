@@ -72,7 +72,10 @@
     },
     "heroQuiz": {
       "feedbackLabel": "ИИ-комментарий",
+      "liveBadge": "Live",
       "nextButton": "Дальше",
+      "aufgabeLabel": "Задание",
+      "ergebnisLabel": "Результат",
       "typeLabels": {
         "verb-form": "ГЛАГОЛ",
         "article": "АРТИКЛЬ",
@@ -80,9 +83,8 @@
         "translation": "ЛЕКСИКА"
       },
       "final": {
-        "title": "Готовы к настоящему экзамену?",
-        "subtitle": "3 модуля бесплатно после регистрации",
-        "cta": "Зарегистрироваться →"
+        "question": "Готовы к настоящему экзамену?",
+        "cta": "Начать бесплатно"
       }
     },
     "features": {
