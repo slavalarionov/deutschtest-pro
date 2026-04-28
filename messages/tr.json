@@ -173,9 +173,11 @@
       "successBody": "<strong>{email}</strong> adresine bir doğrulama e-postası gönderdik. Hesabınızı aktifleştirmek için mesajdaki bağlantıya tıklayın.",
       "successBonus": "Doğrulamadan sonra denemek için <strong>3 ücretsiz modül</strong> alacaksınız. Spam klasörünü de kontrol edin.",
       "successLoginLink": "Girişe git",
+      "consent": "<terms>Kullanım Şartları</terms> ve <privacy>Gizlilik Politikası</privacy>'nı kabul ediyorum.",
       "errors": {
         "passwordTooShort": "Şifre en az 8 karakter olmalı.",
         "captchaRequired": "Lütfen captcha'yı tamamlayın.",
+        "consentRequired": "Kullanım Şartları ve Gizlilik Politikası'nı kabul etmelisiniz.",
         "registrationFailed": "Kayıt başarısız",
         "network": "Ağ hatası. Lütfen tekrar deneyin."
       }

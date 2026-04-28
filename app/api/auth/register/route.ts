@@ -9,10 +9,21 @@ import { sendConfirmationEmail, type EmailLocale } from '@/lib/email'
 const REGISTER_API_HEADER = 'X-Deutschtest-Register-Api'
 const REGISTER_API_VALUE = 'v4-resend-confirm'
 
+// Версия юридических документов на момент текущего деплоя.
+// При обновлении terms/privacy/offer/impressum — поднять дату и попросить
+// существующих пользователей повторно акцептовать (отдельный спринт).
+const TERMS_VERSION = '2026-04-28'
+
 const bodySchema = z.object({
   name: z.string().trim().max(50).optional(),
   email: z.string().email(),
   password: z.string().min(8, 'Passwort muss mindestens 8 Zeichen enthalten'),
+  consent: z.literal(true, {
+    errorMap: () => ({
+      message:
+        'Sie müssen den Nutzungsbedingungen und der Datenschutzerklärung zustimmen.',
+    }),
+  }),
   turnstileToken: z.string().optional(),
   preferredLanguage: z.enum(['de', 'ru', 'en', 'tr']).optional(),
 })
@@ -78,6 +89,9 @@ export async function POST(req: NextRequest) {
     }
 
     const { name, email: rawEmail, password, turnstileToken, preferredLanguage } = parsed.data
+    // `consent` уже проверен Zod (z.literal(true) отклонит запрос без галочки).
+    // Факт согласия сохраняется ниже в raw_user_meta_data → triггер handle_new_user
+    // запишет terms_accepted_at и terms_accepted_version в profiles.
 
     const captchaOk = await verifyTurnstile(turnstileToken, ip)
     if (!captchaOk) {
@@ -117,7 +131,11 @@ export async function POST(req: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(req.url).origin
     const language: EmailLocale = preferredLanguage ?? 'de'
     const trimmedName = name?.trim()
-    const userMeta: Record<string, string> = { preferred_language: language }
+    const userMeta: Record<string, string> = {
+      preferred_language: language,
+      terms_accepted_at: new Date().toISOString(),
+      terms_version: TERMS_VERSION,
+    }
     if (trimmedName) userMeta.name = trimmedName
     const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
       type: 'signup',

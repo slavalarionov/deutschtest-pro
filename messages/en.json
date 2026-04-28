@@ -173,9 +173,11 @@
       "successBody": "We sent a confirmation email to <strong>{email}</strong>. Open the link in it to activate your account.",
       "successBonus": "After you confirm, you'll get <strong>3 free modules</strong> to try the platform. Check your spam folder too.",
       "successLoginLink": "Go to login",
+      "consent": "I accept the <terms>Terms of Service</terms> and the <privacy>Privacy Policy</privacy>.",
       "errors": {
         "passwordTooShort": "Password must be at least 8 characters.",
         "captchaRequired": "Please complete the captcha.",
+        "consentRequired": "You must accept the Terms of Service and Privacy Policy.",
         "registrationFailed": "Sign-up failed",
         "network": "Network error. Please try again."
       }

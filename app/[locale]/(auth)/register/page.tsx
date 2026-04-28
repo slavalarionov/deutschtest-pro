@@ -19,6 +19,7 @@ export default function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [consent, setConsent] = useState(false)
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -43,6 +44,12 @@ export default function RegisterPage() {
     setLoading(true)
     setError(null)
 
+    if (!consent) {
+      setError(t('errors.consentRequired'))
+      setLoading(false)
+      return
+    }
+
     if (password.length < 8) {
       setError(t('errors.passwordTooShort'))
       setLoading(false)
@@ -63,6 +70,7 @@ export default function RegisterPage() {
           name: name.trim() || undefined,
           email,
           password,
+          consent,
           turnstileToken,
           preferredLanguage: locale,
         }),
@@ -218,6 +226,47 @@ export default function RegisterPage() {
           </div>
         )}
 
+        <label className="group flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+            className="mt-1 h-4 w-4 rounded border-line accent-ink"
+            data-testid="register-consent-checkbox"
+          />
+          <span className="text-sm leading-relaxed text-ink-soft">
+            {t.rich('consent', {
+              terms: (chunks) => (
+                <Link
+                  href="/terms"
+                  target="_blank"
+                  className="text-accent-ink underline underline-offset-2 hover:text-accent"
+                >
+                  {chunks}
+                </Link>
+              ),
+              privacy: (chunks) => (
+                <Link
+                  href="/privacy"
+                  target="_blank"
+                  className="text-accent-ink underline underline-offset-2 hover:text-accent"
+                >
+                  {chunks}
+                </Link>
+              ),
+              offer: (chunks) => (
+                <Link
+                  href="/offer"
+                  target="_blank"
+                  className="text-accent-ink underline underline-offset-2 hover:text-accent"
+                >
+                  {chunks}
+                </Link>
+              ),
+            })}
+          </span>
+        </label>
+
         {error && (
           <p className="rounded-rad-sm border border-error/30 bg-error-soft p-3 text-sm text-error">
             {error}
@@ -226,7 +275,7 @@ export default function RegisterPage() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={!consent || loading}
           className="inline-flex w-full items-center justify-center gap-2 rounded-rad-pill bg-ink px-6 py-3.5 text-sm font-medium text-card transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
         >
           {loading ? (
