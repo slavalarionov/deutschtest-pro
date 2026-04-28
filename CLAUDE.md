@@ -10,7 +10,7 @@
 
 - Уровни: A1, A2, B1 (B2/C1/C2 — позже)
 - Модули: Lesen, Hören, Schreiben, Sprechen
-- Задеплоен на Vercel: https://deutschtest.pro
+- Задеплоен на Timeweb Cloud Apps (Frankfurt, Docker, Node 24): https://deutschtest.pro
 
 ---
 
@@ -28,6 +28,31 @@
 - **STT:** OpenAI Whisper, язык `de` принудительно
 - **Email:** Resend
 - **Audio склейка:** ffmpeg (`@ffmpeg-installer/ffmpeg`)
+
+---
+
+## Внешняя инфраструктура (хостинг, прокси)
+
+### Хостинг — Timeweb Cloud Apps (FRA-1)
+
+- Прод задеплоен на Timeweb Cloud Apps, регион Франкфурт.
+- Образ: `node:24-slim`, ffmpeg-бинарник ставится через `@ffmpeg-installer/ffmpeg` (postinstall).
+- Деплой триггерится push'ом в `main` через GitHub OAuth-интеграцию Timeweb.
+- Билд занимает 1–3 минуты (Docker rebuild), после чего контейнер перезапускается.
+- Domain `deutschtest.pro` проксируется через Cloudflare → Timeweb.
+
+### ElevenLabs API через Cloudflare Worker proxy
+
+Egress-IP Timeweb (`194.31.173.71`, FRA-1) попал в WAF Cloudflare на стороне ElevenLabs (JS-challenge блокирует прямые запросы). ElevenLabs support отказал в allowlist (28.04.2026) — **архитектура с Worker'ом постоянная**, не временная.
+
+- Cloudflare Worker `elevenlabs-proxy.larionov38.workers.dev` проксирует запросы к `api.elevenlabs.io` (CF→CF трафик WAF не блокирует).
+- Worker защищён shared secret в header `x-proxy-secret`. Secret хранится в Cloudflare Workers Secrets как `PROXY_SECRET`.
+- На стороне приложения ENV:
+  - `ELEVENLABS_API_URL_OVERRIDE = https://elevenlabs-proxy.larionov38.workers.dev/v1`
+  - `ELEVENLABS_PROXY_SECRET = <hex>`
+- Код в `lib/elevenlabs.ts` шлёт `x-proxy-secret` header только при наличии `ELEVENLABS_API_URL_OVERRIDE` — в прямом режиме (без override) Worker не используется.
+- Latency overhead ~100–200 мс на хоп — приемлемо (Hören-генерация занимает 15–25 с).
+- Код Worker'а живёт в Cloudflare Dashboard, **не в этом репо**. Обновление secret — через Workers → Settings → Variables and Secrets.
 
 ---
 
@@ -212,7 +237,7 @@ git push
 
 Один коммит = одно логическое изменение.
 
-**Рабочая директория:** корень git-репо — текущая папка (внутри `~/Desktop/Работа с ИИ/Cursor/deutschtest.pro/deutschtest`).
+**Рабочая директория:** корень git-репо — текущая папка (внутри `~/Desktop/Работа с ИИ/vscode/deutschtest`).
 
 **Что НЕ делать в git:**
 - ❌ Не коммитить `.env.local`, `.env`, ключи
@@ -221,14 +246,14 @@ git push
 - ❌ Не создавать новые ветки без просьбы — работаем в `main`
 - ❌ Не коммитить автогенерируемое (`tsconfig.tsbuildinfo`, `.next/`, `node_modules/`)
 
-**После push:** Vercel автодеплоит `main` за 30–60 секунд. Сообщай пользователю: «Запушил коммит `<hash>`, Vercel задеплоит за минуту».
+**После push:** Timeweb Cloud Apps автодеплоит `main` за 1–3 минуты (Docker rebuild). Сообщай пользователю: «Запушил коммит `<hash>`, Timeweb задеплоит за пару минут».
 
 **Миграции БД:** создавай и коммить SQL-файл в `supabase/migrations/NNN_*.sql`. Накатить на прод нужно **вручную** через Supabase Dashboard → SQL Editor. Явно скажи пользователю:
 > ⚠️ Миграция `NNN_xxx.sql` создана и закоммичена. Накати её на прод вручную: Supabase Dashboard → SQL Editor → вставь содержимое файла → Run. После этого `NOTIFY pgrst, 'reload schema';`.
 
 ### Приоритет наката миграций: MCP > ручной Dashboard
 
-Если доступен Supabase MCP (`mcp__supabase__apply_migration`) — накатывай через него сам, это основной путь. Коммить SQL-файл в `supabase/migrations/NNN_*.sql` одним коммитом с кодом, который на миграцию опирается, и в том же коммите (или сразу следом) накатывай через MCP. Цель — чтобы на Vercel никогда не деплоился код, ссылающийся на ненакатанные таблицы или колонки.
+Если доступен Supabase MCP (`mcp__supabase__apply_migration`) — накатывай через него сам, это основной путь. Коммить SQL-файл в `supabase/migrations/NNN_*.sql` одним коммитом с кодом, который на миграцию опирается, и в том же коммите (или сразу следом) накатывай через MCP. Цель — чтобы на Timeweb никогда не деплоился код, ссылающийся на ненакатанные таблицы или колонки.
 
 Ручной накат через Supabase Dashboard → SQL Editor допустим только как fallback:
 - MCP недоступен (ошибка подключения — показать пользователю).
@@ -292,8 +317,9 @@ Claude Code подключён к следующим внешним сервис
 - **Gmail** (claude.ai) — поиск тредов, черновики
 - **Google Calendar** (claude.ai) — события, предложение времени
 - **Supabase** (локальный .mcp.json) — прямой доступ к прод-БД (read+write), применение миграций
-- **Vercel** (локальный .mcp.json) — логи прода, статус деплоя, env vars
 - **GitHub** (локальный .mcp.json) — issues, PR, чтение/запись кода через API
+
+Для Timeweb отдельного MCP нет — логи прода и статус деплоя смотри через Timeweb Cloud Apps Dashboard вручную.
 
 Все MCP-инструменты разрешены в `.claude/settings.json` без подтверждения.
 
@@ -327,4 +353,4 @@ Notion — источник правды о проекте. Структура w
 
 ---
 
-**Последнее обновление:** 16 апреля 2026
+**Последнее обновление:** 28 апреля 2026
