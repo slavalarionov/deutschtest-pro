@@ -68,8 +68,22 @@
         "modules": "Module",
         "aiLabel": "KI",
         "ai": "Bewertung"
+      }
+    },
+    "heroQuiz": {
+      "feedbackLabel": "KI-Feedback",
+      "nextButton": "Weiter",
+      "typeLabels": {
+        "verb-form": "VERBFORM",
+        "article": "ARTIKEL",
+        "case-ending": "KASUS",
+        "translation": "WORTSCHATZ"
       },
-      "sampleBadge": "Beispiel"
+      "final": {
+        "title": "Bereit für die echte Prüfung?",
+        "subtitle": "3 Module kostenlos nach der Registrierung",
+        "cta": "Registrieren →"
+      }
     },
     "features": {
       "title": "Alle vier Module. Eine Plattform.",

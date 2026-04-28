@@ -68,8 +68,22 @@
         "modules": "Модули",
         "aiLabel": "ИИ",
         "ai": "проверка"
+      }
+    },
+    "heroQuiz": {
+      "feedbackLabel": "ИИ-комментарий",
+      "nextButton": "Дальше",
+      "typeLabels": {
+        "verb-form": "ГЛАГОЛ",
+        "article": "АРТИКЛЬ",
+        "case-ending": "ПАДЕЖ",
+        "translation": "ЛЕКСИКА"
       },
-      "sampleBadge": "Пример"
+      "final": {
+        "title": "Готовы к настоящему экзамену?",
+        "subtitle": "3 модуля бесплатно после регистрации",
+        "cta": "Зарегистрироваться →"
+      }
     },
     "features": {
       "title": "Все четыре модуля. Одна платформа.",

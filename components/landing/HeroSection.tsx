@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
+import { HeroQuiz } from './HeroQuiz'
 
 interface HeroSectionProps {
   /**
@@ -16,13 +17,10 @@ interface HeroSectionProps {
 /**
  * Landing Hero — editorial layout (Phase 3 Redesign).
  *
- * Port of `LandingHero` from docs/Redesign.html (lines 311–409):
- * big display typography, ß grapheme, two floating preview cards,
- * scrolling letters strip. The test launcher has moved to `/dashboard`;
- * the CTA here is registration-only.
- *
- * Decorative German strings inside the floating cards are intentionally
- * not i18n'd — they are a visual sample of the product, not UI copy.
+ * Big display typography, ß grapheme background, scrolling letters strip,
+ * and an interactive 10-question quiz that replaces the previous static
+ * floating preview cards. The quiz is rendered in two places — once in
+ * the desktop right column and once between CTA and stats-row on mobile.
  */
 export function HeroSection({ isLoggedIn }: HeroSectionProps) {
   const t = useTranslations('landing.hero')
@@ -106,6 +104,12 @@ export function HeroSection({ isLoggedIn }: HeroSectionProps) {
             )}
           </div>
 
+          {/* Mobile-only quiz: between CTA and stats-row.
+              Desktop instance lives in the right column below. */}
+          <div className="mt-10 lg:hidden">
+            <HeroQuiz />
+          </div>
+
           {/* Stats row */}
           <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4 text-sm text-muted sm:mt-14 sm:gap-10">
             <div>
@@ -127,16 +131,18 @@ export function HeroSection({ isLoggedIn }: HeroSectionProps) {
           </div>
         </motion.div>
 
-        {/* Right: ß grapheme + floating cards (desktop only) */}
+        {/* Right: ß grapheme + interactive quiz card (desktop only) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
           className="relative hidden h-[520px] lg:col-span-5 lg:block"
-          aria-hidden="true"
         >
-          {/* ß grapheme */}
-          <div className="absolute inset-0 flex items-center justify-center">
+          {/* ß grapheme — decorative background */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 flex items-center justify-center"
+          >
             <div
               className="font-display leading-none text-ink"
               style={{
@@ -149,99 +155,18 @@ export function HeroSection({ isLoggedIn }: HeroSectionProps) {
             </div>
           </div>
 
-          {/* Unicode label — top-left */}
-          <div className="absolute left-0 top-4 flex gap-2 font-mono text-[11px] text-muted">
+          {/* Unicode label — decorative */}
+          <div
+            aria-hidden="true"
+            className="absolute left-0 top-4 flex gap-2 font-mono text-[11px] text-muted"
+          >
             <span>U+00DF</span>
             <span>·</span>
             <span>LATIN SMALL LETTER SHARP S</span>
           </div>
 
-          {/* Preview card — LESEN · B1 · Teil 2 */}
-          <div className="absolute -right-4 bottom-10 w-60 rounded-rad-sm border border-line bg-card p-4 shadow-lift">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="font-mono text-xs text-muted">
-                LESEN · B1 · Teil 2
-              </span>
-              <span
-                className="rounded-rad-pill px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"
-                style={{
-                  background: 'var(--accent-soft)',
-                  color: 'var(--accent-ink)',
-                }}
-              >
-                {t('sampleBadge')}
-              </span>
-            </div>
-            <div className="text-sm text-ink">
-              {'„Was ist die Hauptaussage des Textes?“'}
-            </div>
-            <div className="mt-3 space-y-1.5">
-              {[
-                { text: 'Die Stadt wird umgebaut.', active: false },
-                { text: 'Die Menschen sind unzufrieden.', active: false },
-                { text: 'Das Projekt wird gefördert.', active: true },
-              ].map((opt, i) => (
-                <div
-                  key={i}
-                  className="rounded-rad-sm border px-2.5 py-2 text-xs"
-                  style={{
-                    borderColor: opt.active ? 'var(--accent)' : 'var(--line)',
-                    background: opt.active
-                      ? 'var(--accent-soft)'
-                      : 'var(--card)',
-                    color: opt.active
-                      ? 'var(--accent-ink)'
-                      : 'var(--ink-soft)',
-                  }}
-                >
-                  <span className="mr-2 font-mono">
-                    {String.fromCharCode(97 + i)}
-                  </span>
-                  {opt.text}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Preview card — KI-Feedback */}
-          <div className="absolute right-8 top-4 w-48 rounded-rad-sm border border-line bg-card p-3 shadow-lift">
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  className="text-accent"
-                >
-                  <path
-                    d="M10 2l1.8 5.2L17 9l-5.2 1.8L10 16l-1.8-5.2L3 9l5.2-1.8L10 2z"
-                    fill="currentColor"
-                  />
-                </svg>
-                <span className="text-xs font-medium text-ink">KI-Feedback</span>
-              </div>
-              <span
-                className="rounded-rad-pill px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"
-                style={{
-                  background: 'var(--accent-soft)',
-                  color: 'var(--accent-ink)',
-                }}
-              >
-                {t('sampleBadge')}
-              </span>
-            </div>
-            <div className="text-xs text-ink-soft">
-              Achte auf{' '}
-              <span
-                className="font-medium"
-                style={{ color: 'var(--accent-ink)' }}
-              >
-                Konjunktiv II
-              </span>{' '}
-              {'— hier passt „wäre“ besser als „war“.'}
-            </div>
-          </div>
+          {/* Interactive quiz card — sits over the ß */}
+          <HeroQuiz className="absolute -right-2 bottom-2 w-[340px]" />
         </motion.div>
       </div>
 

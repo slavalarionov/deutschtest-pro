@@ -68,8 +68,22 @@
         "modules": "Modüller",
         "aiLabel": "AI",
         "ai": "değerlendirme"
+      }
+    },
+    "heroQuiz": {
+      "feedbackLabel": "KI-Yorum",
+      "nextButton": "Devam",
+      "typeLabels": {
+        "verb-form": "FİİL",
+        "article": "ARTİKEL",
+        "case-ending": "DURUM",
+        "translation": "KELİME"
       },
-      "sampleBadge": "Örnek"
+      "final": {
+        "title": "Gerçek sınava hazır mısınız?",
+        "subtitle": "Kayıttan sonra 3 modül ücretsiz",
+        "cta": "Kayıt ol →"
+      }
     },
     "features": {
       "title": "Dört modül. Tek platform.",

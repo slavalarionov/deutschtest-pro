@@ -68,8 +68,22 @@
         "modules": "Modules",
         "aiLabel": "AI",
         "ai": "scoring"
+      }
+    },
+    "heroQuiz": {
+      "feedbackLabel": "AI feedback",
+      "nextButton": "Next",
+      "typeLabels": {
+        "verb-form": "VERB FORM",
+        "article": "ARTICLE",
+        "case-ending": "CASE",
+        "translation": "VOCABULARY"
       },
-      "sampleBadge": "Example"
+      "final": {
+        "title": "Ready for the real exam?",
+        "subtitle": "3 modules free after sign-up",
+        "cta": "Sign up →"
+      }
     },
     "features": {
       "title": "All four modules. One platform.",
