@@ -4,6 +4,7 @@ import { HeroSection } from '@/components/landing/HeroSection'
 import { FeaturesSection } from '@/components/landing/FeaturesSection'
 import { PricingSection } from '@/components/landing/PricingSection'
 import { FaqSection } from '@/components/landing/FaqSection'
+import { Footer } from '@/components/landing/Footer'
 import { AuthNav } from '@/components/auth/AuthNav'
 import { createClient } from '@/lib/supabase/server'
 
@@ -36,6 +37,7 @@ export default async function HomePage(_: { params: { locale: string } }) {
       <FeaturesSection />
       <PricingSection />
       <FaqSection />
+      <Footer />
     </main>
   )
 }

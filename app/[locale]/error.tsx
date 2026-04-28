@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
+import { Footer } from '@/components/landing/Footer'
 
 export default function Error({
   error,
@@ -18,6 +19,7 @@ export default function Error({
   }, [error])
 
   return (
+    <>
     <div
       data-testid="error-page-500"
       className="flex min-h-screen flex-col items-center justify-center bg-page px-4 py-20"
@@ -53,5 +55,7 @@ export default function Error({
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }

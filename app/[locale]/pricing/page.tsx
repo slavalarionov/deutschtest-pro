@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/routing'
 import { AuthNav } from '@/components/auth/AuthNav'
+import { Footer } from '@/components/landing/Footer'
 import { PricingSection } from '@/components/landing/PricingSection'
 import { createClient } from '@/lib/supabase/server'
 
@@ -95,6 +96,8 @@ export default async function PricingPage(_: {
           <span>{tPricing('footnote.refund')}</span>
         </div>
       </div>
+
+      <Footer />
     </main>
   )
 }

@@ -9,6 +9,7 @@ import { AuthLayout } from '@/components/auth/AuthLayout'
 import { AuthDivider } from '@/components/auth/AuthDivider'
 import { AuthOAuthButton } from '@/components/auth/AuthOAuthButton'
 import { AuthInput } from '@/components/auth/AuthInput'
+import { Footer } from '@/components/landing/Footer'
 
 function LoginForm() {
   const router = useRouter()
@@ -157,9 +158,12 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<LoginFallback />}>
-      <LoginForm />
-    </Suspense>
+    <>
+      <Suspense fallback={<LoginFallback />}>
+        <LoginForm />
+      </Suspense>
+      <Footer />
+    </>
   )
 }
 

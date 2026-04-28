@@ -2,12 +2,14 @@
 
 import { useTranslations } from 'next-intl'
 import { Link, useRouter } from '@/i18n/routing'
+import { Footer } from '@/components/landing/Footer'
 
 export default function NotFound() {
   const t = useTranslations('errorPages.notFound')
   const router = useRouter()
 
   return (
+    <>
     <div
       data-testid="error-page-404"
       className="flex min-h-screen flex-col items-center justify-center bg-page px-4 py-20"
@@ -43,5 +45,7 @@ export default function NotFound() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }

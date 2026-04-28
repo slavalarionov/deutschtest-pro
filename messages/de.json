@@ -996,5 +996,26 @@
       "app": "App",
       "article": "Artikel"
     }
+  },
+  "footer": {
+    "columns": {
+      "product": "PRODUKT",
+      "account": "KONTO",
+      "legal": "RECHTLICHES"
+    },
+    "links": {
+      "modules": "Module",
+      "levels": "Niveaustufen",
+      "pricing": "Preise",
+      "login": "Anmelden",
+      "register": "Registrieren",
+      "contact": "Kontakt",
+      "terms": "AGB",
+      "privacy": "Datenschutz",
+      "impressum": "Impressum",
+      "offer": "Öffentliches Angebot"
+    },
+    "legalNotice": "Wjatscheslaw Larionow · INN 550517616144 · OGRNIP 321554300001795",
+    "paymentMethods": "ZAHLUNGSMETHODEN"
   }
 }

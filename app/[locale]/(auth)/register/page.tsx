@@ -9,6 +9,7 @@ import { AuthLayout } from '@/components/auth/AuthLayout'
 import { AuthDivider } from '@/components/auth/AuthDivider'
 import { AuthOAuthButton } from '@/components/auth/AuthOAuthButton'
 import { AuthInput } from '@/components/auth/AuthInput'
+import { Footer } from '@/components/landing/Footer'
 
 export default function RegisterPage() {
   const t = useTranslations('auth.register')
@@ -86,10 +87,11 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <AuthLayout
-        eyebrow={t('successTitle').toUpperCase()}
-        titleStrong={t('successTitle')}
-      >
+      <>
+        <AuthLayout
+          eyebrow={t('successTitle').toUpperCase()}
+          titleStrong={t('successTitle')}
+        >
         <div className="space-y-4 text-sm text-ink-soft">
           <p>
             {t.rich('successBody', {
@@ -128,11 +130,14 @@ export default function RegisterPage() {
             </svg>
           </Link>
         </div>
-      </AuthLayout>
+        </AuthLayout>
+        <Footer />
+      </>
     )
   }
 
   return (
+    <>
     <AuthLayout
       eyebrow={t('eyebrow')}
       titleStrong={t('subtitle')}
@@ -255,5 +260,7 @@ export default function RegisterPage() {
         </button>
       </form>
     </AuthLayout>
+    <Footer />
+    </>
   )
 }

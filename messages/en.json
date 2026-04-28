@@ -996,5 +996,26 @@
       "app": "App",
       "article": "Article"
     }
+  },
+  "footer": {
+    "columns": {
+      "product": "PRODUCT",
+      "account": "ACCOUNT",
+      "legal": "LEGAL"
+    },
+    "links": {
+      "modules": "Modules",
+      "levels": "Levels",
+      "pricing": "Pricing",
+      "login": "Sign in",
+      "register": "Sign up",
+      "contact": "Contact",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "impressum": "Impressum",
+      "offer": "Public Offer"
+    },
+    "legalNotice": "Wjatscheslaw Larionow · INN 550517616144 · OGRNIP 321554300001795",
+    "paymentMethods": "PAYMENT METHODS"
   }
 }

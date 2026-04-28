@@ -996,5 +996,26 @@
       "app": "Uygulama",
       "article": "Makale"
     }
+  },
+  "footer": {
+    "columns": {
+      "product": "ÜRÜN",
+      "account": "HESAP",
+      "legal": "YASAL"
+    },
+    "links": {
+      "modules": "Modüller",
+      "levels": "Seviyeler",
+      "pricing": "Fiyatlar",
+      "login": "Giriş",
+      "register": "Kayıt",
+      "contact": "İletişim",
+      "terms": "Kullanım Şartları",
+      "privacy": "Gizlilik Politikası",
+      "impressum": "Impressum",
+      "offer": "Kamu Teklifi"
+    },
+    "legalNotice": "Wjatscheslaw Larionow · INN 550517616144 · OGRNIP 321554300001795",
+    "paymentMethods": "ÖDEME YÖNTEMLERİ"
   }
 }
