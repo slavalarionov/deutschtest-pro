@@ -1,40 +1,36 @@
 /**
  * Stylised payment-system indicators.
- * NOT real Visa/MasterCard/Mir trademarks — using their official logos
- * without written permission is a trademark violation. Banks accept
- * stylised indicators that "these payment methods are supported".
+ * Monochrome editorial tone — no real Visa/MasterCard/Mir trademarks.
  */
 export function PaymentLogos() {
   return (
-    <div className="flex items-center gap-4">
-      {/* Visa — wordmark stylised */}
-      <div
+    <div className="flex items-center gap-4 text-muted">
+      <span
         aria-label="Visa"
-        className="flex h-6 w-12 items-center justify-center rounded-rad-sm border border-line bg-card"
+        className="font-mono text-xs font-bold uppercase tracking-wider"
       >
-        <span className="font-display text-[11px] font-bold tracking-wider text-ink-soft">
-          VISA
-        </span>
-      </div>
+        VISA
+      </span>
 
-      {/* MasterCard — overlapping circles, brand-suggestive */}
-      <div
-        aria-label="MasterCard"
-        className="flex h-6 w-12 items-center justify-center rounded-rad-sm border border-line bg-card"
-      >
-        <span className="block h-3.5 w-3.5 rounded-rad-pill bg-[#EB001B] opacity-80" />
-        <span className="-ml-1.5 block h-3.5 w-3.5 rounded-rad-pill bg-[#F79E1B] opacity-80 mix-blend-multiply" />
-      </div>
+      <span aria-hidden="true" className="text-muted/40">
+        ·
+      </span>
 
-      {/* Мир */}
-      <div
+      <span aria-label="MasterCard" className="flex items-center">
+        <span className="block h-3 w-3 rounded-rad-pill border border-current" />
+        <span className="-ml-1.5 block h-3 w-3 rounded-rad-pill border border-current" />
+      </span>
+
+      <span aria-hidden="true" className="text-muted/40">
+        ·
+      </span>
+
+      <span
         aria-label="Мир"
-        className="flex h-6 items-center justify-center rounded-rad-sm border border-line bg-card px-2"
+        className="font-mono text-xs font-bold uppercase tracking-wider"
       >
-        <span className="font-display text-[10px] font-bold tracking-wider text-ink-soft">
-          МИР
-        </span>
-      </div>
+        МИР
+      </span>
     </div>
   )
 }

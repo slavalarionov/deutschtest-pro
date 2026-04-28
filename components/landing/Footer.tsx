@@ -18,8 +18,8 @@ export function Footer() {
             aria-hidden="true"
             className="hidden lg:flex lg:items-start"
           >
-            <span className="select-none font-display text-[200px] leading-none text-ink">
-              ß
+            <span className="select-none font-display text-[220px] leading-[0.85] tracking-tight text-ink">
+              äöü
             </span>
           </div>
 
@@ -135,9 +135,9 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom: brand + requisites + payments */}
+        {/* Bottom: brand + payments + requisites */}
         <div className="mt-16 border-t border-line pt-8">
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-3">
               <span
                 aria-hidden="true"
@@ -150,17 +150,14 @@ export function Footer() {
               </span>
             </div>
 
+            <div className="flex items-center gap-3">
+              <PaymentLogos />
+            </div>
+
             <div className="font-mono text-xs leading-relaxed text-muted lg:text-right">
               <p>© {new Date().getFullYear()} deutschtest.pro</p>
               <p>{t('legalNotice')}</p>
             </div>
-          </div>
-
-          <div className="mt-8 flex flex-wrap items-center gap-6">
-            <span className="font-mono text-xs uppercase tracking-wider text-muted">
-              {t('paymentMethods')}
-            </span>
-            <PaymentLogos />
           </div>
         </div>
       </div>
