@@ -194,3 +194,57 @@
 .chart-scroll::-webkit-scrollbar-thumb:hover {
   background: var(--ink-soft);
 }
+
+/* ==========================================================================
+   Legal documents — editorial typography for /terms, /privacy, /offer, /impressum.
+   Applied via <article className="prose-legal"> inside LegalDocument.
+   ========================================================================== */
+.prose-legal h1 {
+  @apply font-display text-4xl md:text-5xl text-ink mb-8 leading-tight tracking-tight;
+}
+.prose-legal h2 {
+  @apply font-display text-2xl md:text-3xl text-ink mt-12 mb-4 leading-snug;
+}
+.prose-legal h3 {
+  @apply font-display text-xl text-ink mt-8 mb-3;
+}
+.prose-legal p {
+  @apply text-ink-soft leading-relaxed mb-4;
+}
+.prose-legal a {
+  @apply text-accent-ink underline underline-offset-2 hover:text-accent;
+}
+.prose-legal ul,
+.prose-legal ol {
+  @apply text-ink-soft leading-relaxed mb-4 pl-6 space-y-1;
+}
+.prose-legal ul {
+  @apply list-disc;
+}
+.prose-legal ol {
+  @apply list-decimal;
+}
+.prose-legal table {
+  @apply my-6 w-full border-collapse;
+}
+.prose-legal th {
+  @apply text-left font-mono text-xs uppercase tracking-wider text-muted py-3 px-4 border-b border-line;
+}
+.prose-legal td {
+  @apply text-ink-soft py-3 px-4 border-b border-line;
+}
+.prose-legal strong {
+  @apply text-ink;
+}
+.prose-legal hr {
+  @apply my-12 border-line;
+}
+.prose-legal blockquote {
+  @apply border-l-2 border-line pl-4 italic text-muted my-6;
+}
+.prose-legal em {
+  @apply text-muted;
+}
+.prose-legal code {
+  @apply font-mono text-sm bg-surface px-1.5 py-0.5 rounded-rad-sm;
+}
