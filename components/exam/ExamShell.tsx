@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useExamStore } from '@/store/examStore'
@@ -101,7 +100,8 @@ export function ExamShell({ sessionId }: ExamShellProps) {
               className="inline-flex items-center gap-2"
               aria-label="DeutschTest.pro"
             >
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src="/icon-mark.svg"
                 alt=""
                 width={20}

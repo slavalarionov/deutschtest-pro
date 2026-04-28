@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import Image from 'next/image'
 import { Link } from '@/i18n/routing'
 import { LanguageSwitcher } from '@/components/common/LanguageSwitcher'
 
@@ -46,13 +45,13 @@ export function AuthLayout({
             className="inline-flex items-center gap-2.5"
             aria-label="DeutschTest.pro"
           >
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src="/icon-mark.svg"
               alt=""
               width={28}
               height={28}
               aria-hidden="true"
-              priority
             />
             <span className="font-display text-xl font-medium tracking-tight text-ink">
               deutschtest<span className="text-muted">.pro</span>

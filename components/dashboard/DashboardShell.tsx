@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, usePathname, useRouter } from '@/i18n/routing'
@@ -176,7 +175,8 @@ export function DashboardShell({
           className="inline-flex items-center gap-2.5"
           aria-label="DeutschTest.pro"
         >
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/icon-mark.svg"
             alt=""
             width={28}
@@ -251,7 +251,8 @@ export function DashboardShell({
           className="inline-flex items-center gap-2"
           aria-label="DeutschTest.pro"
         >
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/icon-mark.svg"
             alt=""
             width={24}
