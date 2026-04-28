@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="56" viewBox="0 0 360 56">
+  <circle cx="28" cy="28" r="24" fill="#ffffff"/>
+  <text x="28" y="40" text-anchor="middle" font-family="Inter Tight, Inter, sans-serif" font-weight="600" font-size="34" fill="#1a1d22" letter-spacing="-1.5">ß</text>
+  <text x="64" y="36" font-family="Inter Tight, Inter, sans-serif" font-weight="600" font-size="28" fill="#ffffff" letter-spacing="-0.8">deutschtest<tspan fill="#8a8a85">.pro</tspan></text>
+</svg>

@@ -1,7 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="210" height="32" viewBox="0 0 210 32">
-  <circle cx="16" cy="16" r="14" fill="#2B2E33"/>
-  <text x="16" y="23" text-anchor="middle" font-family="Inter Tight, Inter, sans-serif" font-weight="600" font-size="20" fill="#ffffff" letter-spacing="-1">ß</text>
-  <text x="44" y="23" font-family="Inter Tight, Inter, sans-serif" font-weight="600" font-size="22" letter-spacing="-0.44">
-    <tspan fill="#2B2E33">deutschtest</tspan><tspan fill="#9CA0A6">.pro</tspan>
-  </text>
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="56" viewBox="0 0 360 56">
+  <circle cx="28" cy="28" r="24" fill="#1a1d22"/>
+  <text x="28" y="40" text-anchor="middle" font-family="Inter Tight, Inter, sans-serif" font-weight="600" font-size="34" fill="#ffffff" letter-spacing="-1.5">ß</text>
+  <text x="64" y="36" font-family="Inter Tight, Inter, sans-serif" font-weight="600" font-size="28" fill="#1a1d22" letter-spacing="-0.8">deutschtest<tspan fill="#8a8a85">.pro</tspan></text>
 </svg>
