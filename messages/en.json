@@ -1017,5 +1017,12 @@
     },
     "legalNotice": "Wjatscheslaw Larionow · INN 550517616144 · OGRNIP 321554300001795",
     "paymentMethods": "PAYMENT METHODS"
+  },
+  "cookieBanner": {
+    "title": "Cookies and privacy",
+    "description": "We use technically necessary cookies to keep the site running, plus cookie-free Umami analytics to understand usage. By clicking \"Accept all\", you consent to cookies we may add in the future for extended analytics.",
+    "learnMore": "Learn more",
+    "acceptAll": "Accept all",
+    "essentialOnly": "Essential only"
   }
 }

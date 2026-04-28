@@ -1017,5 +1017,12 @@
     },
     "legalNotice": "Wjatscheslaw Larionow · INN 550517616144 · OGRNIP 321554300001795",
     "paymentMethods": "ÖDEME YÖNTEMLERİ"
+  },
+  "cookieBanner": {
+    "title": "Çerezler ve gizlilik",
+    "description": "Sitenin çalışması için teknik olarak gerekli çerezleri ve kullanımı anlamak için çerezsiz Umami analizini kullanıyoruz. \"Tümünü kabul et\" düğmesine tıklayarak, gelecekte genişletilmiş analitik için ekleyebileceğimiz çerezlere onay vermiş olursunuz.",
+    "learnMore": "Daha fazla bilgi",
+    "acceptAll": "Tümünü kabul et",
+    "essentialOnly": "Sadece zorunlu"
   }
 }
