@@ -232,6 +232,30 @@
     "buyButton": {
       "comingSoon": "Coming soon"
     },
+    "checkout": {
+      "redirecting": "Redirecting to payment page…",
+      "fallbackError": "Could not create payment. Please try again."
+    },
+    "promoCode": {
+      "toggle": "I have a promo code",
+      "placeholder": "WELCOME10",
+      "checking": "Checking…",
+      "applied": "{discount}% discount applied",
+      "appliedWithBonus": "{discount}% discount, +{bonus} bonus modules",
+      "errors": {
+        "invalid_code_format": "Invalid code format.",
+        "not_found": "Promo code not found.",
+        "inactive": "Promo code disabled.",
+        "expired": "Promo code expired.",
+        "limit_reached": "Activation limit reached.",
+        "already_redeemed": "You have already redeemed this code.",
+        "wrong_flow": "This promo code cannot be applied to a purchase.",
+        "wrong_market": "Promo code does not fit this market.",
+        "unauthorized": "Please sign in first.",
+        "network": "Network error. Please try again.",
+        "unknown": "Could not verify the code."
+      }
+    },
     "freeTrial": {
       "title": "3 free modules when you sign up — try any module risk-free.",
       "cta": "Start free"

@@ -189,31 +189,6 @@ function PackageCard({
           locale={locale}
           featured={featured}
           enabled={pkg.market === 'ru'}
-          disabledLabel={tPricing('buyButton.comingSoon')}
-          buyLabel={tPricing('ctaBuy')}
-          redirectingLabel="Перенаправляем на страницу оплаты…"
-          promoToggleLabel="У меня есть промокод"
-          promoPlaceholder="WELCOME10"
-          promoCheckingLabel="Проверяем…"
-          promoAppliedLabel={(d, b) =>
-            b > 0
-              ? `Скидка ${d}%, +${b} бонусных модулей`
-              : `Скидка ${d}% применена`
-          }
-          promoErrorLabels={{
-            invalid_code_format: 'Код некорректный.',
-            not_found: 'Промокод не найден.',
-            inactive: 'Промокод отключён.',
-            expired: 'Срок действия истёк.',
-            limit_reached: 'Лимит активаций исчерпан.',
-            already_redeemed: 'Вы уже использовали этот промокод.',
-            wrong_flow: 'Этот промокод нельзя применить к покупке.',
-            wrong_market: 'Промокод не подходит к этому рынку.',
-            unauthorized: 'Сначала войдите в аккаунт.',
-            network: 'Ошибка сети. Попробуйте ещё раз.',
-            unknown: 'Не удалось проверить код.',
-          }}
-          fallbackErrorLabel="Не удалось создать платёж. Попробуйте ещё раз."
         />
       </div>
     </article>

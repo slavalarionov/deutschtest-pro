@@ -232,6 +232,30 @@
     "buyButton": {
       "comingSoon": "Yakında"
     },
+    "checkout": {
+      "redirecting": "Ödeme sayfasına yönlendiriliyor…",
+      "fallbackError": "Ödeme oluşturulamadı. Lütfen tekrar deneyin."
+    },
+    "promoCode": {
+      "toggle": "Promosyon kodum var",
+      "placeholder": "WELCOME10",
+      "checking": "Kontrol ediliyor…",
+      "applied": "%{discount} indirim uygulandı",
+      "appliedWithBonus": "%{discount} indirim, +{bonus} bonus modül",
+      "errors": {
+        "invalid_code_format": "Kod biçimi geçersiz.",
+        "not_found": "Promosyon kodu bulunamadı.",
+        "inactive": "Promosyon kodu devre dışı.",
+        "expired": "Kodun süresi doldu.",
+        "limit_reached": "Aktivasyon sınırına ulaşıldı.",
+        "already_redeemed": "Bu kodu zaten kullandınız.",
+        "wrong_flow": "Bu promosyon kodu satın almada kullanılamaz.",
+        "wrong_market": "Bu pazara uygun bir promosyon kodu değil.",
+        "unauthorized": "Lütfen önce oturum açın.",
+        "network": "Ağ hatası. Lütfen tekrar deneyin.",
+        "unknown": "Kod doğrulanamadı."
+      }
+    },
     "freeTrial": {
       "title": "Kayıt olunca 3 ücretsiz modül — herhangi bir modülü risksiz deneyin.",
       "cta": "Ücretsiz başla"

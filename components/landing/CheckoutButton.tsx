@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { useTranslations } from 'next-intl'
 import type { Locale } from '@/i18n/request'
 import type { PackageId } from '@/lib/pricing'
 
@@ -19,24 +20,17 @@ export interface CheckoutButtonProps {
   locale: Locale
   featured: boolean
   enabled: boolean
-  disabledLabel: string
-  buyLabel: string
-  redirectingLabel: string
-  promoToggleLabel: string
-  promoPlaceholder: string
-  promoCheckingLabel: string
-  promoAppliedLabel: (discount: number, bonus: number) => string
-  promoErrorLabels: Record<string, string>
-  fallbackErrorLabel: string
 }
 
 /**
  * Client component that handles the actual checkout call from /pricing.
- * Receives all visible strings as props so the server-side PricingSection
- * keeps full control over translations — there is no `useTranslations`
- * hook inside this client bundle.
+ * All visible strings are resolved through `useTranslations` from
+ * next-intl — props stay strictly serializable so we don't trip the
+ * "functions cannot be passed across server/client boundary" rule.
  */
 export function CheckoutButton(props: CheckoutButtonProps) {
+  const tPricing = useTranslations('pricing')
+
   if (!props.enabled) {
     return (
       <button
@@ -49,7 +43,7 @@ export function CheckoutButton(props: CheckoutButtonProps) {
           props.featured ? 'bg-card text-ink' : 'bg-ink text-card',
         ].join(' ')}
       >
-        {props.disabledLabel}
+        {tPricing('buyButton.comingSoon')}
       </button>
     )
   }
@@ -58,6 +52,11 @@ export function CheckoutButton(props: CheckoutButtonProps) {
 }
 
 function ActiveCheckout(props: CheckoutButtonProps) {
+  const tPricing = useTranslations('pricing')
+  const tCheckout = useTranslations('pricing.checkout')
+  const tPromo = useTranslations('pricing.promoCode')
+  const tPromoErrors = useTranslations('pricing.promoCode.errors')
+
   const [status, setStatus] = useState<Status>('idle')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [showPromo, setShowPromo] = useState(false)
@@ -143,34 +142,33 @@ function ActiveCheckout(props: CheckoutButtonProps) {
       if (!res.ok || !data.paymentUrl) {
         if (res.status === 401) {
           setStatus('error')
-          setErrorMsg(
-            props.promoErrorLabels.unauthorized ?? props.fallbackErrorLabel,
-          )
+          setErrorMsg(safeErrorLabel(tPromoErrors, 'unauthorized'))
           return
         }
         setStatus('error')
-        setErrorMsg(props.fallbackErrorLabel)
+        setErrorMsg(tCheckout('fallbackError'))
         return
       }
       setStatus('redirecting')
       window.location.assign(data.paymentUrl)
     } catch {
       setStatus('error')
-      setErrorMsg(props.fallbackErrorLabel)
+      setErrorMsg(tCheckout('fallbackError'))
     }
   }
 
   const promoLine =
     promo.status === 'checking'
-      ? props.promoCheckingLabel
+      ? tPromo('checking')
       : promo.status === 'valid'
-        ? props.promoAppliedLabel(
-            promo.discountPercent ?? 0,
-            promo.bonusModules ?? 0,
-          )
+        ? (promo.bonusModules ?? 0) > 0
+          ? tPromo('appliedWithBonus', {
+              discount: promo.discountPercent ?? 0,
+              bonus: promo.bonusModules ?? 0,
+            })
+          : tPromo('applied', { discount: promo.discountPercent ?? 0 })
         : promo.status === 'invalid'
-          ? (props.promoErrorLabels[promo.errorCode ?? 'unknown'] ??
-            props.fallbackErrorLabel)
+          ? safeErrorLabel(tPromoErrors, promo.errorCode ?? 'unknown')
           : null
 
   return (
@@ -185,8 +183,8 @@ function ActiveCheckout(props: CheckoutButtonProps) {
         ].join(' ')}
       >
         {status === 'submitting' || status === 'redirecting'
-          ? props.redirectingLabel
-          : props.buyLabel}
+          ? tCheckout('redirecting')
+          : tPricing('ctaBuy')}
         {status === 'idle' && (
           <svg
             width="14"
@@ -215,7 +213,7 @@ function ActiveCheckout(props: CheckoutButtonProps) {
             props.featured ? 'text-card/70' : 'text-ink-soft',
           ].join(' ')}
         >
-          {props.promoToggleLabel}
+          {tPromo('toggle')}
         </button>
       ) : (
         <div>
@@ -226,7 +224,7 @@ function ActiveCheckout(props: CheckoutButtonProps) {
             spellCheck={false}
             value={promoCode}
             onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-            placeholder={props.promoPlaceholder}
+            placeholder={tPromo('placeholder')}
             maxLength={32}
             className={[
               'block w-full rounded-rad border px-4 py-2 font-mono text-sm tracking-wider',
@@ -261,4 +259,20 @@ function ActiveCheckout(props: CheckoutButtonProps) {
       )}
     </form>
   )
+}
+
+/**
+ * Tiny guard around `t(key)` so an unexpected error code from the API
+ * (something we haven't translated yet) falls back to the generic
+ * `unknown` message instead of throwing or printing the raw key.
+ */
+function safeErrorLabel(
+  t: ReturnType<typeof useTranslations>,
+  code: string,
+): string {
+  try {
+    return t(code)
+  } catch {
+    return t('unknown')
+  }
 }

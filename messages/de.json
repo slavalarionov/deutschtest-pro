@@ -232,6 +232,30 @@
     "buyButton": {
       "comingSoon": "Bald verfügbar"
     },
+    "checkout": {
+      "redirecting": "Weiterleitung zur Zahlungsseite…",
+      "fallbackError": "Zahlung konnte nicht erstellt werden. Bitte erneut versuchen."
+    },
+    "promoCode": {
+      "toggle": "Ich habe einen Promo-Code",
+      "placeholder": "WELCOME10",
+      "checking": "Wird geprüft…",
+      "applied": "{discount}% Rabatt angewendet",
+      "appliedWithBonus": "{discount}% Rabatt, +{bonus} Bonus-Module",
+      "errors": {
+        "invalid_code_format": "Ungültiges Code-Format.",
+        "not_found": "Promo-Code nicht gefunden.",
+        "inactive": "Promo-Code deaktiviert.",
+        "expired": "Promo-Code abgelaufen.",
+        "limit_reached": "Aktivierungslimit erreicht.",
+        "already_redeemed": "Sie haben diesen Promo-Code bereits eingelöst.",
+        "wrong_flow": "Dieser Promo-Code kann nicht beim Kauf verwendet werden.",
+        "wrong_market": "Promo-Code passt nicht zu diesem Markt.",
+        "unauthorized": "Bitte melden Sie sich zuerst an.",
+        "network": "Netzwerkfehler. Bitte erneut versuchen.",
+        "unknown": "Code konnte nicht überprüft werden."
+      }
+    },
     "freeTrial": {
       "title": "3 Module gratis bei der Registrierung — probieren Sie jedes Modul risikofrei aus.",
       "cta": "Kostenlos starten"
