@@ -1,34 +1,24 @@
 import { getFormatter, getLocale, getTranslations } from 'next-intl/server'
 import { Link } from '@/i18n/routing'
-import {
-  PRICING_PACKAGES,
-  currencyForLocale,
-  fractionDigitsForAmount,
-} from '@/lib/pricing'
+import { getPackagesForLocale, type PaymentPackage } from '@/lib/pricing'
 import type { Locale } from '@/i18n/request'
+import { CheckoutButton } from './CheckoutButton'
 
 /**
- * Landing · Pricing section (Phase 3 editorial redesign).
+ * Landing · Pricing section.
  *
- * Ports the `LandingPricing` section from docs/Redesign.html (lines 484-528):
- * three-column editorial grid, Standard package rendered as featured card
- * with inverted palette (`bg-ink text-card`), large display typography for
- * the price, checkmark feature list, and a free-tier CTA block below.
- *
- * Contract with `lib/pricing.ts` and the existing i18n keys stays 1:1 —
- * only the visual layer is rewritten. Purchase buttons are disabled until
- * Robokassa is wired up (see `pricing.ctaBuy` copy "Kaufen (bald verfügbar)").
- *
- * Server Component — no client hooks. Currency formatting goes through
- * `getFormatter` from `next-intl/server`, so the price reads locale-correct:
- * `7,20 €` (de/tr), `€7.20` (en), `400 ₽` (ru).
+ * Reads packages via `getPackagesForLocale(locale)` — RU locale gets the
+ * RU bundle (10/20/40 modules at 400/720/1360 ₽), all other locales get
+ * the EU bundle (20/33/50 modules at €10/€15/€20). On `ru` the CheckoutButton
+ * wires up Точка acquiring; on EU locales it stays disabled until Prodamus.
  */
 export async function PricingSection() {
   const locale = (await getLocale()) as Locale
   const t = await getTranslations('landing.pricing')
   const tPricing = await getTranslations('pricing')
   const format = await getFormatter()
-  const currency = currencyForLocale(locale)
+
+  const packages = getPackagesForLocale(locale)
 
   return (
     <section
@@ -36,7 +26,6 @@ export async function PricingSection() {
       className="bg-page px-4 py-20 sm:px-6 sm:py-24 lg:px-10 lg:py-32"
     >
       <div className="mx-auto max-w-7xl">
-        {/* Section header */}
         <div className="mb-10 flex flex-col gap-6 sm:mb-14 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
           <div>
             <div className="eyebrow mb-3">{t('eyebrow')}</div>
@@ -49,127 +38,18 @@ export async function PricingSection() {
           </p>
         </div>
 
-        {/* Pricing grid */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          {PRICING_PACKAGES.map((pkg) => {
-            const ns = `packages.${pkg.key}` as const
-            const price = pkg.prices[currency]
-            const originalPrice = pkg.originalPrices[currency]
-            const priceStr = format.number(price, {
-              style: 'currency',
-              currency,
-              minimumFractionDigits: fractionDigitsForAmount(price, currency),
-              maximumFractionDigits: fractionDigitsForAmount(price, currency),
-            })
-            const originalPriceStr =
-              originalPrice != null
-                ? format.number(originalPrice, {
-                    style: 'currency',
-                    currency,
-                    minimumFractionDigits: fractionDigitsForAmount(originalPrice, currency),
-                    maximumFractionDigits: fractionDigitsForAmount(originalPrice, currency),
-                  })
-                : null
-
-            const featured = pkg.highlighted
-
-            return (
-              <article
-                key={pkg.key}
-                className={[
-                  'flex flex-col rounded-rad p-8',
-                  featured
-                    ? 'border border-ink bg-ink text-card'
-                    : 'border border-line bg-card text-ink',
-                ].join(' ')}
-              >
-                {/* Top row: package name + badge */}
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-display text-xl tracking-tight">
-                    {tPricing(`${ns}.name`)}
-                  </span>
-                  {pkg.hasBadge && (
-                    <span
-                      className={[
-                        'rounded-rad-pill px-3 py-1 text-[11px] font-medium uppercase tracking-wide',
-                        featured
-                          ? 'bg-accent-soft text-accent-ink'
-                          : 'border border-line-soft bg-surface text-ink-soft',
-                      ].join(' ')}
-                    >
-                      {tPricing(`${ns}.badge`)}
-                    </span>
-                  )}
-                </div>
-
-                {/* Price block */}
-                <div className="mt-6">
-                  {originalPriceStr && (
-                    <div
-                      className={[
-                        'font-mono text-xs line-through',
-                        featured ? 'text-card/50' : 'text-muted',
-                      ].join(' ')}
-                    >
-                      {originalPriceStr}
-                    </div>
-                  )}
-                  <div
-                    className="font-display leading-none"
-                    style={{ fontSize: 72, letterSpacing: '-0.04em' }}
-                  >
-                    {priceStr}
-                  </div>
-                  <div
-                    className={[
-                      'mt-2 text-sm',
-                      featured ? 'text-card/70' : 'text-ink-soft',
-                    ].join(' ')}
-                  >
-                    {tPricing(`${ns}.priceNote`)}
-                  </div>
-                </div>
-
-                {/* Features list */}
-                <ul className="mt-8 flex-1 space-y-3">
-                  {Array.from({ length: pkg.featureCount }, (_, idx) => idx + 1).map((n) => (
-                    <li
-                      key={n}
-                      className={[
-                        'flex items-start gap-3 text-sm',
-                        featured ? 'text-card/80' : 'text-ink-soft',
-                      ].join(' ')}
-                    >
-                      <CheckIcon
-                        className={featured ? 'text-card/70' : 'text-ink'}
-                      />
-                      <span>{tPricing(`${ns}.feature${n}`)}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA — disabled until Robokassa is wired */}
-                <button
-                  type="button"
-                  disabled
-                  aria-disabled="true"
-                  className={[
-                    'mt-8 inline-flex items-center justify-center gap-2 rounded-rad-pill px-6 py-3 text-sm font-medium transition-opacity',
-                    'disabled:cursor-not-allowed disabled:opacity-60',
-                    featured
-                      ? 'bg-card text-ink'
-                      : 'bg-ink text-card',
-                  ].join(' ')}
-                >
-                  {tPricing('ctaBuy')}
-                  <ArrowIcon />
-                </button>
-              </article>
-            )
-          })}
+          {packages.map((pkg) => (
+            <PackageCard
+              key={pkg.id}
+              pkg={pkg}
+              locale={locale}
+              format={format}
+              tPricing={tPricing}
+            />
+          ))}
         </div>
 
-        {/* Free-tier CTA block */}
         <div className="mx-auto mt-10 flex max-w-3xl flex-col items-start gap-4 rounded-rad border border-dashed border-line bg-card p-6 sm:mt-14 sm:flex-row sm:items-center sm:justify-between sm:p-8">
           <div className="flex items-start gap-4">
             <span
@@ -195,7 +75,150 @@ export async function PricingSection() {
   )
 }
 
-/* ---------- Inline icons (no new dependency) ---------- */
+function PackageCard({
+  pkg,
+  locale,
+  format,
+  tPricing,
+}: {
+  pkg: PaymentPackage
+  locale: Locale
+  format: Awaited<ReturnType<typeof getFormatter>>
+  tPricing: Awaited<ReturnType<typeof getTranslations>>
+}) {
+  const ns = `packages.${pkg.tier}` as const
+  const featured = pkg.tier === 'standard'
+  const hasBadge = pkg.tier !== 'starter'
+  const featureCount = pkg.tier === 'starter' ? 3 : pkg.tier === 'standard' ? 4 : 5
+
+  const priceMajor = pkg.priceMinor / 100
+  const originalPriceMajor =
+    pkg.originalPriceMinor != null ? pkg.originalPriceMinor / 100 : null
+
+  const fracDigits = (n: number) =>
+    pkg.currency === 'RUB' ? 0 : Number.isInteger(n) ? 0 : 2
+
+  const priceStr = format.number(priceMajor, {
+    style: 'currency',
+    currency: pkg.currency,
+    minimumFractionDigits: fracDigits(priceMajor),
+    maximumFractionDigits: fracDigits(priceMajor),
+  })
+  const originalPriceStr =
+    originalPriceMajor != null
+      ? format.number(originalPriceMajor, {
+          style: 'currency',
+          currency: pkg.currency,
+          minimumFractionDigits: fracDigits(originalPriceMajor),
+          maximumFractionDigits: fracDigits(originalPriceMajor),
+        })
+      : null
+
+  return (
+    <article
+      className={[
+        'flex flex-col rounded-rad p-8',
+        featured
+          ? 'border border-ink bg-ink text-card'
+          : 'border border-line bg-card text-ink',
+      ].join(' ')}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-display text-xl tracking-tight">
+          {tPricing(`${ns}.name`)}
+        </span>
+        {hasBadge && (
+          <span
+            className={[
+              'rounded-rad-pill px-3 py-1 text-[11px] font-medium uppercase tracking-wide',
+              featured
+                ? 'bg-accent-soft text-accent-ink'
+                : 'border border-line-soft bg-surface text-ink-soft',
+            ].join(' ')}
+          >
+            {tPricing(`${ns}.badge`)}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-6">
+        {originalPriceStr && (
+          <div
+            className={[
+              'font-mono text-xs line-through',
+              featured ? 'text-card/50' : 'text-muted',
+            ].join(' ')}
+          >
+            {originalPriceStr}
+          </div>
+        )}
+        <div
+          className="font-display leading-none"
+          style={{ fontSize: 72, letterSpacing: '-0.04em' }}
+        >
+          {priceStr}
+        </div>
+        <div
+          className={[
+            'mt-2 text-sm',
+            featured ? 'text-card/70' : 'text-ink-soft',
+          ].join(' ')}
+        >
+          {tPricing(`${ns}.priceNote`)}
+        </div>
+      </div>
+
+      <ul className="mt-8 flex-1 space-y-3">
+        {Array.from({ length: featureCount }, (_, idx) => idx + 1).map((n) => (
+          <li
+            key={n}
+            className={[
+              'flex items-start gap-3 text-sm',
+              featured ? 'text-card/80' : 'text-ink-soft',
+            ].join(' ')}
+          >
+            <CheckIcon className={featured ? 'text-card/70' : 'text-ink'} />
+            <span>{tPricing(`${ns}.feature${n}`)}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-8">
+        <CheckoutButton
+          packageId={pkg.id}
+          locale={locale}
+          featured={featured}
+          enabled={pkg.market === 'ru'}
+          disabledLabel={tPricing('buyButton.comingSoon')}
+          buyLabel={tPricing('ctaBuy')}
+          redirectingLabel="Перенаправляем на страницу оплаты…"
+          promoToggleLabel="У меня есть промокод"
+          promoPlaceholder="WELCOME10"
+          promoCheckingLabel="Проверяем…"
+          promoAppliedLabel={(d, b) =>
+            b > 0
+              ? `Скидка ${d}%, +${b} бонусных модулей`
+              : `Скидка ${d}% применена`
+          }
+          promoErrorLabels={{
+            invalid_code_format: 'Код некорректный.',
+            not_found: 'Промокод не найден.',
+            inactive: 'Промокод отключён.',
+            expired: 'Срок действия истёк.',
+            limit_reached: 'Лимит активаций исчерпан.',
+            already_redeemed: 'Вы уже использовали этот промокод.',
+            wrong_flow: 'Этот промокод нельзя применить к покупке.',
+            wrong_market: 'Промокод не подходит к этому рынку.',
+            unauthorized: 'Сначала войдите в аккаунт.',
+            network: 'Ошибка сети. Попробуйте ещё раз.',
+            unknown: 'Не удалось проверить код.',
+          }}
+          fallbackErrorLabel="Не удалось создать платёж. Попробуйте ещё раз."
+        />
+      </div>
+    </article>
+  )
+}
 
 function CheckIcon({ className = '' }: { className?: string }) {
   return (

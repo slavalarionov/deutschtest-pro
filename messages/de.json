@@ -229,6 +229,9 @@
       }
     },
     "ctaBuy": "Paket wählen",
+    "buyButton": {
+      "comingSoon": "Bald verfügbar"
+    },
     "freeTrial": {
       "title": "3 Module gratis bei der Registrierung — probieren Sie jedes Modul risikofrei aus.",
       "cta": "Kostenlos starten"

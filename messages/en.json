@@ -229,6 +229,9 @@
       }
     },
     "ctaBuy": "Select package",
+    "buyButton": {
+      "comingSoon": "Coming soon"
+    },
     "freeTrial": {
       "title": "3 free modules when you sign up — try any module risk-free.",
       "cta": "Start free"

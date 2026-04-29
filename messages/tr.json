@@ -229,6 +229,9 @@
       }
     },
     "ctaBuy": "Paket seç",
+    "buyButton": {
+      "comingSoon": "Yakında"
+    },
     "freeTrial": {
       "title": "Kayıt olunca 3 ücretsiz modül — herhangi bir modülü risksiz deneyin.",
       "cta": "Ücretsiz başla"
