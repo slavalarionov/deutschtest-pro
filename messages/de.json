@@ -255,6 +255,49 @@
       }
     }
   },
+  "payment": {
+    "success": {
+      "eyebrow": "ZAHLUNG",
+      "pending": "Wir warten auf die Bankbestätigung…",
+      "approved": "Fertig! {count, plural, one {# Modul wurde} other {# Module wurden}} Ihrem Guthaben gutgeschrieben.",
+      "failed": "Die Zahlung ist fehlgeschlagen.",
+      "expired": "Die Zahlungsfrist ist abgelaufen.",
+      "timeoutFallback": "Die Zahlung wird bearbeitet. Wir senden eine Bestätigung per E-Mail.",
+      "toDashboard": "Zum Dashboard",
+      "tryAgain": "Erneut versuchen"
+    },
+    "cancel": {
+      "eyebrow": "ZAHLUNG",
+      "title": "Zahlung abgebrochen",
+      "subtitle": "Es wurde nichts abgebucht. Sie können es erneut versuchen.",
+      "tryAgain": "Zu den Paketen"
+    },
+    "history": {
+      "eyebrow": "ZAHLUNGSVERLAUF",
+      "title": "Ihre Zahlungen",
+      "empty": "Noch keine Zahlungen.",
+      "cols": {
+        "date": "DATUM",
+        "package": "PAKET",
+        "amount": "BETRAG",
+        "status": "STATUS",
+        "method": "METHODE"
+      },
+      "status": {
+        "pending": "In Bearbeitung",
+        "approved": "Bezahlt",
+        "failed": "Fehlgeschlagen",
+        "refunded": "Erstattet",
+        "expired": "Abgelaufen"
+      },
+      "method": {
+        "card": "Karte",
+        "sbp": "SBP",
+        "tinkoff": "T-Bank",
+        "dolyame": "Dolyame"
+      }
+    }
+  },
   "dashboard": {
     "shell": {
       "openMenu": "Menü öffnen",

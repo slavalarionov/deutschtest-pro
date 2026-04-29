@@ -255,6 +255,49 @@
       }
     }
   },
+  "payment": {
+    "success": {
+      "eyebrow": "ÖDEME",
+      "pending": "Banka onayı bekleniyor…",
+      "approved": "Tamamlandı! Bakiyenize {count, plural, one {# modül} other {# modül}} eklendi.",
+      "failed": "Ödeme başarısız oldu.",
+      "expired": "Ödeme süresi doldu.",
+      "timeoutFallback": "Ödemeniz işleniyor. Onayı e-posta ile göndereceğiz.",
+      "toDashboard": "Panele git",
+      "tryAgain": "Tekrar dene"
+    },
+    "cancel": {
+      "eyebrow": "ÖDEME",
+      "title": "Ödeme iptal edildi",
+      "subtitle": "Hiçbir tutar tahsil edilmedi. Geri dönüp tekrar deneyebilirsiniz.",
+      "tryAgain": "Paketlere dön"
+    },
+    "history": {
+      "eyebrow": "ÖDEME GEÇMİŞİ",
+      "title": "Ödemeleriniz",
+      "empty": "Henüz ödeme yok.",
+      "cols": {
+        "date": "TARİH",
+        "package": "PAKET",
+        "amount": "TUTAR",
+        "status": "DURUM",
+        "method": "YÖNTEM"
+      },
+      "status": {
+        "pending": "İşleniyor",
+        "approved": "Ödendi",
+        "failed": "Başarısız",
+        "refunded": "İade",
+        "expired": "Süresi doldu"
+      },
+      "method": {
+        "card": "Kart",
+        "sbp": "SBP",
+        "tinkoff": "T-Bank",
+        "dolyame": "Dolyame"
+      }
+    }
+  },
   "dashboard": {
     "shell": {
       "openMenu": "Menüyü aç",

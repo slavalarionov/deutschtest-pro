@@ -255,6 +255,49 @@
       }
     }
   },
+  "payment": {
+    "success": {
+      "eyebrow": "PAYMENT",
+      "pending": "Waiting for bank confirmation…",
+      "approved": "Done! {count, plural, one {# module} other {# modules}} credited to your balance.",
+      "failed": "The payment did not go through.",
+      "expired": "The payment timed out.",
+      "timeoutFallback": "Your payment is being processed. We'll email a confirmation.",
+      "toDashboard": "To dashboard",
+      "tryAgain": "Try again"
+    },
+    "cancel": {
+      "eyebrow": "PAYMENT",
+      "title": "Payment cancelled",
+      "subtitle": "Nothing was charged. You can come back and try again.",
+      "tryAgain": "Back to pricing"
+    },
+    "history": {
+      "eyebrow": "PAYMENT HISTORY",
+      "title": "Your payments",
+      "empty": "No payments yet.",
+      "cols": {
+        "date": "DATE",
+        "package": "PACKAGE",
+        "amount": "AMOUNT",
+        "status": "STATUS",
+        "method": "METHOD"
+      },
+      "status": {
+        "pending": "Processing",
+        "approved": "Paid",
+        "failed": "Failed",
+        "refunded": "Refunded",
+        "expired": "Expired"
+      },
+      "method": {
+        "card": "Card",
+        "sbp": "SBP",
+        "tinkoff": "T-Bank",
+        "dolyame": "Dolyame"
+      }
+    }
+  },
   "dashboard": {
     "shell": {
       "openMenu": "Open menu",
