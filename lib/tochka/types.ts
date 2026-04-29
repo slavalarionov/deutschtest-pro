@@ -46,17 +46,6 @@ export const ReceiptItemSchema = z.object({
 })
 export type ReceiptItem = z.infer<typeof ReceiptItemSchema>
 
-export const PaymentOperationSchema = z.object({
-  amount: z.string(),
-  purpose: z.string().min(1).max(140),
-  paymentMode: z.array(TochkaPaymentModeSchema).min(1),
-  redirectUrl: z.string().url(),
-  failRedirectUrl: z.string().url().optional(),
-  Items: z.array(ReceiptItemSchema).min(1),
-  Client: z.object({ email: z.string().email() }),
-})
-export type PaymentOperation = z.infer<typeof PaymentOperationSchema>
-
 /**
  * Caller-side params for `createPayment`. The wire-body is assembled inside
  * the client itself — including the receipt line item — from the package
@@ -72,25 +61,42 @@ export interface CreatePaymentRequest {
 }
 
 /**
- * Response for both `payments` and `payments_with_receipt` — Tochka returns
- * the same shape: `Data.Operation[].operationId` + `Data.Operation[].paymentLink`.
+ * Wire body for `POST /acquiring/v1.0/payments_with_receipt`.
+ *
+ * The acquiring `payments_with_receipt` endpoint takes a flat `Data` shape —
+ * NOT the `Operation[]` envelope our hotfix-3 first guessed at. The 400
+ * "Field amount/purpose/paymentMode/Client/Items required" reproduction
+ * confirmed Tochka inspects these fields directly on `Data`. The schema
+ * exists primarily to anchor the contract for tests and documentation; the
+ * wire body is built (and stringified) inside `lib/tochka/client.ts`.
+ */
+export const CreatePaymentRequestSchema = z.object({
+  Data: z.object({
+    customerCode: z.string(),
+    merchantId: z.string(),
+    amount: z.string(),
+    purpose: z.string().min(1).max(140),
+    paymentMode: z.array(TochkaPaymentModeSchema).min(1),
+    redirectUrl: z.string().url(),
+    failRedirectUrl: z.string().url().optional(),
+    Items: z.array(ReceiptItemSchema).min(1),
+    Client: z.object({ email: z.string().email() }),
+  }),
+})
+export type CreatePaymentRequestBody = z.infer<typeof CreatePaymentRequestSchema>
+
+/**
+ * Response for both `payments` and `payments_with_receipt` — flat `Data`
+ * with `operationId` and `paymentLink`.
  */
 export const CreatePaymentResponseSchema = z.object({
   Data: z
     .object({
-      Operation: z
-        .array(
-          z
-            .object({
-              operationId: z.string().min(1),
-              paymentLink: z.string().url(),
-              status: z.string().optional(),
-              amount: z.string().optional(),
-              purpose: z.string().optional(),
-            })
-            .passthrough(),
-        )
-        .min(1),
+      operationId: z.string().min(1),
+      paymentLink: z.string().url(),
+      status: z.string().optional(),
+      amount: z.string().optional(),
+      purpose: z.string().optional(),
     })
     .passthrough(),
   Links: z.object({ self: z.string().url() }).optional(),

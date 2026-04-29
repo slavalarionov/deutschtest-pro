@@ -6,11 +6,18 @@
  * ФНС after that), `GET /acquiring/v1.0/payments/{id}` for status polls
  * and `POST .../{id}/refund` for refunds.
  *
- * The create-payment body uses the documented `Operation[]` envelope with
- * `merchantId` (the 15-digit siteUid) and a single `Items[]` line item
- * carrying the fiscal data. Amounts cross the function boundary in minor
- * units (`amountMinor`); they are converted to a major-unit decimal
- * string at the wire to keep them out of float arithmetic entirely.
+ * The create-payment body uses a flat `Data` shape — the `Operation[]`
+ * envelope from the changelog turned out NOT to apply to this endpoint
+ * (Tochka returned 400 «Field amount/purpose/paymentMode/Client/Items
+ * required» when wrapped in `Operation[]`, payload captured via
+ * TOCHKA_DEBUG_REQUESTS in commit cdadc31). Required fields therefore
+ * sit directly on `Data`: `customerCode`, `merchantId` (15-digit siteUid),
+ * `amount`, `purpose`, `paymentMode`, `redirectUrl`, `Items[]` (fiscal
+ * data) and `Client.email`.
+ *
+ * Amounts cross the function boundary in minor units (`amountMinor`);
+ * they are converted to a major-unit decimal string at the wire to keep
+ * them out of float arithmetic entirely.
  *
  * Errors fork into TochkaApiError (4xx — caller's fault, surface to user)
  * and TochkaServerError (5xx — provider issue, retryable upstream).
@@ -172,28 +179,24 @@ export async function createPayment(
     Data: {
       customerCode: env.TOCHKA_CUSTOMER_CODE,
       merchantId: env.TOCHKA_MERCHANT_ID,
-      Operation: [
+      amount: amountStr,
+      purpose: purpose.slice(0, 140),
+      paymentMode: ['card', 'sbp'],
+      redirectUrl: params.redirectUrl,
+      ...(params.failRedirectUrl
+        ? { failRedirectUrl: params.failRedirectUrl }
+        : {}),
+      Items: [
         {
+          vatType: 'none',
+          name: itemName.slice(0, 128),
           amount: amountStr,
-          purpose: purpose.slice(0, 140),
-          paymentMode: ['card', 'sbp'],
-          redirectUrl: params.redirectUrl,
-          ...(params.failRedirectUrl
-            ? { failRedirectUrl: params.failRedirectUrl }
-            : {}),
-          Items: [
-            {
-              vatType: 'none',
-              name: itemName.slice(0, 128),
-              amount: amountStr,
-              quantity: 1,
-              paymentMethod: 'full_payment',
-              paymentObject: 'service',
-            },
-          ],
-          Client: { email: params.clientEmail },
+          quantity: 1,
+          paymentMethod: 'full_payment',
+          paymentObject: 'service',
         },
       ],
+      Client: { email: params.clientEmail },
     },
   }
 
@@ -203,10 +206,9 @@ export async function createPayment(
   })
 
   const parsed: CreatePaymentResponse = CreatePaymentResponseSchema.parse(raw)
-  const operation = parsed.Data.Operation[0]
   return {
-    operationId: operation.operationId,
-    paymentLink: operation.paymentLink,
+    operationId: parsed.Data.operationId,
+    paymentLink: parsed.Data.paymentLink,
   }
 }
 
