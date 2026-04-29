@@ -1,22 +1,22 @@
 /**
  * Tochka acquiring API client.
  *
- * Server-only. Wraps `POST /acquiring/v1.0/payments`,
- * `GET /acquiring/v1.0/payments/{id}` and `POST .../{id}/refund` per the
- * flat-Data structure documented in the Tochka acquiring PDF: the body is
- * `{ Data: { customerCode, amount, purpose, paymentMode, redirectUrl, ... } }`,
- * NOT wrapped in an `Operation[]` array, and `merchantId` / `paymentLinkId`
- * are not part of the request.
+ * Server-only. Wraps `POST /acquiring/v1.0/payments_with_receipt` for the
+ * canonical purchase path (Бизнес.Ру takes care of the receipt → ОФД →
+ * ФНС after that), `GET /acquiring/v1.0/payments/{id}` for status polls
+ * and `POST .../{id}/refund` for refunds.
  *
- * Amounts are passed in minor units (`amountMinor`) at the function
- * boundary and converted to a major-unit decimal string at the wire — we
- * never accept floats from callers to avoid silent FP drift.
+ * The create-payment body uses the documented `Operation[]` envelope with
+ * `merchantId` (the 15-digit siteUid) and a single `Items[]` line item
+ * carrying the fiscal data. Amounts cross the function boundary in minor
+ * units (`amountMinor`); they are converted to a major-unit decimal
+ * string at the wire to keep them out of float arithmetic entirely.
  *
  * Errors fork into TochkaApiError (4xx — caller's fault, surface to user)
  * and TochkaServerError (5xx — provider issue, retryable upstream).
  */
 import { getTochkaEnv } from '@/lib/env'
-import { minorToMajorString } from '@/lib/pricing'
+import { getPackage, minorToMajorString, type PackageId } from '@/lib/pricing'
 import {
   CreatePaymentResponseSchema,
   PaymentInfoResponseSchema,
@@ -76,6 +76,17 @@ async function request<T>(
   return parsed as T
 }
 
+/**
+ * Receipt line-item name. If we ever change the wording, update the Notion
+ * page «📐 Cursor Rules → Бизнес-логика чека» to match.
+ */
+function getReceiptItemName(packageId: PackageId): string {
+  const pkg = getPackage(packageId)
+  if (!pkg) throw new Error(`Unknown packageId: ${packageId}`)
+  const tierName = pkg.tier.charAt(0).toUpperCase() + pkg.tier.slice(1)
+  return `Пакет ${tierName} — ${pkg.modules} модулей AI-экзамена немецкого`
+}
+
 export async function createPayment(
   params: CreatePaymentRequest,
 ): Promise<{ operationId: string; paymentLink: string }> {
@@ -85,32 +96,60 @@ export async function createPayment(
     throw new Error(`Invalid amountMinor: ${params.amountMinor}`)
   }
 
+  const pkg = getPackage(params.packageId)
+  if (!pkg) {
+    throw new Error(`Unknown packageId: ${params.packageId}`)
+  }
+  if (pkg.market !== 'ru') {
+    throw new Error(
+      `createPayment via Tochka called with non-RU package: ${params.packageId}. ` +
+        'EU packages must go through Prodamus (not yet implemented).',
+    )
+  }
+
+  const amountStr = minorToMajorString(params.amountMinor)
+  const itemName = getReceiptItemName(params.packageId)
+  const purpose = itemName
+
   const body = {
     Data: {
       customerCode: env.TOCHKA_CUSTOMER_CODE,
       merchantId: env.TOCHKA_MERCHANT_ID,
-      amount: minorToMajorString(params.amountMinor),
-      purpose: params.purpose.slice(0, 140),
-      paymentMode: params.paymentMode,
-      redirectUrl: params.redirectUrl,
-      ...(params.failRedirectUrl
-        ? { failRedirectUrl: params.failRedirectUrl }
-        : {}),
-      ...(params.clientEmail
-        ? { Client: { email: params.clientEmail } }
-        : {}),
+      Operation: [
+        {
+          amount: amountStr,
+          purpose: purpose.slice(0, 140),
+          paymentMode: ['card', 'sbp'],
+          redirectUrl: params.redirectUrl,
+          ...(params.failRedirectUrl
+            ? { failRedirectUrl: params.failRedirectUrl }
+            : {}),
+          Items: [
+            {
+              vatType: 'none',
+              name: itemName.slice(0, 128),
+              amount: amountStr,
+              quantity: 1,
+              paymentMethod: 'full_payment',
+              paymentObject: 'service',
+            },
+          ],
+          Client: { email: params.clientEmail },
+        },
+      ],
     },
   }
 
-  const raw = await request<unknown>('acquiring/v1.0/payments', {
+  const raw = await request<unknown>('acquiring/v1.0/payments_with_receipt', {
     method: 'POST',
     body,
   })
 
   const parsed: CreatePaymentResponse = CreatePaymentResponseSchema.parse(raw)
+  const operation = parsed.Data.Operation[0]
   return {
-    operationId: parsed.Data.operationId,
-    paymentLink: parsed.Data.paymentLink,
+    operationId: operation.operationId,
+    paymentLink: operation.paymentLink,
   }
 }
 

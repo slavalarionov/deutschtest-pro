@@ -42,6 +42,17 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  // Tochka's payments_with_receipt requires a buyer email so the receipt
+  // can be delivered through Бизнес.Ру → ОФД → ФНС. Our flow always
+  // registers users via email + password, so this guard is defensive —
+  // protects against a future signup path that lacks an email.
+  if (!user.email || user.email.trim().length === 0) {
+    return NextResponse.json(
+      { error: 'Email is required for fiscal receipt.', code: 'email_required_for_receipt' },
+      { status: 400 },
+    )
+  }
+
   const ip = getClientIp(req) ?? 'unknown'
   const limit = rateLimit(`payment:${user.id}:${ip}`, 10, 10 * 60 * 1000)
   if (!limit.allowed) {
@@ -146,16 +157,14 @@ export async function POST(req: NextRequest) {
   }
 
   const appUrl = getAppUrl()
-  const purpose = `Оплата пакета ${pkgTierLabel(pkg.tier)} (${pkg.modules} модулей) — DeutschTest.pro`
 
   try {
     const tochka = await createPayment({
+      packageId: pkg.id,
       amountMinor,
-      purpose,
-      paymentMode: ['card', 'sbp'],
       redirectUrl: `${appUrl}/${body.locale}/payment/success?orderId=${orderId}`,
       failRedirectUrl: `${appUrl}/${body.locale}/payment/cancel?orderId=${orderId}`,
-      clientEmail: user.email ?? undefined,
+      clientEmail: user.email,
     })
 
     await admin
@@ -202,11 +211,4 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     )
   }
-}
-
-function pkgTierLabel(tier: string): string {
-  if (tier === 'starter') return 'Starter'
-  if (tier === 'standard') return 'Standard'
-  if (tier === 'intensive') return 'Intensive'
-  return tier
 }

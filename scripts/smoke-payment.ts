@@ -103,11 +103,9 @@ async function main() {
     process.exit(1)
   }
 
-  const purpose = `Оплата пакета Starter (${pkg.modules} модулей) — DeutschTest.pro`
   const tochka = await createPayment({
+    packageId: pkg.id,
     amountMinor: pkg.priceMinor,
-    purpose,
-    paymentMode: ['card', 'sbp'],
     redirectUrl: `${appUrl}/ru/payment/success?orderId=${orderId}`,
     failRedirectUrl: `${appUrl}/ru/payment/cancel?orderId=${orderId}`,
     clientEmail: profile.email,

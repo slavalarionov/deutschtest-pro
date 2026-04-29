@@ -53,7 +53,7 @@ vi.mock('@/lib/env', () => ({
   getTochkaEnv: () => ({
     TOCHKA_JWT_TOKEN: 't',
     TOCHKA_CUSTOMER_CODE: '300000000',
-    TOCHKA_MERCHANT_ID: 'test-merchant-id',
+    TOCHKA_MERCHANT_ID: '123456789012345',
     TOCHKA_API_BASE_URL: 'https://enter.tochka.com/uapi/',
     TOCHKA_WEBHOOK_PUBLIC_KEY: '',
   }),
@@ -127,6 +127,17 @@ describe('POST /api/payments/create', () => {
     expect(body.code).toBe('international_payments_not_yet_available')
   })
 
+  it('rejects with 400 email_required_for_receipt when the auth user has no email', async () => {
+    mocks.getUserMock.mockResolvedValue({
+      data: { user: { id: 'u-1', email: null } },
+    })
+    const res = await callPost({ packageId: 'ru-starter', locale: 'ru' })
+    expect(res.status).toBe(400)
+    const body = await res.json()
+    expect(body.code).toBe('email_required_for_receipt')
+    expect(mocks.createPaymentMock).not.toHaveBeenCalled()
+  })
+
   it('happy path: returns paymentUrl from Tochka on /ru', async () => {
     mocks.getUserMock.mockResolvedValue({
       data: { user: { id: 'u-1', email: 'a@b.c' } },
@@ -139,14 +150,14 @@ describe('POST /api/payments/create', () => {
 
     expect(mocks.createPaymentMock).toHaveBeenCalledTimes(1)
     const call = mocks.createPaymentMock.mock.calls[0][0] as {
+      packageId: string
       amountMinor: number
-      paymentMode: string[]
       redirectUrl: string
       failRedirectUrl: string
       clientEmail: string
     }
+    expect(call.packageId).toBe('ru-starter')
     expect(call.amountMinor).toBe(40000)
-    expect(call.paymentMode).toEqual(['card', 'sbp'])
     expect(call.redirectUrl).toMatch(/\/ru\/payment\/success/)
     expect(call.failRedirectUrl).toMatch(/\/ru\/payment\/cancel/)
     expect(call.clientEmail).toBe('a@b.c')

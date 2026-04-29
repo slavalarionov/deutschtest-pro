@@ -7,8 +7,11 @@ beforeAll(() => {
   process.env.TOCHKA_JWT_TOKEN = process.env.TOCHKA_JWT_TOKEN ?? 'test-jwt-token'
   process.env.TOCHKA_CUSTOMER_CODE =
     process.env.TOCHKA_CUSTOMER_CODE ?? '300000000'
+  // 15-digit fake siteUid — matches the regex in lib/env.ts so any test
+  // that walks through getTochkaEnv() (e.g. lib/tochka/webhook key load)
+  // passes validation.
   process.env.TOCHKA_MERCHANT_ID =
-    process.env.TOCHKA_MERCHANT_ID ?? 'test-merchant-id'
+    process.env.TOCHKA_MERCHANT_ID ?? '123456789012345'
   process.env.TOCHKA_API_BASE_URL =
     process.env.TOCHKA_API_BASE_URL ?? 'https://enter.tochka.com/uapi/'
   process.env.TOCHKA_WEBHOOK_PUBLIC_KEY =

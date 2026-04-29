@@ -1,29 +1,96 @@
 import { z } from 'zod'
+import type { PackageId } from '@/lib/pricing'
 
 /* -------------------------------------------------------------------------- */
-/*  Create Payment — flat Data, no Operation[] wrapper                         */
+/*  Create Payment with Receipt — flat Operation[] wrapper                     */
 /* -------------------------------------------------------------------------- */
 
 export const TochkaPaymentModeSchema = z.enum(['card', 'sbp', 'dolyame', 'tinkoff'])
 export type TochkaPaymentMode = z.infer<typeof TochkaPaymentModeSchema>
 
+/**
+ * Receipt item for 54-FZ fiscal data forwarded to the merchant's online
+ * cash register (Бизнес.Ру in our case) → ОФД → ФНС. We always send a
+ * single line item per payment because we sell whole packages.
+ */
+export const ReceiptItemSchema = z.object({
+  vatType: z.enum(['none', 'vat0', 'vat10', 'vat20', 'vat110', 'vat120']),
+  name: z.string().min(1).max(128),
+  amount: z.string(),
+  quantity: z.number().positive(),
+  paymentMethod: z.enum([
+    'full_prepayment',
+    'partial_prepayment',
+    'advance',
+    'full_payment',
+    'partial_payment',
+    'credit',
+    'credit_payment',
+  ]),
+  paymentObject: z.enum([
+    'commodity',
+    'excise',
+    'job',
+    'service',
+    'gambling_bet',
+    'gambling_prize',
+    'lottery',
+    'lottery_prize',
+    'intellectual_activity',
+    'payment',
+    'agent_commission',
+    'composite',
+    'another',
+  ]),
+  measurementUnit: z.string().optional(),
+})
+export type ReceiptItem = z.infer<typeof ReceiptItemSchema>
+
+export const PaymentOperationSchema = z.object({
+  amount: z.string(),
+  purpose: z.string().min(1).max(140),
+  paymentMode: z.array(TochkaPaymentModeSchema).min(1),
+  redirectUrl: z.string().url(),
+  failRedirectUrl: z.string().url().optional(),
+  Items: z.array(ReceiptItemSchema).min(1),
+  Client: z.object({ email: z.string().email() }),
+})
+export type PaymentOperation = z.infer<typeof PaymentOperationSchema>
+
+/**
+ * Caller-side params for `createPayment`. The wire-body is assembled inside
+ * the client itself — including the receipt line item — from the package
+ * metadata; the route only supplies what it owns (final amount after promo
+ * discount, redirect URLs, the cardholder's email).
+ */
 export interface CreatePaymentRequest {
+  packageId: PackageId
   amountMinor: number
-  purpose: string
-  paymentMode: TochkaPaymentMode[]
   redirectUrl: string
   failRedirectUrl?: string
-  clientEmail?: string
+  clientEmail: string
 }
 
+/**
+ * Response for both `payments` and `payments_with_receipt` — Tochka returns
+ * the same shape: `Data.Operation[].operationId` + `Data.Operation[].paymentLink`.
+ */
 export const CreatePaymentResponseSchema = z.object({
   Data: z
     .object({
-      operationId: z.string().min(1),
-      paymentLink: z.string().url(),
-      status: z.string().optional(),
-      amount: z.string().optional(),
-      purpose: z.string().optional(),
+      Operation: z
+        .array(
+          z
+            .object({
+              operationId: z.string().min(1),
+              paymentLink: z.string().url(),
+              status: z.string().optional(),
+              amount: z.string().optional(),
+              purpose: z.string().optional(),
+            })
+            .passthrough(),
+        )
+        .min(1),
     })
     .passthrough(),
   Links: z.object({ self: z.string().url() }).optional(),
@@ -31,7 +98,7 @@ export const CreatePaymentResponseSchema = z.object({
 export type CreatePaymentResponse = z.infer<typeof CreatePaymentResponseSchema>
 
 /* -------------------------------------------------------------------------- */
-/*  Get Payment Info — also flat Data                                          */
+/*  Get Payment Info — flat Data, unchanged                                    */
 /* -------------------------------------------------------------------------- */
 
 export const TochkaPaymentStatusSchema = z.enum([
@@ -62,7 +129,7 @@ export const PaymentInfoResponseSchema = z
 export type PaymentInfoResponse = z.infer<typeof PaymentInfoResponseSchema>
 
 /* -------------------------------------------------------------------------- */
-/*  Webhook payload (decoded JWT body)                                         */
+/*  Webhook payload — unchanged (same shape for both endpoints)                */
 /* -------------------------------------------------------------------------- */
 
 export const WebhookPayloadSchema = z

@@ -3,14 +3,16 @@
  * called, so the build doesn't break locally when an unrelated env block
  * is unset.
  *
- * `TOCHKA_WEBHOOK_PUBLIC_KEY` is intentionally optional — until the bank
- * cabinet has webhooks configured, the integration runs on the polling
- * fallback in `/api/payments/[orderId]/status`. As soon as the key is
- * provided in env, the webhook channel activates without code changes.
- *
- * `TOCHKA_MERCHANT_ID` is NOT used: the flat Create-Payment-Operation
- * request only takes `customerCode`. If we later need merchantId for
- * something like Get Retailers, add a separate getter.
+ * Tochka acquiring env vars:
+ *   TOCHKA_JWT_TOKEN          — long-lived bearer JWT from the cabinet.
+ *   TOCHKA_CUSTOMER_CODE      — 9+ digit customer (the Business entity).
+ *   TOCHKA_MERCHANT_ID        — 15-digit siteUid of the retail point inside
+ *                               internet acquiring. Get it via
+ *                               `npx tsx scripts/check-tochka-retailers.ts`.
+ *   TOCHKA_WEBHOOK_PUBLIC_KEY — RS256 PEM or JWK. Optional: while empty,
+ *                               the integration runs on the polling
+ *                               fallback in /api/payments/[orderId]/status.
+ *   TOCHKA_API_BASE_URL       — overridable, defaults to production.
  */
 import { z } from 'zod'
 
@@ -19,14 +21,12 @@ const tochkaEnvSchema = z.object({
   TOCHKA_CUSTOMER_CODE: z
     .string()
     .regex(/^3\d{8,}$/, 'TOCHKA_CUSTOMER_CODE must be 9+ digits starting with 3'),
-  // The Tochka acquiring API actually rejects the Create Payment Operation
-  // body without a merchantId (despite the latest PDF example omitting it).
-  // Obtain via the support chat in the cabinet:
-  //   "Нужен merchantId (siteUid) для интеграции интернет-эквайринга
-  //    с внешним сервисом, customerCode: <code>"
   TOCHKA_MERCHANT_ID: z
     .string()
-    .min(1, 'Tochka merchantId required (request from Tochka support chat)'),
+    .regex(
+      /^\d{15}$/,
+      'Tochka merchantId must be 15 digits. Get it via npx tsx scripts/check-tochka-retailers.ts',
+    ),
   TOCHKA_WEBHOOK_PUBLIC_KEY: z.string().optional().default(''),
   TOCHKA_API_BASE_URL: z
     .string()
