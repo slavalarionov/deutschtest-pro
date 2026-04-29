@@ -1,25 +1,17 @@
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
-import { Inter_Tight, Inter, JetBrains_Mono } from 'next/font/google'
+// Locally-bundled variable fonts (one .woff2 per family covers every weight
+// in use). The original next/font/google call broke Timeweb's Docker build
+// with `getaddrinfo EAI_AGAIN fonts.googleapis.com` whenever the build host
+// couldn't reach the Google CDN. Bundling through @fontsource removes the
+// network dependency entirely. The three fonts register the
+// `Inter Variable`, `Inter Tight Variable` and `JetBrains Mono Variable`
+// font-family names; the matching `--font-*` CSS variables live in
+// app/globals.css so Tailwind's `var(--font-*)` lookups still resolve.
+import '@fontsource-variable/inter'
+import '@fontsource-variable/inter-tight'
+import '@fontsource-variable/jetbrains-mono'
 import './globals.css'
-
-const interTight = Inter_Tight({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-display',
-  display: 'swap',
-})
-
-const interBody = Inter({
-  subsets: ['latin', 'latin-ext', 'cyrillic'],
-  variable: '--font-body',
-  display: 'swap',
-})
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-mono',
-  display: 'swap',
-})
 
 export const metadata: Metadata = {
   title: 'DeutschTest.pro — AI-Simulator Goethe-Zertifikat',
@@ -54,10 +46,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html
-      lang="de"
-      className={`${GeistSans.variable} ${interTight.variable} ${interBody.variable} ${jetbrainsMono.variable}`}
-    >
+    <html lang="de" className={GeistSans.variable}>
       <body className="min-h-screen font-sans">{children}</body>
     </html>
   )

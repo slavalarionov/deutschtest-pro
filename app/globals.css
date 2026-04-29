@@ -11,6 +11,15 @@
 
 @layer base {
   :root {
+    /* ---------- Fonts ----------
+       The previous wiring used next/font/google and exposed these CSS
+       variables automatically. After hotfix-3.4 the fonts ship as local
+       @fontsource-variable bundles, so we redeclare the variables here
+       to keep Tailwind's `var(--font-*)` lookups working unchanged. */
+    --font-display: 'Inter Tight Variable', 'Inter Tight', system-ui, sans-serif;
+    --font-body: 'Inter Variable', 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
     /* ---------- Geometry ---------- */
     --radius: 20px;
     --radius-sm: calc(var(--radius) * 0.6);
