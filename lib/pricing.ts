@@ -129,11 +129,17 @@ export function minorToMajor(minor: number): number {
   return minor / 100
 }
 
-/** Простой формат цены для UI (без next-intl, для client-компонентов). */
+/**
+ * Простой формат цены для UI (без next-intl, для client-компонентов).
+ * Normalizes the ru-RU thousand-separator (NBSP / NARROW NO-BREAK SPACE) to
+ * a regular ASCII space so output is byte-stable across Node versions and
+ * easy to assert against in tests.
+ */
 export function formatPrice(minor: number, currency: Currency): string {
   const major = minor / 100
   if (currency === 'RUB') {
-    return `${major.toLocaleString('ru-RU')} ₽`
+    const grouped = major.toLocaleString('ru-RU').replace(/[  ]/g, ' ')
+    return `${grouped} ₽`
   }
   return Number.isInteger(major) ? `€${major}` : `€${major.toFixed(2)}`
 }

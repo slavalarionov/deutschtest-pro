@@ -16,8 +16,15 @@ beforeAll(() => {
 })
 
 afterEach(async () => {
-  const mod = await import('@/lib/tochka/webhook')
-  if (typeof mod._resetTochkaWebhookKeyCache === 'function') {
-    mod._resetTochkaWebhookKeyCache()
+  // Best-effort: when @/lib/tochka/webhook is mocked in a test file the
+  // proxy throws on missing keys, so we swallow that — only the real
+  // module exposes _resetTochkaWebhookKeyCache.
+  try {
+    const mod = (await import('@/lib/tochka/webhook')) as {
+      _resetTochkaWebhookKeyCache?: () => void
+    }
+    mod._resetTochkaWebhookKeyCache?.()
+  } catch {
+    /* mocked or not loaded — fine */
   }
 })
