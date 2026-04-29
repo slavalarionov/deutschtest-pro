@@ -7,6 +7,8 @@ beforeAll(() => {
   process.env.TOCHKA_JWT_TOKEN = process.env.TOCHKA_JWT_TOKEN ?? 'test-jwt-token'
   process.env.TOCHKA_CUSTOMER_CODE =
     process.env.TOCHKA_CUSTOMER_CODE ?? '300000000'
+  process.env.TOCHKA_MERCHANT_ID =
+    process.env.TOCHKA_MERCHANT_ID ?? 'test-merchant-id'
   process.env.TOCHKA_API_BASE_URL =
     process.env.TOCHKA_API_BASE_URL ?? 'https://enter.tochka.com/uapi/'
   process.env.TOCHKA_WEBHOOK_PUBLIC_KEY =

@@ -88,6 +88,7 @@ export async function createPayment(
   const body = {
     Data: {
       customerCode: env.TOCHKA_CUSTOMER_CODE,
+      merchantId: env.TOCHKA_MERCHANT_ID,
       amount: minorToMajorString(params.amountMinor),
       purpose: params.purpose.slice(0, 140),
       paymentMode: params.paymentMode,

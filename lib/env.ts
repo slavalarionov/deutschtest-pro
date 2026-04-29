@@ -19,6 +19,14 @@ const tochkaEnvSchema = z.object({
   TOCHKA_CUSTOMER_CODE: z
     .string()
     .regex(/^3\d{8,}$/, 'TOCHKA_CUSTOMER_CODE must be 9+ digits starting with 3'),
+  // The Tochka acquiring API actually rejects the Create Payment Operation
+  // body without a merchantId (despite the latest PDF example omitting it).
+  // Obtain via the support chat in the cabinet:
+  //   "Нужен merchantId (siteUid) для интеграции интернет-эквайринга
+  //    с внешним сервисом, customerCode: <code>"
+  TOCHKA_MERCHANT_ID: z
+    .string()
+    .min(1, 'Tochka merchantId required (request from Tochka support chat)'),
   TOCHKA_WEBHOOK_PUBLIC_KEY: z.string().optional().default(''),
   TOCHKA_API_BASE_URL: z
     .string()
@@ -35,6 +43,7 @@ export function getTochkaEnv(): TochkaEnv {
   const parsed = tochkaEnvSchema.safeParse({
     TOCHKA_JWT_TOKEN: process.env.TOCHKA_JWT_TOKEN,
     TOCHKA_CUSTOMER_CODE: process.env.TOCHKA_CUSTOMER_CODE,
+    TOCHKA_MERCHANT_ID: process.env.TOCHKA_MERCHANT_ID,
     TOCHKA_WEBHOOK_PUBLIC_KEY: process.env.TOCHKA_WEBHOOK_PUBLIC_KEY,
     TOCHKA_API_BASE_URL: process.env.TOCHKA_API_BASE_URL,
   })

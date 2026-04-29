@@ -53,6 +53,7 @@ vi.mock('@/lib/env', () => ({
   getTochkaEnv: () => ({
     TOCHKA_JWT_TOKEN: 't',
     TOCHKA_CUSTOMER_CODE: '300000000',
+    TOCHKA_MERCHANT_ID: 'test-merchant-id',
     TOCHKA_API_BASE_URL: 'https://enter.tochka.com/uapi/',
     TOCHKA_WEBHOOK_PUBLIC_KEY: '',
   }),
