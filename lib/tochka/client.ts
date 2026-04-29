@@ -36,6 +36,33 @@ function buildUrl(path: string): string {
   return `${base}${trimmed}`
 }
 
+/**
+ * Recursively deep-clones `value` and replaces values whose key (case-
+ * insensitive) matches a sensitive name with `'***masked***'`. Never
+ * mutates the input — produces a fresh structure safe to log.
+ *
+ * Exported for unit tests; keep the sensitive-key list in sync with
+ * the security review checklist.
+ */
+const SENSITIVE_KEYS = new Set(['customercode', 'email', 'jwt', 'authorization'])
+
+export function maskSensitive(value: unknown): unknown {
+  if (value === null || value === undefined) return value
+  if (Array.isArray(value)) return value.map((v) => maskSensitive(v))
+  if (typeof value === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      if (SENSITIVE_KEYS.has(k.toLowerCase())) {
+        out[k] = '***masked***'
+      } else {
+        out[k] = maskSensitive(v)
+      }
+    }
+    return out
+  }
+  return value
+}
+
 async function request<T>(
   path: string,
   init: { method: 'GET' | 'POST'; body?: unknown },
@@ -47,6 +74,22 @@ async function request<T>(
   }
   if (init.body !== undefined) {
     headers['Content-Type'] = 'application/json'
+  }
+
+  // Diagnostic outbound log — flip TOCHKA_DEBUG_REQUESTS=1 in env to enable.
+  // Bodies are masked through maskSensitive so customerCode / email / JWT /
+  // Authorization never end up in stdout.
+  if (
+    process.env.TOCHKA_DEBUG_REQUESTS === '1' &&
+    path.startsWith('acquiring/')
+  ) {
+    console.log('[tochka] →', init.method, path)
+    if (init.body !== undefined) {
+      console.log(
+        '[tochka] body:',
+        JSON.stringify(maskSensitive(init.body), null, 2),
+      )
+    }
   }
 
   const res = await fetch(buildUrl(path), {
@@ -67,6 +110,20 @@ async function request<T>(
     throw new TochkaServerError(res.status, parsed)
   }
   if (!res.ok) {
+    // Always log on 4xx — diagnosing structural rejections is impossible
+    // without seeing what we actually sent. Both payloads are masked.
+    console.error('[tochka] ✗', res.status, path)
+    console.error('[tochka] response:', JSON.stringify(parsed))
+    if (init.body !== undefined) {
+      try {
+        console.error(
+          '[tochka] request body:',
+          JSON.stringify(maskSensitive(init.body), null, 2),
+        )
+      } catch {
+        /* ignore — best-effort */
+      }
+    }
     const message =
       (parsed as { Errors?: Array<{ message?: string }> })?.Errors?.[0]
         ?.message ?? `Tochka API ${res.status}`

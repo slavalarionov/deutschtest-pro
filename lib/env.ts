@@ -32,6 +32,11 @@ const tochkaEnvSchema = z.object({
     .string()
     .url()
     .default('https://enter.tochka.com/uapi/'),
+  // Set to "1" temporarily on Timeweb to log outbound Tochka request
+  // bodies (masked) for structural diagnostics. The flag is read directly
+  // from process.env at the call-site in lib/tochka/client.ts; the entry
+  // here is documentation + lint-style validation only.
+  TOCHKA_DEBUG_REQUESTS: z.string().optional(),
 })
 
 export type TochkaEnv = z.infer<typeof tochkaEnvSchema>
@@ -46,6 +51,7 @@ export function getTochkaEnv(): TochkaEnv {
     TOCHKA_MERCHANT_ID: process.env.TOCHKA_MERCHANT_ID,
     TOCHKA_WEBHOOK_PUBLIC_KEY: process.env.TOCHKA_WEBHOOK_PUBLIC_KEY,
     TOCHKA_API_BASE_URL: process.env.TOCHKA_API_BASE_URL,
+    TOCHKA_DEBUG_REQUESTS: process.env.TOCHKA_DEBUG_REQUESTS,
   })
   if (!parsed.success) {
     const issues = parsed.error.issues
