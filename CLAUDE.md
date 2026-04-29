@@ -204,14 +204,33 @@ RLS включён везде. Service role обходит RLS. На `profiles` 
 
 ## Бизнес-логика
 
-- **Единица продажи:** пачка модулей (10/20/40).
-- **Пакеты:** Starter (10 модулей), Standard (20 модулей, −10%), Intensive (40 модулей, −15%).
-- **Цены:** RU → 400 / 720 / 1360 ₽; DE/EN/TR → 4 / 7.20 / 13.60 €.
-- **Минимальная покупка:** 10 модулей (один пакет Starter).
+Цены и пакеты различаются по рынкам — на РФ комиссия Точки ~3 %, на EU Prodamus ~10 %, поэтому RU-пакеты заметно дешевле и меньше по объёму. Все пакеты определены в [lib/pricing.ts](lib/pricing.ts) — единственный источник правды.
+
+### Российский рынок (Точка-Банк, RUB)
+
+| package_id      | Название  | RUB    | Модулей | Скидка |
+|-----------------|-----------|--------|---------|--------|
+| `ru-starter`    | Starter   | 400₽   | 10      | —      |
+| `ru-standard`   | Standard  | 720₽   | 20      | 10 %   |
+| `ru-intensive`  | Intensive | 1360₽  | 40      | 15 %   |
+
+### Европейский рынок (Prodamus, EUR — НЕ ПОДКЛЮЧЁН)
+
+| package_id      | Название  | EUR    | Модулей | Скидка |
+|-----------------|-----------|--------|---------|--------|
+| `eu-starter`    | Starter   | €10    | 20      | —      |
+| `eu-standard`   | Standard  | €15    | 33      | 10 %   |
+| `eu-intensive`  | Intensive | €20    | 50      | 20 %   |
+
+EU-пакеты определены в `lib/pricing.ts`, но кнопки «Купить» на `/de`, `/en`, `/tr` остаются disabled до подключения Prodamus.
+
 - **Гибкость:** купленные модули — универсальные кредиты, тратятся на любой из 4 типов модулей в любых пропорциях.
 - **Бесплатно при регистрации:** 3 модуля любых на выбор.
-- **Оплата:** Robokassa (единственный провайдер). Prodamus отменён.
-- **Поля БД:** `profiles.modules_balance`, `user_attempts.is_free_test`, `user_attempts.payment_status`.
+- **Оплата:** **Точка-Банк** для `/ru` (`POST /acquiring/v1.0/payments`, плоский `Data` без `Operation[]` / `merchantId` / `paymentLinkId`); Prodamus для остальных рынков — отдельный спринт.
+- **Чек 54-ФЗ:** Точка пробивает чек сама и шлёт его клиенту на email со страницы оплаты. Никаких АТОЛ/Бизнес.Ру на нашей стороне.
+- **Webhook + поллинг:** основной канал — `POST /api/webhooks/tochka` (RS256-подпись через `jose`, идемпотентное начисление через RPC `approve_payment_atomic`). Резервный — поллинг Точки методом `getPaymentInfo` в `/api/payments/[orderId]/status` после 10 секунд `pending`. Это позволяет интеграции работать ещё до того, как webhook'и подключены в кабинете Точки.
+- **Поля БД:** `profiles.modules_balance`, таблица `payments` (миграция 032), расширенная `promo_codes` (Flow A: `flow`/`discount_percent`/`bonus_modules`/`market`), `modules_ledger.related_payment_id`.
+- **ENV:** `TOCHKA_JWT_TOKEN`, `TOCHKA_CUSTOMER_CODE`, `TOCHKA_WEBHOOK_PUBLIC_KEY` (опционально, PEM или JWK), `TOCHKA_API_BASE_URL` (default `https://enter.tochka.com/uapi/`). `TOCHKA_MERCHANT_ID` НЕ нужен для метода Create Payment Operation в плоской структуре.
 
 ---
 
