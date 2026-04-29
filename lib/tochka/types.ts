@@ -88,15 +88,19 @@ export type CreatePaymentRequestBody = z.infer<typeof CreatePaymentRequestSchema
 /**
  * Response for both `payments` and `payments_with_receipt` — flat `Data`
  * with `operationId` and `paymentLink`.
+ *
+ * Tochka returns `Data.amount` as a *number* in this endpoint (e.g. `400`
+ * — not `"400.00"`), even though the request takes a string. We don't read
+ * the value back here (the canonical amount is already in our DB), so the
+ * schema only nails down `operationId` and `paymentLink`. `.passthrough()`
+ * keeps any extra fields available for diagnostic logging without
+ * triggering type validation against them.
  */
 export const CreatePaymentResponseSchema = z.object({
   Data: z
     .object({
       operationId: z.string().min(1),
       paymentLink: z.string().url(),
-      status: z.string().optional(),
-      amount: z.string().optional(),
-      purpose: z.string().optional(),
     })
     .passthrough(),
   Links: z.object({ self: z.string().url() }).optional(),
@@ -122,7 +126,11 @@ export const PaymentInfoResponseSchema = z
       .object({
         operationId: z.string(),
         status: TochkaPaymentStatusSchema,
-        amount: z.string(),
+        // Tochka can ship `amount` as either string ("400.00") or number
+        // (400) depending on the endpoint version — accept both, optional
+        // because nothing downstream relies on it (status drives the
+        // polling fallback in /api/payments/[orderId]/status).
+        amount: z.union([z.string(), z.number()]).optional(),
         purpose: z.string().optional(),
         paymentMode: z.array(z.string()).optional(),
         paymentType: z.string().optional(),
@@ -143,7 +151,8 @@ export const WebhookPayloadSchema = z
     webhookType: z.string().optional(),
     customerCode: z.string().optional(),
     operationId: z.string().min(1),
-    amount: z.string().optional(),
+    // Same string-or-number reality as in PaymentInfoResponseSchema.
+    amount: z.union([z.string(), z.number()]).optional(),
     status: z.string().min(1),
     paymentLinkId: z.string().optional(),
     paymentType: z.string().optional(),

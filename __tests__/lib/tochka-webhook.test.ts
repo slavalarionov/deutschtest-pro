@@ -73,6 +73,19 @@ describe('verifyTochkaWebhook (PEM)', () => {
     await expect(verifyTochkaWebhook('not-a-jwt')).rejects.toThrow()
   })
 
+  it('accepts a payload where amount is a number (Tochka may serialize it either way)', async () => {
+    const jwt = await sign(goodPriv, {
+      webhookType: 'acquiringInternetPayment',
+      operationId: 'op-num-amount',
+      status: 'APPROVED',
+      paymentType: 'sbp',
+      amount: 400,
+    })
+    const payload = await verifyTochkaWebhook(jwt)
+    expect(payload.operationId).toBe('op-num-amount')
+    expect(payload.amount).toBe(400)
+  })
+
   it('rejects a payload missing required fields', async () => {
     const jwt = await sign(goodPriv, { foo: 'bar' })
     await expect(verifyTochkaWebhook(jwt)).rejects.toThrow()

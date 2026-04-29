@@ -30,10 +30,15 @@ beforeEach(() => {
       method: init?.method ?? 'GET',
       body: init?.body ? JSON.parse(String(init.body)) : null,
     }
+    // Mirrors a real Tochka response: `amount` is a *number* (400), not a
+    // string ("400.00"). We don't consume it, but the Zod schema must not
+    // choke on the type difference — see hotfix-3.3.
     const response = JSON.stringify({
       Data: {
         operationId: 'op-stub-1',
         paymentLink: 'https://enter.tochka.com/payment/op-stub-1',
+        amount: 400,
+        status: 'CREATED',
       },
     })
     return new Response(response, {
@@ -140,5 +145,21 @@ describe('createPayment wire body', () => {
         clientEmail: 'buyer@example.com',
       }),
     ).rejects.toThrow(/non-RU package/)
+  })
+
+  it('parses a response cleanly when Tochka returns amount as a number', async () => {
+    // The default fetchMock above already returns `amount: 400` (number).
+    // If the Zod schema regresses and re-requires `amount: string`, this
+    // call will throw a ZodError instead of returning the operationId.
+    const result = await createPayment({
+      packageId: 'ru-starter',
+      amountMinor: 40000,
+      redirectUrl: 'https://deutschtest.pro/ru/payment/success?orderId=abc',
+      clientEmail: 'buyer@example.com',
+    })
+    expect(result.operationId).toBe('op-stub-1')
+    expect(result.paymentLink).toBe(
+      'https://enter.tochka.com/payment/op-stub-1',
+    )
   })
 })
