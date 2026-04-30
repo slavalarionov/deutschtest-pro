@@ -54,6 +54,9 @@ export default async function PaymentSuccessPage({
   const pricingHref =
     params.locale === 'de' ? '/pricing' : `/${params.locale}/pricing`
 
+  // Eyebrow is the only string the server renders; everything else is
+  // resolved inside <PaymentStatusClient/> via useTranslations to keep
+  // the props strictly serializable.
   return (
     <main className="min-h-screen bg-page">
       <section className="mx-auto max-w-xl px-4 py-24">
@@ -63,16 +66,6 @@ export default async function PaymentSuccessPage({
             orderId={orderId}
             initialStatus={row.status}
             initialModulesCredited={initialModules}
-            labels={{
-              pending: t('pending'),
-              approved: (modules: number) =>
-                t('approved', { count: modules }),
-              failed: t('failed'),
-              expired: t('expired'),
-              timeout: t('timeoutFallback'),
-              dashboardCta: t('toDashboard'),
-              pricingCta: t('tryAgain'),
-            }}
             dashboardHref={dashboardHref}
             pricingHref={pricingHref}
           />

@@ -166,6 +166,7 @@ RLS включён везде. Service role обходит RLS. На `profiles` 
 - Server Components по умолчанию.
 - `'use client'` только когда реально нужны хуки или браузерные API.
 - Динамические роуты: `app/(group)/segment/[param]/page.tsx`.
+- **Серверный → клиентский boundary: только сериализуемые props.** `'use client'`-компонент должен получать i18n через `useTranslations` сам. Server-component **никогда** не передаёт в props функции, форматтеры, callback'и или объекты с методами — RSC-сериализатор падает на проде с 500 (`npm run build` это не ловит, т.к. ошибка только в SSR в рантайме). Прецеденты: hotfix-1 `CheckoutButton` (коммит `ae93d2c`), hotfix-3.5 `PaymentStatusClient`. Перед коммитом изменений в любом server-компоненте, который рендерит client-component — **обязательно** `PORT=3050 npm run start` + `curl` ключевых страниц.
 
 ### Именование
 - Файлы: `kebab-case` (`lesen-module.tsx`, `session-store.ts`)

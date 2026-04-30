@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 type Phase = 'pending' | 'approved' | 'failed' | 'expired' | 'timeout' | 'unknown'
 
@@ -15,27 +16,27 @@ interface StatusResponse {
 const POLL_INTERVAL_MS = 2_000
 const POLL_TIMEOUT_MS = 30_000
 
+/**
+ * Props are deliberately kept to plain serializable types only — orderId
+ * (string), the two initial-state primitives, and the two precomputed
+ * hrefs. All visible strings come from `useTranslations` inside this
+ * client bundle. The previous shape passed `labels.approved` as a function
+ * forwarded from the server, which RSC cannot serialize and which broke
+ * SSR with a 500 in production (same architectural mistake as hotfix-1
+ * for CheckoutButton, commit ae93d2c).
+ */
 export interface PaymentStatusClientProps {
   orderId: string
   initialStatus: StatusResponse['status']
   initialModulesCredited: number | null
-  labels: {
-    pending: string
-    approved: (modules: number) => string
-    failed: string
-    expired: string
-    timeout: string
-    dashboardCta: string
-    pricingCta: string
-  }
   dashboardHref: string
   pricingHref: string
 }
 
 export function PaymentStatusClient(props: PaymentStatusClientProps) {
-  const [phase, setPhase] = useState<Phase>(
-    mapInitial(props.initialStatus),
-  )
+  const t = useTranslations('payment.success')
+
+  const [phase, setPhase] = useState<Phase>(mapInitial(props.initialStatus))
   const [modulesCredited, setModulesCredited] = useState<number | null>(
     props.initialModulesCredited,
   )
@@ -91,8 +92,8 @@ export function PaymentStatusClient(props: PaymentStatusClientProps) {
     const credits = modulesCredited ?? 0
     return (
       <CardOk
-        title={props.labels.approved(credits)}
-        cta={props.labels.dashboardCta}
+        title={t('approved', { count: credits })}
+        cta={t('toDashboard')}
         href={props.dashboardHref}
       />
     )
@@ -100,8 +101,8 @@ export function PaymentStatusClient(props: PaymentStatusClientProps) {
   if (phase === 'failed') {
     return (
       <CardErr
-        title={props.labels.failed}
-        cta={props.labels.pricingCta}
+        title={t('failed')}
+        cta={t('tryAgain')}
         href={props.pricingHref}
       />
     )
@@ -109,8 +110,8 @@ export function PaymentStatusClient(props: PaymentStatusClientProps) {
   if (phase === 'expired') {
     return (
       <CardErr
-        title={props.labels.expired}
-        cta={props.labels.pricingCta}
+        title={t('expired')}
+        cta={t('tryAgain')}
         href={props.pricingHref}
       />
     )
@@ -118,13 +119,13 @@ export function PaymentStatusClient(props: PaymentStatusClientProps) {
   if (phase === 'timeout' || phase === 'unknown') {
     return (
       <CardWait
-        title={props.labels.timeout}
-        cta={props.labels.dashboardCta}
+        title={t('timeoutFallback')}
+        cta={t('toDashboard')}
         href={props.dashboardHref}
       />
     )
   }
-  return <CardWait title={props.labels.pending} />
+  return <CardWait title={t('pending')} />
 }
 
 function mapInitial(s: StatusResponse['status']): Phase {
