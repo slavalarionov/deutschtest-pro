@@ -85,6 +85,22 @@ describe('POST /api/webhooks/tochka', () => {
     expect(mocks.rpcMock).not.toHaveBeenCalled()
   })
 
+  it('returns 200 and skips RPC for non-acquiringInternetPayment webhook types', async () => {
+    // Tochka could one day route incomingPayment / outgoingPayment /
+    // incomingSbpPayment / incomingSbpB2BPayment to the same URL — early
+    // return so we don't hit approve_payment_atomic with operationIds
+    // that don't correspond to our payments table.
+    mocks.verifyMock.mockResolvedValue({
+      operationId: 'op-non-acq',
+      status: 'APPROVED',
+      paymentType: 'card',
+      webhookType: 'incomingPayment',
+    })
+    const res = await callPost('jwt-stub')
+    expect(res.status).toBe(200)
+    expect(mocks.rpcMock).not.toHaveBeenCalled()
+  })
+
   it('credits modules via RPC on APPROVED', async () => {
     mocks.verifyMock.mockResolvedValue({
       operationId: 'op-2',

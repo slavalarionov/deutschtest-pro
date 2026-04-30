@@ -37,7 +37,24 @@ export async function POST(req: NextRequest) {
     status: payload.status,
     paymentLinkId: payload.paymentLinkId,
     paymentType: payload.paymentType,
+    webhookType: payload.webhookType,
   })
+
+  // Tochka exposes five webhook types (acquiringInternetPayment,
+  // incomingPayment, outgoingPayment, incomingSbpPayment,
+  // incomingSbpB2BPayment). We currently subscribe only to the first.
+  // If the URL is ever wired to other types, ignore them outright —
+  // their operationIds wouldn't map to our `payments` rows anyway, and
+  // the early-return keeps the audit log clean.
+  if (
+    payload.webhookType &&
+    payload.webhookType !== 'acquiringInternetPayment'
+  ) {
+    console.log('[tochka-webhook] ignoring non-acquiring webhook:', {
+      webhookType: payload.webhookType,
+    })
+    return new Response('OK', { status: 200 })
+  }
 
   if (payload.status !== 'APPROVED') {
     console.warn('[tochka-webhook] non-approved status, ignoring', {
