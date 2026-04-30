@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { createServerClient } from '@/lib/supabase-server'
+import { getPraedikat } from '@/lib/grading/praedikat'
 
 export const runtime = 'nodejs'
 export const alt = 'DeutschTest.pro · Goethe-Zertifikat result'
@@ -11,22 +12,6 @@ const MODULE_LABELS_DE: Record<string, string> = {
   horen: 'Hören.',
   schreiben: 'Schreiben.',
   sprechen: 'Sprechen.',
-}
-
-// Same DE strings the score card shows. Frozen here so the OG never depends
-// on next-intl message loading inside the Edge/Node runtime.
-const SUMMARY_DE: Record<'high' | 'midHigh' | 'midLow' | 'low', { title: string; subtitle: string }> = {
-  high:    { title: 'Hervorragend.',    subtitle: 'Sicher bestanden.' },
-  midHigh: { title: 'Gut.',             subtitle: 'Bestanden.' },
-  midLow:  { title: 'Knapp.',           subtitle: 'Nicht bestanden.' },
-  low:     { title: 'Mehr Übung nötig.', subtitle: 'Nicht bestanden.' },
-}
-
-function getScoreTone(score: number) {
-  if (score >= 80) return { tone: 'high'    as const, color: '#3aa56b' }  // success
-  if (score >= 60) return { tone: 'midHigh' as const, color: '#5b6dde' }  // accent (cobalt)
-  if (score >= 40) return { tone: 'midLow'  as const, color: '#c89432' }  // warn
-  return                  { tone: 'low'     as const, color: '#cf4438' }  // error
 }
 
 const INK = '#1a1d2e'
@@ -66,8 +51,8 @@ export default async function OgImage({ params }: { params: { public_id: string 
   }
 
   const moduleLabel = MODULE_LABELS_DE[moduleKey] ?? 'Modul.'
-  const accent = score !== undefined ? getScoreTone(score) : { tone: 'midHigh' as const, color: '#5b6dde' }
-  const summary = SUMMARY_DE[accent.tone]
+  const praedikat = score !== undefined ? getPraedikat(score) : null
+  const accentColor = praedikat?.ogHex ?? '#7c7f8c' // muted grey when score missing
   const eyebrowText = `ZERTIFIKAT · GOETHE ${level.toUpperCase()}`
 
   return new ImageResponse(
@@ -82,11 +67,11 @@ export default async function OgImage({ params }: { params: { public_id: string 
           fontFamily: 'Inter',
         }}
       >
-        {/* Color accent stripe — cobalt/green/warn/error per score */}
+        {/* Color accent stripe — Goethe-Prädikat hue per score */}
         <div
           style={{
             width: 8,
-            background: accent.color,
+            background: accentColor,
             borderRadius: 4,
             marginRight: 56,
           }}
@@ -146,7 +131,7 @@ export default async function OgImage({ params }: { params: { public_id: string 
                 </div>
               </div>
 
-              {score !== undefined && (
+              {praedikat && (
                 <div
                   style={{
                     display: 'flex',
@@ -157,17 +142,14 @@ export default async function OgImage({ params }: { params: { public_id: string 
                 >
                   <div
                     style={{
-                      fontSize: 48,
+                      fontSize: 56,
                       fontWeight: 700,
-                      color: INK,
-                      letterSpacing: -1.5,
+                      color: praedikat.ogHex,
+                      letterSpacing: -2,
                       lineHeight: 1,
                     }}
                   >
-                    {summary.title}
-                  </div>
-                  <div style={{ fontSize: 28, color: MUTED, lineHeight: 1.2 }}>
-                    {summary.subtitle}
+                    {praedikat.labelDe}
                   </div>
                 </div>
               )}

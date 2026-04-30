@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { requireAdminPage } from '@/lib/admin/require-admin'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { StatusChip } from '@/components/admin/StatusChip'
+import { getPraedikat } from '@/lib/grading/praedikat'
 import { UserActions } from './user-actions'
 
 export const dynamic = 'force-dynamic'
@@ -60,12 +61,19 @@ function fmt(iso: string | null): string {
   })
 }
 
-function extractBand(scores: unknown): string | null {
+/** Average of the per-module scores stored on user_attempts.scores. Single-module
+ *  attempts (the common case) collapse to that one number. Returns null when no
+ *  numeric module score exists yet — typical for in-progress attempts. */
+function avgModuleScore(scores: unknown): number | null {
   if (!scores || typeof scores !== 'object') return null
   const s = scores as Record<string, unknown>
-  if (typeof s.band === 'string') return s.band
-  if (typeof s.total === 'number') return String(s.total)
-  return null
+  const vals: number[] = []
+  for (const key of ['lesen', 'horen', 'schreiben', 'sprechen']) {
+    const v = s[key]
+    if (typeof v === 'number' && Number.isFinite(v)) vals.push(v)
+  }
+  if (vals.length === 0) return null
+  return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length)
 }
 
 export default async function AdminUserDetailPage({
@@ -222,7 +230,7 @@ export default async function AdminUserDetailPage({
               <th className="px-5 py-3 text-left font-normal">Level</th>
               <th className="px-5 py-3 text-left font-normal">Статус</th>
               <th className="px-5 py-3 text-left font-normal">Оплата</th>
-              <th className="px-5 py-3 text-left font-normal">Band / Score</th>
+              <th className="px-5 py-3 text-left font-normal">Балл · Prädikat</th>
               <th className="px-5 py-3 text-left font-normal">Session ID</th>
             </tr>
           </thead>
@@ -240,7 +248,23 @@ export default async function AdminUserDetailPage({
                   {a.is_free_test ? 'free' : a.payment_status}
                 </td>
                 <td className="px-5 py-3 font-mono text-sm tabular-nums text-ink">
-                  {extractBand(a.scores) ?? '—'}
+                  {(() => {
+                    const avg = avgModuleScore(a.scores)
+                    if (avg === null) return <span className="text-muted">—</span>
+                    const p = getPraedikat(avg)
+                    return (
+                      <span className="inline-flex items-center gap-2">
+                        <span
+                          aria-hidden
+                          className="inline-block h-2 w-2 rounded-full"
+                          style={{ background: p.cssColor }}
+                        />
+                        <span>{avg}</span>
+                        <span className="text-ink-soft">·</span>
+                        <span className="text-ink-soft">{p.labelDe}</span>
+                      </span>
+                    )
+                  })()}
                 </td>
                 <td className="px-5 py-3 font-mono text-[11px] text-muted">
                   {a.session_id.slice(0, 8)}…

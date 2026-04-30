@@ -3,7 +3,10 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { createServerClient } from '@/lib/supabase-server'
+import { ScorePraedikat } from '@/components/results/ScorePraedikat'
+import { CriteriaWithLetters } from '@/components/results/CriteriaWithLetters'
 import { formatEditorialDate } from '@/lib/format/date'
+import { getPraedikat } from '@/lib/grading/praedikat'
 import { userInputSchema } from '@/types/exam'
 import type { Locale } from '@/i18n/request'
 
@@ -64,15 +67,6 @@ async function loadPublicResult(publicId: string): Promise<PublicResultData | nu
   }
 }
 
-type ScoreTone = 'high' | 'midHigh' | 'midLow' | 'low'
-
-function getScoreTone(score: number): { tone: ScoreTone; color: string; passed: boolean } {
-  if (score >= 80) return { tone: 'high',    color: 'var(--success)', passed: true  }
-  if (score >= 60) return { tone: 'midHigh', color: 'var(--accent)',  passed: true  }
-  if (score >= 40) return { tone: 'midLow',  color: 'var(--warn)',    passed: false }
-  return                  { tone: 'low',     color: 'var(--error)',   passed: false }
-}
-
 export async function generateMetadata(
   { params }: { params: { public_id: string } },
 ): Promise<Metadata> {
@@ -114,14 +108,14 @@ export default async function PublicResultPage(
 
   const { locale, module: moduleKey, level, score, scores, aiFeedback, userInput, submittedAt } = data
 
-  const [t, tModules, tDetail, tScoreCard, tUserInput, tLesenHoren, tSchreiben, tSprechen, tPublic] = await Promise.all([
-    getTranslations({ locale, namespace: 'results' }),
+  const [tModules, tDetail, tScoreCard, tPraedikatLabel, tCriteriaBlock, tUserInput, tLesenHoren, tSprechen, tPublic] = await Promise.all([
     getTranslations({ locale, namespace: 'modules' }),
     getTranslations({ locale, namespace: 'dashboard.testDetail' }),
     getTranslations({ locale, namespace: 'results.scoreCard' }),
+    getTranslations({ locale, namespace: 'results.praedikat.label' }),
+    getTranslations({ locale, namespace: 'results.schreiben.criteriaBlock' }),
     getTranslations({ locale, namespace: 'results.userInput' }),
     getTranslations({ locale, namespace: 'results.lesenHoren' }),
-    getTranslations({ locale, namespace: 'results.schreiben' }),
     getTranslations({ locale, namespace: 'results.sprechen' }),
     getTranslations({ locale, namespace: 'results.public' }),
   ])
@@ -141,7 +135,7 @@ export default async function PublicResultPage(
       })
     : `${moduleLabel.toLocaleUpperCase(locale)} · ${level.toUpperCase()}`
 
-  const tone = score !== undefined ? getScoreTone(score) : null
+  const praedikat = score !== undefined ? getPraedikat(score) : null
   const fb = aiFeedback?.[moduleKey] as Record<string, unknown> | undefined
   const homeHref = locale === 'de' ? '/' : `/${locale}`
 
@@ -170,7 +164,7 @@ export default async function PublicResultPage(
         <div
           data-testid="result-score-hero"
           className="rounded-rad border border-l-2 border-line bg-card p-6 sm:border-l-4 sm:p-10"
-          style={tone ? { borderLeftColor: tone.color } : undefined}
+          style={praedikat ? { borderLeftColor: praedikat.cssColor } : undefined}
         >
           <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
             {eyebrow}
@@ -189,14 +183,15 @@ export default async function PublicResultPage(
                   {tScoreCard('outOf')}
                 </div>
               </div>
-              {tone && (
-                <div data-passed={tone.passed ? 'true' : 'false'} className="space-y-1">
-                  <div className="font-display text-3xl leading-tight tracking-[-0.02em] text-ink sm:text-4xl">
-                    {tScoreCard(`summary.${tone.tone}.title`)}
-                  </div>
-                  <div className="text-base text-muted">
-                    {tScoreCard(`summary.${tone.tone}.subtitle`)}
-                  </div>
+              {praedikat && (
+                <div
+                  data-passed={praedikat.passed ? 'true' : 'false'}
+                  className="sm:pb-2"
+                >
+                  <ScorePraedikat
+                    praedikat={praedikat}
+                    translation={tPraedikatLabel(praedikat.level)}
+                  />
                 </div>
               )}
             </div>
@@ -249,7 +244,48 @@ export default async function PublicResultPage(
         {/* ====== Module-specific feedback ====== */}
         {fb && moduleKey === 'lesen' && <LesenHorenDetails feedback={fb} t={tLesenHoren} tDetail={tDetail} />}
         {fb && moduleKey === 'horen' && <LesenHorenDetails feedback={fb} t={tLesenHoren} tDetail={tDetail} />}
-        {fb && moduleKey === 'schreiben' && <SchreibenDetails feedback={fb} t={tSchreiben} tDetail={tDetail} />}
+        {fb && moduleKey === 'schreiben' && (() => {
+          const criteria = (fb as { criteria?: Record<string, number> }).criteria
+          const comment = (fb as { comment?: string }).comment
+          if (!criteria) return null
+          return (
+            <div className="space-y-6">
+              <CriteriaWithLetters
+                scores={{
+                  taskFulfillment: criteria.taskFulfillment ?? 0,
+                  coherence:       criteria.coherence ?? 0,
+                  vocabulary:      criteria.vocabulary ?? 0,
+                  grammar:         criteria.grammar ?? 0,
+                }}
+                title={tCriteriaBlock('title')}
+                translatedTitle={tCriteriaBlock('translatedTitle')}
+                helper={tCriteriaBlock('helper')}
+                labels={{
+                  de: {
+                    taskFulfillment: tCriteriaBlock('criteria.taskFulfillment'),
+                    coherence:       tCriteriaBlock('criteria.coherence'),
+                    vocabulary:      tCriteriaBlock('criteria.vocabulary'),
+                    grammar:         tCriteriaBlock('criteria.grammar'),
+                  },
+                  translated: {
+                    taskFulfillment: tCriteriaBlock('translatedCriteria.taskFulfillment'),
+                    coherence:       tCriteriaBlock('translatedCriteria.coherence'),
+                    vocabulary:      tCriteriaBlock('translatedCriteria.vocabulary'),
+                    grammar:         tCriteriaBlock('translatedCriteria.grammar'),
+                  },
+                }}
+              />
+              {comment && (
+                <div className="rounded-rad border border-line bg-card p-8">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                    {tDetail('aiFeedbackEyebrow')}
+                  </div>
+                  <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-ink">{comment}</p>
+                </div>
+              )}
+            </div>
+          )
+        })()}
         {fb && moduleKey === 'sprechen' && <SprechenDetails feedback={fb} t={tSprechen} tDetail={tDetail} />}
 
         {/* ====== Footer CTA ====== */}
@@ -375,62 +411,6 @@ function LesenHorenDetails({
           </tbody>
         </table>
       </div>
-    </div>
-  )
-}
-
-function SchreibenDetails({
-  feedback,
-  t,
-  tDetail,
-}: {
-  feedback: Record<string, unknown>
-  t: T
-  tDetail: T
-}) {
-  const criteria = feedback.criteria as
-    | { taskFulfillment: number; coherence: number; vocabulary: number; grammar: number }
-    | undefined
-  const comment = feedback.comment as string | undefined
-  if (!criteria) return null
-
-  const rows: Array<[string, number, number]> = [
-    [t('taskFulfillment'), criteria.taskFulfillment, 25],
-    [t('coherence'), criteria.coherence, 25],
-    [t('vocabulary'), criteria.vocabulary, 25],
-    [t('grammar'), criteria.grammar, 25],
-  ]
-
-  return (
-    <div className="space-y-6">
-      <div className="rounded-rad border border-line bg-card p-8">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          {tDetail('criteriaEyebrow')}
-        </div>
-        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {rows.map(([label, score, max]) => (
-            <div key={label}>
-              <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-                {label}
-              </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="font-display text-4xl text-ink">{score}</span>
-                <span className="text-sm text-ink-soft">/ {max}</span>
-              </div>
-              <ProgressBar value={score} max={max} />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {comment && (
-        <div className="rounded-rad border border-line bg-card p-8">
-          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-            {tDetail('aiFeedbackEyebrow')}
-          </div>
-          <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-ink">{comment}</p>
-        </div>
-      )}
     </div>
   )
 }

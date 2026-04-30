@@ -929,25 +929,7 @@
     },
     "scoreCard": {
       "eyebrow": "{module} · {level} · {date} · {time}",
-      "outOf": "/ 100",
-      "summary": {
-        "high": {
-          "title": "Отлично!",
-          "subtitle": "Уверенно сдан."
-        },
-        "midHigh": {
-          "title": "Хорошо.",
-          "subtitle": "Сдан."
-        },
-        "midLow": {
-          "title": "Близко.",
-          "subtitle": "Не сдан."
-        },
-        "low": {
-          "title": "Нужно ещё практики.",
-          "subtitle": "Не сдан."
-        }
-      }
+      "outOf": "/ 100"
     },
     "userInput": {
       "schreibenLabel": "ВАШ ОТВЕТ",
@@ -978,7 +960,24 @@
       "taskFulfillment": "Выполнение задания",
       "coherence": "Связность",
       "vocabulary": "Словарный запас",
-      "grammar": "Грамматика"
+      "grammar": "Грамматика",
+      "criteriaBlock": {
+        "title": "Bewertung nach Goethe-Kriterien",
+        "translatedTitle": "Оценка по критериям Goethe",
+        "helper": "Сводка по тем же четырём критериям, что использует экзаменатор Goethe. Буквы A–E соответствуют официальным уровням достижения по каждому критерию.",
+        "criteria": {
+          "taskFulfillment": "Aufgabenerfüllung",
+          "coherence": "Kohärenz",
+          "vocabulary": "Wortschatz",
+          "grammar": "Grammatik"
+        },
+        "translatedCriteria": {
+          "taskFulfillment": "выполнение задания",
+          "coherence": "связность",
+          "vocabulary": "словарный запас",
+          "grammar": "грамматика"
+        }
+      }
     },
     "sprechen": {
       "title": "Sprechen — оценка",
@@ -1034,6 +1033,15 @@
       "cta": "Пройдите такой же тест бесплатно.",
       "ctaSubtitle": "3 модуля при регистрации, без оплаты.",
       "ctaButton": "Начать бесплатно"
+    },
+    "praedikat": {
+      "label": {
+        "sehr_gut": "очень хорошо",
+        "gut": "хорошо",
+        "befriedigend": "удовлетворительно",
+        "ausreichend": "достаточно",
+        "nicht_bestanden": "не сдан"
+      }
     }
   },
   "errorPages": {

@@ -6,7 +6,10 @@ import { useLocale, useTranslations } from 'next-intl'
 import { Link, useRouter } from '@/i18n/routing'
 import { RetakeModuleModal } from '@/components/exam/RetakeModuleModal'
 import { ShareSection } from '@/components/exam/ShareSection'
+import { ScorePraedikat } from '@/components/results/ScorePraedikat'
+import { CriteriaWithLetters } from '@/components/results/CriteriaWithLetters'
 import { formatEditorialDate } from '@/lib/format/date'
+import { getPraedikat } from '@/lib/grading/praedikat'
 import { userInputSchema, type UserInput } from '@/types/exam'
 
 interface ModuleScores {
@@ -255,26 +258,6 @@ export default function ResultsPage() {
   )
 }
 
-type ScoreTone = 'high' | 'midHigh' | 'midLow' | 'low'
-
-/**
- * Goethe-Zertifikat pass threshold is 60/100. The 4-band split mirrors that
- * boundary: 60 lands in midHigh (passed), 59 falls into midLow (not passed),
- * so the visual border on the card flips at the same number that decides
- * the certificate. Cobalt (--accent) carries "passed but not stellar" so
- * green stays meaningful for the genuinely strong attempts.
- */
-function getScoreTone(score: number): {
-  tone: ScoreTone
-  color: string
-  passed: boolean
-} {
-  if (score >= 80) return { tone: 'high',    color: 'var(--success)', passed: true  }
-  if (score >= 60) return { tone: 'midHigh', color: 'var(--accent)',  passed: true  }
-  if (score >= 40) return { tone: 'midLow',  color: 'var(--warn)',    passed: false }
-  return                  { tone: 'low',     color: 'var(--error)',   passed: false }
-}
-
 function ScoreHero({
   score,
   moduleLabel,
@@ -289,6 +272,7 @@ function ScoreHero({
   time: string | null
 }) {
   const t = useTranslations('results.scoreCard')
+  const tPraedikat = useTranslations('results.praedikat.label')
   const eyebrow =
     date && time
       ? t('eyebrow', { module: moduleLabel, level, date, time })
@@ -313,13 +297,13 @@ function ScoreHero({
     )
   }
 
-  const { tone, color, passed } = getScoreTone(score)
+  const praedikat = getPraedikat(score)
 
   return (
     <div
       data-testid="result-score-hero"
       className="rounded-rad border border-l-2 border-line bg-card p-6 sm:border-l-4 sm:p-10"
-      style={{ borderLeftColor: color }}
+      style={{ borderLeftColor: praedikat.cssColor }}
     >
       <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
         {eyebrow}
@@ -340,15 +324,13 @@ function ScoreHero({
 
         <div
           data-testid="result-status"
-          data-passed={passed ? 'true' : 'false'}
-          className="space-y-1"
+          data-passed={praedikat.passed ? 'true' : 'false'}
+          className="sm:pb-2"
         >
-          <div className="font-display text-3xl leading-tight tracking-[-0.02em] text-ink sm:text-4xl">
-            {t(`summary.${tone}.title`)}
-          </div>
-          <div className="text-base text-muted">
-            {t(`summary.${tone}.subtitle`)}
-          </div>
+          <ScorePraedikat
+            praedikat={praedikat}
+            translation={tPraedikat(praedikat.level)}
+          />
         </div>
       </div>
     </div>
@@ -453,36 +435,31 @@ function LesenHorenDetails({ feedback }: { feedback: LesenHorenFeedback }) {
 }
 
 function SchreibenDetails({ feedback }: { feedback: SchreibenFeedback }) {
-  const t = useTranslations('results.schreiben')
+  const tBlock = useTranslations('results.schreiben.criteriaBlock')
   const tDetail = useTranslations('dashboard.testDetail')
-  const criteria = [
-    [t('taskFulfillment'), feedback.criteria.taskFulfillment, 25],
-    [t('coherence'), feedback.criteria.coherence, 25],
-    [t('vocabulary'), feedback.criteria.vocabulary, 25],
-    [t('grammar'), feedback.criteria.grammar, 25],
-  ] as const
 
   return (
     <div className="space-y-6">
-      <div className="rounded-rad border border-line bg-card p-8">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          {tDetail('criteriaEyebrow')}
-        </div>
-        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {criteria.map(([label, score, max]) => (
-            <div key={label}>
-              <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-                {label}
-              </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="font-display text-4xl text-ink">{score}</span>
-                <span className="text-sm text-ink-soft">/ {max}</span>
-              </div>
-              <ProgressBar value={score} max={max} />
-            </div>
-          ))}
-        </div>
-      </div>
+      <CriteriaWithLetters
+        scores={feedback.criteria}
+        title={tBlock('title')}
+        translatedTitle={tBlock('translatedTitle')}
+        helper={tBlock('helper')}
+        labels={{
+          de: {
+            taskFulfillment: tBlock('criteria.taskFulfillment'),
+            coherence:       tBlock('criteria.coherence'),
+            vocabulary:      tBlock('criteria.vocabulary'),
+            grammar:         tBlock('criteria.grammar'),
+          },
+          translated: {
+            taskFulfillment: tBlock('translatedCriteria.taskFulfillment'),
+            coherence:       tBlock('translatedCriteria.coherence'),
+            vocabulary:      tBlock('translatedCriteria.vocabulary'),
+            grammar:         tBlock('translatedCriteria.grammar'),
+          },
+        }}
+      />
 
       {feedback.comment && (
         <div className="rounded-rad border border-line bg-card p-8">

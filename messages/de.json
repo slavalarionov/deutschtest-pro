@@ -929,25 +929,7 @@
     },
     "scoreCard": {
       "eyebrow": "{module} · {level} · {date} · {time}",
-      "outOf": "/ 100",
-      "summary": {
-        "high": {
-          "title": "Hervorragend!",
-          "subtitle": "Sicher bestanden."
-        },
-        "midHigh": {
-          "title": "Gut.",
-          "subtitle": "Bestanden."
-        },
-        "midLow": {
-          "title": "Knapp.",
-          "subtitle": "Nicht bestanden."
-        },
-        "low": {
-          "title": "Mehr Übung nötig.",
-          "subtitle": "Nicht bestanden."
-        }
-      }
+      "outOf": "/ 100"
     },
     "userInput": {
       "schreibenLabel": "IHRE ANTWORT",
@@ -978,7 +960,24 @@
       "taskFulfillment": "Aufgabenerfüllung",
       "coherence": "Kohärenz",
       "vocabulary": "Wortschatz",
-      "grammar": "Grammatik"
+      "grammar": "Grammatik",
+      "criteriaBlock": {
+        "title": "Bewertung nach Goethe-Kriterien",
+        "translatedTitle": "Bewertung nach Goethe-Kriterien",
+        "helper": "Zusammenfassung nach denselben vier Kriterien, die ein Goethe-Prüfer verwendet. Die Buchstaben A–E entsprechen offiziellen Erfüllungsstufen je Kriterium.",
+        "criteria": {
+          "taskFulfillment": "Aufgabenerfüllung",
+          "coherence": "Kohärenz",
+          "vocabulary": "Wortschatz",
+          "grammar": "Grammatik"
+        },
+        "translatedCriteria": {
+          "taskFulfillment": "Aufgabenerfüllung",
+          "coherence": "Kohärenz",
+          "vocabulary": "Wortschatz",
+          "grammar": "Grammatik"
+        }
+      }
     },
     "sprechen": {
       "title": "Sprechen — Bewertung",
@@ -1034,6 +1033,15 @@
       "cta": "Machen Sie denselben Test kostenlos.",
       "ctaSubtitle": "3 Module gratis bei der Registrierung — keine Zahlung nötig.",
       "ctaButton": "Kostenlos starten"
+    },
+    "praedikat": {
+      "label": {
+        "sehr_gut": "sehr gut",
+        "gut": "gut",
+        "befriedigend": "befriedigend",
+        "ausreichend": "ausreichend",
+        "nicht_bestanden": "nicht bestanden"
+      }
     }
   },
   "errorPages": {

@@ -929,25 +929,7 @@
     },
     "scoreCard": {
       "eyebrow": "{module} · {level} · {date} · {time}",
-      "outOf": "/ 100",
-      "summary": {
-        "high": {
-          "title": "Mükemmel!",
-          "subtitle": "Güvenle geçildi."
-        },
-        "midHigh": {
-          "title": "İyi.",
-          "subtitle": "Geçildi."
-        },
-        "midLow": {
-          "title": "Yakın.",
-          "subtitle": "Geçilmedi."
-        },
-        "low": {
-          "title": "Daha fazla pratik gerekli.",
-          "subtitle": "Geçilmedi."
-        }
-      }
+      "outOf": "/ 100"
     },
     "userInput": {
       "schreibenLabel": "CEVABINIZ",
@@ -978,7 +960,24 @@
       "taskFulfillment": "Görevin yerine getirilmesi",
       "coherence": "Tutarlılık",
       "vocabulary": "Kelime dağarcığı",
-      "grammar": "Dil bilgisi"
+      "grammar": "Dil bilgisi",
+      "criteriaBlock": {
+        "title": "Bewertung nach Goethe-Kriterien",
+        "translatedTitle": "Goethe değerlendirme kriterleri",
+        "helper": "Goethe sınav görevlisinin kullandığı dört kriterin özeti. A–E harfleri her kriter için resmi başarı düzeylerine karşılık gelir.",
+        "criteria": {
+          "taskFulfillment": "Aufgabenerfüllung",
+          "coherence": "Kohärenz",
+          "vocabulary": "Wortschatz",
+          "grammar": "Grammatik"
+        },
+        "translatedCriteria": {
+          "taskFulfillment": "görevin yerine getirilmesi",
+          "coherence": "tutarlılık",
+          "vocabulary": "kelime hazinesi",
+          "grammar": "dilbilgisi"
+        }
+      }
     },
     "sprechen": {
       "title": "Sprechen — değerlendirme",
@@ -1034,6 +1033,15 @@
       "cta": "Aynı testi ücretsiz çöz.",
       "ctaSubtitle": "Kayıtta 3 modül ücretsiz — ödeme gerekmez.",
       "ctaButton": "Ücretsiz başla"
+    },
+    "praedikat": {
+      "label": {
+        "sehr_gut": "çok iyi",
+        "gut": "iyi",
+        "befriedigend": "yeterli",
+        "ausreichend": "geçerli",
+        "nicht_bestanden": "başarısız"
+      }
     }
   },
   "errorPages": {

@@ -46,6 +46,15 @@
     --success:      oklch(0.55 0.13 155);
     --success-soft: oklch(0.94 0.04 155);
 
+    /* Goethe-Prädikat / Buchstabe gradient. Five steps from
+       sehr_gut/A through nicht_bestanden/E — pure temperature ramp
+       (green → lime → yellow → amber → red), no cobalt detour. The
+       same variable powers both the Prädikat verdict and the A–E
+       letters in Schreiben criteria, so the verdict and the letter
+       always read in the same hue. */
+    --success-mid:  oklch(0.60 0.12 125);
+    --warn-mid:     oklch(0.68 0.14 95);
+
     /* ---------- Surface ladder (light) ---------- */
     --bg:        oklch(0.985 0.003 250);
     --surface:   oklch(0.975 0.004 250);
@@ -127,6 +136,8 @@
     --warn-soft:    oklch(0.30 0.08 75);
     --success:      oklch(0.66 0.13 155);
     --success-soft: oklch(0.28 0.08 155);
+    --success-mid:  oklch(0.70 0.12 125);
+    --warn-mid:     oklch(0.78 0.14 95);
   }
 }
 

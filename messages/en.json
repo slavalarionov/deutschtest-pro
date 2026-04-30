@@ -929,25 +929,7 @@
     },
     "scoreCard": {
       "eyebrow": "{module} · {level} · {date} · {time}",
-      "outOf": "/ 100",
-      "summary": {
-        "high": {
-          "title": "Excellent!",
-          "subtitle": "Confidently passed."
-        },
-        "midHigh": {
-          "title": "Good.",
-          "subtitle": "Passed."
-        },
-        "midLow": {
-          "title": "Close.",
-          "subtitle": "Not passed."
-        },
-        "low": {
-          "title": "More practice needed.",
-          "subtitle": "Not passed."
-        }
-      }
+      "outOf": "/ 100"
     },
     "userInput": {
       "schreibenLabel": "YOUR ANSWER",
@@ -978,7 +960,24 @@
       "taskFulfillment": "Task fulfillment",
       "coherence": "Coherence",
       "vocabulary": "Vocabulary",
-      "grammar": "Grammar"
+      "grammar": "Grammar",
+      "criteriaBlock": {
+        "title": "Bewertung nach Goethe-Kriterien",
+        "translatedTitle": "Goethe scoring criteria",
+        "helper": "Summary of the same four criteria a Goethe examiner uses. Letters A–E map to the official achievement levels for each criterion.",
+        "criteria": {
+          "taskFulfillment": "Aufgabenerfüllung",
+          "coherence": "Kohärenz",
+          "vocabulary": "Wortschatz",
+          "grammar": "Grammatik"
+        },
+        "translatedCriteria": {
+          "taskFulfillment": "task fulfilment",
+          "coherence": "coherence",
+          "vocabulary": "vocabulary",
+          "grammar": "grammar"
+        }
+      }
     },
     "sprechen": {
       "title": "Sprechen — scoring",
@@ -1034,6 +1033,15 @@
       "cta": "Take the same test for free.",
       "ctaSubtitle": "3 modules free at sign-up — no payment required.",
       "ctaButton": "Start for free"
+    },
+    "praedikat": {
+      "label": {
+        "sehr_gut": "very good",
+        "gut": "good",
+        "befriedigend": "satisfactory",
+        "ausreichend": "sufficient",
+        "nicht_bestanden": "not passed"
+      }
     }
   },
   "errorPages": {

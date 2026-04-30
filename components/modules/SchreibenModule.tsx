@@ -6,6 +6,9 @@ import { useTranslations } from 'next-intl'
 import { useExamStore } from '@/store/examStore'
 import { ExamTimerDisplay, TimerWarningBanner } from '@/components/exam/ExamTimerDisplay'
 import { TimeUpOverlay } from '@/components/exam/TimeUpOverlay'
+import { ScorePraedikat } from '@/components/results/ScorePraedikat'
+import { CriteriaWithLetters } from '@/components/results/CriteriaWithLetters'
+import { getPraedikat } from '@/lib/grading/praedikat'
 import type { SchreibenContent, SchreibenFeedback } from '@/types/exam'
 
 const SCHREIBEN_TIME = 60 * 60
@@ -32,18 +35,13 @@ function wordHintStyles(hintKey: HintKey): { text: string; dot: string } {
   }
 }
 
-function criteriaBarClass(score: number): string {
-  const pct = (score / 25) * 100
-  if (pct >= 70) return 'h-1 bg-accent'
-  if (pct >= 50) return 'h-1 bg-muted'
-  return 'h-1 bg-error-soft border-t border-error/40'
-}
-
 export function SchreibenModule() {
   const router = useRouter()
   const t = useTranslations('exam.modules.schreiben')
   const tShared = useTranslations('exam.modules.shared')
   const tTimer = useTranslations('exam.timer')
+  const tPraedikatLabel = useTranslations('results.praedikat.label')
+  const tCriteriaBlock = useTranslations('results.schreiben.criteriaBlock')
   const { session } = useExamStore()
   const [text, setText] = useState('')
   const [timeLeft, setTimeLeft] = useState(SCHREIBEN_TIME)
@@ -230,38 +228,47 @@ export function SchreibenModule() {
             <div className="rounded-rad border border-error/40 bg-error-soft/40 p-5 text-sm text-error">{error}</div>
           )}
 
-          {feedback && (
+          {feedback && (() => {
+            const praedikat = getPraedikat(feedback.score)
+            return (
             <>
-              {/* Score */}
-              <div className={`${SHELL} p-6 text-center`}>
+              {/* Score + Prädikat */}
+              <div
+                className={`${SHELL} p-6 text-center`}
+                style={{ borderLeftWidth: 4, borderLeftColor: praedikat.cssColor }}
+              >
                 <div className="font-display text-5xl font-medium tabular-nums text-ink">{feedback.score}</div>
                 <p className={`mt-2 ${EYEBROW}`}>{t('outOf100')}</p>
+                <div className="mt-4 flex justify-center">
+                  <ScorePraedikat
+                    praedikat={praedikat}
+                    translation={tPraedikatLabel(praedikat.level)}
+                    size="md"
+                  />
+                </div>
               </div>
 
-              {/* Criteria breakdown */}
-              <div className="grid grid-cols-2 gap-3">
-                {([
-                  ['taskFulfillment', feedback.criteria.taskFulfillment],
-                  ['coherence', feedback.criteria.coherence],
-                  ['vocabulary', feedback.criteria.vocabulary],
-                  ['grammar', feedback.criteria.grammar],
-                ] as const).map(([key, score]) => (
-                  <div key={key} className="flex flex-col gap-2 overflow-hidden rounded-rad border border-line bg-card">
-                    <div className="flex flex-col gap-2 px-4 pt-4">
-                      <p className={EYEBROW}>{t(`criteria.${key}`)}</p>
-                      <div className="font-mono text-2xl tabular-nums text-ink">
-                        {score}/25
-                      </div>
-                    </div>
-                    <div className="mt-2 h-1 w-full bg-surface">
-                      <div
-                        className={criteriaBarClass(score)}
-                        style={{ width: `${(score / 25) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              {/* Criteria with A–E letters */}
+              <CriteriaWithLetters
+                scores={feedback.criteria}
+                title={tCriteriaBlock('title')}
+                translatedTitle={tCriteriaBlock('translatedTitle')}
+                helper={tCriteriaBlock('helper')}
+                labels={{
+                  de: {
+                    taskFulfillment: tCriteriaBlock('criteria.taskFulfillment'),
+                    coherence:       tCriteriaBlock('criteria.coherence'),
+                    vocabulary:      tCriteriaBlock('criteria.vocabulary'),
+                    grammar:         tCriteriaBlock('criteria.grammar'),
+                  },
+                  translated: {
+                    taskFulfillment: tCriteriaBlock('translatedCriteria.taskFulfillment'),
+                    coherence:       tCriteriaBlock('translatedCriteria.coherence'),
+                    vocabulary:      tCriteriaBlock('translatedCriteria.vocabulary'),
+                    grammar:         tCriteriaBlock('translatedCriteria.grammar'),
+                  },
+                }}
+              />
 
               {/* AI comment */}
               <div className={`${SHELL} p-6`}>
@@ -283,7 +290,8 @@ export function SchreibenModule() {
                 </div>
               )}
             </>
-          )}
+            )
+          })()}
         </div>
       )}
     </div>
