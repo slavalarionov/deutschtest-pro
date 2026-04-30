@@ -32,6 +32,7 @@ import {
   type CreatePaymentRequest,
   type CreatePaymentResponse,
   type PaymentInfoResponse,
+  type PaymentOperationInfo,
 } from './types'
 
 function buildUrl(path: string): string {
@@ -212,14 +213,42 @@ export async function createPayment(
   }
 }
 
+/**
+ * Returns the per-operation info from `GET /acquiring/v1.0/payments/{id}`,
+ * already flattened — callers see `info.status`, not `info.Data.status` or
+ * `info.Data.Operation[0].status`. The bank serves the data either as a
+ * flat `Data` record or wrapped in `Data.Operation[]`; the schema accepts
+ * both, this function extracts the inner shape transparently.
+ *
+ * On a Zod parse error the raw response is logged so unexpected future
+ * shapes can be diagnosed in one round-trip instead of two.
+ */
 export async function getPaymentInfo(
   operationId: string,
-): Promise<PaymentInfoResponse> {
+): Promise<PaymentOperationInfo> {
   const raw = await request<unknown>(
     `acquiring/v1.0/payments/${encodeURIComponent(operationId)}`,
     { method: 'GET' },
   )
-  return PaymentInfoResponseSchema.parse(raw)
+
+  let parsed: PaymentInfoResponse
+  try {
+    parsed = PaymentInfoResponseSchema.parse(raw)
+  } catch (zodErr) {
+    console.error('[tochka] getPaymentInfo: failed to parse response')
+    console.error('[tochka] raw response:', JSON.stringify(raw))
+    throw zodErr
+  }
+
+  // Both branches of the Data union pass through unknown extra keys, which
+  // foils plain `'Operation' in …` narrowing. Discriminate at runtime.
+  const data = parsed.Data as
+    | PaymentOperationInfo
+    | { Operation: PaymentOperationInfo[] }
+  if ('Operation' in data && Array.isArray(data.Operation)) {
+    return data.Operation[0]
+  }
+  return data as PaymentOperationInfo
 }
 
 export async function refundPayment(

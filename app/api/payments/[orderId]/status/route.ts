@@ -113,13 +113,13 @@ async function maybePollProvider(row: PaymentRow): Promise<PaymentRow | null> {
     return null
   }
 
-  const providerStatus = info.Data.status
+  const providerStatus = info.status
   const admin = createAdminClient()
 
   if (providerStatus === 'APPROVED' || providerStatus === 'AUTHORIZED') {
     const { error } = await admin.rpc('approve_payment_atomic', {
       p_provider_operation_id: row.provider_operation_id,
-      p_payment_method: info.Data.paymentType ?? row.payment_method ?? 'card',
+      p_payment_method: info.paymentType ?? row.payment_method ?? 'card',
     })
     if (error && !error.message?.includes('payment_not_found')) {
       console.error('[payments/status] approve_payment_atomic failed', error)

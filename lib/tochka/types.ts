@@ -120,24 +120,49 @@ export const TochkaPaymentStatusSchema = z.enum([
 ])
 export type TochkaPaymentStatus = z.infer<typeof TochkaPaymentStatusSchema>
 
+/**
+ * Per-operation info that lives either directly on `Data` or inside
+ * `Data.Operation[]`, depending on the endpoint version. Same fields in
+ * both shapes — only the wrapping changes.
+ */
+export const PaymentOperationInfoSchema = z
+  .object({
+    operationId: z.string(),
+    status: TochkaPaymentStatusSchema,
+    // Tochka can ship `amount` as either string ("400.00") or number
+    // (400) depending on the endpoint version — accept both, optional
+    // because nothing downstream relies on it (status drives the polling
+    // fallback in /api/payments/[orderId]/status).
+    amount: z.union([z.string(), z.number()]).optional(),
+    purpose: z.string().optional(),
+    paymentMode: z.array(z.string()).optional(),
+    paymentType: z.string().optional(),
+    paymentLink: z.string().url().optional(),
+    createdAt: z.string().optional(),
+  })
+  .passthrough()
+export type PaymentOperationInfo = z.infer<typeof PaymentOperationInfoSchema>
+
+/**
+ * `GET /acquiring/v1.0/payments/{operationId}` is observed in production
+ * to wrap the per-operation fields inside `Data.Operation[0]`, NOT to
+ * expose them flat on `Data` as the older docs suggest. Older sandboxes
+ * have been seen returning the flat form. The schema accepts both via a
+ * union so the polling fallback in /api/payments/[orderId]/status keeps
+ * working across whatever shape the bank serves up. The client extracts
+ * the inner record and returns it as a plain object — callers don't have
+ * to discriminate.
+ */
 export const PaymentInfoResponseSchema = z
   .object({
-    Data: z
-      .object({
-        operationId: z.string(),
-        status: TochkaPaymentStatusSchema,
-        // Tochka can ship `amount` as either string ("400.00") or number
-        // (400) depending on the endpoint version — accept both, optional
-        // because nothing downstream relies on it (status drives the
-        // polling fallback in /api/payments/[orderId]/status).
-        amount: z.union([z.string(), z.number()]).optional(),
-        purpose: z.string().optional(),
-        paymentMode: z.array(z.string()).optional(),
-        paymentType: z.string().optional(),
-        paymentLink: z.string().url().optional(),
-        createdAt: z.string().optional(),
-      })
-      .passthrough(),
+    Data: z.union([
+      PaymentOperationInfoSchema,
+      z
+        .object({
+          Operation: z.array(PaymentOperationInfoSchema).min(1),
+        })
+        .passthrough(),
+    ]),
   })
   .passthrough()
 export type PaymentInfoResponse = z.infer<typeof PaymentInfoResponseSchema>
