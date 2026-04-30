@@ -13,6 +13,7 @@ import type { RecommendationsPayload } from '@/lib/dashboard/recommendations'
 import { formatEditorialDate } from '@/lib/format/date'
 import { getTagLabel, type LearningTag } from '@/lib/learning-tags'
 import { ShareSection } from '@/components/exam/ShareSection'
+import { LearningAdviceCard } from '@/components/recommendations/LearningAdviceCard'
 import type { Locale } from '@/i18n/request'
 
 export function RecommendationsView() {
@@ -229,14 +230,20 @@ function LoadedState({
                   <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
                     {tPublic('resourcesLabel')}
                   </div>
-                  <ul className="space-y-3">
-                    {resources.map((r) => (
-                      <ResourceCard
-                        key={r.id}
-                        resource={r}
-                        typeLabel={tTypes(r.resource_type)}
-                      />
-                    ))}
+                  <ul className="space-y-4">
+                    {resources.map((r) =>
+                      r.resource_type === 'advice' ? (
+                        <li key={r.id}>
+                          <LearningAdviceCard resource={r} locale={locale} />
+                        </li>
+                      ) : (
+                        <ResourceCard
+                          key={r.id}
+                          resource={r}
+                          typeLabel={tTypes(r.resource_type)}
+                        />
+                      ),
+                    )}
                   </ul>
                 </div>
               )}
@@ -284,6 +291,8 @@ function ResourceCard({
   resource: MatchedResource
   typeLabel: string
 }) {
+  if (!resource.url) return null
+
   return (
     <li className="flex items-start gap-3">
       <span

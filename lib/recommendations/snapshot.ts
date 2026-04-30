@@ -13,6 +13,7 @@ import {
 } from '@/lib/claude'
 import { defaultLocale, locales, type Locale } from '@/i18n/request'
 import type { Json } from '@/types/supabase'
+import type { LearningAdviceBody } from '@/types/learning-advice'
 import type {
   RecommendationsAttemptSummary,
   RecommendationsInput,
@@ -33,13 +34,14 @@ interface AttemptRow {
 export interface MatchedResource {
   id: string
   title: string
-  url: string
+  url: string | null
   description: string | null
-  resource_type: 'book' | 'video' | 'exercise' | 'website' | 'app' | 'article'
+  resource_type: 'book' | 'video' | 'exercise' | 'website' | 'app' | 'article' | 'advice'
   module: 'lesen' | 'horen' | 'schreiben' | 'sprechen'
   level: 'a1' | 'a2' | 'b1'
   topic: string
   language: 'de' | 'ru' | 'en'
+  body: LearningAdviceBody | null
 }
 
 /** Top-level shape of user_recommendations.matched_resources jsonb. */
@@ -214,7 +216,7 @@ async function matchResources(
 
   const { data, error } = await supabase
     .from('learning_resources')
-    .select('id, module, level, topic, title, url, description, resource_type, language')
+    .select('id, module, level, topic, title, url, description, resource_type, language, body')
     .eq('is_active', true)
     .eq('language', language)
     .or(orFilter)
@@ -239,7 +241,8 @@ async function matchResources(
     const key = `${row.module}:${row.level}:${row.topic}`
     if (!index[key]) index[key] = []
     if (index[key].length < 4) {
-      index[key].push(row as MatchedResource)
+      // body shape is guaranteed by SQL CHECK + admin Zod validation; widen via unknown.
+      index[key].push(row as unknown as MatchedResource)
     }
   }
 

@@ -175,11 +175,12 @@ export interface Database {
           level: 'a1' | 'a2' | 'b1'
           topic: string
           title: string
-          url: string
-          resource_type: 'book' | 'video' | 'exercise' | 'website' | 'app' | 'article'
+          url: string | null
+          resource_type: 'book' | 'video' | 'exercise' | 'website' | 'app' | 'article' | 'advice'
           description: string | null
           language: 'de' | 'ru' | 'en'
           is_active: boolean
+          body: Json | null
           created_at: string
           updated_at: string
         }
@@ -189,11 +190,12 @@ export interface Database {
           level: 'a1' | 'a2' | 'b1'
           topic: string
           title: string
-          url: string
-          resource_type: 'book' | 'video' | 'exercise' | 'website' | 'app' | 'article'
+          url?: string | null
+          resource_type: 'book' | 'video' | 'exercise' | 'website' | 'app' | 'article' | 'advice'
           description?: string | null
           language?: 'de' | 'ru' | 'en'
           is_active?: boolean
+          body?: Json | null
           created_at?: string
           updated_at?: string
         }
@@ -203,11 +205,12 @@ export interface Database {
           level?: 'a1' | 'a2' | 'b1'
           topic?: string
           title?: string
-          url?: string
-          resource_type?: 'book' | 'video' | 'exercise' | 'website' | 'app' | 'article'
+          url?: string | null
+          resource_type?: 'book' | 'video' | 'exercise' | 'website' | 'app' | 'article' | 'advice'
           description?: string | null
           language?: 'de' | 'ru' | 'en'
           is_active?: boolean
+          body?: Json | null
           created_at?: string
           updated_at?: string
         }

@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Modal, ModalField } from '@/components/admin/Modal'
 import { LEARNING_TAGS, TAG_LABELS } from '@/lib/learning-tags'
+import type { LearningAdviceBody } from '@/types/learning-advice'
 
 export interface ResourceRow {
   id: string
@@ -11,11 +12,12 @@ export interface ResourceRow {
   level: 'a1' | 'a2' | 'b1'
   topic: string
   title: string
-  url: string
-  resource_type: 'book' | 'video' | 'exercise' | 'website' | 'app' | 'article'
+  url: string | null
+  resource_type: 'book' | 'video' | 'exercise' | 'website' | 'app' | 'article' | 'advice'
   description: string | null
   language: 'de' | 'ru' | 'en'
   is_active: boolean
+  body: LearningAdviceBody | null
   created_at: string
   updated_at: string
 }
@@ -26,6 +28,7 @@ interface Filters {
   topic?: string
   language?: string
   active?: string
+  type?: string
   page?: string
 }
 
@@ -40,7 +43,7 @@ interface Props {
 const MODULES = ['lesen', 'horen', 'schreiben', 'sprechen'] as const
 const LEVELS = ['a1', 'a2', 'b1'] as const
 const LANGUAGES = ['de', 'ru', 'en'] as const
-const TYPES = ['book', 'video', 'exercise', 'website', 'app', 'article'] as const
+const EXTERNAL_TYPES = ['book', 'video', 'exercise', 'website', 'app', 'article'] as const
 
 export function ResourcesManager({
   initialRows,
@@ -57,7 +60,6 @@ export function ResourcesManager({
   function updateFilter(key: keyof Filters, value: string) {
     const params = new URLSearchParams()
     const next: Filters = { ...filters, [key]: value }
-    // Reset pagination on filter change.
     delete next.page
     for (const [k, v] of Object.entries(next)) {
       if (v) params.set(k, v as string)
@@ -97,7 +99,18 @@ export function ResourcesManager({
     <div className="space-y-6">
       {/* Filters */}
       <div className="rounded-rad border border-line bg-surface p-5">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+          <FilterCard label="Тип">
+            <FilterSelect
+              value={filters.type ?? ''}
+              onChange={(v) => updateFilter('type', v)}
+              options={[
+                { value: '', label: 'Все' },
+                { value: 'advice', label: 'Совет' },
+                { value: 'external', label: 'Внешний ресурс' },
+              ]}
+            />
+          </FilterCard>
           <FilterCard label="Модуль">
             <FilterSelect
               value={filters.module ?? ''}
@@ -172,7 +185,7 @@ export function ResourcesManager({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line bg-surface text-left font-mono text-[10px] uppercase tracking-widest text-muted">
-                <th className="px-4 py-3 font-normal">Title · URL</th>
+                <th className="px-4 py-3 font-normal">Title · URL/Превью</th>
                 <th className="px-3 py-3 font-normal">Module</th>
                 <th className="px-3 py-3 font-normal">Level</th>
                 <th className="px-3 py-3 font-normal">Topic</th>
@@ -188,21 +201,37 @@ export function ResourcesManager({
                 <tr key={r.id} className="border-b border-line-soft last:border-0">
                   <td className="max-w-xs px-4 py-3">
                     <div className="truncate font-medium text-ink">{r.title}</div>
-                    <a
-                      href={r.url}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="truncate font-mono text-xs text-muted underline-offset-4 hover:underline"
-                    >
-                      {r.url}
-                    </a>
+                    {r.resource_type === 'advice' ? (
+                      <span className="block truncate font-mono text-xs text-muted">
+                        {r.description ?? '—'}
+                      </span>
+                    ) : r.url ? (
+                      <a
+                        href={r.url}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="block truncate font-mono text-xs text-muted underline-offset-4 hover:underline"
+                      >
+                        {r.url}
+                      </a>
+                    ) : (
+                      <span className="block truncate font-mono text-xs text-muted">—</span>
+                    )}
                   </td>
                   <td className="px-3 py-3 font-mono text-xs text-ink-soft">{r.module}</td>
                   <td className="px-3 py-3 font-mono text-xs text-ink-soft">
                     {r.level.toUpperCase()}
                   </td>
                   <td className="px-3 py-3 font-mono text-xs text-ink-soft">{r.topic}</td>
-                  <td className="px-3 py-3 font-mono text-xs text-ink-soft">{r.resource_type}</td>
+                  <td className="px-3 py-3 font-mono text-xs text-ink-soft">
+                    {r.resource_type === 'advice' ? (
+                      <span className="rounded-rad-pill bg-ink px-2 py-0.5 text-[10px] uppercase tracking-widest text-page">
+                        Совет
+                      </span>
+                    ) : (
+                      r.resource_type
+                    )}
+                  </td>
                   <td className="px-3 py-3 font-mono text-xs text-ink-soft">
                     {r.language.toUpperCase()}
                   </td>
@@ -312,6 +341,14 @@ function FilterSelect({
   )
 }
 
+const EMPTY_BODY: LearningAdviceBody = {
+  why: '',
+  steps: ['', '', ''],
+  drill: '',
+  avoid: '',
+  progress: '',
+}
+
 function ResourceModal({
   initial,
   onClose,
@@ -321,17 +358,48 @@ function ResourceModal({
   onClose: () => void
   onSaved: () => void
 }) {
+  const initialKind: 'advice' | 'external' =
+    initial?.resource_type === 'advice' ? 'advice' : initial ? 'external' : 'advice'
+
+  const [kind, setKind] = useState<'advice' | 'external'>(initialKind)
   const [title, setTitle] = useState(initial?.title ?? '')
   const [url, setUrl] = useState(initial?.url ?? '')
   const [moduleVal, setModuleVal] = useState<string>(initial?.module ?? 'lesen')
   const [level, setLevel] = useState<string>(initial?.level ?? 'a1')
   const [topic, setTopic] = useState<string>(initial?.topic ?? 'general')
-  const [type, setType] = useState<string>(initial?.resource_type ?? 'website')
+  const [externalType, setExternalType] = useState<string>(
+    initial && initial.resource_type !== 'advice' ? initial.resource_type : 'website',
+  )
   const [description, setDescription] = useState(initial?.description ?? '')
-  const [language, setLanguage] = useState<string>(initial?.language ?? 'de')
+  const [language, setLanguage] = useState<string>(initial?.language ?? 'ru')
   const [isActive, setIsActive] = useState<boolean>(initial?.is_active ?? true)
+  const [body, setBody] = useState<LearningAdviceBody>(
+    initial?.body ?? EMPTY_BODY,
+  )
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+
+  function setStep(i: number, value: string) {
+    setBody((prev) => {
+      const next = [...prev.steps]
+      next[i] = value
+      return { ...prev, steps: next }
+    })
+  }
+
+  function addStep() {
+    setBody((prev) => {
+      if (prev.steps.length >= 6) return prev
+      return { ...prev, steps: [...prev.steps, ''] }
+    })
+  }
+
+  function removeStep(i: number) {
+    setBody((prev) => {
+      if (prev.steps.length <= 3) return prev
+      return { ...prev, steps: prev.steps.filter((_, idx) => idx !== i) }
+    })
+  }
 
   async function save() {
     setError(null)
@@ -339,27 +407,76 @@ function ResourceModal({
       setError('Title не может быть пустым')
       return
     }
-    if (!/^https?:\/\//i.test(url.trim())) {
-      setError('URL должен начинаться с http:// или https://')
-      return
-    }
 
-    setSaving(true)
-    const res = await fetch('/api/admin/learning-resources/upsert', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    let payload: Record<string, unknown>
+    if (kind === 'external') {
+      if (!/^https?:\/\//i.test(url.trim())) {
+        setError('URL должен начинаться с http:// или https://')
+        return
+      }
+      payload = {
         id: initial?.id,
         title: title.trim(),
         url: url.trim(),
         module: moduleVal,
         level,
         topic,
-        resource_type: type,
+        resource_type: externalType,
         description: description.trim() || null,
         language,
         is_active: isActive,
-      }),
+      }
+    } else {
+      const trimmedSteps = body.steps.map((s) => s.trim()).filter(Boolean)
+      if (body.why.trim().length < 50) {
+        setError('Раздел «Почему это сложно сейчас» — минимум 50 символов')
+        return
+      }
+      if (trimmedSteps.length < 3) {
+        setError('Нужно минимум 3 шага в разделе «Что делать на этой неделе»')
+        return
+      }
+      if (trimmedSteps.some((s) => s.length < 20)) {
+        setError('Каждый шаг — минимум 20 символов')
+        return
+      }
+      if (body.drill.trim().length < 50) {
+        setError('Раздел «Упражнение прямо сейчас» — минимум 50 символов')
+        return
+      }
+      if (body.avoid.trim().length < 30) {
+        setError('Раздел «Чего избегать» — минимум 30 символов')
+        return
+      }
+      if (body.progress.trim().length < 30) {
+        setError('Раздел «Признак прогресса» — минимум 30 символов')
+        return
+      }
+      payload = {
+        id: initial?.id,
+        title: title.trim(),
+        module: moduleVal,
+        level,
+        topic,
+        resource_type: 'advice',
+        description: description.trim() || null,
+        language,
+        is_active: isActive,
+        body: {
+          why: body.why.trim(),
+          steps: trimmedSteps,
+          drill: body.drill.trim(),
+          avoid: body.avoid.trim(),
+          progress: body.progress.trim(),
+        },
+      }
+    }
+
+    setSaving(true)
+    const res = await fetch('/api/admin/learning-resources/upsert', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     })
     setSaving(false)
     if (!res.ok) {
@@ -372,25 +489,53 @@ function ResourceModal({
 
   return (
     <Modal title={initial ? 'Редактировать ресурс' : 'Новый ресурс'} onClose={onClose}>
-      <ModalField label="Title">
+      {/* Type toggle */}
+      <div className="flex gap-2 rounded-rad border border-line bg-surface p-1">
+        <button
+          type="button"
+          onClick={() => setKind('advice')}
+          className={`flex-1 rounded-rad-sm px-4 py-2 text-sm font-medium transition-colors ${
+            kind === 'advice' ? 'bg-ink text-page' : 'text-ink-soft hover:text-ink'
+          }`}
+        >
+          Обучающий совет
+        </button>
+        <button
+          type="button"
+          onClick={() => setKind('external')}
+          className={`flex-1 rounded-rad-sm px-4 py-2 text-sm font-medium transition-colors ${
+            kind === 'external' ? 'bg-ink text-page' : 'text-ink-soft hover:text-ink'
+          }`}
+        >
+          Внешний ресурс
+        </button>
+      </div>
+
+      <ModalField label="Заголовок">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="w-full bg-transparent text-sm text-ink focus:outline-none"
-          placeholder="Lingolia · Modalverben Kapitel"
+          placeholder={
+            kind === 'advice'
+              ? 'Как отвечать на вопросы экзаменатора без долгих пауз'
+              : 'Lingolia · Modalverben Kapitel'
+          }
         />
       </ModalField>
 
-      <ModalField label="URL">
-        <input
-          type="url"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          className="w-full bg-transparent font-mono text-xs text-ink focus:outline-none"
-          placeholder="https://…"
-        />
-      </ModalField>
+      {kind === 'external' && (
+        <ModalField label="URL">
+          <input
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="w-full bg-transparent font-mono text-xs text-ink focus:outline-none"
+            placeholder="https://…"
+          />
+        </ModalField>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <ModalField label="Модуль">
@@ -420,34 +565,112 @@ function ResourceModal({
             }))}
           />
         </ModalField>
-        <ModalField label="Тип">
+        <ModalField label="Язык">
           <FilterSelect
-            value={type}
-            onChange={setType}
-            options={TYPES.map((t) => ({ value: t, label: t }))}
+            value={language}
+            onChange={setLanguage}
+            options={LANGUAGES.map((l) => ({ value: l, label: l.toUpperCase() }))}
           />
         </ModalField>
       </div>
 
-      <ModalField label="Язык ресурса">
-        <FilterSelect
-          value={language}
-          onChange={setLanguage}
-          options={LANGUAGES.map((l) => ({ value: l, label: l.toUpperCase() }))}
-        />
-      </ModalField>
+      {kind === 'external' && (
+        <ModalField label="Тип внешнего ресурса">
+          <FilterSelect
+            value={externalType}
+            onChange={setExternalType}
+            options={EXTERNAL_TYPES.map((t) => ({ value: t, label: t }))}
+          />
+        </ModalField>
+      )}
 
       <div>
         <label className="mb-1 block font-mono text-[10px] uppercase tracking-widest text-muted">
-          Описание (опционально)
+          {kind === 'advice' ? 'Превью (1-2 строки для админ-списка)' : 'Описание (опционально)'}
         </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          rows={3}
+          rows={2}
           className="w-full rounded-rad border border-line bg-card p-3 text-sm text-ink transition-colors focus:border-ink focus:outline-none"
         />
       </div>
+
+      {kind === 'advice' && (
+        <div className="space-y-4 rounded-rad border border-line bg-surface p-4">
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            Тело совета · 5 разделов
+          </div>
+
+          <BodyTextarea
+            label="Почему это сложно сейчас"
+            hint="200–300 символов · мин. 50"
+            rows={4}
+            value={body.why}
+            onChange={(v) => setBody((p) => ({ ...p, why: v }))}
+          />
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                Что делать на этой неделе · {body.steps.length} {body.steps.length === 1 ? 'шаг' : body.steps.length < 5 ? 'шага' : 'шагов'} (3–6, мин. 20 симв. каждый)
+              </label>
+              <button
+                type="button"
+                onClick={addStep}
+                disabled={body.steps.length >= 6}
+                className="font-mono text-[10px] uppercase tracking-widest text-ink-soft hover:text-ink disabled:opacity-40"
+              >
+                + добавить
+              </button>
+            </div>
+            {body.steps.map((step, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <span className="mt-3 font-mono text-xs text-muted tabular-nums">{i + 1}.</span>
+                <textarea
+                  value={step}
+                  onChange={(e) => setStep(i, e.target.value)}
+                  rows={2}
+                  className="flex-1 rounded-rad border border-line bg-card p-2 text-sm text-ink transition-colors focus:border-ink focus:outline-none"
+                  placeholder="Один конкретный шаг…"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeStep(i)}
+                  disabled={body.steps.length <= 3}
+                  className="mt-2 font-mono text-[10px] uppercase tracking-widest text-ink-soft hover:text-error disabled:opacity-40"
+                >
+                  −
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <BodyTextarea
+            label="Упражнение прямо сейчас"
+            hint="150–250 символов · мин. 50"
+            rows={3}
+            value={body.drill}
+            onChange={(v) => setBody((p) => ({ ...p, drill: v }))}
+          />
+
+          <BodyTextarea
+            label="Чего избегать"
+            hint="150–250 символов · мин. 30"
+            rows={3}
+            value={body.avoid}
+            onChange={(v) => setBody((p) => ({ ...p, avoid: v }))}
+          />
+
+          <BodyTextarea
+            label="Признак прогресса"
+            hint="100–200 символов · мин. 30"
+            rows={2}
+            value={body.progress}
+            onChange={(v) => setBody((p) => ({ ...p, progress: v }))}
+          />
+        </div>
+      )}
 
       <label className="flex items-center gap-2 text-sm text-ink">
         <input
@@ -479,5 +702,38 @@ function ResourceModal({
         </button>
       </div>
     </Modal>
+  )
+}
+
+function BodyTextarea({
+  label,
+  hint,
+  rows,
+  value,
+  onChange,
+}: {
+  label: string
+  hint: string
+  rows: number
+  value: string
+  onChange: (v: string) => void
+}) {
+  return (
+    <div>
+      <div className="mb-1 flex items-baseline justify-between">
+        <label className="font-mono text-[10px] uppercase tracking-widest text-muted">
+          {label}
+        </label>
+        <span className="font-mono text-[10px] tracking-widest text-muted">
+          {hint} · {value.length} симв.
+        </span>
+      </div>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        rows={rows}
+        className="w-full rounded-rad border border-line bg-card p-2 text-sm text-ink transition-colors focus:border-ink focus:outline-none"
+      />
+    </div>
   )
 }

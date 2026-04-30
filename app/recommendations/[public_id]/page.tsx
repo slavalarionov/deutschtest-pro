@@ -7,6 +7,7 @@ import { formatEditorialDate } from '@/lib/format/date'
 import { getTagLabel } from '@/lib/learning-tags'
 import type { WeakArea, Strength } from '@/lib/claude'
 import type { MatchedResource, MatchedResourcesIndex } from '@/lib/recommendations/snapshot'
+import { LearningAdviceCard } from '@/components/recommendations/LearningAdviceCard'
 import type { Locale } from '@/i18n/request'
 
 interface PublicRecommendationData {
@@ -207,10 +208,20 @@ export default async function PublicRecommendationsPage({
                     <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
                       {tPublic('resourcesLabel')}
                     </div>
-                    <ul className="space-y-3">
-                      {resources.map((r) => (
-                        <ResourceCard key={r.id} resource={r} typeLabel={tTypes(r.resource_type)} />
-                      ))}
+                    <ul className="space-y-4">
+                      {resources.map((r) =>
+                        r.resource_type === 'advice' ? (
+                          <li key={r.id}>
+                            <LearningAdviceCard resource={r} locale={locale} />
+                          </li>
+                        ) : (
+                          <ResourceCard
+                            key={r.id}
+                            resource={r}
+                            typeLabel={tTypes(r.resource_type)}
+                          />
+                        ),
+                      )}
                     </ul>
                   </div>
                 )}
@@ -247,6 +258,8 @@ function ResourceCard({
   resource: MatchedResource
   typeLabel: string
 }) {
+  if (!resource.url) return null
+
   return (
     <li className="flex items-start gap-3">
       <span

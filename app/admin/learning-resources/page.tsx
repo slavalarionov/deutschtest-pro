@@ -10,6 +10,7 @@ interface SearchParams {
   topic?: string
   language?: string
   active?: string
+  type?: string
   page?: string
 }
 
@@ -30,7 +31,7 @@ export default async function AdminLearningResourcesPage({
   let query = supabase
     .from('learning_resources')
     .select(
-      'id, module, level, topic, title, url, resource_type, description, language, is_active, created_at, updated_at',
+      'id, module, level, topic, title, url, resource_type, description, language, is_active, body, created_at, updated_at',
       { count: 'exact' },
     )
     .order('updated_at', { ascending: false })
@@ -42,6 +43,8 @@ export default async function AdminLearningResourcesPage({
   if (searchParams.language) query = query.eq('language', searchParams.language)
   if (searchParams.active === '1') query = query.eq('is_active', true)
   else if (searchParams.active === '0') query = query.eq('is_active', false)
+  if (searchParams.type === 'advice') query = query.eq('resource_type', 'advice')
+  else if (searchParams.type === 'external') query = query.neq('resource_type', 'advice')
 
   const { data: rows, count } = await query
   const resources = (rows ?? []) as ResourceRow[]

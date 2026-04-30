@@ -3,19 +3,33 @@ import { z } from 'zod'
 import { requireAdminApi } from '@/lib/admin/require-admin'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { LEARNING_TAGS } from '@/lib/learning-tags'
+import { LearningAdviceBodySchema } from '@/types/learning-advice'
 
-const bodySchema = z.object({
+const baseSchema = z.object({
   id: z.string().uuid().optional(),
   title: z.string().trim().min(1).max(200),
-  url: z.string().url().regex(/^https?:\/\//i, 'URL must start with http:// or https://'),
   module: z.enum(['lesen', 'horen', 'schreiben', 'sprechen']),
   level: z.enum(['a1', 'a2', 'b1']),
   topic: z.enum(LEARNING_TAGS),
-  resource_type: z.enum(['book', 'video', 'exercise', 'website', 'app', 'article']),
   description: z.string().trim().max(500).nullable().optional(),
   language: z.enum(['de', 'ru', 'en']),
   is_active: z.boolean().optional(),
 })
+
+const externalSchema = baseSchema.extend({
+  resource_type: z.enum(['book', 'video', 'exercise', 'website', 'app', 'article']),
+  url: z
+    .string()
+    .url()
+    .regex(/^https?:\/\//i, 'URL must start with http:// or https://'),
+})
+
+const adviceSchema = baseSchema.extend({
+  resource_type: z.literal('advice'),
+  body: LearningAdviceBodySchema,
+})
+
+const bodySchema = z.discriminatedUnion('resource_type', [externalSchema, adviceSchema])
 
 export async function POST(req: NextRequest) {
   const adminOrResp = await requireAdminApi()
@@ -32,36 +46,25 @@ export async function POST(req: NextRequest) {
   const supabase = createAdminClient()
   const data = parsed.data
 
-  if (data.id) {
-    const { error } = await supabase
-      .from('learning_resources')
-      .update({
-        title: data.title,
-        url: data.url,
-        module: data.module,
-        level: data.level,
-        topic: data.topic,
-        resource_type: data.resource_type,
-        description: data.description ?? null,
-        language: data.language,
-        is_active: data.is_active ?? true,
-      })
-      .eq('id', data.id)
+  const isAdvice = data.resource_type === 'advice'
+  const row = {
+    title: data.title,
+    module: data.module,
+    level: data.level,
+    topic: data.topic,
+    resource_type: data.resource_type,
+    description: data.description ?? null,
+    language: data.language,
+    is_active: data.is_active ?? true,
+    url: isAdvice ? null : data.url,
+    body: isAdvice ? data.body : null,
+  }
 
+  if (data.id) {
+    const { error } = await supabase.from('learning_resources').update(row).eq('id', data.id)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   } else {
-    const { error } = await supabase.from('learning_resources').insert({
-      title: data.title,
-      url: data.url,
-      module: data.module,
-      level: data.level,
-      topic: data.topic,
-      resource_type: data.resource_type,
-      description: data.description ?? null,
-      language: data.language,
-      is_active: data.is_active ?? true,
-    })
-
+    const { error } = await supabase.from('learning_resources').insert(row)
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
