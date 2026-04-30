@@ -89,11 +89,22 @@ function PackageCard({
   const ns = `packages.${pkg.tier}` as const
   const featured = pkg.tier === 'standard'
   const hasBadge = pkg.tier !== 'starter'
-  const featureCount = pkg.tier === 'starter' ? 3 : pkg.tier === 'standard' ? 4 : 5
+  const featureCount = 4
 
   const priceMajor = pkg.priceMinor / 100
   const originalPriceMajor =
     pkg.originalPriceMinor != null ? pkg.originalPriceMinor / 100 : null
+
+  // Standard already shows a "Популярно" badge — stack a discount pill next to it
+  // so the price-saving is legible without reading the strikethrough. Computed
+  // from the price gap so we don't have to keep an extra i18n string in sync.
+  const discountPercent =
+    featured && pkg.originalPriceMinor != null
+      ? Math.round(
+          ((pkg.originalPriceMinor - pkg.priceMinor) / pkg.originalPriceMinor) *
+            100,
+        )
+      : null
 
   const fracDigits = (n: number) =>
     pkg.currency === 'RUB' ? 0 : Number.isInteger(n) ? 0 : 2
@@ -127,18 +138,25 @@ function PackageCard({
         <span className="font-display text-xl tracking-tight">
           {tPricing(`${ns}.name`)}
         </span>
-        {hasBadge && (
-          <span
-            className={[
-              'rounded-rad-pill px-3 py-1 text-[11px] font-medium uppercase tracking-wide',
-              featured
-                ? 'bg-accent-soft text-accent-ink'
-                : 'border border-line-soft bg-surface text-ink-soft',
-            ].join(' ')}
-          >
-            {tPricing(`${ns}.badge`)}
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {discountPercent != null && (
+            <span className="rounded-rad-pill border border-line-soft bg-surface px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-ink-soft">
+              −{discountPercent}%
+            </span>
+          )}
+          {hasBadge && (
+            <span
+              className={[
+                'rounded-rad-pill px-3 py-1 text-[11px] font-medium uppercase tracking-wide',
+                featured
+                  ? 'bg-accent-soft text-accent-ink'
+                  : 'border border-line-soft bg-surface text-ink-soft',
+              ].join(' ')}
+            >
+              {tPricing(`${ns}.badge`)}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="mt-6">

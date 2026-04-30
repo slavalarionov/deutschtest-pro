@@ -155,6 +155,16 @@ export function FeaturesSection() {
             </article>
           ))}
         </div>
+
+        {/* Explanatory note: each user has weak spots → train them individually,
+            but the real exam is all four — pass each module at least once. */}
+        <div className="mt-12 max-w-3xl text-lg leading-relaxed text-ink-soft sm:mt-16 sm:text-xl">
+          {t.rich('modulesNote', {
+            strong: (chunks) => (
+              <strong className="font-semibold text-ink">{chunks}</strong>
+            ),
+          })}
+        </div>
       </div>
     </section>
   )

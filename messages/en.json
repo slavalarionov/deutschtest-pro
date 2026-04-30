@@ -92,6 +92,7 @@
       "titleStrong": "Four modules.",
       "titleMuted": "One platform.",
       "subtitle": "Every module follows the Goethe-Zertifikat format exactly.",
+      "modulesNote": "<strong>Everyone has weak spots.</strong> Some struggle with Sprechen, others trip on Hören. Train individual modules — the ones that give you the most trouble. But remember: the real exam covers all four. To walk in confident, we recommend going through each module at least once.",
       "items": {
         "lesen": {
           "title": "Lesen",
@@ -206,7 +207,8 @@
         "priceNote": "10 modules",
         "feature1": "10 modules, any type",
         "feature2": "Lesen, Hören, Schreiben, Sprechen",
-        "feature3": "AI scoring & feedback"
+        "feature3": "AI scoring & feedback",
+        "feature4": "Progress analytics"
       },
       "standard": {
         "name": "Standard",
@@ -224,8 +226,7 @@
         "feature1": "40 modules, any type",
         "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "AI scoring & feedback",
-        "feature4": "Progress analytics",
-        "feature5": "Priority support"
+        "feature4": "Progress analytics"
       }
     },
     "ctaBuy": "Select package",

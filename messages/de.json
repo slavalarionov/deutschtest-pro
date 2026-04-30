@@ -92,6 +92,7 @@
       "titleStrong": "Vier Module.",
       "titleMuted": "Eine Plattform.",
       "subtitle": "Jedes Modul folgt exakt dem Format des Goethe-Zertifikats.",
+      "modulesNote": "<strong>Jeder hat seine Schwachstellen.</strong> Manchen fällt Sprechen schwer, andere stolpern bei Hören. Trainieren Sie einzelne Module — diejenigen, die Ihnen die meisten Schwierigkeiten bereiten. Aber denken Sie daran: Die Prüfung besteht aus allen vier Teilen. Um souverän anzutreten, empfehlen wir, jedes Modul mindestens einmal durchzugehen.",
       "items": {
         "lesen": {
           "title": "Lesen",
@@ -206,7 +207,8 @@
         "priceNote": "10 Module",
         "feature1": "10 beliebige Module",
         "feature2": "Lesen, Hören, Schreiben, Sprechen",
-        "feature3": "KI-Bewertung & Feedback"
+        "feature3": "KI-Bewertung & Feedback",
+        "feature4": "Fortschrittsanalyse"
       },
       "standard": {
         "name": "Standard",
@@ -224,8 +226,7 @@
         "feature1": "40 beliebige Module",
         "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "KI-Bewertung & Feedback",
-        "feature4": "Fortschrittsanalyse",
-        "feature5": "Prioritäts-Support"
+        "feature4": "Fortschrittsanalyse"
       }
     },
     "ctaBuy": "Paket wählen",

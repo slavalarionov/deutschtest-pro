@@ -65,17 +65,18 @@ export function HeroQuizDesktop() {
         </div>
       </div>
 
-      {/* Top-right: KI-Feedback (offset below mono-caption to keep it readable) */}
+      {/* Top: KI-Feedback — slight leftward shift, sits above the upper half of the ß. */}
       <HeroQuizFeedbackCard
         text={feedbackText}
-        className="absolute right-6 top-12 z-10 w-64"
+        className="absolute right-2 top-10 z-20 w-72"
       />
 
-      {/* Bottom-right: task or final */}
+      {/* Bottom: task / final — deeper leftward shift, overlaps the lower half of the ß
+          ("заходит на половину буквы"). The two cards form a stair-step composition. */}
       {isFinal ? (
         <HeroQuizFinalCard
           correctCount={correctCount}
-          className="absolute -right-4 bottom-2 z-10 w-[340px]"
+          className="absolute bottom-10 right-20 z-10 w-[360px]"
         />
       ) : card ? (
         <HeroQuizTaskCard
@@ -85,7 +86,7 @@ export function HeroQuizDesktop() {
           isAnswered={isAnswered}
           onAnswer={handleAnswer}
           onNext={handleNext}
-          className="absolute -right-4 bottom-2 z-10 w-[340px]"
+          className="absolute bottom-10 right-20 z-10 w-[360px]"
         />
       ) : null}
     </div>

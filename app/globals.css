@@ -195,6 +195,18 @@
 /* Selection follows accent */
 ::selection { background: var(--accent-soft); color: var(--accent-ink); }
 
+/* Live-indicator pulse — used on hero badge dot to signal "live AI". */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(1.15); }
+}
+.animate-live-pulse {
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-live-pulse { animation: none; }
+}
+
 /* Thin editorial scrollbar used on horizontally-scrolling chart containers. */
 .chart-scroll {
   scrollbar-width: thin;

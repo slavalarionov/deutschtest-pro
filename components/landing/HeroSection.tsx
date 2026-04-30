@@ -48,7 +48,7 @@ export function HeroSection({ isLoggedIn }: HeroSectionProps) {
           >
             <span
               aria-hidden="true"
-              className="h-1.5 w-1.5 rounded-rad-pill bg-accent"
+              className="h-1.5 w-1.5 animate-live-pulse rounded-rad-pill bg-accent"
             />
             <span>{t('badge')}</span>
           </span>

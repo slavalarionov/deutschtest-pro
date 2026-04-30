@@ -5,7 +5,7 @@ import { FeaturesSection } from '@/components/landing/FeaturesSection'
 import { PricingSection } from '@/components/landing/PricingSection'
 import { FaqSection } from '@/components/landing/FaqSection'
 import { Footer } from '@/components/landing/Footer'
-import { AuthNav } from '@/components/auth/AuthNav'
+import { LandingHeader } from '@/components/landing/LandingHeader'
 import { createClient } from '@/lib/supabase/server'
 
 export async function generateMetadata({
@@ -30,9 +30,7 @@ export default async function HomePage(_: { params: { locale: string } }) {
 
   return (
     <main className="min-h-screen">
-      <header className="absolute right-4 top-4 z-50 sm:right-8 sm:top-6">
-        <AuthNav userEmail={user?.email ?? null} />
-      </header>
+      <LandingHeader userEmail={user?.email ?? null} />
       <HeroSection isLoggedIn={isLoggedIn} />
       <FeaturesSection />
       <PricingSection />

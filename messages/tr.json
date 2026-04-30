@@ -92,6 +92,7 @@
       "titleStrong": "Dört modül.",
       "titleMuted": "Tek platform.",
       "subtitle": "Her modül Goethe-Zertifikat formatını birebir takip eder.",
+      "modulesNote": "<strong>Herkesin zayıf noktaları vardır.</strong> Kimisi Sprechen'le zorlanır, kimisi Hören'de tökezler. Bireysel modülleri çalışın — size en çok zorluk yaşatanları. Ama unutmayın: gerçek sınavda dördü de var. Sınava güvenle gitmek için her modülü en az bir kez geçmenizi öneririz.",
       "items": {
         "lesen": {
           "title": "Lesen",
@@ -206,7 +207,8 @@
         "priceNote": "10 modül",
         "feature1": "İstediğiniz 10 modül",
         "feature2": "Lesen, Hören, Schreiben, Sprechen",
-        "feature3": "AI değerlendirme ve geri bildirim"
+        "feature3": "AI değerlendirme ve geri bildirim",
+        "feature4": "İlerleme analizi"
       },
       "standard": {
         "name": "Standard",
@@ -224,8 +226,7 @@
         "feature1": "İstediğiniz 40 modül",
         "feature2": "Lesen, Hören, Schreiben, Sprechen",
         "feature3": "AI değerlendirme ve geri bildirim",
-        "feature4": "İlerleme analizi",
-        "feature5": "Öncelikli destek"
+        "feature4": "İlerleme analizi"
       }
     },
     "ctaBuy": "Paket seç",
