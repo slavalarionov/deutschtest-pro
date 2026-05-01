@@ -4,6 +4,8 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import { useState } from 'react'
 import { RetakeModuleModal } from '@/components/exam/RetakeModuleModal'
+import { ShareSection } from '@/components/exam/ShareSection'
+import { CriteriaWithLetters } from '@/components/results/CriteriaWithLetters'
 import { ScoreHero } from '@/components/results/shared/ScoreHero'
 import { ReadingListeningAnswersTable } from '@/components/results/shared/ReadingListeningAnswersTable'
 import type {
@@ -94,6 +96,15 @@ export function TestDetailsView({
         />
       )}
 
+      {/* ====== Share ====== */}
+      <ShareSection
+        kind="result"
+        sessionId={details.sessionId}
+        module={details.module}
+        moduleLabel={moduleLabel}
+        score={details.score}
+      />
+
       {/* ====== Footer action ====== */}
       <div className="flex flex-col items-center gap-3 pt-6">
         <button
@@ -165,16 +176,8 @@ function SchreibenSection({
   content: SchreibenContent | null
 }) {
   const t = useTranslations('dashboard.testDetail.schreiben')
+  const tBlock = useTranslations('results.schreiben.criteriaBlock')
   const tDetail = useTranslations('dashboard.testDetail')
-
-  const criteria = feedback
-    ? ([
-        [t('taskFulfillment'), feedback.criteria.taskFulfillment, 25],
-        [t('coherence'), feedback.criteria.coherence, 25],
-        [t('vocabulary'), feedback.criteria.vocabulary, 25],
-        [t('grammar'), feedback.criteria.grammar, 25],
-      ] as const)
-    : []
 
   return (
     <div className="space-y-6">
@@ -204,27 +207,26 @@ function SchreibenSection({
 
       {feedback ? (
         <>
-          <div className="rounded-rad border border-line bg-card p-8">
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-              {tDetail('criteriaEyebrow')}
-            </div>
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {criteria.map(([label, score, max]) => (
-                <div key={label}>
-                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-                    {label}
-                  </div>
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <span className="font-display text-4xl text-ink">
-                      {score}
-                    </span>
-                    <span className="text-sm text-ink-soft">/ {max}</span>
-                  </div>
-                  <ProgressBar value={score} max={max} />
-                </div>
-              ))}
-            </div>
-          </div>
+          <CriteriaWithLetters
+            scores={feedback.criteria}
+            title={tBlock('title')}
+            translatedTitle={tBlock('translatedTitle')}
+            helper={tBlock('helper')}
+            labels={{
+              de: {
+                taskFulfillment: tBlock('criteria.taskFulfillment'),
+                coherence:       tBlock('criteria.coherence'),
+                vocabulary:      tBlock('criteria.vocabulary'),
+                grammar:         tBlock('criteria.grammar'),
+              },
+              translated: {
+                taskFulfillment: tBlock('translatedCriteria.taskFulfillment'),
+                coherence:       tBlock('translatedCriteria.coherence'),
+                vocabulary:      tBlock('translatedCriteria.vocabulary'),
+                grammar:         tBlock('translatedCriteria.grammar'),
+              },
+            }}
+          />
 
           {feedback.comment && (
             <div className="rounded-rad border border-line bg-card p-8">
