@@ -148,7 +148,7 @@
           "tezisy": {
             "0": "5 Teile across A1, A2 and B1 — the exact Goethe exam structure.",
             "1": "Texts are written by AI for your level and topic — there is nothing to memorise from the internet.",
-            "2": "Two-column layout: text on the left, questions on the right — same as the paper exam booklet."
+            "2": "Text and questions side by side — like the paper Goethe answer sheet. No scrolling back and forth."
           }
         },
         "horen": {
@@ -176,7 +176,7 @@
           "title": "You speak. You are heard.",
           "lede": "Three parts — introduce yourself, plan something with a partner, present a topic.",
           "tezisy": {
-            "0": "You record your answer, AI transcribes it — no manual review queues, no waiting.",
+            "0": "More than recorded — listened to and graded against the 5 Goethe criteria.",
             "1": "Five Goethe criteria: Aufgabenerfüllung, Flüssigkeit, Wortschatz, Grammatik, Aussprache.",
             "2": "The review quotes your own speech and points to the exact spots that work — and the ones that wobble."
           }

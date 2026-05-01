@@ -148,7 +148,7 @@
           "tezisy": {
             "0": "A1, A2 ve B1 seviyelerinde 5 Teil — Goethe sınavının tam yapısı.",
             "1": "Metinler seviyenize ve konunuza göre YZ tarafından yazılır — internetten ezberleyebileceğiniz bir şey yok.",
-            "2": "İki sütunlu düzen: solda metin, sağda sorular — kâğıt sınav kitapçığındaki gibi."
+            "2": "Metin ve sorular yan yana — kâğıt Goethe cevap kâğıdındaki gibi. İleri geri kaydırmaya gerek yok."
           }
         },
         "horen": {
@@ -176,7 +176,7 @@
           "title": "Siz konuşun. Biz duyalım.",
           "lede": "Üç bölüm — kendinizi tanıtın, bir partnerle bir şey planlayın, bir konuyu sunun.",
           "tezisy": {
-            "0": "Cevabınızı kaydedersiniz, YZ onu yazıya döker — kuyruk yok, manuel inceleme yok.",
+            "0": "Sadece kaydetmiyor — dinleyip 5 Goethe kriterine göre değerlendiriyor.",
             "1": "Beş Goethe kriteri: Aufgabenerfüllung, Flüssigkeit, Wortschatz, Grammatik, Aussprache.",
             "2": "Değerlendirme kendi konuşmanızdan alıntı yapar ve neyin sağlam, neyin sallantıda olduğunu nokta atışı gösterir."
           }

@@ -495,13 +495,10 @@ function SprechenMock() {
 
       {/* Transcript bubble */}
       <div className={`${MOCK_INNER} mt-4 p-3`}>
-        <div className="mb-1.5 flex items-center gap-1.5">
+        <div className="mb-1.5">
           <span className="inline-flex items-center gap-1 rounded-rad-pill border border-accent/30 bg-accent-soft px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-accent-ink">
             <span className="h-1 w-1 rounded-full bg-accent" />
-            ИИ
-          </span>
-          <span className="font-mono text-[9px] uppercase tracking-wider text-muted">
-            Транскрипция
+            ТРАНСКРИПТ
           </span>
         </div>
         <p className="text-[11px] leading-relaxed text-ink">

@@ -148,7 +148,7 @@
           "tezisy": {
             "0": "5 Teile auf A1, A2 und B1 — exakte Struktur der Goethe-Prüfung.",
             "1": "Texte werden von der KI für Ihr Niveau und Thema geschrieben — nichts, was man aus dem Internet auswendig lernen könnte.",
-            "2": "Zweispaltige Ansicht: Text links, Aufgaben rechts — wie auf dem Prüfungsbogen."
+            "2": "Text und Fragen nebeneinander — wie auf dem Goethe-Antwortbogen aus Papier. Kein Scrollen hin und her."
           }
         },
         "horen": {
@@ -176,7 +176,7 @@
           "title": "Sie sprechen. Wir hören zu.",
           "lede": "Drei Teile — sich vorstellen, etwas gemeinsam planen, ein Thema präsentieren.",
           "tezisy": {
-            "0": "Sie nehmen Ihre Antwort auf, die KI transkribiert sie — keine Warteschlangen, keine manuelle Korrektur.",
+            "0": "Nicht nur aufgenommen — angehört und nach den 5 Goethe-Kriterien bewertet.",
             "1": "Fünf Goethe-Kriterien: Aufgabenerfüllung, Flüssigkeit, Wortschatz, Grammatik, Aussprache.",
             "2": "Die Auswertung zitiert Ihre eigenen Worte und zeigt punktgenau, wo es trägt — und wo es wackelt."
           }
