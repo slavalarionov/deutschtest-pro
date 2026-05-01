@@ -1,10 +1,11 @@
 'use client'
 
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/routing'
 import { useState } from 'react'
 import { RetakeModuleModal } from '@/components/exam/RetakeModuleModal'
-import { formatEditorialDate } from '@/lib/format/date'
+import { ScoreHero } from '@/components/results/shared/ScoreHero'
+import { ReadingListeningAnswersTable } from '@/components/results/shared/ReadingListeningAnswersTable'
 import type {
   TestDetails,
   LesenHorenAttemptFeedback,
@@ -39,14 +40,10 @@ export function TestDetailsView({
   modulesBalance,
 }: TestDetailsViewProps) {
   const t = useTranslations('dashboard.testDetail')
-  const tStatus = useTranslations('dashboard.history.table')
   const tModules = useTranslations('modules')
-  const locale = useLocale()
   const [retakeOpen, setRetakeOpen] = useState(false)
 
   const moduleLabel = tModules(details.module)
-  const formattedDate = formatEditorialDate(details.submittedAt, locale)
-  const passed = details.passed
 
   return (
     <div className="mx-auto max-w-3xl space-y-10">
@@ -67,40 +64,16 @@ export function TestDetailsView({
         </div>
         <h1 className="font-display text-[44px] leading-[1.05] tracking-[-0.03em] text-ink sm:text-5xl md:text-6xl">
           {moduleLabel}.
-          <br />
-          <span className="text-ink-soft">{formattedDate}.</span>
         </h1>
       </header>
 
       {/* ====== Score card ====== */}
-      <div className="rounded-rad border border-line bg-card p-10 text-center sm:p-14">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          {t('resultEyebrow')}
-        </div>
-        <div className="mt-3 font-display text-7xl leading-none tracking-[-0.04em] text-ink md:text-8xl">
-          {details.score}
-        </div>
-        <div className="mt-2 font-mono text-xl text-ink-soft">/ 100</div>
-
-        <div className="mx-auto mt-6 h-2 w-64 overflow-hidden rounded-rad-pill bg-line">
-          <div
-            className={`h-full rounded-rad-pill ${passed ? 'bg-accent' : 'bg-ink'}`}
-            style={{ width: `${Math.min(details.score, 100)}%` }}
-          />
-        </div>
-
-        <div className="mt-6 inline-flex items-center gap-2 text-sm">
-          <span
-            aria-hidden="true"
-            className={`block h-1.5 w-1.5 rounded-full ${passed ? 'bg-accent' : 'bg-ink'}`}
-          />
-          <span className={passed ? 'text-ink-soft' : 'text-muted'}>
-            {passed
-              ? tStatus('statusBestanden')
-              : tStatus('statusNichtBestanden')}
-          </span>
-        </div>
-      </div>
+      <ScoreHero
+        score={details.score}
+        moduleLabel={moduleLabel}
+        level={details.level}
+        submittedAt={details.submittedAt}
+      />
 
       {/* ====== Module-specific section ====== */}
       {(details.module === 'lesen' || details.module === 'horen') && (
@@ -167,7 +140,6 @@ function LesenHorenSection({
   feedback: LesenHorenAttemptFeedback | null
 }) {
   const t = useTranslations('dashboard.testDetail.lesenHoren')
-  const tDetail = useTranslations('dashboard.testDetail')
 
   if (!feedback || !feedback.details || !feedback.summary) {
     return (
@@ -177,101 +149,11 @@ function LesenHorenSection({
     )
   }
 
-  const entries = Object.entries(feedback.details)
-  const wrongCount =
-    feedback.summary.total - feedback.summary.correct
-
   return (
-    <div className="space-y-6">
-      {/* Overview */}
-      <div className="rounded-rad border border-line bg-surface p-8">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          {tDetail('overviewEyebrow')}
-        </div>
-        <div className="mt-4 flex flex-wrap items-end gap-0">
-          <StatPill
-            value={String(feedback.summary.correct)}
-            label={t('correct').toUpperCase()}
-          />
-          <div className="border-l border-line pl-8">
-            <StatPill
-              value={String(wrongCount)}
-              label={t('wrong').toUpperCase()}
-              muted={wrongCount > 0}
-            />
-          </div>
-          <div className="border-l border-line pl-8">
-            <StatPill
-              value={String(feedback.summary.total)}
-              label={t('total').toUpperCase()}
-              soft
-            />
-          </div>
-        </div>
-        {wrongCount === 0 && (
-          <div className="mt-5 font-mono text-[11px] uppercase tracking-widest text-accent-ink">
-            {t('allCorrect')}
-          </div>
-        )}
-      </div>
-
-      {/* All answers */}
-      <div className="rounded-rad border border-line bg-card p-6 sm:p-8">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          {tDetail('allAnswersEyebrow')}
-        </div>
-        <table className="mt-4 w-full font-mono text-sm tabular-nums">
-          <thead>
-            <tr className="border-b border-line text-[10px] uppercase tracking-widest text-muted">
-              <th className="py-2 pr-4 text-left font-normal">
-                {t('table.number')}
-              </th>
-              <th className="w-8 px-2 py-2 text-center font-normal">
-                <span className="sr-only">{t('table.status')}</span>
-              </th>
-              <th className="px-3 py-2 text-left font-normal">
-                {t('table.yourAnswer')}
-              </th>
-              <th className="py-2 pl-3 text-left font-normal">
-                {t('table.correctAnswer')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map(([id, detail], i) => {
-              const numericId = Number(id)
-              const padded = Number.isFinite(numericId)
-                ? String(numericId).padStart(2, '0')
-                : String(i + 1).padStart(2, '0')
-              return (
-                <tr key={id} className="border-b border-line-soft last:border-b-0">
-                  <td className="py-2 pr-4 text-muted">{padded}</td>
-                  <td className="w-8 px-2 py-2 text-center">
-                    {detail.isCorrect ? (
-                      <span aria-label={t('correct')} className="text-accent-ink">
-                        {'✓'}
-                      </span>
-                    ) : (
-                      <span aria-label={t('wrong')} className="text-error">
-                        {'✗'}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-3 py-2 text-ink">{detail.userAnswer || '—'}</td>
-                  <td
-                    className={`py-2 pl-3 ${
-                      detail.isCorrect ? 'text-muted' : 'text-ink-soft'
-                    }`}
-                  >
-                    {detail.isCorrect ? '—' : detail.correctAnswer}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <ReadingListeningAnswersTable
+      details={feedback.details}
+      summary={feedback.summary}
+    />
   )
 }
 
@@ -464,30 +346,3 @@ function SprechenSection({
   )
 }
 
-/**
- * Editorial stat pill — big display number on top, mono caption below.
- * Variants: default (ink), muted (if the count matters and is > 0),
- * soft (for neutral totals). Separators between pills are handled by
- * the parent with `border-l`.
- */
-function StatPill({
-  value,
-  label,
-  muted,
-  soft,
-}: {
-  value: string
-  label: string
-  muted?: boolean
-  soft?: boolean
-}) {
-  const valueColor = muted ? 'text-muted' : soft ? 'text-ink-soft' : 'text-ink'
-  return (
-    <div>
-      <div className={`font-display text-3xl ${valueColor}`}>{value}</div>
-      <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-muted">
-        {label}
-      </div>
-    </div>
-  )
-}

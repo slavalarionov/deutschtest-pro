@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { NextIntlClientProvider } from 'next-intl'
 import { getTranslations } from 'next-intl/server'
 import { createServerClient } from '@/lib/supabase-server'
-import { ScorePraedikat } from '@/components/results/ScorePraedikat'
 import { CriteriaWithLetters } from '@/components/results/CriteriaWithLetters'
-import { formatEditorialDate } from '@/lib/format/date'
-import { getPraedikat } from '@/lib/grading/praedikat'
+import { ScoreHero } from '@/components/results/shared/ScoreHero'
+import { ReadingListeningAnswersTable } from '@/components/results/shared/ReadingListeningAnswersTable'
 import { userInputSchema } from '@/types/exam'
 import type { Locale } from '@/i18n/request'
 
@@ -108,38 +108,28 @@ export default async function PublicResultPage(
 
   const { locale, module: moduleKey, level, score, scores, aiFeedback, userInput, submittedAt } = data
 
-  const [tModules, tDetail, tScoreCard, tPraedikatLabel, tCriteriaBlock, tUserInput, tLesenHoren, tSprechen, tPublic] = await Promise.all([
+  const [tModules, tDetail, tCriteriaBlock, tUserInput, tSprechen, tPublic] = await Promise.all([
     getTranslations({ locale, namespace: 'modules' }),
     getTranslations({ locale, namespace: 'dashboard.testDetail' }),
-    getTranslations({ locale, namespace: 'results.scoreCard' }),
-    getTranslations({ locale, namespace: 'results.praedikat.label' }),
     getTranslations({ locale, namespace: 'results.schreiben.criteriaBlock' }),
     getTranslations({ locale, namespace: 'results.userInput' }),
-    getTranslations({ locale, namespace: 'results.lesenHoren' }),
     getTranslations({ locale, namespace: 'results.sprechen' }),
     getTranslations({ locale, namespace: 'results.public' }),
   ])
 
   const moduleLabel = tModules(moduleKey)
-  const formattedDate = submittedAt ? formatEditorialDate(submittedAt, locale) : null
-  const formattedTime = submittedAt
-    ? new Date(submittedAt).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
-    : null
+  const messages = (await import(`@/messages/${locale}.json`)).default
+  const fallbackMessages =
+    locale === 'de'
+      ? messages
+      : (await import(`@/messages/de.json`)).default
+  const mergedMessages = { ...fallbackMessages, ...messages }
 
-  const eyebrow = formattedDate && formattedTime
-    ? tScoreCard('eyebrow', {
-        module: moduleLabel.toLocaleUpperCase(locale),
-        level: level.toUpperCase(),
-        date: formattedDate,
-        time: formattedTime,
-      })
-    : `${moduleLabel.toLocaleUpperCase(locale)} · ${level.toUpperCase()}`
-
-  const praedikat = score !== undefined ? getPraedikat(score) : null
   const fb = aiFeedback?.[moduleKey] as Record<string, unknown> | undefined
   const homeHref = locale === 'de' ? '/' : `/${locale}`
 
   return (
+    <NextIntlClientProvider locale={locale} messages={mergedMessages}>
     <div className="min-h-screen bg-page">
       <div className="mx-auto max-w-3xl space-y-8 px-4 py-8 sm:px-6 sm:py-10">
         {/* ====== Editorial header ====== */}
@@ -161,42 +151,12 @@ export default async function PublicResultPage(
         </header>
 
         {/* ====== Hero score card ====== */}
-        <div
-          data-testid="result-score-hero"
-          className="rounded-rad border border-l-2 border-line bg-card p-6 sm:border-l-4 sm:p-10"
-          style={praedikat ? { borderLeftColor: praedikat.cssColor } : undefined}
-        >
-          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-            {eyebrow}
-          </div>
-          {score === undefined ? (
-            <div className="mt-6 font-display text-[80px] leading-none tracking-[-0.04em] text-ink tabular-nums sm:text-[120px] md:text-[140px]">
-              —
-            </div>
-          ) : (
-            <div className="mt-6 flex flex-col gap-6 sm:mt-8 sm:flex-row sm:items-center sm:gap-10">
-              <div className="flex items-end gap-3">
-                <div className="font-display text-[80px] leading-none tracking-[-0.04em] text-ink tabular-nums sm:text-[120px] md:text-[140px]">
-                  {score}
-                </div>
-                <div className="pb-2 font-mono text-sm text-muted sm:pb-4">
-                  {tScoreCard('outOf')}
-                </div>
-              </div>
-              {praedikat && (
-                <div
-                  data-passed={praedikat.passed ? 'true' : 'false'}
-                  className="sm:pb-2"
-                >
-                  <ScorePraedikat
-                    praedikat={praedikat}
-                    translation={tPraedikatLabel(praedikat.level)}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        <ScoreHero
+          score={score}
+          moduleLabel={moduleLabel}
+          level={level}
+          submittedAt={submittedAt}
+        />
 
         {/* ====== User input ====== */}
         {(moduleKey === 'schreiben' || moduleKey === 'sprechen') && (() => {
@@ -242,8 +202,14 @@ export default async function PublicResultPage(
         })()}
 
         {/* ====== Module-specific feedback ====== */}
-        {fb && moduleKey === 'lesen' && <LesenHorenDetails feedback={fb} t={tLesenHoren} tDetail={tDetail} />}
-        {fb && moduleKey === 'horen' && <LesenHorenDetails feedback={fb} t={tLesenHoren} tDetail={tDetail} />}
+        {fb && (moduleKey === 'lesen' || moduleKey === 'horen') && (() => {
+          const details = (fb as { details?: Record<string, { userAnswer: string; correctAnswer: string; isCorrect: boolean }> }).details
+          const summary = (fb as { summary?: { correct: number; total: number; score: number } }).summary
+          if (!details || !summary) return null
+          return (
+            <ReadingListeningAnswersTable details={details} summary={summary} />
+          )
+        })()}
         {fb && moduleKey === 'schreiben' && (() => {
           const criteria = (fb as { criteria?: Record<string, number> }).criteria
           const comment = (fb as { comment?: string }).comment
@@ -306,6 +272,7 @@ export default async function PublicResultPage(
         </section>
       </div>
     </div>
+    </NextIntlClientProvider>
   )
 }
 
@@ -321,99 +288,6 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
 }
 
 type T = Awaited<ReturnType<typeof getTranslations>>
-
-function LesenHorenDetails({
-  feedback,
-  t,
-  tDetail,
-}: {
-  feedback: Record<string, unknown>
-  t: T
-  tDetail: T
-}) {
-  const details = feedback.details as
-    | Record<string, { userAnswer: string; correctAnswer: string; isCorrect: boolean }>
-    | undefined
-  const summary = feedback.summary as
-    | { correct: number; total: number; score: number }
-    | undefined
-  if (!details || !summary) return null
-
-  const entries = Object.entries(details)
-  const wrongCount = summary.total - summary.correct
-
-  return (
-    <div className="space-y-6">
-      <div className="rounded-rad border border-line bg-surface p-8">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          {tDetail('overviewEyebrow')}
-        </div>
-        <div className="mt-4 flex flex-wrap items-end gap-0">
-          <div>
-            <div className="font-display text-3xl text-ink">{summary.correct}</div>
-            <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-muted">
-              {t('correct').toUpperCase()}
-            </div>
-          </div>
-          <div className="border-l border-line pl-8">
-            <div className={`font-display text-3xl ${wrongCount > 0 ? 'text-muted' : 'text-ink'}`}>
-              {wrongCount}
-            </div>
-            <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-muted">
-              {t('wrong').toUpperCase()}
-            </div>
-          </div>
-          <div className="border-l border-line pl-8">
-            <div className="font-display text-3xl text-ink-soft">{summary.total}</div>
-            <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-muted">
-              {t('total').toUpperCase()}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-rad border border-line bg-card p-6 sm:p-8">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          {tDetail('allAnswersEyebrow')}
-        </div>
-        <table className="mt-4 w-full font-mono text-sm tabular-nums">
-          <thead>
-            <tr className="border-b border-line text-[10px] uppercase tracking-widest text-muted">
-              <th className="py-2 pr-4 text-left font-normal">{t('table.number')}</th>
-              <th className="w-8 px-2 py-2 text-center font-normal" />
-              <th className="px-3 py-2 text-left font-normal">{t('table.yourAnswer')}</th>
-              <th className="py-2 pl-3 text-left font-normal">{t('table.correctAnswer')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map(([id, detail], i) => {
-              const numericId = Number(id)
-              const padded = Number.isFinite(numericId)
-                ? String(numericId).padStart(2, '0')
-                : String(i + 1).padStart(2, '0')
-              return (
-                <tr key={id} className="border-b border-line-soft last:border-b-0">
-                  <td className="py-2 pr-4 text-muted">{padded}</td>
-                  <td className="w-8 px-2 py-2 text-center">
-                    {detail.isCorrect ? (
-                      <span className="text-accent-ink">✓</span>
-                    ) : (
-                      <span className="text-error">✗</span>
-                    )}
-                  </td>
-                  <td className="px-3 py-2 text-ink">{detail.userAnswer || '—'}</td>
-                  <td className={`py-2 pl-3 ${detail.isCorrect ? 'text-muted' : 'text-ink-soft'}`}>
-                    {detail.isCorrect ? '—' : detail.correctAnswer}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-}
 
 function SprechenDetails({
   feedback,

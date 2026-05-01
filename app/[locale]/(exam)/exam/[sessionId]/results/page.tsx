@@ -2,14 +2,13 @@
 
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { Link, useRouter } from '@/i18n/routing'
 import { RetakeModuleModal } from '@/components/exam/RetakeModuleModal'
 import { ShareSection } from '@/components/exam/ShareSection'
-import { ScorePraedikat } from '@/components/results/ScorePraedikat'
 import { CriteriaWithLetters } from '@/components/results/CriteriaWithLetters'
-import { formatEditorialDate } from '@/lib/format/date'
-import { getPraedikat } from '@/lib/grading/praedikat'
+import { ScoreHero } from '@/components/results/shared/ScoreHero'
+import { ReadingListeningAnswersTable } from '@/components/results/shared/ReadingListeningAnswersTable'
 import { userInputSchema, type UserInput } from '@/types/exam'
 
 interface ModuleScores {
@@ -29,11 +28,6 @@ interface SprechenFeedback {
   score: number
   criteria: { taskFulfillment: number; fluency: number; vocabulary: number; grammar: number; pronunciation: number }
   comment: string
-}
-
-interface LesenHorenFeedback {
-  details: Record<string, { userAnswer: string; correctAnswer: string; isCorrect: boolean }>
-  summary: { correct: number; total: number; score: number }
 }
 
 interface ResultsData {
@@ -66,7 +60,6 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
 export default function ResultsPage() {
   const params = useParams<{ sessionId: string }>()
   const router = useRouter()
-  const locale = useLocale()
   const t = useTranslations('results')
   const tModules = useTranslations('modules')
   const tDetail = useTranslations('dashboard.testDetail')
@@ -132,15 +125,6 @@ export default function ResultsPage() {
   const activeModule = VALID_MODULES.has(mode) ? mode : 'lesen'
   const moduleLabel = tModules(activeModule as 'lesen' | 'horen' | 'schreiben' | 'sprechen')
   const score = scores ? (scores as Record<string, number>)[activeModule] : undefined
-  const formattedDate = data.submittedAt
-    ? formatEditorialDate(data.submittedAt, locale)
-    : null
-  const formattedTime = data.submittedAt
-    ? new Date(data.submittedAt).toLocaleTimeString(locale, {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : null
 
   return (
     <div className="min-h-screen bg-page">
@@ -158,10 +142,9 @@ export default function ResultsPage() {
         {/* ====== Hero score card ====== */}
         <ScoreHero
           score={score}
-          moduleLabel={moduleLabel.toLocaleUpperCase(locale)}
-          level={level.toUpperCase()}
-          date={formattedDate}
-          time={formattedTime}
+          moduleLabel={moduleLabel}
+          level={level}
+          submittedAt={data.submittedAt}
         />
 
         {/* ====== User input (Schreiben text / Sprechen transcript) ====== */}
@@ -174,7 +157,15 @@ export default function ResultsPage() {
           const fb = (aiFeedback as Record<string, unknown>)[activeModule]
           if (!fb) return null
           if (activeModule === 'lesen' || activeModule === 'horen') {
-            return <LesenHorenDetails feedback={fb as LesenHorenFeedback} />
+            const lhFb = fb as { details: Record<string, { userAnswer: string; correctAnswer: string; isCorrect: boolean }>; summary: { correct: number; total: number; score: number } }
+            if (!lhFb.details || !lhFb.summary) return null
+            return (
+              <ReadingListeningAnswersTable
+                details={lhFb.details}
+                summary={lhFb.summary}
+                hideAllCorrectBadge
+              />
+            )
           }
           if (activeModule === 'schreiben') {
             return <SchreibenDetails feedback={fb as SchreibenFeedback} />
@@ -254,182 +245,6 @@ export default function ResultsPage() {
         moduleLabel={moduleLabel}
         modulesBalance={data?.modulesBalance ?? 0}
       />
-    </div>
-  )
-}
-
-function ScoreHero({
-  score,
-  moduleLabel,
-  level,
-  date,
-  time,
-}: {
-  score: number | undefined
-  moduleLabel: string
-  level: string
-  date: string | null
-  time: string | null
-}) {
-  const t = useTranslations('results.scoreCard')
-  const tPraedikat = useTranslations('results.praedikat.label')
-  const eyebrow =
-    date && time
-      ? t('eyebrow', { module: moduleLabel, level, date, time })
-      : `${moduleLabel} · ${level}`
-
-  if (score === undefined) {
-    return (
-      <div
-        data-testid="result-score-hero"
-        className="rounded-rad border border-line bg-card p-6 sm:p-10"
-      >
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          {eyebrow}
-        </div>
-        <div
-          data-testid="result-score-value"
-          className="mt-6 font-display text-[80px] leading-none tracking-[-0.04em] text-ink tabular-nums sm:text-[120px] md:text-[140px]"
-        >
-          —
-        </div>
-      </div>
-    )
-  }
-
-  const praedikat = getPraedikat(score)
-
-  return (
-    <div
-      data-testid="result-score-hero"
-      className="rounded-rad border border-l-2 border-line bg-card p-6 sm:border-l-4 sm:p-10"
-      style={{ borderLeftColor: praedikat.cssColor }}
-    >
-      <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-        {eyebrow}
-      </div>
-
-      <div className="mt-6 flex flex-col gap-6 sm:mt-8 sm:flex-row sm:items-center sm:gap-10">
-        <div className="flex items-end gap-3">
-          <div
-            data-testid="result-score-value"
-            className="font-display text-[80px] leading-none tracking-[-0.04em] text-ink tabular-nums sm:text-[120px] md:text-[140px]"
-          >
-            {score}
-          </div>
-          <div className="pb-2 font-mono text-sm text-muted sm:pb-4">
-            {t('outOf')}
-          </div>
-        </div>
-
-        <div
-          data-testid="result-status"
-          data-passed={praedikat.passed ? 'true' : 'false'}
-          className="sm:pb-2"
-        >
-          <ScorePraedikat
-            praedikat={praedikat}
-            translation={tPraedikat(praedikat.level)}
-          />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function LesenHorenDetails({ feedback }: { feedback: LesenHorenFeedback }) {
-  const t = useTranslations('results.lesenHoren')
-  const tDetail = useTranslations('dashboard.testDetail')
-  if (!feedback.details || !feedback.summary) return null
-
-  const entries = Object.entries(feedback.details)
-  const wrongCount = feedback.summary.total - feedback.summary.correct
-
-  return (
-    <div className="space-y-6">
-      {/* Overview */}
-      <div className="rounded-rad border border-line bg-surface p-8">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          {tDetail('overviewEyebrow')}
-        </div>
-        <div className="mt-4 flex flex-wrap items-end gap-0">
-          <StatPill
-            value={String(feedback.summary.correct)}
-            label={t('correct').toUpperCase()}
-          />
-          <div className="border-l border-line pl-8">
-            <StatPill
-              value={String(wrongCount)}
-              label={t('wrong').toUpperCase()}
-              muted={wrongCount > 0}
-            />
-          </div>
-          <div className="border-l border-line pl-8">
-            <StatPill
-              value={String(feedback.summary.total)}
-              label={t('total').toUpperCase()}
-              soft
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* All answers */}
-      <div className="rounded-rad border border-line bg-card p-6 sm:p-8">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          {tDetail('allAnswersEyebrow')}
-        </div>
-        <table className="mt-4 w-full font-mono text-sm tabular-nums">
-          <thead>
-            <tr className="border-b border-line text-[10px] uppercase tracking-widest text-muted">
-              <th className="py-2 pr-4 text-left font-normal">
-                {t('table.number')}
-              </th>
-              <th className="w-8 px-2 py-2 text-center font-normal">
-                <span className="sr-only">{t('table.status')}</span>
-              </th>
-              <th className="px-3 py-2 text-left font-normal">
-                {t('table.yourAnswer')}
-              </th>
-              <th className="py-2 pl-3 text-left font-normal">
-                {t('table.correctAnswer')}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map(([id, detail], i) => {
-              const numericId = Number(id)
-              const padded = Number.isFinite(numericId)
-                ? String(numericId).padStart(2, '0')
-                : String(i + 1).padStart(2, '0')
-              return (
-                <tr key={id} className="border-b border-line-soft last:border-b-0">
-                  <td className="py-2 pr-4 text-muted">{padded}</td>
-                  <td className="w-8 px-2 py-2 text-center">
-                    {detail.isCorrect ? (
-                      <span aria-label={t('correct')} className="text-accent-ink">
-                        {'✓'}
-                      </span>
-                    ) : (
-                      <span aria-label={t('wrong')} className="text-error">
-                        {'✗'}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-3 py-2 text-ink">{detail.userAnswer || '—'}</td>
-                  <td
-                    className={`py-2 pl-3 ${
-                      detail.isCorrect ? 'text-muted' : 'text-ink-soft'
-                    }`}
-                  >
-                    {detail.isCorrect ? '—' : detail.correctAnswer}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
     </div>
   )
 }
@@ -724,30 +539,3 @@ function UserInputBlock({
   )
 }
 
-/**
- * Editorial stat pill — big display number on top, mono caption below.
- * Variants: default (ink), muted (if the count matters and is > 0),
- * soft (for neutral totals). Separators between pills are handled by
- * the parent with `border-l`.
- */
-function StatPill({
-  value,
-  label,
-  muted,
-  soft,
-}: {
-  value: string
-  label: string
-  muted?: boolean
-  soft?: boolean
-}) {
-  const valueColor = muted ? 'text-muted' : soft ? 'text-ink-soft' : 'text-ink'
-  return (
-    <div>
-      <div className={`font-display text-3xl ${valueColor}`}>{value}</div>
-      <div className="mt-1 font-mono text-[10px] uppercase tracking-widest text-muted">
-        {label}
-      </div>
-    </div>
-  )
-}
