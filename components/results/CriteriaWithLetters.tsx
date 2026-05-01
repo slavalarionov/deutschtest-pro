@@ -1,29 +1,26 @@
 import { getBuchstabe } from '@/lib/grading/buchstabe'
 
-type CriterionKey = 'taskFulfillment' | 'coherence' | 'vocabulary' | 'grammar'
-
-interface Labels {
+export interface CriterionRow {
+  /** Stable key for React (and for tests). */
+  key: string
   /** German criterion name — primary, big. */
-  de: Record<CriterionKey, string>
-  /** Translated criterion name — small, in parentheses. */
-  translated: Record<CriterionKey, string>
+  labelDe: string
+  /** Translated criterion name — small, in parentheses. Pass the same
+   *  string as `labelDe` to suppress the translated subtitle. */
+  labelTranslated: string
+  score: number
+  max: number
 }
 
 interface Props {
-  scores: Record<CriterionKey, number>
-  max?: number
-  labels: Labels
+  criteria: CriterionRow[]
   title: string
   translatedTitle: string
   helper: string
 }
 
-const ORDER: CriterionKey[] = ['taskFulfillment', 'coherence', 'vocabulary', 'grammar']
-
 export function CriteriaWithLetters({
-  scores,
-  max = 25,
-  labels,
+  criteria,
   title,
   translatedTitle,
   helper,
@@ -42,29 +39,28 @@ export function CriteriaWithLetters({
       )}
 
       <ul className="mt-6 divide-y divide-line-soft">
-        {ORDER.map((key) => {
-          const score = scores[key]
-          const buchstabe = getBuchstabe(score, max)
-          const showTranslated = labels.translated[key] !== labels.de[key]
+        {criteria.map((row) => {
+          const buchstabe = getBuchstabe(row.score, row.max)
+          const showTranslated = row.labelTranslated !== row.labelDe
           return (
             <li
-              key={key}
+              key={row.key}
               className="grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-2 py-4 sm:gap-x-8"
             >
               <div className="min-w-0">
                 <div className="text-base font-medium text-ink">
-                  {labels.de[key]}
+                  {row.labelDe}
                 </div>
                 {showTranslated && (
                   <div className="mt-0.5 text-xs italic text-muted">
-                    {labels.translated[key]}
+                    {row.labelTranslated}
                   </div>
                 )}
               </div>
 
               <div className="flex items-center gap-4 sm:gap-6">
                 <div className="font-mono text-sm tabular-nums text-ink-soft">
-                  {score}/{max}
+                  {row.score}/{row.max}
                 </div>
                 <div
                   data-buchstabe={buchstabe.letter}

@@ -250,24 +250,23 @@ export function SchreibenModule() {
 
               {/* Criteria with A–E letters */}
               <CriteriaWithLetters
-                scores={feedback.criteria}
                 title={tCriteriaBlock('title')}
                 translatedTitle={tCriteriaBlock('translatedTitle')}
                 helper={tCriteriaBlock('helper')}
-                labels={{
-                  de: {
-                    taskFulfillment: tCriteriaBlock('criteria.taskFulfillment'),
-                    coherence:       tCriteriaBlock('criteria.coherence'),
-                    vocabulary:      tCriteriaBlock('criteria.vocabulary'),
-                    grammar:         tCriteriaBlock('criteria.grammar'),
-                  },
-                  translated: {
-                    taskFulfillment: tCriteriaBlock('translatedCriteria.taskFulfillment'),
-                    coherence:       tCriteriaBlock('translatedCriteria.coherence'),
-                    vocabulary:      tCriteriaBlock('translatedCriteria.vocabulary'),
-                    grammar:         tCriteriaBlock('translatedCriteria.grammar'),
-                  },
-                }}
+                criteria={[
+                  { key: 'taskFulfillment', score: feedback.criteria.taskFulfillment, max: 25,
+                    labelDe: tCriteriaBlock('criteria.taskFulfillment'),
+                    labelTranslated: tCriteriaBlock('translatedCriteria.taskFulfillment') },
+                  { key: 'coherence', score: feedback.criteria.coherence, max: 25,
+                    labelDe: tCriteriaBlock('criteria.coherence'),
+                    labelTranslated: tCriteriaBlock('translatedCriteria.coherence') },
+                  { key: 'vocabulary', score: feedback.criteria.vocabulary, max: 25,
+                    labelDe: tCriteriaBlock('criteria.vocabulary'),
+                    labelTranslated: tCriteriaBlock('translatedCriteria.vocabulary') },
+                  { key: 'grammar', score: feedback.criteria.grammar, max: 25,
+                    labelDe: tCriteriaBlock('criteria.grammar'),
+                    labelTranslated: tCriteriaBlock('translatedCriteria.grammar') },
+                ]}
               />
 
               {/* AI comment */}

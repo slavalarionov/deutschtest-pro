@@ -108,12 +108,12 @@ export default async function PublicResultPage(
 
   const { locale, module: moduleKey, level, score, scores, aiFeedback, userInput, submittedAt } = data
 
-  const [tModules, tDetail, tCriteriaBlock, tUserInput, tSprechen, tPublic] = await Promise.all([
+  const [tModules, tDetail, tCriteriaBlock, tSprechenBlock, tUserInput, tPublic] = await Promise.all([
     getTranslations({ locale, namespace: 'modules' }),
     getTranslations({ locale, namespace: 'dashboard.testDetail' }),
     getTranslations({ locale, namespace: 'results.schreiben.criteriaBlock' }),
+    getTranslations({ locale, namespace: 'results.sprechen.criteriaBlock' }),
     getTranslations({ locale, namespace: 'results.userInput' }),
-    getTranslations({ locale, namespace: 'results.sprechen' }),
     getTranslations({ locale, namespace: 'results.public' }),
   ])
 
@@ -217,29 +217,23 @@ export default async function PublicResultPage(
           return (
             <div className="space-y-6">
               <CriteriaWithLetters
-                scores={{
-                  taskFulfillment: criteria.taskFulfillment ?? 0,
-                  coherence:       criteria.coherence ?? 0,
-                  vocabulary:      criteria.vocabulary ?? 0,
-                  grammar:         criteria.grammar ?? 0,
-                }}
                 title={tCriteriaBlock('title')}
                 translatedTitle={tCriteriaBlock('translatedTitle')}
                 helper={tCriteriaBlock('helper')}
-                labels={{
-                  de: {
-                    taskFulfillment: tCriteriaBlock('criteria.taskFulfillment'),
-                    coherence:       tCriteriaBlock('criteria.coherence'),
-                    vocabulary:      tCriteriaBlock('criteria.vocabulary'),
-                    grammar:         tCriteriaBlock('criteria.grammar'),
-                  },
-                  translated: {
-                    taskFulfillment: tCriteriaBlock('translatedCriteria.taskFulfillment'),
-                    coherence:       tCriteriaBlock('translatedCriteria.coherence'),
-                    vocabulary:      tCriteriaBlock('translatedCriteria.vocabulary'),
-                    grammar:         tCriteriaBlock('translatedCriteria.grammar'),
-                  },
-                }}
+                criteria={[
+                  { key: 'taskFulfillment', score: criteria.taskFulfillment ?? 0, max: 25,
+                    labelDe: tCriteriaBlock('criteria.taskFulfillment'),
+                    labelTranslated: tCriteriaBlock('translatedCriteria.taskFulfillment') },
+                  { key: 'coherence', score: criteria.coherence ?? 0, max: 25,
+                    labelDe: tCriteriaBlock('criteria.coherence'),
+                    labelTranslated: tCriteriaBlock('translatedCriteria.coherence') },
+                  { key: 'vocabulary', score: criteria.vocabulary ?? 0, max: 25,
+                    labelDe: tCriteriaBlock('criteria.vocabulary'),
+                    labelTranslated: tCriteriaBlock('translatedCriteria.vocabulary') },
+                  { key: 'grammar', score: criteria.grammar ?? 0, max: 25,
+                    labelDe: tCriteriaBlock('criteria.grammar'),
+                    labelTranslated: tCriteriaBlock('translatedCriteria.grammar') },
+                ]}
               />
               {comment && (
                 <div className="rounded-rad border border-line bg-card p-8">
@@ -252,7 +246,45 @@ export default async function PublicResultPage(
             </div>
           )
         })()}
-        {fb && moduleKey === 'sprechen' && <SprechenDetails feedback={fb} t={tSprechen} tDetail={tDetail} />}
+        {fb && moduleKey === 'sprechen' && (() => {
+          const criteria = (fb as { criteria?: Record<string, number> }).criteria
+          const comment = (fb as { comment?: string }).comment
+          if (!criteria) return null
+          return (
+            <div className="space-y-6">
+              <CriteriaWithLetters
+                title={tSprechenBlock('title')}
+                translatedTitle={tSprechenBlock('translatedTitle')}
+                helper={tSprechenBlock('helper')}
+                criteria={[
+                  { key: 'taskFulfillment', score: criteria.taskFulfillment ?? 0, max: 20,
+                    labelDe: tSprechenBlock('criteria.taskFulfillment'),
+                    labelTranslated: tSprechenBlock('translatedCriteria.taskFulfillment') },
+                  { key: 'fluency', score: criteria.fluency ?? 0, max: 20,
+                    labelDe: tSprechenBlock('criteria.fluency'),
+                    labelTranslated: tSprechenBlock('translatedCriteria.fluency') },
+                  { key: 'vocabulary', score: criteria.vocabulary ?? 0, max: 20,
+                    labelDe: tSprechenBlock('criteria.vocabulary'),
+                    labelTranslated: tSprechenBlock('translatedCriteria.vocabulary') },
+                  { key: 'grammar', score: criteria.grammar ?? 0, max: 20,
+                    labelDe: tSprechenBlock('criteria.grammar'),
+                    labelTranslated: tSprechenBlock('translatedCriteria.grammar') },
+                  { key: 'pronunciation', score: criteria.pronunciation ?? 0, max: 20,
+                    labelDe: tSprechenBlock('criteria.pronunciation'),
+                    labelTranslated: tSprechenBlock('translatedCriteria.pronunciation') },
+                ]}
+              />
+              {comment && (
+                <div className="rounded-rad border border-line bg-card p-8">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+                    {tDetail('aiFeedbackEyebrow')}
+                  </div>
+                  <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-ink">{comment}</p>
+                </div>
+              )}
+            </div>
+          )
+        })()}
 
         {/* ====== Footer CTA ====== */}
         <section className="rounded-rad border border-line bg-surface p-8 text-center sm:p-10">
@@ -276,78 +308,3 @@ export default async function PublicResultPage(
   )
 }
 
-// — Module feedback subcomponents (server-side, inline) —
-
-function ProgressBar({ value, max }: { value: number; max: number }) {
-  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0
-  return (
-    <div className="mt-3 h-2 overflow-hidden rounded-rad-pill bg-line">
-      <div className="h-full rounded-rad-pill bg-accent" style={{ width: `${pct}%` }} />
-    </div>
-  )
-}
-
-type T = Awaited<ReturnType<typeof getTranslations>>
-
-function SprechenDetails({
-  feedback,
-  t,
-  tDetail,
-}: {
-  feedback: Record<string, unknown>
-  t: T
-  tDetail: T
-}) {
-  const criteria = feedback.criteria as
-    | {
-        taskFulfillment: number
-        fluency: number
-        vocabulary: number
-        grammar: number
-        pronunciation: number
-      }
-    | undefined
-  const comment = feedback.comment as string | undefined
-  if (!criteria) return null
-
-  const rows: Array<[string, number, number]> = [
-    [t('taskFulfillment'), criteria.taskFulfillment, 20],
-    [t('fluency'), criteria.fluency, 20],
-    [t('vocabulary'), criteria.vocabulary, 20],
-    [t('grammar'), criteria.grammar, 20],
-    [t('pronunciation'), criteria.pronunciation, 20],
-  ]
-
-  return (
-    <div className="space-y-6">
-      <div className="rounded-rad border border-line bg-card p-8">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          {tDetail('criteriaEyebrow')}
-        </div>
-        <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3">
-          {rows.map(([label, score, max]) => (
-            <div key={label}>
-              <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-                {label}
-              </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="font-display text-4xl text-ink">{score}</span>
-                <span className="text-sm text-ink-soft">/ {max}</span>
-              </div>
-              <ProgressBar value={score} max={max} />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {comment && (
-        <div className="rounded-rad border border-line bg-card p-8">
-          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-            {tDetail('aiFeedbackEyebrow')}
-          </div>
-          <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-ink">{comment}</p>
-        </div>
-      )}
-    </div>
-  )
-}

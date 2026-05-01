@@ -1104,7 +1104,26 @@
       "fluency": "Flüssigkeit",
       "vocabulary": "Wortschatz",
       "grammar": "Grammatik",
-      "pronunciation": "Aussprache"
+      "pronunciation": "Aussprache",
+      "criteriaBlock": {
+        "title": "Bewertung nach Goethe-Kriterien",
+        "translatedTitle": "Bewertung nach Goethe-Kriterien",
+        "helper": "Zusammenfassung nach denselben fünf Kriterien, die ein Goethe-Prüfer verwendet. Die Buchstaben A–E entsprechen offiziellen Erfüllungsstufen je Kriterium.",
+        "criteria": {
+          "taskFulfillment": "Aufgabenerfüllung",
+          "fluency": "Flüssigkeit",
+          "vocabulary": "Wortschatz",
+          "grammar": "Grammatik",
+          "pronunciation": "Aussprache"
+        },
+        "translatedCriteria": {
+          "taskFulfillment": "Aufgabenerfüllung",
+          "fluency": "Flüssigkeit",
+          "vocabulary": "Wortschatz",
+          "grammar": "Grammatik",
+          "pronunciation": "Aussprache"
+        }
+      }
     },
     "retakeModal": {
       "title": "Modul erneut absolvieren",

@@ -1104,7 +1104,26 @@
       "fluency": "Fluency",
       "vocabulary": "Vocabulary",
       "grammar": "Grammar",
-      "pronunciation": "Pronunciation"
+      "pronunciation": "Pronunciation",
+      "criteriaBlock": {
+        "title": "Bewertung nach Goethe-Kriterien",
+        "translatedTitle": "Goethe scoring criteria",
+        "helper": "Summary of the same five criteria a Goethe examiner uses. Letters A–E map to the official achievement levels for each criterion.",
+        "criteria": {
+          "taskFulfillment": "Aufgabenerfüllung",
+          "fluency": "Flüssigkeit",
+          "vocabulary": "Wortschatz",
+          "grammar": "Grammatik",
+          "pronunciation": "Aussprache"
+        },
+        "translatedCriteria": {
+          "taskFulfillment": "task fulfilment",
+          "fluency": "fluency",
+          "vocabulary": "vocabulary",
+          "grammar": "grammar",
+          "pronunciation": "pronunciation"
+        }
+      }
     },
     "retakeModal": {
       "title": "Retake module",

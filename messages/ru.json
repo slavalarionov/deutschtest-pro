@@ -1104,7 +1104,26 @@
       "fluency": "Беглость",
       "vocabulary": "Словарный запас",
       "grammar": "Грамматика",
-      "pronunciation": "Произношение"
+      "pronunciation": "Произношение",
+      "criteriaBlock": {
+        "title": "Bewertung nach Goethe-Kriterien",
+        "translatedTitle": "Оценка по критериям Goethe",
+        "helper": "Сводка по тем же пяти критериям, что использует экзаменатор Goethe. Буквы A–E соответствуют официальным уровням достижения по каждому критерию.",
+        "criteria": {
+          "taskFulfillment": "Aufgabenerfüllung",
+          "fluency": "Flüssigkeit",
+          "vocabulary": "Wortschatz",
+          "grammar": "Grammatik",
+          "pronunciation": "Aussprache"
+        },
+        "translatedCriteria": {
+          "taskFulfillment": "выполнение задания",
+          "fluency": "беглость речи",
+          "vocabulary": "словарный запас",
+          "grammar": "грамматика",
+          "pronunciation": "произношение"
+        }
+      }
     },
     "retakeModal": {
       "title": "Пройти модуль заново",

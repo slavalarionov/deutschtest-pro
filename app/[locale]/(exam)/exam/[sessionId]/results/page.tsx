@@ -44,19 +44,6 @@ interface ResultsData {
 
 const VALID_MODULES = new Set(['lesen', 'horen', 'schreiben', 'sprechen'])
 
-/** Flat progress bar on `--line` with an `--accent` fill. No score-gradation. */
-function ProgressBar({ value, max }: { value: number; max: number }) {
-  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0
-  return (
-    <div className="mt-3 h-2 overflow-hidden rounded-rad-pill bg-line">
-      <div
-        className="h-full rounded-rad-pill bg-accent"
-        style={{ width: `${pct}%` }}
-      />
-    </div>
-  )
-}
-
 export default function ResultsPage() {
   const params = useParams<{ sessionId: string }>()
   const router = useRouter()
@@ -256,24 +243,23 @@ function SchreibenDetails({ feedback }: { feedback: SchreibenFeedback }) {
   return (
     <div className="space-y-6">
       <CriteriaWithLetters
-        scores={feedback.criteria}
         title={tBlock('title')}
         translatedTitle={tBlock('translatedTitle')}
         helper={tBlock('helper')}
-        labels={{
-          de: {
-            taskFulfillment: tBlock('criteria.taskFulfillment'),
-            coherence:       tBlock('criteria.coherence'),
-            vocabulary:      tBlock('criteria.vocabulary'),
-            grammar:         tBlock('criteria.grammar'),
-          },
-          translated: {
-            taskFulfillment: tBlock('translatedCriteria.taskFulfillment'),
-            coherence:       tBlock('translatedCriteria.coherence'),
-            vocabulary:      tBlock('translatedCriteria.vocabulary'),
-            grammar:         tBlock('translatedCriteria.grammar'),
-          },
-        }}
+        criteria={[
+          { key: 'taskFulfillment', score: feedback.criteria.taskFulfillment, max: 25,
+            labelDe: tBlock('criteria.taskFulfillment'),
+            labelTranslated: tBlock('translatedCriteria.taskFulfillment') },
+          { key: 'coherence', score: feedback.criteria.coherence, max: 25,
+            labelDe: tBlock('criteria.coherence'),
+            labelTranslated: tBlock('translatedCriteria.coherence') },
+          { key: 'vocabulary', score: feedback.criteria.vocabulary, max: 25,
+            labelDe: tBlock('criteria.vocabulary'),
+            labelTranslated: tBlock('translatedCriteria.vocabulary') },
+          { key: 'grammar', score: feedback.criteria.grammar, max: 25,
+            labelDe: tBlock('criteria.grammar'),
+            labelTranslated: tBlock('translatedCriteria.grammar') },
+        ]}
       />
 
       {feedback.comment && (
@@ -291,37 +277,33 @@ function SchreibenDetails({ feedback }: { feedback: SchreibenFeedback }) {
 }
 
 function SprechenDetails({ feedback }: { feedback: SprechenFeedback }) {
-  const t = useTranslations('results.sprechen')
+  const tBlock = useTranslations('results.sprechen.criteriaBlock')
   const tDetail = useTranslations('dashboard.testDetail')
-  const criteria = [
-    [t('taskFulfillment'), feedback.criteria.taskFulfillment, 20],
-    [t('fluency'), feedback.criteria.fluency, 20],
-    [t('vocabulary'), feedback.criteria.vocabulary, 20],
-    [t('grammar'), feedback.criteria.grammar, 20],
-    [t('pronunciation'), feedback.criteria.pronunciation, 20],
-  ] as const
 
   return (
     <div className="space-y-6">
-      <div className="rounded-rad border border-line bg-card p-8">
-        <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-          {tDetail('criteriaEyebrow')}
-        </div>
-        <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-3">
-          {criteria.map(([label, score, max]) => (
-            <div key={label}>
-              <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
-                {label}
-              </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="font-display text-4xl text-ink">{score}</span>
-                <span className="text-sm text-ink-soft">/ {max}</span>
-              </div>
-              <ProgressBar value={score} max={max} />
-            </div>
-          ))}
-        </div>
-      </div>
+      <CriteriaWithLetters
+        title={tBlock('title')}
+        translatedTitle={tBlock('translatedTitle')}
+        helper={tBlock('helper')}
+        criteria={[
+          { key: 'taskFulfillment', score: feedback.criteria.taskFulfillment, max: 20,
+            labelDe: tBlock('criteria.taskFulfillment'),
+            labelTranslated: tBlock('translatedCriteria.taskFulfillment') },
+          { key: 'fluency', score: feedback.criteria.fluency, max: 20,
+            labelDe: tBlock('criteria.fluency'),
+            labelTranslated: tBlock('translatedCriteria.fluency') },
+          { key: 'vocabulary', score: feedback.criteria.vocabulary, max: 20,
+            labelDe: tBlock('criteria.vocabulary'),
+            labelTranslated: tBlock('translatedCriteria.vocabulary') },
+          { key: 'grammar', score: feedback.criteria.grammar, max: 20,
+            labelDe: tBlock('criteria.grammar'),
+            labelTranslated: tBlock('translatedCriteria.grammar') },
+          { key: 'pronunciation', score: feedback.criteria.pronunciation, max: 20,
+            labelDe: tBlock('criteria.pronunciation'),
+            labelTranslated: tBlock('translatedCriteria.pronunciation') },
+        ]}
+      />
 
       {feedback.comment && (
         <div className="rounded-rad border border-line bg-card p-8">

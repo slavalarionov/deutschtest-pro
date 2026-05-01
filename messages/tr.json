@@ -1104,7 +1104,26 @@
       "fluency": "Akıcılık",
       "vocabulary": "Kelime dağarcığı",
       "grammar": "Dil bilgisi",
-      "pronunciation": "Telaffuz"
+      "pronunciation": "Telaffuz",
+      "criteriaBlock": {
+        "title": "Bewertung nach Goethe-Kriterien",
+        "translatedTitle": "Goethe değerlendirme kriterleri",
+        "helper": "Goethe sınav görevlisinin kullandığı beş kriterin özeti. A–E harfleri her kriter için resmi başarı düzeylerine karşılık gelir.",
+        "criteria": {
+          "taskFulfillment": "Aufgabenerfüllung",
+          "fluency": "Flüssigkeit",
+          "vocabulary": "Wortschatz",
+          "grammar": "Grammatik",
+          "pronunciation": "Aussprache"
+        },
+        "translatedCriteria": {
+          "taskFulfillment": "görevin yerine getirilmesi",
+          "fluency": "akıcılık",
+          "vocabulary": "kelime hazinesi",
+          "grammar": "dilbilgisi",
+          "pronunciation": "telaffuz"
+        }
+      }
     },
     "retakeModal": {
       "title": "Modülü tekrar yap",
