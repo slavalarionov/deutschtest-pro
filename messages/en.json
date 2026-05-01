@@ -136,6 +136,53 @@
       "bannerLabel": "DEUTSCHTEST.PRO · ALL 4 MODULES",
       "bannerPhrase": "<multiplier>65</multiplier>× cheaper than taking A1 at the Goethe-Institut."
     },
+    "modulesDetail": {
+      "eyebrow": "FORMAT",
+      "titleStrong": "Every module is unique.",
+      "titleMuted": "Generated from scratch by AI, every single time.",
+      "items": {
+        "lesen": {
+          "label": "LESEN · READING",
+          "title": "Texts no one has read before.",
+          "lede": "Five parts, just like the Goethe Modellsatz — from a blog post and a news article to listings and a gap-fill text.",
+          "tezisy": {
+            "0": "5 Teile across A1, A2 and B1 — the exact Goethe exam structure.",
+            "1": "Texts are written by AI for your level and topic — there is nothing to memorise from the internet.",
+            "2": "Two-column layout: text on the left, questions on the right — same as the paper exam booklet."
+          }
+        },
+        "horen": {
+          "label": "HÖREN · LISTENING",
+          "title": "Voices you have not heard yet.",
+          "lede": "Four parts with different formats — announcements, dialogues, interviews, short scenes.",
+          "tezisy": {
+            "0": "Multi-voice synthesis: every scene has two distinct speakers with their own roles and intonation.",
+            "1": "AI writes the dialogue, a neural voice speaks it — each run yields fresh audio, not a playlist of ten canned files.",
+            "2": "Pace, clarity and background context match the real Goethe listening exam."
+          }
+        },
+        "schreiben": {
+          "label": "SCHREIBEN · WRITING",
+          "title": "Four criteria. One review.",
+          "lede": "Letters and messages with realistic prompts — the task, the bullet points to cover, a word target.",
+          "tezisy": {
+            "0": "Scored against the official Goethe criteria: Aufgabenerfüllung, Kohärenz, Wortschatz, Grammatik.",
+            "1": "Every criterion runs 0–25 points, with a written comment quoting your own text where it matters.",
+            "2": "Topics and bullet points are regenerated each time — you cannot rehearse a single answer."
+          }
+        },
+        "sprechen": {
+          "label": "SPRECHEN · SPEAKING",
+          "title": "You speak. You are heard.",
+          "lede": "Three parts — introduce yourself, plan something with a partner, present a topic.",
+          "tezisy": {
+            "0": "You record your answer, AI transcribes it — no manual review queues, no waiting.",
+            "1": "Five Goethe criteria: Aufgabenerfüllung, Flüssigkeit, Wortschatz, Grammatik, Aussprache.",
+            "2": "The review quotes your own speech and points to the exact spots that work — and the ones that wobble."
+          }
+        }
+      }
+    },
     "faq": {
       "eyebrow": "04 — ANSWERS",
       "titleStrong": "Common questions.",

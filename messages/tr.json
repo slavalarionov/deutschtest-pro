@@ -136,6 +136,53 @@
       "bannerLabel": "DEUTSCHTEST.PRO · TÜM 4 MODÜL",
       "bannerPhrase": "Goethe-Institut'ta A1 vermekten <multiplier>65</multiplier> kat ucuz."
     },
+    "modulesDetail": {
+      "eyebrow": "FORMAT",
+      "titleStrong": "Her modül benzersizdir.",
+      "titleMuted": "Yapay zekâ onu her seferinde sıfırdan üretir.",
+      "items": {
+        "lesen": {
+          "label": "LESEN · OKUMA",
+          "title": "Daha önce kimsenin okumadığı metinler.",
+          "lede": "Goethe Modellsatz'taki gibi beş bölüm — blog yazısından gazete makalesine, ilanlardan boşluk doldurmalı metne kadar.",
+          "tezisy": {
+            "0": "A1, A2 ve B1 seviyelerinde 5 Teil — Goethe sınavının tam yapısı.",
+            "1": "Metinler seviyenize ve konunuza göre YZ tarafından yazılır — internetten ezberleyebileceğiniz bir şey yok.",
+            "2": "İki sütunlu düzen: solda metin, sağda sorular — kâğıt sınav kitapçığındaki gibi."
+          }
+        },
+        "horen": {
+          "label": "HÖREN · DİNLEME",
+          "title": "Henüz duymadığınız sesler.",
+          "lede": "Dört bölüm, farklı formatlarda — duyurular, diyaloglar, röportajlar, kısa sahneler.",
+          "tezisy": {
+            "0": "Çok sesli seslendirme: her sahnede kendi rolleri ve tonlamaları olan iki ayrı konuşmacı.",
+            "1": "Diyalogu YZ yazar, sinir ağı ses onu seslendirir — her çalıştırma yeni bir ses üretir, on dosyalık çalma listesi değil.",
+            "2": "Tempo, netlik ve arka plan bağlamı gerçek Goethe dinleme sınavındaki gibi."
+          }
+        },
+        "schreiben": {
+          "label": "SCHREIBEN · YAZMA",
+          "title": "Dört kriter. Tek değerlendirme.",
+          "lede": "Gerçekçi yönergeli mektuplar ve mesajlar — görev, kapsanması gereken maddeler, kelime sayısı hedefi.",
+          "tezisy": {
+            "0": "Resmî Goethe kriterlerine göre puanlama: Aufgabenerfüllung, Kohärenz, Wortschatz, Grammatik.",
+            "1": "Her kriter 0–25 puan, kendi metninizden alıntılarla yazılı yorum.",
+            "2": "Konular ve maddeler her seferinde yeniden üretilir — tek bir cevabı ezberlemek mümkün değil."
+          }
+        },
+        "sprechen": {
+          "label": "SPRECHEN · KONUŞMA",
+          "title": "Siz konuşun. Biz duyalım.",
+          "lede": "Üç bölüm — kendinizi tanıtın, bir partnerle bir şey planlayın, bir konuyu sunun.",
+          "tezisy": {
+            "0": "Cevabınızı kaydedersiniz, YZ onu yazıya döker — kuyruk yok, manuel inceleme yok.",
+            "1": "Beş Goethe kriteri: Aufgabenerfüllung, Flüssigkeit, Wortschatz, Grammatik, Aussprache.",
+            "2": "Değerlendirme kendi konuşmanızdan alıntı yapar ve neyin sağlam, neyin sallantıda olduğunu nokta atışı gösterir."
+          }
+        }
+      }
+    },
     "faq": {
       "eyebrow": "04 — CEVAPLAR",
       "titleStrong": "Sık sorulan sorular.",

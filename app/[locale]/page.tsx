@@ -4,6 +4,7 @@ import { HeroSection } from '@/components/landing/HeroSection'
 import { FeaturesSection } from '@/components/landing/FeaturesSection'
 import { PricingSection } from '@/components/landing/PricingSection'
 import { ManifestoSection } from '@/components/landing/ManifestoSection'
+import { ModulesDetailSection } from '@/components/landing/ModulesDetailSection'
 import { FaqSection } from '@/components/landing/FaqSection'
 import { Footer } from '@/components/landing/Footer'
 import { LandingHeader } from '@/components/landing/LandingHeader'
@@ -36,6 +37,7 @@ export default async function HomePage(_: { params: { locale: string } }) {
       <FeaturesSection />
       <PricingSection />
       <ManifestoSection />
+      <ModulesDetailSection />
       <FaqSection />
       <Footer />
     </main>

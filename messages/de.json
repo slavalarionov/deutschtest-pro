@@ -136,6 +136,53 @@
       "bannerLabel": "DEUTSCHTEST.PRO · ALLE 4 MODULE",
       "bannerPhrase": "<multiplier>65</multiplier>-mal günstiger als A1 beim Goethe-Institut."
     },
+    "modulesDetail": {
+      "eyebrow": "FORMAT",
+      "titleStrong": "Jedes Modul ist einzigartig.",
+      "titleMuted": "Die KI erzeugt es jedes Mal komplett neu.",
+      "items": {
+        "lesen": {
+          "label": "LESEN",
+          "title": "Texte, die es vorher nicht gab.",
+          "lede": "Fünf Teile genau wie im Goethe-Modellsatz — vom Blogbeitrag über den Zeitungsartikel bis zu Anzeigen und einem Lückentext.",
+          "tezisy": {
+            "0": "5 Teile auf A1, A2 und B1 — exakte Struktur der Goethe-Prüfung.",
+            "1": "Texte werden von der KI für Ihr Niveau und Thema geschrieben — nichts, was man aus dem Internet auswendig lernen könnte.",
+            "2": "Zweispaltige Ansicht: Text links, Aufgaben rechts — wie auf dem Prüfungsbogen."
+          }
+        },
+        "horen": {
+          "label": "HÖREN",
+          "title": "Stimmen, die Sie noch nicht kennen.",
+          "lede": "Vier Teile mit unterschiedlichen Formaten — Durchsagen, Dialoge, Interviews, kurze Szenen.",
+          "tezisy": {
+            "0": "Mehrstimmige Vertonung: in jeder Szene zwei verschiedene Sprecher mit eigenen Rollen und Intonationen.",
+            "1": "Die KI schreibt den Dialog, eine neuronale Stimme spricht ihn ein — jeder Durchlauf liefert frischen Klang, keine Konserve aus zehn Dateien.",
+            "2": "Tempo, Klarheit und Hintergrundgeräusche entsprechen der echten Hörverstehens-Prüfung."
+          }
+        },
+        "schreiben": {
+          "label": "SCHREIBEN",
+          "title": "Vier Kriterien. Eine Auswertung.",
+          "lede": "Briefe und Nachrichten mit realistischen Vorgaben — Aufgabe, Inhaltspunkte, Wortzahl.",
+          "tezisy": {
+            "0": "Bewertung nach den offiziellen Goethe-Kriterien: Aufgabenerfüllung, Kohärenz, Wortschatz, Grammatik.",
+            "1": "Jedes Kriterium 0–25 Punkte, mit schriftlichem Kommentar und konkreten Zitaten aus Ihrem eigenen Text.",
+            "2": "Themen und Inhaltspunkte werden jedes Mal neu generiert — eine Antwort vorab einzustudieren ist unmöglich."
+          }
+        },
+        "sprechen": {
+          "label": "SPRECHEN",
+          "title": "Sie sprechen. Wir hören zu.",
+          "lede": "Drei Teile — sich vorstellen, etwas gemeinsam planen, ein Thema präsentieren.",
+          "tezisy": {
+            "0": "Sie nehmen Ihre Antwort auf, die KI transkribiert sie — keine Warteschlangen, keine manuelle Korrektur.",
+            "1": "Fünf Goethe-Kriterien: Aufgabenerfüllung, Flüssigkeit, Wortschatz, Grammatik, Aussprache.",
+            "2": "Die Auswertung zitiert Ihre eigenen Worte und zeigt punktgenau, wo es trägt — und wo es wackelt."
+          }
+        }
+      }
+    },
     "faq": {
       "eyebrow": "04 — ANTWORTEN",
       "titleStrong": "Häufige Fragen.",
