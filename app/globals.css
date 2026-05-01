@@ -70,14 +70,16 @@
     --line-soft: oklch(0.955 0.003 260);
 
     /* ---------- Chart palette (per module) ----------
-       Centralised hex values — the only place chart colours live. Used by
-       every <Line>, legend dot, tooltip dot and per-module bar in the
-       progress chart. Do not reference --ink/--accent/--muted for chart
-       lines elsewhere; route through these tokens instead. */
+       Centralised values — the only place chart colours live. Used by every
+       <Line>, legend dot, tooltip dot and per-module bar in the progress
+       chart, both on the landing and in the dashboard. Cool monochrome only:
+       graphite + cobalt + dark grey + dark burgundy. No warm hues. Do not
+       reference --ink/--accent/--muted for chart lines elsewhere; route
+       through these tokens instead. */
     --chart-lesen:     var(--ink);     /* graphite */
     --chart-horen:     var(--accent);  /* cobalt */
-    --chart-schreiben: #B8860B;        /* dark goldenrod */
-    --chart-sprechen:  #8B2635;        /* burgundy */
+    --chart-schreiben: #4a4a4a;        /* dark grey (was #B8860B — warm) */
+    --chart-sprechen:  #8B2635;        /* dark burgundy */
 
     /* ---------- Type scale ---------- */
     --fs-mono-cap:   11px;

@@ -121,6 +121,22 @@
       "title": "Basit fiyatlandırma",
       "subtitle": "Bir modül paketi seçin ve bakiyenizi dört modül tipinden herhangi birinde kullanın: Lesen, Hören, Schreiben, Sprechen."
     },
+    "progress": {
+      "eyebrow": "İLERLEME",
+      "titleStrong": "Net analitik.",
+      "titleMuted": "İlerlemenizi görüyorsunuz — nereye büyüyeceğinizi biliyorsunuz.",
+      "subtitle": "Platform, zayıf noktalarınızı görüp tam da onları kapatmanız için kurulmuş. Boşlukları ne kadar hızlı kapatırsanız, sınav o kadar yakın.",
+      "chartEyebrow": "PUAN · DENEMEYE GÖRE · MODÜLE GÖRE",
+      "chartTitle": "Modüllere göre ilerleme.",
+      "xLabel": "Deneme №",
+      "passLabel": "GEÇTİ · 60",
+      "modules": {
+        "lesen": "LESEN",
+        "horen": "HÖREN",
+        "schreiben": "SCHREIBEN",
+        "sprechen": "SPRECHEN"
+      }
+    },
     "manifesto": {
       "eyebrow": "01 — MANİFESTO",
       "title": "Hata yapmanın bedeli ağır.",

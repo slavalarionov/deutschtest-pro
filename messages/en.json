@@ -121,6 +121,22 @@
       "title": "Simple pricing",
       "subtitle": "Pick a module pack and spend your balance on any of the four types: Lesen, Hören, Schreiben, Sprechen."
     },
+    "progress": {
+      "eyebrow": "PROGRESS",
+      "titleStrong": "Clear analytics.",
+      "titleMuted": "See your progress — know where to grow.",
+      "subtitle": "The platform is built so you can see your weak spots and close them on purpose. The faster you fill the gaps, the closer the exam.",
+      "chartEyebrow": "SCORE · BY ATTEMPT · BY MODULE",
+      "chartTitle": "Progress by module.",
+      "xLabel": "Attempt №",
+      "passLabel": "PASS · 60",
+      "modules": {
+        "lesen": "LESEN",
+        "horen": "HÖREN",
+        "schreiben": "SCHREIBEN",
+        "sprechen": "SPRECHEN"
+      }
+    },
     "manifesto": {
       "eyebrow": "01 — MANIFESTO",
       "title": "The cost of failure is high.",

@@ -121,6 +121,22 @@
       "title": "Einfache Preisgestaltung",
       "subtitle": "Wählen Sie ein Paket mit Guthaben und setzen Sie es flexibel für Lesen, Hören, Schreiben oder Sprechen ein."
     },
+    "progress": {
+      "eyebrow": "FORTSCHRITT",
+      "titleStrong": "Klare Analytik.",
+      "titleMuted": "Sie sehen Ihren Fortschritt — und wissen, wohin Sie wachsen.",
+      "subtitle": "Die Plattform ist so gebaut, dass Sie Ihre Schwachstellen sehen und gezielt schließen können. Je schneller die Lücken weg sind, desto näher die Prüfung.",
+      "chartEyebrow": "PUNKTE · NACH VERSUCH · NACH MODUL",
+      "chartTitle": "Fortschritt nach Modul.",
+      "xLabel": "Versuch №",
+      "passLabel": "BESTANDEN · 60",
+      "modules": {
+        "lesen": "LESEN",
+        "horen": "HÖREN",
+        "schreiben": "SCHREIBEN",
+        "sprechen": "SPRECHEN"
+      }
+    },
     "manifesto": {
       "eyebrow": "01 — MANIFEST",
       "title": "Der Preis eines Fehlers ist hoch.",
