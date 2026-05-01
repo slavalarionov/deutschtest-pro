@@ -88,6 +88,7 @@
       }
     },
     "features": {
+      "eyebrow": "01 — MODULE",
       "title": "Alle vier Module. Eine Plattform.",
       "titleStrong": "Vier Module.",
       "titleMuted": "Eine Plattform.",
@@ -117,12 +118,12 @@
       }
     },
     "pricing": {
-      "eyebrow": "03 — PREISE",
+      "eyebrow": "02 — PREISE",
       "title": "Einfache Preisgestaltung",
       "subtitle": "Wählen Sie ein Paket mit Guthaben und setzen Sie es flexibel für Lesen, Hören, Schreiben oder Sprechen ein."
     },
     "progress": {
-      "eyebrow": "FORTSCHRITT",
+      "eyebrow": "05 — FORTSCHRITT",
       "titleStrong": "Klare Analytik.",
       "titleMuted": "Sie sehen Ihren Fortschritt — und wissen, wohin Sie wachsen.",
       "subtitle": "Die Plattform ist so gebaut, dass Sie Ihre Schwachstellen sehen und gezielt schließen können. Je schneller die Lücken weg sind, desto näher die Prüfung.",
@@ -137,8 +138,31 @@
         "sprechen": "SPRECHEN"
       }
     },
+    "recommendations": {
+      "eyebrow": "06 — EMPFEHLUNGEN",
+      "titleStrong": "Persönliche Empfehlungen.",
+      "titleMuted": "Die KI sieht jeden Fehler — und weiß, was zu üben ist.",
+      "manifesto": {
+        "line1": "<bold>Die KI liest <italic>jeden einzelnen Fehler</italic></bold> — und jeden Erfolg.",
+        "line2": "Nach dem Modul bekommen Sie nicht nur eine Punktzahl, sondern einen konkreten Plan: was zu wiederholen ist, welches Thema geschlossen werden muss und wo Sie keine Zeit verschwenden sollten.",
+        "line3": "Kein Geschwafel, keine allgemeinen Ratschläge wie «lernen Sie Deutsch». Nur das, was <bold>genau bei Ihnen nicht funktioniert hat</bold> — und wie Sie es vor der Prüfung beheben.",
+        "line4": "<italic>Teilen Sie den Link mit Ihrer Lehrkraft</italic> — sie öffnet Ihren Bericht und sieht sofort, wo Ihre Schwachstellen liegen. Keine einstündige Diagnose nötig. Die Lehrkraft arbeitet nur an dem, was wirklich zählt.",
+        "line5": "<bold>Ihre Zeit und Ihr Geld — dort, wo sie wirken.</bold>"
+      },
+      "browser": {
+        "url": "deutschtest.pro/recommendations/r-7f3a..."
+      },
+      "mock": {
+        "eyebrow": "LERNPLAN · B1 · 14 KATEGORIEN",
+        "timestamp": "ERSTELLT · HEUTE",
+        "title": "Ihr Lernplan.",
+        "verdictEyebrow": "KI-FAZIT",
+        "verdict": "«Sie haben starke Positionen bei <term>Konjunktiv II</term> und <term>Plural</term> — darauf können Sie aufbauen. Schwachstellen sind <term>Modalverben</term> und <term>Konnektoren</term> im Schreiben: sie kosten Sie bis zu 4 Punkte in der Kohärenz. Empfehlung: eine Woche Konjugation der Modalverben und Konnektoren im Schriftlichen, bevor Sie zur Prüfung antreten.»",
+        "share": "Link mit Lehrkraft teilen"
+      }
+    },
     "manifesto": {
-      "eyebrow": "01 — MANIFEST",
+      "eyebrow": "03 — MANIFEST",
       "title": "Der Preis eines Fehlers ist hoch.",
       "p1": "Eine Goethe-Prüfung zu wiederholen ist ein teures Unterfangen. Bereiten Sie sich besser frühzeitig vor.",
       "p2": "Oft scheitern Menschen nicht, weil sie die Sprache nicht beherrschen, sondern weil sie nervös werden oder mit dem Prüfungsaufbau nicht vertraut sind.",
@@ -153,7 +177,7 @@
       "bannerPhrase": "<multiplier>65</multiplier>-mal günstiger als A1 beim Goethe-Institut."
     },
     "modulesDetail": {
-      "eyebrow": "FORMAT",
+      "eyebrow": "04 — FORMAT",
       "titleStrong": "Jedes Modul ist einzigartig.",
       "titleMuted": "Die KI erzeugt es jedes Mal komplett neu.",
       "items": {
@@ -200,7 +224,7 @@
       }
     },
     "faq": {
-      "eyebrow": "04 — ANTWORTEN",
+      "eyebrow": "07 — ANTWORTEN",
       "titleStrong": "Häufige Fragen.",
       "titleMuted": "Klare Antworten.",
       "items": {
@@ -212,6 +236,10 @@
           "q": "Wie bewertet die KI Schreiben und Sprechen?",
           "a": "Nach den offiziellen Goethe-Kriterien: Aufgabenerfüllung, Kohärenz, Wortschatz, Grammatik — und bei Sprechen zusätzlich Flüssigkeit und Aussprache. Sie erhalten einen Score von 0-100, den Vermerk bestanden/nicht bestanden sowie eine detaillierte Diagnose Ihrer Stärken und Schwächen mit konkreten Empfehlungen."
         },
+        "aiTrust": {
+          "q": "Kann ich der KI-Bewertung vertrauen — ist sie nicht zu großzügig?",
+          "a": "Die KI ist auf die offiziellen Goethe-Kriterien (Aufgabenerfüllung, Kohärenz, Wortschatz, Grammatik) trainiert und bewertet auf derselben Skala wie ein menschlicher Prüfer. Wir halten die Latte bewusst hoch — lieber bei uns 65 und beim Goethe 75 bestehen als umgekehrt."
+        },
         "officialExam": {
           "q": "Ist Ihr Zertifikat offiziell anerkannt?",
           "a": "Nein. DeutschTest.pro ist ein Vorbereitungstool, kein akkreditiertes Prüfungszentrum. Das echte Zertifikat bekommen Sie nur beim Goethe-Institut oder einem seiner Partner vor Ort. Wir bereiten Sie so vor, dass Sie dort beim ersten Versuch bestehen."
@@ -220,13 +248,21 @@
           "q": "Was ist ein Modul und wie funktionieren die Pakete?",
           "a": "Ein Modul ist ein Prüfungsteil: Lesen, Hören, Schreiben oder Sprechen. Sie wählen selbst, womit Sie üben möchten — zum Beispiel dreimal Sprechen hintereinander, wenn Sie dort am meisten Schwierigkeiten haben. Bei der Registrierung bekommen Sie 3 Module gratis. Danach kaufen Sie Pakete zu 10, 20 oder 40 Modulen, ohne Abo, ohne automatische Verlängerung."
         },
+        "singleModule": {
+          "q": "Kann ich nur ein Modul trainieren?",
+          "a": "Ja. Wenn Sprechen Ihre Schwachstelle ist, können Sie das gesamte Paket auf das Sprech-Modul verwenden. DeutschTest.pro bindet Sie nicht an einen festen Lernplan."
+        },
+        "modulesToReady": {
+          "q": "Wie viele Module brauche ich, um für die Prüfung bereit zu sein?",
+          "a": "Unsere Daten zeigen: 8 bis 12 Module auf einem Niveau führen zu einem stabilen Ergebnis über der Bestehensgrenze. Das ist das Standard-Paket oder die halbe Intensive — dutzendmal günstiger als ein einziger Wiederholungsversuch."
+        },
+        "startingLevel": {
+          "q": "Was, wenn ich mein Niveau nicht kenne — wo soll ich anfangen?",
+          "a": "Starten Sie mit A1 — bei der Registrierung kostenlos. Nach dem ersten Modul sehen Sie Ihren echten Punktestand und können entscheiden, ob Sie nach oben gehen oder das aktuelle Niveau festigen."
+        },
         "microphone": {
           "q": "Was brauche ich technisch, um zu üben?",
           "a": "Für Lesen, Hören und Schreiben genügt ein Browser auf PC, Laptop, Tablet oder Smartphone. Für Sprechen kommt ein Mikrofon dazu — jedes Laptop-Mikro, jedes Headset oder das eingebaute Smartphone-Mikro reicht völlig aus. Keine Installation, keine App, nichts zu konfigurieren."
-        },
-        "refund": {
-          "q": "Kann ich mein Paket zurückgeben?",
-          "a": "Ja. Wenn Sie ein Paket gekauft, aber noch keine bezahlten Module genutzt haben, erstatten wir Ihnen innerhalb von 14 Tagen den vollen Betrag zurück. Die 3 gratis Module bei der Registrierung zählen nicht als Nutzung. Schreiben Sie einfach eine E-Mail an unseren Support."
         }
       }
     }

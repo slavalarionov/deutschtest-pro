@@ -88,6 +88,7 @@
       }
     },
     "features": {
+      "eyebrow": "01 — MODÜLLER",
       "title": "Dört modül. Tek platform.",
       "titleStrong": "Dört modül.",
       "titleMuted": "Tek platform.",
@@ -117,12 +118,12 @@
       }
     },
     "pricing": {
-      "eyebrow": "03 — FİYATLAR",
+      "eyebrow": "02 — FİYATLAR",
       "title": "Basit fiyatlandırma",
       "subtitle": "Bir modül paketi seçin ve bakiyenizi dört modül tipinden herhangi birinde kullanın: Lesen, Hören, Schreiben, Sprechen."
     },
     "progress": {
-      "eyebrow": "İLERLEME",
+      "eyebrow": "05 — İLERLEME",
       "titleStrong": "Net analitik.",
       "titleMuted": "İlerlemenizi görüyorsunuz — nereye büyüyeceğinizi biliyorsunuz.",
       "subtitle": "Platform, zayıf noktalarınızı görüp tam da onları kapatmanız için kurulmuş. Boşlukları ne kadar hızlı kapatırsanız, sınav o kadar yakın.",
@@ -137,8 +138,31 @@
         "sprechen": "SPRECHEN"
       }
     },
+    "recommendations": {
+      "eyebrow": "06 — ÖNERİLER",
+      "titleStrong": "Kişisel öneriler.",
+      "titleMuted": "Yapay zekâ her hatanızı görüyor — ve neyi geliştirmeniz gerektiğini biliyor.",
+      "manifesto": {
+        "line1": "<bold>YZ <italic>her bir hatanızı</italic> okur</bold> — ve her başarınızı.",
+        "line2": "Modülden sonra sadece bir puan değil, somut bir plan alırsınız: neyi tekrar etmeli, hangi konuyu kapatmalı, nerede vakit harcamamalısınız.",
+        "line3": "Boş laf yok, «Almanca öğrenin» gibi genel tavsiye yok. Sadece <bold>tam da sizin yapamadığınız şey</bold> — ve sınava kadar nasıl düzeltileceği.",
+        "line4": "<italic>Bağlantıyı öğretmeninizle paylaşın</italic> — raporunuzu açar ve zayıf noktalarınızı anında görür. Bir saatlik tanıya gerek yok. Öğretmen yalnızca gerçekten önemli olan üzerinde çalışır.",
+        "line5": "<bold>Zamanınız ve paranız — sonuç verdikleri yerde.</bold>"
+      },
+      "browser": {
+        "url": "deutschtest.pro/recommendations/r-7f3a..."
+      },
+      "mock": {
+        "eyebrow": "ÇALIŞMA PLANI · B1 · 14 KATEGORİ",
+        "timestamp": "OLUŞTURULDU · BUGÜN",
+        "title": "Çalışma planınız.",
+        "verdictEyebrow": "YZ DEĞERLENDİRMESİ",
+        "verdict": "«<term>Konjunktiv II</term> ve <term>Plural</term> alanlarında güçlü pozisyondasınız — bunlar sağlam zemin. Zayıf noktalar Schreiben'da <term>Modalverben</term> ve <term>Konnektoren</term>: Kohärenz'de size 4 puana kadar kaybettiriyor. Sınav denemesinden önce bir hafta modal fiil çekimi ve yazımda bağlaçlar üzerinde çalışmanızı öneririm.»",
+        "share": "Bağlantıyı öğretmenle paylaş"
+      }
+    },
     "manifesto": {
-      "eyebrow": "01 — MANİFESTO",
+      "eyebrow": "03 — MANİFESTO",
       "title": "Hata yapmanın bedeli ağır.",
       "p1": "Goethe-Institut sınavını tekrar vermek pahalı bir iş. Önceden iyi hazırlanmak çok daha mantıklı.",
       "p2": "İnsanlar çoğu zaman dili bilmedikleri için değil, heyecanlandıkları veya sınavın yapısına hazır olmadıkları için sınavda başarısız olur.",
@@ -153,7 +177,7 @@
       "bannerPhrase": "Goethe-Institut'ta A1 vermekten <multiplier>65</multiplier> kat ucuz."
     },
     "modulesDetail": {
-      "eyebrow": "FORMAT",
+      "eyebrow": "04 — FORMAT",
       "titleStrong": "Her modül benzersizdir.",
       "titleMuted": "Yapay zekâ onu her seferinde sıfırdan üretir.",
       "items": {
@@ -200,7 +224,7 @@
       }
     },
     "faq": {
-      "eyebrow": "04 — CEVAPLAR",
+      "eyebrow": "07 — CEVAPLAR",
       "titleStrong": "Sık sorulan sorular.",
       "titleMuted": "Net cevaplar.",
       "items": {
@@ -212,6 +236,10 @@
           "q": "Yapay zeka yazma ve konuşmayı nasıl değerlendiriyor?",
           "a": "Resmi Goethe kriterlerine göre: görevin yerine getirilmesi, tutarlılık, kelime dağarcığı, dilbilgisi — konuşma için ayrıca akıcılık ve telaffuz. 0-100 arası puan, bestanden/nicht bestanden değerlendirmesi ve güçlü-zayıf yönlerinizin somut önerilerle ayrıntılı bir analizini alırsınız."
         },
+        "aiTrust": {
+          "q": "Yapay zekanın değerlendirmesine güvenilir mi — fazla cömert değil mi?",
+          "a": "YZ resmî Goethe kriterleri (Aufgabenerfüllung, Kohärenz, Wortschatz, Grammatik) üzerinde eğitildi ve canlı bir sınavcının kullandığı ölçeğin aynısıyla puan verir. Çıtayı bilinçli yüksek tutuyoruz — bizde 65 alıp Goethe'de 75 ile geçmek, tersinden iyidir."
+        },
         "officialExam": {
           "q": "Sertifikanız resmi olarak tanınıyor mu?",
           "a": "Hayır. DeutschTest.pro bir hazırlık aracıdır, akredite bir sınav merkezi değildir. Gerçek sertifikayı yalnızca Goethe-Institut veya yüz yüze çalışan ortakları verir. Biz sizi oraya ilk denemede başarılı olacak şekilde hazırlıyoruz."
@@ -220,13 +248,21 @@
           "q": "Modül nedir ve paketler nasıl çalışıyor?",
           "a": "Modül, sınavın bir bölümüdür: Lesen, Hören, Schreiben veya Sprechen. Neye çalışacağınıza siz karar verirsiniz — örneğin en çok zorlandığınız alan Sprechen ise üst üste üç Sprechen oturumu yapabilirsiniz. Kayıt olurken 3 ücretsiz modül kazanırsınız. Sonrasında 10, 20 veya 40 modüllük paketler satın alırsınız. Abonelik yok, otomatik yenileme yok."
         },
+        "singleModule": {
+          "q": "Yalnızca bir modülü çalışabilir miyim?",
+          "a": "Evet. Sprechen zayıf noktanızsa, paketin tamamını konuşma pratiğine ayırabilirsiniz. DeutschTest.pro sizi sabit bir programa bağlamaz."
+        },
+        "modulesToReady": {
+          "q": "Sınava hazır olmak için kaç modül gerekli?",
+          "a": "Verilerimize göre tek bir seviyede 8–12 modül, geçme barajının üzerinde istikrarlı bir sonuç verir. Bu Standard paket veya Intensive'in yarısıdır — tek bir tekrar denemesinden onlarca kat daha ucuz."
+        },
+        "startingLevel": {
+          "q": "Seviyemi bilmiyorsam nereden başlayayım?",
+          "a": "A1 ile başlayın — kayıt olunca ücretsiz. İlk modülden sonra gerçek puanınızı görür, daha yukarı çıkacağınıza mı yoksa mevcut seviyeyi pekiştireceğinize mi karar verirsiniz."
+        },
         "microphone": {
           "q": "Çalışmak için teknik olarak neye ihtiyacım var?",
           "a": "Lesen, Hören ve Schreiben için bilgisayar, dizüstü, tablet veya telefonunuzdaki herhangi bir tarayıcı yeterli. Sprechen için ayrıca bir mikrofon: dizüstünün dahili mikrofonu, bir kulaklık veya telefonunuzun mikrofonu gayet yeterlidir. Kurulum yok, yapılandırma yok, indirme yok."
-        },
-        "refund": {
-          "q": "Paketimi iade edebilir miyim?",
-          "a": "Evet. Bir paket aldıysanız ama henüz hiçbir ücretli modülü kullanmadıysanız, 14 gün içinde tam ücret iadesi yaparız. Kayıtta aldığınız 3 ücretsiz modül kullanım sayılmaz. Destek ekibimize bir e-posta atmanız yeterli."
         }
       }
     }

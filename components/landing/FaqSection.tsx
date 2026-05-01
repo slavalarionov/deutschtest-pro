@@ -20,10 +20,13 @@ import { getTranslations } from 'next-intl/server'
 const ITEMS = [
   'realism',
   'aiScoring',
+  'aiTrust',
   'officialExam',
   'modulesPricing',
+  'singleModule',
+  'modulesToReady',
+  'startingLevel',
   'microphone',
-  'refund',
 ] as const
 
 export async function FaqSection() {

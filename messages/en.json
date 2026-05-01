@@ -88,6 +88,7 @@
       }
     },
     "features": {
+      "eyebrow": "01 — MODULES",
       "title": "All four modules. One platform.",
       "titleStrong": "Four modules.",
       "titleMuted": "One platform.",
@@ -117,12 +118,12 @@
       }
     },
     "pricing": {
-      "eyebrow": "03 — PRICING",
+      "eyebrow": "02 — PRICING",
       "title": "Simple pricing",
       "subtitle": "Pick a module pack and spend your balance on any of the four types: Lesen, Hören, Schreiben, Sprechen."
     },
     "progress": {
-      "eyebrow": "PROGRESS",
+      "eyebrow": "05 — PROGRESS",
       "titleStrong": "Clear analytics.",
       "titleMuted": "See your progress — know where to grow.",
       "subtitle": "The platform is built so you can see your weak spots and close them on purpose. The faster you fill the gaps, the closer the exam.",
@@ -137,8 +138,31 @@
         "sprechen": "SPRECHEN"
       }
     },
+    "recommendations": {
+      "eyebrow": "06 — RECOMMENDATIONS",
+      "titleStrong": "Personal recommendations.",
+      "titleMuted": "AI sees every mistake you make — and knows exactly what to fix.",
+      "manifesto": {
+        "line1": "<bold>AI reads <italic>every single mistake</italic></bold> — and every win.",
+        "line2": "After each module you don't just get a score, you get a concrete plan: what to revise, which topic to close, where not to waste your time.",
+        "line3": "No filler, no generic advice to «study German». Only what <bold>you specifically got wrong</bold> — and how to fix it before the exam.",
+        "line4": "<italic>Share the link with your teacher</italic> — they open your report and instantly see your weak spots. No hour-long diagnostic. The teacher works only on what actually matters.",
+        "line5": "<bold>Your time and money — spent where they pay off.</bold>"
+      },
+      "browser": {
+        "url": "deutschtest.pro/recommendations/r-7f3a..."
+      },
+      "mock": {
+        "eyebrow": "STUDY PLAN · B1 · 14 CATEGORIES",
+        "timestamp": "GENERATED · TODAY",
+        "title": "Your study plan.",
+        "verdictEyebrow": "AI VERDICT",
+        "verdict": "«You hold strong ground in <term>Konjunktiv II</term> and <term>Plural</term> — those are reliable footings. Weak spots are <term>Modalverben</term> and <term>Konnektoren</term> in Schreiben: they cost you up to 4 points in Kohärenz. Spend a week on modal-verb conjugation and connectors in writing before your exam attempt.»",
+        "share": "Share link with teacher"
+      }
+    },
     "manifesto": {
-      "eyebrow": "01 — MANIFESTO",
+      "eyebrow": "03 — MANIFESTO",
       "title": "The cost of failure is high.",
       "p1": "Retaking a Goethe-Institut exam is an expensive endeavour. It pays to prepare well in advance.",
       "p2": "People often fail not because they don't know the language, but because nerves or unfamiliar exam structure trip them up.",
@@ -153,7 +177,7 @@
       "bannerPhrase": "<multiplier>65</multiplier>× cheaper than taking A1 at the Goethe-Institut."
     },
     "modulesDetail": {
-      "eyebrow": "FORMAT",
+      "eyebrow": "04 — FORMAT",
       "titleStrong": "Every module is unique.",
       "titleMuted": "Generated from scratch by AI, every single time.",
       "items": {
@@ -200,7 +224,7 @@
       }
     },
     "faq": {
-      "eyebrow": "04 — ANSWERS",
+      "eyebrow": "07 — ANSWERS",
       "titleStrong": "Common questions.",
       "titleMuted": "Clear answers.",
       "items": {
@@ -212,6 +236,10 @@
           "q": "How does the AI grade writing and speaking?",
           "a": "By the official Goethe criteria: task completion, coherence, vocabulary, grammar — plus fluency and pronunciation for speaking. You get a 0-100 score, a pass/fail verdict, and a detailed breakdown of strengths and weaknesses with concrete recommendations."
         },
+        "aiTrust": {
+          "q": "Can I trust the AI scoring — isn't it too generous?",
+          "a": "The AI is trained on the official Goethe criteria (Aufgabenerfüllung, Kohärenz, Wortschatz, Grammatik) and grades on the same scale a live examiner would. We deliberately keep the bar strict — better to get a 65 with us and pass with 75 at Goethe than the reverse."
+        },
         "officialExam": {
           "q": "Is your certificate officially recognised?",
           "a": "No. DeutschTest.pro is a preparation tool, not an accredited examination centre. The actual certificate can only be issued by the Goethe-Institut or its in-person partners. We prepare you so that you pass there on your first attempt."
@@ -220,13 +248,21 @@
           "q": "What is a module and how do packages work?",
           "a": "A module is one part of the exam: Lesen, Hören, Schreiben, or Sprechen. You choose what to practise — for example, three Sprechen sessions in a row if that is your weakest area. You get 3 free modules on signup. After that, you buy packages of 10, 20, or 40 modules. No subscription, no auto-renewal."
         },
+        "singleModule": {
+          "q": "Can I train just one module?",
+          "a": "Yes. If Sprechen is your weak spot, you can spend the entire package on speaking practice. DeutschTest.pro does not lock you into a fixed program."
+        },
+        "modulesToReady": {
+          "q": "How many modules do I need to be ready for the exam?",
+          "a": "Our data: 8 to 12 modules at one level produce a stable score above the passing threshold. That is the Standard package or half the Intensive — tens of times cheaper than a single retake."
+        },
+        "startingLevel": {
+          "q": "What if I do not know my level — where do I start?",
+          "a": "Start with A1 — it is free on signup. After the first module you will see your actual score and can decide whether to go higher or stay and reinforce the current level."
+        },
         "microphone": {
           "q": "What do I need technically to practise?",
           "a": "For Lesen, Hören, and Schreiben — any browser on desktop, laptop, tablet, or phone. For Sprechen you also need a microphone: a laptop mic, a headset, or your phone's built-in mic all work fine. Nothing to install, configure, or download."
-        },
-        "refund": {
-          "q": "Can I get a refund on a package?",
-          "a": "Yes. If you have bought a package but not yet used any paid modules, we refund the full amount within 14 days. The 3 free modules on signup do not count as usage. Simply email our support team."
         }
       }
     }

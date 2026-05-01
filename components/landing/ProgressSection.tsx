@@ -56,38 +56,41 @@ type DataPoint = {
 }
 
 // Demo arcs — different attempt counts per module so the lines do not collide
-// and the legend numbers tell a story (Sprechen catches up later, Schreiben
-// keeps grinding longer). Numbers are decorative, not real user data.
+// and the legend numbers tell a story (Sprechen barely scrapes the threshold,
+// Schreiben keeps grinding longer). Each line carries a small early regress
+// (attempt 1 → 2 dips before the climb) — that is what a real learning curve
+// looks like; perfectly monotonic growth reads as fabricated. Numbers are
+// decorative, not real user data.
 const DEMO_DATA: Record<Level, DataPoint[]> = {
   A1: [
-    { attempt: 1, lesen: 50, horen: 45, schreiben: 40, sprechen: 30 },
-    { attempt: 2, lesen: 54, horen: 48, schreiben: 42, sprechen: 33 },
-    { attempt: 3, lesen: 58, horen: 52, schreiben: 44, sprechen: 37 },
-    { attempt: 4, lesen: 63, horen: 55, schreiben: 47, sprechen: 42 },
-    { attempt: 5, lesen: 67, horen: 58, schreiben: 50, sprechen: 48 },
-    { attempt: 6, lesen: 71, horen: 62, schreiben: 53, sprechen: 54 },
-    { attempt: 7, lesen: 73, horen: 65, schreiben: 57, sprechen: 60 },
-    { attempt: 8, lesen: 75, horen: 67, schreiben: 60 },
-    { attempt: 9, horen: 68, schreiben: 62 },
+    { attempt: 1, lesen: 50, horen: 45, schreiben: 40, sprechen: 40 },
+    { attempt: 2, lesen: 48, horen: 42, schreiben: 38, sprechen: 38 },
+    { attempt: 3, lesen: 54, horen: 48, schreiben: 42, sprechen: 43 },
+    { attempt: 4, lesen: 60, horen: 53, schreiben: 46, sprechen: 48 },
+    { attempt: 5, lesen: 65, horen: 58, schreiben: 50, sprechen: 53 },
+    { attempt: 6, lesen: 70, horen: 62, schreiben: 53, sprechen: 56 },
+    { attempt: 7, lesen: 73, horen: 65, schreiben: 56, sprechen: 60 },
+    { attempt: 8, lesen: 75, horen: 67, schreiben: 59 },
+    { attempt: 9, horen: 69, schreiben: 61 },
     { attempt: 10, horen: 70, schreiben: 63 },
     { attempt: 11, schreiben: 64 },
     { attempt: 12, schreiben: 65 },
   ],
   A2: [
     { attempt: 1, lesen: 42, horen: 40, schreiben: 35, sprechen: 28 },
-    { attempt: 2, lesen: 46, horen: 43, schreiben: 38, sprechen: 31 },
-    { attempt: 3, lesen: 50, horen: 46, schreiben: 41, sprechen: 35 },
-    { attempt: 4, lesen: 54, horen: 49, schreiben: 44, sprechen: 39 },
-    { attempt: 5, lesen: 57, horen: 52, schreiben: 47, sprechen: 43 },
-    { attempt: 6, lesen: 60, horen: 55, schreiben: 50, sprechen: 47 },
-    { attempt: 7, horen: 57, schreiben: 52 },
-    { attempt: 8, horen: 58, schreiben: 54 },
+    { attempt: 2, lesen: 40, horen: 38, schreiben: 33, sprechen: 26 },
+    { attempt: 3, lesen: 45, horen: 43, schreiben: 38, sprechen: 32 },
+    { attempt: 4, lesen: 50, horen: 47, schreiben: 42, sprechen: 37 },
+    { attempt: 5, lesen: 55, horen: 51, schreiben: 46, sprechen: 42 },
+    { attempt: 6, lesen: 58, horen: 54, schreiben: 49, sprechen: 46 },
+    { attempt: 7, horen: 56, schreiben: 52 },
+    { attempt: 8, schreiben: 54 },
     { attempt: 9, schreiben: 55 },
   ],
   B1: [
     { attempt: 1, lesen: 38, horen: 36, schreiben: 30, sprechen: 22 },
-    { attempt: 2, lesen: 42, horen: 39, schreiben: 33, sprechen: 26 },
-    { attempt: 3, lesen: 45, horen: 42, schreiben: 36, sprechen: 30 },
+    { attempt: 2, lesen: 35, horen: 33, schreiben: 28, sprechen: 20 },
+    { attempt: 3, lesen: 42, horen: 40, schreiben: 35, sprechen: 28 },
     { attempt: 4, lesen: 48, horen: 44, schreiben: 39 },
     { attempt: 5, horen: 47, schreiben: 42 },
   ],

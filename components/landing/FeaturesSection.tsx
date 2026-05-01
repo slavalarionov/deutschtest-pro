@@ -101,7 +101,7 @@ export function FeaturesSection() {
         {/* Section header */}
         <div className="mb-10 flex flex-col gap-6 sm:mb-14 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
           <div>
-            <div className="eyebrow mb-3">01 — MODULE</div>
+            <div className="eyebrow mb-3">{t('eyebrow')}</div>
             <h2 className="font-display text-4xl leading-none tracking-tighter text-ink sm:text-5xl lg:text-[64px]">
               {t('titleStrong')}
               <br />
