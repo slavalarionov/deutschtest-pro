@@ -183,22 +183,25 @@
       "items": {
         "lesen": {
           "label": "LESEN · READING",
-          "title": "Texts no one has read before.",
+          "title": "Texts written just for you.",
           "lede": "Five parts, just like the Goethe Modellsatz — from a blog post and a news article to listings and a gap-fill text.",
           "tezisy": {
             "0": "5 Teile across A1, A2 and B1 — the exact Goethe exam structure.",
             "1": "Texts are written by AI for your level and topic — there is nothing to memorise from the internet.",
-            "2": "Text and questions side by side — like the paper Goethe answer sheet. No scrolling back and forth."
+            "2": "Text and questions side by side — answer without losing the context."
           }
         },
         "horen": {
           "label": "HÖREN · LISTENING",
-          "title": "Voices you have not heard yet.",
+          "title": "Real German voices!",
           "lede": "Four parts with different formats — announcements, dialogues, interviews, short scenes.",
           "tezisy": {
-            "0": "Multi-voice synthesis: every scene has two distinct speakers with their own roles and intonation.",
-            "1": "AI writes the dialogue, a neural voice speaks it — each run yields fresh audio, not a playlist of ten canned files.",
+            "0": "Multi-voice narration with distinct speakers, each with their own role and intonation.",
+            "1": "Our AI writes the dialogue and voices it — every run creates fresh audio. So you are truly ready for the listening exam!",
             "2": "Pace, clarity and background context match the real Goethe listening exam."
+          },
+          "sample": {
+            "pill": "CLICK TO LISTEN"
           }
         },
         "schreiben": {

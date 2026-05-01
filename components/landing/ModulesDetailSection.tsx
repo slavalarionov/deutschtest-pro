@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server'
+import { HoerenSampleMock } from './hoeren-sample/HoerenSampleMock'
 
 /**
  * Landing · ModulesDetailSection — "Каждый модуль — уникален."
@@ -130,7 +131,7 @@ async function ModuleRow({
         }
       >
         {moduleKey === 'lesen' && <LesenMock />}
-        {moduleKey === 'horen' && <HorenMock />}
+        {moduleKey === 'horen' && <HoerenSampleMock />}
         {moduleKey === 'schreiben' && <SchreibenMock />}
         {moduleKey === 'sprechen' && <SprechenMock />}
       </div>

@@ -183,22 +183,25 @@
       "items": {
         "lesen": {
           "label": "LESEN",
-          "title": "Texte, die es vorher nicht gab.",
+          "title": "Texte, die genau für Sie geschrieben sind.",
           "lede": "Fünf Teile genau wie im Goethe-Modellsatz — vom Blogbeitrag über den Zeitungsartikel bis zu Anzeigen und einem Lückentext.",
           "tezisy": {
             "0": "5 Teile auf A1, A2 und B1 — exakte Struktur der Goethe-Prüfung.",
             "1": "Texte werden von der KI für Ihr Niveau und Thema geschrieben — nichts, was man aus dem Internet auswendig lernen könnte.",
-            "2": "Text und Fragen nebeneinander — wie auf dem Goethe-Antwortbogen aus Papier. Kein Scrollen hin und her."
+            "2": "Text und Aufgaben nebeneinander — antworten, ohne den Kontext zu verlieren."
           }
         },
         "horen": {
           "label": "HÖREN",
-          "title": "Stimmen, die Sie noch nicht kennen.",
+          "title": "Echte deutsche Stimmen!",
           "lede": "Vier Teile mit unterschiedlichen Formaten — Durchsagen, Dialoge, Interviews, kurze Szenen.",
           "tezisy": {
-            "0": "Mehrstimmige Vertonung: in jeder Szene zwei verschiedene Sprecher mit eigenen Rollen und Intonationen.",
-            "1": "Die KI schreibt den Dialog, eine neuronale Stimme spricht ihn ein — jeder Durchlauf liefert frischen Klang, keine Konserve aus zehn Dateien.",
+            "0": "Mehrstimmige Vertonung mit verschiedenen Sprechern, jeder mit eigener Rolle und Intonation.",
+            "1": "Unsere KI schreibt den Dialog und spricht ihn ein — jeder Durchlauf erzeugt frisches Audio. Damit Sie für die echte Hörverstehens-Prüfung wirklich bereit sind!",
             "2": "Tempo, Klarheit und Hintergrundgeräusche entsprechen der echten Hörverstehens-Prüfung."
+          },
+          "sample": {
+            "pill": "ZUM ANHÖREN KLICKEN"
           }
         },
         "schreiben": {
