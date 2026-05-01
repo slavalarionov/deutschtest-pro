@@ -121,6 +121,21 @@
       "title": "Basit fiyatlandırma",
       "subtitle": "Bir modül paketi seçin ve bakiyenizi dört modül tipinden herhangi birinde kullanın: Lesen, Hören, Schreiben, Sprechen."
     },
+    "manifesto": {
+      "eyebrow": "01 — MANİFESTO",
+      "title": "Hata yapmanın bedeli ağır.",
+      "p1": "Goethe-Institut sınavını tekrar vermek pahalı bir iş. Önceden iyi hazırlanmak çok daha mantıklı.",
+      "p2": "İnsanlar çoğu zaman dili bilmedikleri için değil, heyecanlandıkları veya sınavın yapısına hazır olmadıkları için sınavda başarısız olur.",
+      "p3": "<strong>DeutschTest.pro</strong>'da yalnızca bilginizi kontrol edip zayıf yönlerinizi ve gelişim alanlarınızı görmekle kalmaz, çoğu zaman gerçek rakip olan sınav korkusundan da kurtulursunuz.",
+      "tableTitle": "Goethe-Institut sınav ücreti",
+      "tableSubtitle": "Rusya'daki partner merkezler, Nisan 2026",
+      "tableHeaderLevel": "SEVİYE",
+      "tableHeaderPrice": "SINAV ÜCRETİ",
+      "perModuleUnit": "modül başına",
+      "footnote": "* Rusya'daki Goethe-Institut partner merkezlerinin ortalama değerleri. Kaynak: merkezlerin Nisan 2026 itibarıyla açık verileri.",
+      "bannerLabel": "DEUTSCHTEST.PRO · TÜM 4 MODÜL",
+      "bannerPhrase": "Goethe-Institut'ta A1 vermekten <multiplier>65</multiplier> kat ucuz."
+    },
     "faq": {
       "eyebrow": "04 — CEVAPLAR",
       "titleStrong": "Sık sorulan sorular.",

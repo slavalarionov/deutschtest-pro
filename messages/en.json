@@ -121,6 +121,21 @@
       "title": "Simple pricing",
       "subtitle": "Pick a module pack and spend your balance on any of the four types: Lesen, Hören, Schreiben, Sprechen."
     },
+    "manifesto": {
+      "eyebrow": "01 — MANIFESTO",
+      "title": "The cost of failure is high.",
+      "p1": "Retaking a Goethe-Institut exam is an expensive endeavour. It pays to prepare well in advance.",
+      "p2": "People often fail not because they don't know the language, but because nerves or unfamiliar exam structure trip them up.",
+      "p3": "On <strong>DeutschTest.pro</strong> you don't just check your knowledge and surface your weak spots and growth points — you also lose the fear of the exam itself, which is more often than not the real opponent.",
+      "tableTitle": "Goethe-Institut exam cost",
+      "tableSubtitle": "Partner centres in Russia, April 2026",
+      "tableHeaderLevel": "LEVEL",
+      "tableHeaderPrice": "EXAM COST",
+      "perModuleUnit": "per module",
+      "footnote": "* Averages across Goethe-Institut partner centres in Russia. Source: public centre data as of April 2026.",
+      "bannerLabel": "DEUTSCHTEST.PRO · ALL 4 MODULES",
+      "bannerPhrase": "<multiplier>65</multiplier>× cheaper than taking A1 at the Goethe-Institut."
+    },
     "faq": {
       "eyebrow": "04 — ANSWERS",
       "titleStrong": "Common questions.",
