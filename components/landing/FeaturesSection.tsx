@@ -156,15 +156,16 @@ export function FeaturesSection() {
           ))}
         </div>
 
-        {/* Explanatory note: each user has weak spots → train them individually,
-            but the real exam is all four — pass each module at least once. */}
-        <div className="mt-12 max-w-3xl text-lg leading-relaxed text-ink-soft sm:mt-16 sm:text-xl">
+        {/* Explanatory note (Apple-style centered manifesto): muted body with
+            the lead phrase set in solid ink. Larger leading + wider text-wrap
+            so the block reads as a separate beat from the module grid. */}
+        <p className="mx-auto mt-16 max-w-4xl text-balance text-center text-xl leading-relaxed text-ink-soft sm:mt-24 sm:text-2xl sm:leading-[1.45]">
           {t.rich('modulesNote', {
             strong: (chunks) => (
               <strong className="font-semibold text-ink">{chunks}</strong>
             ),
           })}
-        </div>
+        </p>
       </div>
     </section>
   )

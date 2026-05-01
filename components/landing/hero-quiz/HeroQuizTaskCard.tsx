@@ -1,7 +1,41 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import type { QuizCard, QuizCardType } from './quiz-cards'
+
+/**
+ * Replace gap markers in a quiz prompt with a single horizontal rule:
+ * - `___` (3+ underscores, standalone)  → wide line for a missing word
+ * - `__`  (2 underscores, glued to word) → short line for a missing suffix
+ *
+ * Renders as styled spans so the gap reads unambiguously as "fill in" rather
+ * than as literal underscores. Stays inline with the surrounding text.
+ */
+function renderPrompt(prompt: string): ReactNode {
+  const parts = prompt.split(/(_{3,}|_{2})/g)
+  return parts.map((part, i) => {
+    if (/^_{3,}$/.test(part)) {
+      return (
+        <span
+          key={i}
+          aria-hidden="true"
+          className="mx-0.5 inline-block h-[1.5px] w-12 translate-y-[-3px] rounded-rad-pill bg-ink"
+        />
+      )
+    }
+    if (/^_{2}$/.test(part)) {
+      return (
+        <span
+          key={i}
+          aria-hidden="true"
+          className="mx-0.5 inline-block h-[1.5px] w-4 translate-y-[-3px] rounded-rad-pill bg-ink"
+        />
+      )
+    }
+    return <span key={i}>{part}</span>
+  })
+}
 
 interface HeroQuizTaskCardProps {
   card: QuizCard
@@ -54,7 +88,7 @@ export function HeroQuizTaskCard({
         </span>
       </div>
 
-      <p className="text-sm text-ink">{card.prompt}</p>
+      <p className="text-sm text-ink">{renderPrompt(card.prompt)}</p>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {card.options.map((option, i) => {

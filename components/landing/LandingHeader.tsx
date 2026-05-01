@@ -29,16 +29,18 @@ export function LandingHeader({ userEmail }: LandingHeaderProps) {
         <Link
           href="/"
           aria-label="DeutschTest.pro"
-          className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page rounded-rad-pill"
+          className="inline-flex items-center gap-2.5 rounded-rad-pill focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
         >
-          <span
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/icon-mark.svg"
+            alt=""
+            width={28}
+            height={28}
             aria-hidden="true"
-            className="flex h-8 w-8 items-center justify-center rounded-rad-pill bg-ink font-display text-sm text-card"
-          >
-            ß
-          </span>
-          <span className="hidden font-mono text-sm text-muted sm:inline">
-            deutschtest.pro
+          />
+          <span className="hidden font-display text-lg font-medium tracking-tight text-ink sm:inline">
+            deutschtest<span className="text-muted">.pro</span>
           </span>
         </Link>
 
