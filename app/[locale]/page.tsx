@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import { HeroSection } from '@/components/landing/HeroSection'
 import { FeaturesSection } from '@/components/landing/FeaturesSection'
 import { PricingSection } from '@/components/landing/PricingSection'
+import { ManifestoSection } from '@/components/landing/ManifestoSection'
 import { FaqSection } from '@/components/landing/FaqSection'
 import { Footer } from '@/components/landing/Footer'
 import { LandingHeader } from '@/components/landing/LandingHeader'
@@ -34,6 +35,7 @@ export default async function HomePage(_: { params: { locale: string } }) {
       <HeroSection isLoggedIn={isLoggedIn} />
       <FeaturesSection />
       <PricingSection />
+      <ManifestoSection />
       <FaqSection />
       <Footer />
     </main>
