@@ -32,7 +32,7 @@ interface ModuleLauncherProps {
 export function ModuleLauncher({
   modulesBalance,
   isAdmin = false,
-  defaultLevel = 'B1',
+  defaultLevel = 'A1',
 }: ModuleLauncherProps) {
   const router = useRouter()
   const t = useTranslations('dashboard.launcher')
