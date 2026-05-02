@@ -7,6 +7,7 @@ export type AdminIconName =
   | 'learning-resources'
   | 'promo'
   | 'economy'
+  | 'fixed-costs'
   | 'feedback'
 
 /**
@@ -79,6 +80,16 @@ export function AdminIcon({
         <path d="M5 6.5v4c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5v-4" />
         <path d="M5 10.5v4c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5v-4" />
         <path d="M5 14.5v3c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5v-3" />
+      </>
+    ),
+    'fixed-costs': (
+      <>
+        <rect x="4" y="6" width="16" height="14" rx="2" />
+        <path d="M4 10h16" />
+        <path d="M9 14h2" />
+        <path d="M9 17h6" />
+        <path d="M8 6V4" />
+        <path d="M16 6V4" />
       </>
     ),
     feedback: (
