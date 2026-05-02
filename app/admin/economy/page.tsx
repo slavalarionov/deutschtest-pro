@@ -4,10 +4,6 @@ import { ProviderCostChart, type ProviderDaily, type ProviderSummary } from './c
 
 export const dynamic = 'force-dynamic'
 
-// Date when sessionId/userId started flowing into ai_usage_log (commit 79c4fdb).
-// Sections that rely on session_id show data only from this day onward.
-const LOGGING_PATCH_DATE = new Date('2026-04-23T00:00:00Z')
-
 const PROVIDERS = ['anthropic', 'elevenlabs', 'openai'] as const
 type Provider = (typeof PROVIDERS)[number]
 const PROVIDER_LABELS: Record<Provider, string> = {
@@ -82,8 +78,7 @@ async function loadEconomyData(): Promise<EconomyData> {
     supabase
       .from('ai_usage_log')
       .select('session_id, cost_usd, created_at')
-      .not('session_id', 'is', null)
-      .gte('created_at', LOGGING_PATCH_DATE.toISOString()),
+      .not('session_id', 'is', null),
   ])
 
   const rows = (rowsRes.data ?? []) as UsageRow[]
@@ -268,12 +263,6 @@ function formatDate(iso: string | null): string {
   return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' })
 }
 
-const PATCH_MONTHS_RU = ['ЯНВ', 'ФЕВ', 'МАР', 'АПР', 'МАЙ', 'ИЮН', 'ИЮЛ', 'АВГ', 'СЕН', 'ОКТ', 'НОЯ', 'ДЕК']
-
-function formatPatchDate(date: Date): string {
-  return `${date.getUTCDate()} ${PATCH_MONTHS_RU[date.getUTCMonth()]} ${date.getUTCFullYear()}`
-}
-
 function sessionShort(id: string): string {
   return id.slice(0, 8)
 }
@@ -415,7 +404,7 @@ export default async function AdminEconomyPage() {
       {/* Section 3: Top-10 expensive sessions */}
       <section>
         <h2 className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
-          Топ-10 дорогих сессий · с {formatPatchDate(LOGGING_PATCH_DATE)}
+          Топ-10 дорогих сессий
         </h2>
         <h3 className="mb-6 font-display text-3xl leading-tight tracking-tight text-ink">
           Самые прожорливые сессии.
@@ -435,7 +424,7 @@ export default async function AdminEconomyPage() {
               {data.topSessions.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-10 text-center font-mono text-xs text-muted">
-                    Пока пусто — ждём первые тесты после 23 АПР 2026, когда включился детальный учёт.
+                    Пока пусто.
                   </td>
                 </tr>
               ) : (
@@ -466,7 +455,6 @@ export default async function AdminEconomyPage() {
         <p className="mt-4 text-sm leading-relaxed text-muted">
           Сессии, которые потратили больше всего AI-бюджета. Нормальные сессии стоят $0.10–$0.30. Сессии выше
           $0.50 — возможные аномалии: ретраи из-за ошибок, очень длинные тексты, баги Claude с форматом ответа.
-          Только сессии с 23 АПР 2026 и новее — до этой даты детального учёта по сессиям не велось.
         </p>
         {data.topSessions.length > 0 && (
           <p className="mt-2 font-mono text-[11px] uppercase tracking-wider text-muted">
@@ -483,7 +471,7 @@ export default async function AdminEconomyPage() {
       {/* Section 4: By level */}
       <section>
         <h2 className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
-          Себестоимость по уровням · с {formatPatchDate(LOGGING_PATCH_DATE)}
+          Себестоимость по уровням
         </h2>
         <h3 className="mb-6 font-display text-3xl leading-tight tracking-tight text-ink">
           A1 / A2 / B1 — где дороже.

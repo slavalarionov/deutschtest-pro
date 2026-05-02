@@ -2,10 +2,6 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
 
-// Date when sessionId/userId started flowing into ai_usage_log (commit 79c4fdb).
-// Metrics that rely on session_id show data only from this day onward.
-const LOGGING_PATCH_DATE = new Date('2026-04-23T00:00:00Z')
-
 const MODULE_KEYS = ['lesen', 'horen', 'schreiben', 'sprechen'] as const
 type ModuleKey = (typeof MODULE_KEYS)[number]
 const MODULE_LABELS: Record<ModuleKey, string> = {
@@ -129,8 +125,7 @@ async function loadMarginByModule(): Promise<ModuleCostRow[]> {
     supabase
       .from('ai_usage_log')
       .select('session_id, cost_usd')
-      .not('session_id', 'is', null)
-      .gte('created_at', LOGGING_PATCH_DATE.toISOString()),
+      .not('session_id', 'is', null),
     supabase
       .from('exam_sessions')
       .select('id, mode')
@@ -502,11 +497,6 @@ function feedbackRatingReaction(avg: number | null, sample: number): string {
   return 'Низкая оценка — нужно разбираться'
 }
 
-function formatPatchDate(date: Date): string {
-  const months = ['ЯНВ', 'ФЕВ', 'МАР', 'АПР', 'МАЙ', 'ИЮН', 'ИЮЛ', 'АВГ', 'СЕН', 'ОКТ', 'НОЯ', 'ДЕК']
-  return `${date.getUTCDate()} ${months[date.getUTCMonth()]} ${date.getUTCFullYear()}`
-}
-
 function pctOfPrev(current: number, previous: number | null): number | null {
   if (previous === null || previous === 0) return null
   return Math.round((current / previous) * 100)
@@ -625,7 +615,7 @@ export default async function AdminDashboardPage() {
 
       <section>
         <h2 className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
-          Себестоимость модулей · с {formatPatchDate(LOGGING_PATCH_DATE)}
+          Себестоимость модулей
         </h2>
         <h3 className="mb-6 font-display text-3xl leading-tight tracking-tight text-ink">
           Сколько стоит один модуль.
