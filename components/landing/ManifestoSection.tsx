@@ -1,20 +1,13 @@
-import { getTranslations } from 'next-intl/server'
+import { getTranslations, getLocale } from 'next-intl/server'
+import { formatExamPrice } from '@/lib/pricing/exchange-rate'
 
 /**
  * Manifesto · "Цена ошибки велика."
  *
  * Anchors the price perception: the real Goethe-Institut exam costs 10 500 ₽
- * and up — our 160 ₽ for all four modules is positioned against that reality.
- *
- * Russian-style price formatting (space thousand separator + ₽) is used in
- * every locale because:
- *   1. The audience is Russian-speaking across all four locales (Russia, CIS,
- *      Russian-speakers in Germany / Turkey).
- *   2. The argument — "passing A1 at Goethe-Institut in Russia costs N times
- *      more than our entire prep" — is locale-agnostic.
- *
- * Layout: two-column on lg+ (left = manifesto copy, right = Goethe price card),
- * full-width black banner below comparing 160 ₽ to A1 Goethe.
+ * and up in Russia — our PRODUCT_PRICE_RUB for all four modules is positioned
+ * against that reality. RUB amounts (Goethe table + our product price) are the
+ * source of truth; non-RU locales convert to EUR via formatExamPrice.
  */
 
 const GOETHE_PRICES: Array<{
@@ -29,11 +22,19 @@ const GOETHE_PRICES: Array<{
   { level: 'C1', total: 18_500, perModule: 6_000 },
 ]
 
-const rubFormatter = new Intl.NumberFormat('ru-RU')
-const formatRub = (n: number) => `${rubFormatter.format(n)} ₽`
+const PRODUCT_PRICE_RUB = 160
 
 export async function ManifestoSection() {
-  const t = await getTranslations('landing.manifesto')
+  const [t, locale] = await Promise.all([
+    getTranslations('landing.manifesto'),
+    getLocale(),
+  ])
+  const formatPrice = (n: number) => formatExamPrice(n, locale)
+  const productPrice = formatExamPrice(PRODUCT_PRICE_RUB, locale, {
+    precision: 'decimal',
+  })
+  const goetheA1 = GOETHE_PRICES[0].total
+  const multiplier = Math.floor(goetheA1 / PRODUCT_PRICE_RUB)
 
   return (
     <section
@@ -91,12 +92,12 @@ export async function ManifestoSection() {
                     </span>
                     {row.perModule != null && (
                       <span className="font-mono text-[11px] uppercase tracking-wide text-muted">
-                        {formatRub(row.perModule)} {t('perModuleUnit')}
+                        {formatPrice(row.perModule)} {t('perModuleUnit')}
                       </span>
                     )}
                   </div>
                   <span className="font-display text-2xl tracking-tight text-ink sm:text-[28px]">
-                    {formatRub(row.total)}
+                    {formatPrice(row.total)}
                   </span>
                 </li>
               ))}
@@ -118,11 +119,12 @@ export async function ManifestoSection() {
               className="mt-2 font-display leading-none text-card"
               style={{ fontSize: 'clamp(64px, 10vw, 112px)', letterSpacing: '-0.04em' }}
             >
-              160 ₽
+              {productPrice}
             </div>
           </div>
           <p className="max-w-md text-2xl leading-snug text-card sm:text-3xl lg:text-right">
             {t.rich('bannerPhrase', {
+              count: multiplier,
               multiplier: (chunks) => (
                 <span
                   className="font-display italic"

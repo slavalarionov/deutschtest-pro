@@ -168,13 +168,13 @@
       "p2": "People often fail not because they don't know the language, but because nerves or unfamiliar exam structure trip them up.",
       "p3": "On <strong>DeutschTest.pro</strong> you don't just check your knowledge and surface your weak spots and growth points — you also lose the fear of the exam itself, which is more often than not the real opponent.",
       "tableTitle": "Goethe-Institut exam cost",
-      "tableSubtitle": "Partner centres in Russia, April 2026",
+      "tableSubtitle": "Official Goethe-Institut centres, April 2026",
       "tableHeaderLevel": "LEVEL",
       "tableHeaderPrice": "EXAM COST",
       "perModuleUnit": "per module",
-      "footnote": "* Averages across Goethe-Institut partner centres in Russia. Source: public centre data as of April 2026.",
+      "footnote": "* Average data from official Goethe-Institut centres, as of April 2026.",
       "bannerLabel": "DEUTSCHTEST.PRO · ALL 4 MODULES",
-      "bannerPhrase": "<multiplier>65</multiplier>× cheaper than taking A1 at the Goethe-Institut."
+      "bannerPhrase": "<multiplier>{count}</multiplier>× cheaper than taking A1 at the Goethe-Institut."
     },
     "modulesDetail": {
       "eyebrow": "04 — FORMAT",
@@ -521,6 +521,14 @@
       "chooseModuleDisabled": "Choose a module",
       "startButton": "Start — {level}",
       "generating": "AI is generating…",
+      "loadingMessages": [
+        "AI is preparing your exam…",
+        "Selecting tasks for your level…",
+        "Just a moment more…",
+        "Final touches…",
+        "Almost ready…",
+        "Thanks for your patience…"
+      ],
       "buyModules": "Buy modules",
       "adminUnlimited": "Admin mode — unlimited",
       "adminUnlimitedMono": "ADMIN — UNLIMITED",

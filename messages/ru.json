@@ -174,7 +174,7 @@
       "perModuleUnit": "модуль",
       "footnote": "* Средние значения по партнёрским центрам Гёте-Института в России. Источник — открытые данные центров на апрель 2026.",
       "bannerLabel": "DEUTSCHTEST.PRO · ВСЕ 4 МОДУЛЯ",
-      "bannerPhrase": "В <multiplier>65</multiplier> раз дешевле, чем сдать A1 в Гёте-Институте."
+      "bannerPhrase": "В <multiplier>{count}</multiplier> раз дешевле, чем сдать A1 в Гёте-Институте."
     },
     "modulesDetail": {
       "eyebrow": "04 — ФОРМАТ",
@@ -521,6 +521,14 @@
       "chooseModuleDisabled": "Выберите модуль",
       "startButton": "Начать — {level}",
       "generating": "ИИ генерирует…",
+      "loadingMessages": [
+        "ИИ готовит ваш экзамен…",
+        "Подбираем задания вашего уровня…",
+        "Ещё чуть-чуть…",
+        "Финальные штрихи…",
+        "Почти готово…",
+        "Спасибо за терпение…"
+      ],
       "buyModules": "Купить модули",
       "adminUnlimited": "Режим админа — без ограничений",
       "adminUnlimitedMono": "АДМИН — БЕЗ ЛИМИТА",

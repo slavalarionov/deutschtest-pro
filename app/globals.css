@@ -209,6 +209,18 @@
   .animate-live-pulse { animation: none; }
 }
 
+/* Soft fade-in used when text content swaps in place (e.g., rotating loader). */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fade-in 200ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in { animation: none; }
+}
+
 /* Thin editorial scrollbar used on horizontally-scrolling chart containers. */
 .chart-scroll {
   scrollbar-width: thin;

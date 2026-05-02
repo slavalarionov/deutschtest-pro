@@ -168,13 +168,13 @@
       "p2": "İnsanlar çoğu zaman dili bilmedikleri için değil, heyecanlandıkları veya sınavın yapısına hazır olmadıkları için sınavda başarısız olur.",
       "p3": "<strong>DeutschTest.pro</strong>'da yalnızca bilginizi kontrol edip zayıf yönlerinizi ve gelişim alanlarınızı görmekle kalmaz, çoğu zaman gerçek rakip olan sınav korkusundan da kurtulursunuz.",
       "tableTitle": "Goethe-Institut sınav ücreti",
-      "tableSubtitle": "Rusya'daki partner merkezler, Nisan 2026",
+      "tableSubtitle": "Resmi Goethe-Institut merkezleri, Nisan 2026",
       "tableHeaderLevel": "SEVİYE",
       "tableHeaderPrice": "SINAV ÜCRETİ",
       "perModuleUnit": "modül başına",
-      "footnote": "* Rusya'daki Goethe-Institut partner merkezlerinin ortalama değerleri. Kaynak: merkezlerin Nisan 2026 itibarıyla açık verileri.",
+      "footnote": "* Resmi Goethe-Institut merkezlerinin ortalama değerleri. Kaynak: merkezlerin Nisan 2026 itibarıyla açık verileri.",
       "bannerLabel": "DEUTSCHTEST.PRO · TÜM 4 MODÜL",
-      "bannerPhrase": "Goethe-Institut'ta A1 vermekten <multiplier>65</multiplier> kat ucuz."
+      "bannerPhrase": "Goethe-Institut'ta A1 vermekten <multiplier>{count}</multiplier> kat ucuz."
     },
     "modulesDetail": {
       "eyebrow": "04 — FORMAT",
@@ -521,6 +521,14 @@
       "chooseModuleDisabled": "Modül seç",
       "startButton": "Başlat — {level}",
       "generating": "Yapay zekâ üretiyor…",
+      "loadingMessages": [
+        "Yapay zeka sınavınızı hazırlıyor…",
+        "Seviyenize uygun görevler seçiliyor…",
+        "Birazdan hazır…",
+        "Son rötuşlar…",
+        "Neredeyse hazır…",
+        "Sabrınız için teşekkürler…"
+      ],
       "buyModules": "Modül satın al",
       "adminUnlimited": "Admin modu — sınırsız",
       "adminUnlimitedMono": "YÖNETİCİ — SINIRSIZ",
