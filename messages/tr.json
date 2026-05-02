@@ -521,6 +521,14 @@
       "chooseModuleDisabled": "Modül seç",
       "startButton": "Başlat — {level}",
       "generating": "Yapay zekâ üretiyor…",
+      "loadingMessages": [
+        "Yapay zeka sınavınızı hazırlıyor…",
+        "Seviyenize uygun görevler seçiliyor…",
+        "Birazdan hazır…",
+        "Son rötuşlar…",
+        "Neredeyse hazır…",
+        "Sabrınız için teşekkürler…"
+      ],
       "buyModules": "Modül satın al",
       "adminUnlimited": "Admin modu — sınırsız",
       "adminUnlimitedMono": "YÖNETİCİ — SINIRSIZ",

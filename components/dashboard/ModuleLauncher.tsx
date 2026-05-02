@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link, useRouter } from '@/i18n/routing'
 import { ModuleIcon } from '@/components/dashboard/ModuleIcon'
@@ -40,6 +40,23 @@ export function ModuleLauncher({
   const [selectedModule, setSelectedModule] = useState<ExamModule | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const loadingMessagesRaw = t.raw('loadingMessages') as unknown
+  const loadingMessages: string[] = Array.isArray(loadingMessagesRaw)
+    ? (loadingMessagesRaw as string[])
+    : [t('generating')]
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0)
+
+  useEffect(() => {
+    if (!loading) {
+      setLoadingMessageIndex(0)
+      return
+    }
+    const id = setInterval(() => {
+      setLoadingMessageIndex((i) => (i + 1) % loadingMessages.length)
+    }, 3000)
+    return () => clearInterval(id)
+  }, [loading, loadingMessages.length])
 
   const hasCredits = isAdmin || modulesBalance > 0
   const insufficient = error !== null && error === t('insufficientBalance')
@@ -241,7 +258,12 @@ export function ModuleLauncher({
                   <path d="M12 3a9 9 0 0 1 9 9" />
                   <path d="M12 21a9 9 0 0 1-9-9" opacity="0.35" />
                 </svg>
-                <span>{t('generating')}</span>
+                <span
+                  key={loadingMessageIndex}
+                  className="animate-fade-in"
+                >
+                  {loadingMessages[loadingMessageIndex]}
+                </span>
               </>
             ) : selectedModule ? (
               <span>

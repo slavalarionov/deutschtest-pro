@@ -521,6 +521,14 @@
       "chooseModuleDisabled": "Choose a module",
       "startButton": "Start — {level}",
       "generating": "AI is generating…",
+      "loadingMessages": [
+        "AI is preparing your exam…",
+        "Selecting tasks for your level…",
+        "Just a moment more…",
+        "Final touches…",
+        "Almost ready…",
+        "Thanks for your patience…"
+      ],
       "buyModules": "Buy modules",
       "adminUnlimited": "Admin mode — unlimited",
       "adminUnlimitedMono": "ADMIN — UNLIMITED",

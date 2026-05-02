@@ -521,6 +521,14 @@
       "chooseModuleDisabled": "Modul wählen",
       "startButton": "Starten — {level}",
       "generating": "KI generiert…",
+      "loadingMessages": [
+        "KI bereitet Ihre Prüfung vor…",
+        "Aufgaben für Ihr Niveau werden ausgewählt…",
+        "Nur noch einen Moment…",
+        "Letzter Schliff…",
+        "Fast fertig…",
+        "Danke für Ihre Geduld…"
+      ],
       "buyModules": "Module kaufen",
       "adminUnlimited": "Admin-Modus — unbegrenzt",
       "adminUnlimitedMono": "ADMIN — UNBEGRENZT",
