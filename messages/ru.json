@@ -174,7 +174,7 @@
       "perModuleUnit": "модуль",
       "footnote": "* Средние значения по партнёрским центрам Гёте-Института в России. Источник — открытые данные центров на апрель 2026.",
       "bannerLabel": "DEUTSCHTEST.PRO · ВСЕ 4 МОДУЛЯ",
-      "bannerPhrase": "В <multiplier>65</multiplier> раз дешевле, чем сдать A1 в Гёте-Институте."
+      "bannerPhrase": "В <multiplier>{count}</multiplier> раз дешевле, чем сдать A1 в Гёте-Институте."
     },
     "modulesDetail": {
       "eyebrow": "04 — ФОРМАТ",

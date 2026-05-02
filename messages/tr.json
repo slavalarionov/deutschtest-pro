@@ -174,7 +174,7 @@
       "perModuleUnit": "modül başına",
       "footnote": "* Resmi Goethe-Institut merkezlerinin ortalama değerleri. Kaynak: merkezlerin Nisan 2026 itibarıyla açık verileri.",
       "bannerLabel": "DEUTSCHTEST.PRO · TÜM 4 MODÜL",
-      "bannerPhrase": "Goethe-Institut'ta A1 vermekten <multiplier>65</multiplier> kat ucuz."
+      "bannerPhrase": "Goethe-Institut'ta A1 vermekten <multiplier>{count}</multiplier> kat ucuz."
     },
     "modulesDetail": {
       "eyebrow": "04 — FORMAT",

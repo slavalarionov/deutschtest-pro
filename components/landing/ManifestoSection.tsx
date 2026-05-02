@@ -5,9 +5,9 @@ import { formatExamPrice } from '@/lib/pricing/exchange-rate'
  * Manifesto · "Цена ошибки велика."
  *
  * Anchors the price perception: the real Goethe-Institut exam costs 10 500 ₽
- * and up in Russia — our 160 ₽ for all four modules is positioned against that
- * reality. For non-RU locales the same RUB source-of-truth is converted to EUR
- * via lib/pricing/exchange-rate.ts.
+ * and up in Russia — our PRODUCT_PRICE_RUB for all four modules is positioned
+ * against that reality. RUB amounts (Goethe table + our product price) are the
+ * source of truth; non-RU locales convert to EUR via formatExamPrice.
  */
 
 const GOETHE_PRICES: Array<{
@@ -22,12 +22,19 @@ const GOETHE_PRICES: Array<{
   { level: 'C1', total: 18_500, perModule: 6_000 },
 ]
 
+const PRODUCT_PRICE_RUB = 160
+
 export async function ManifestoSection() {
   const [t, locale] = await Promise.all([
     getTranslations('landing.manifesto'),
     getLocale(),
   ])
   const formatPrice = (n: number) => formatExamPrice(n, locale)
+  const productPrice = formatExamPrice(PRODUCT_PRICE_RUB, locale, {
+    precision: 'decimal',
+  })
+  const goetheA1 = GOETHE_PRICES[0].total
+  const multiplier = Math.floor(goetheA1 / PRODUCT_PRICE_RUB)
 
   return (
     <section
@@ -112,11 +119,12 @@ export async function ManifestoSection() {
               className="mt-2 font-display leading-none text-card"
               style={{ fontSize: 'clamp(64px, 10vw, 112px)', letterSpacing: '-0.04em' }}
             >
-              160 ₽
+              {productPrice}
             </div>
           </div>
           <p className="max-w-md text-2xl leading-snug text-card sm:text-3xl lg:text-right">
             {t.rich('bannerPhrase', {
+              count: multiplier,
               multiplier: (chunks) => (
                 <span
                   className="font-display italic"

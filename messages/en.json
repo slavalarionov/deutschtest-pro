@@ -174,7 +174,7 @@
       "perModuleUnit": "per module",
       "footnote": "* Average data from official Goethe-Institut centres, as of April 2026.",
       "bannerLabel": "DEUTSCHTEST.PRO · ALL 4 MODULES",
-      "bannerPhrase": "<multiplier>65</multiplier>× cheaper than taking A1 at the Goethe-Institut."
+      "bannerPhrase": "<multiplier>{count}</multiplier>× cheaper than taking A1 at the Goethe-Institut."
     },
     "modulesDetail": {
       "eyebrow": "04 — FORMAT",
