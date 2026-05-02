@@ -2,42 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useTransition } from 'react'
-
-export type EconomyPeriod = '7d' | '30d' | '90d' | 'all'
-
-const OPTIONS: ReadonlyArray<{ id: EconomyPeriod; label: string }> = [
-  { id: '7d', label: '7 дней' },
-  { id: '30d', label: '30 дней' },
-  { id: '90d', label: '90 дней' },
-  { id: 'all', label: 'Всё время' },
-]
-
-export const ALL_PERIOD_DAYS = 365
-
-export function periodToDays(period: EconomyPeriod): number {
-  switch (period) {
-    case '7d':
-      return 7
-    case '30d':
-      return 30
-    case '90d':
-      return 90
-    case 'all':
-      return ALL_PERIOD_DAYS
-  }
-}
-
-export function parsePeriod(raw: string | string[] | undefined): EconomyPeriod {
-  const value = Array.isArray(raw) ? raw[0] : raw
-  if (value === '7d' || value === '30d' || value === '90d' || value === 'all') {
-    return value
-  }
-  return '30d'
-}
-
-export function periodLabel(period: EconomyPeriod): string {
-  return OPTIONS.find((o) => o.id === period)?.label ?? '30 дней'
-}
+import { PERIOD_OPTIONS, type EconomyPeriod } from '@/lib/economy/period'
 
 export function PeriodSelector({ current }: { current: EconomyPeriod }) {
   const router = useRouter()
@@ -60,7 +25,7 @@ export function PeriodSelector({ current }: { current: EconomyPeriod }) {
       role="tablist"
       aria-label="Период"
     >
-      {OPTIONS.map((opt) => {
+      {PERIOD_OPTIONS.map((opt) => {
         const active = opt.id === current
         return (
           <button

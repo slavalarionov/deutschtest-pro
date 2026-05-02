@@ -4,13 +4,13 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { ProviderCostChart, type ProviderDaily, type ProviderSummary } from './cost-chart'
 import { RevenueChart } from './revenue-chart'
 import { BalanceCardClient } from './balance-card-client'
+import { PeriodSelector } from '@/components/admin/PeriodSelector'
 import {
-  PeriodSelector,
   parsePeriod,
   periodToDays,
   periodLabel,
   type EconomyPeriod,
-} from '@/components/admin/PeriodSelector'
+} from '@/lib/economy/period'
 import { getRevenue } from '@/lib/economy/revenue'
 import { getProfit } from '@/lib/economy/profit'
 import { getAllProviderBalances } from '@/lib/economy/providers'
