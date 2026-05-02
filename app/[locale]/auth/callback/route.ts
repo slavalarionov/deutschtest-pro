@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { sendAdminTelegram } from '@/lib/telegram'
 
 const SUPPORTED_LOCALES = ['de', 'ru', 'en', 'tr'] as const
 type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
@@ -24,20 +25,39 @@ export async function GET(request: Request) {
     const match = cookieHeader.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/)
     const cookieLocale = match?.[1]
 
-    if (isSupportedLocale(cookieLocale)) {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('created_at, preferred_language')
-          .eq('id', user.id)
-          .single()
-        if (profile) {
-          const createdAtMs = new Date(profile.created_at).getTime()
-          const isFreshProfile = Date.now() - createdAtMs < 60_000
-          if (isFreshProfile && profile.preferred_language !== cookieLocale) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('created_at, preferred_language, target_level')
+        .eq('id', user.id)
+        .single()
+      if (profile) {
+        const createdAtMs = new Date(profile.created_at).getTime()
+        const isFreshProfile = Date.now() - createdAtMs < 60_000
+
+        if (isFreshProfile) {
+          // Уведомление админу о новой регистрации (fire-and-forget,
+          // не блокирует редирект юзера на /dashboard).
+          const lang =
+            (isSupportedLocale(cookieLocale)
+              ? cookieLocale
+              : profile.preferred_language) ?? '—'
+          const targetLevel = profile.target_level ?? '—'
+          void sendAdminTelegram(
+            [
+              '🆕 Новая регистрация',
+              user.email ?? user.id,
+              `Язык: ${lang} · Цель: ${targetLevel}`,
+            ].join('\n'),
+          )
+
+          if (
+            isSupportedLocale(cookieLocale) &&
+            profile.preferred_language !== cookieLocale
+          ) {
             await supabase
               .from('profiles')
               .update({ preferred_language: cookieLocale })

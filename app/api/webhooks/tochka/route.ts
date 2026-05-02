@@ -14,6 +14,7 @@ import { NextRequest } from 'next/server'
 import { verifyTochkaWebhook } from '@/lib/tochka/webhook'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendPaymentSuccessEmail } from '@/lib/email/payment-success'
+import { notifyAdminOnPayment } from '@/lib/telegram'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -119,6 +120,11 @@ export async function POST(req: NextRequest) {
     sendPaymentSuccessEmail({
       paymentId: result.payment_id,
       userId: result.user_id,
+    }),
+    notifyAdminOnPayment({
+      paymentId: result.payment_id,
+      userId: result.user_id,
+      modulesCredited: result.modules_credited,
     }),
   ]).then((settled) => {
     settled.forEach((s) => {
