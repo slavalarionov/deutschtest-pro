@@ -1,4 +1,12 @@
+import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getDashboardKPI } from '@/lib/economy/dashboard-kpi'
+import {
+  formatUsd as formatUsdEconomy,
+  formatRub,
+  formatEur,
+  formatPercent,
+} from '@/lib/economy/formatting'
 
 export const dynamic = 'force-dynamic'
 
@@ -455,6 +463,45 @@ function formatUsd(value: number): string {
   return `$${value.toFixed(2)}`
 }
 
+function FinanceCard({
+  label,
+  primary,
+  secondary,
+  footer,
+  primaryClassName,
+}: {
+  label: string
+  primary: string
+  secondary?: string
+  footer?: string
+  primaryClassName?: string
+}) {
+  return (
+    <div className="flex min-h-[160px] flex-col rounded-rad border border-line bg-card p-6">
+      <div className="font-mono text-[10px] uppercase tracking-widest text-muted">
+        {label}
+      </div>
+      <div
+        className={`mt-3 font-display text-3xl tracking-tight tabular-nums ${
+          primaryClassName ?? 'text-ink'
+        }`}
+      >
+        {primary}
+      </div>
+      {secondary && (
+        <div className="mt-1 font-mono text-[11px] uppercase tracking-wider text-muted tabular-nums">
+          {secondary}
+        </div>
+      )}
+      {footer && (
+        <div className="mt-auto pt-3 font-mono text-[11px] uppercase tracking-wider text-muted tabular-nums">
+          {footer}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function activationReaction(percent: number | null, sampleSize: number): string {
   if (sampleSize < 10) return 'Данных мало — ждём рекламу'
   if (percent === null) return 'Нет данных'
@@ -503,8 +550,8 @@ function pctOfPrev(current: number, previous: number | null): number | null {
 }
 
 export default async function AdminDashboardPage() {
-  const { basic, marginByModule, retention7d, retention30d, funnel, feedback30d } =
-    await loadDashboardData()
+  const [{ basic, marginByModule, retention7d, retention30d, funnel, feedback30d }, kpi] =
+    await Promise.all([loadDashboardData(), getDashboardKPI()])
 
   const activationPct =
     basic.totalUsers > 0
@@ -560,6 +607,50 @@ export default async function AdminDashboardPage() {
           <span className="text-ink-soft">Текущие цифры.</span>
         </h1>
       </header>
+
+      <section>
+        <div className="mb-3 flex items-baseline justify-between gap-4">
+          <h2 className="font-mono text-[10px] uppercase tracking-widest text-muted">
+            Финансы · 30 дней
+          </h2>
+          <Link
+            href="/admin/economy"
+            className="font-mono text-[11px] uppercase tracking-wider text-muted transition-colors hover:text-ink hover:underline"
+          >
+            Подробнее в разделе Экономика →
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-5">
+          <FinanceCard
+            label="Выручка net"
+            primary={formatUsdEconomy(kpi.revenue30d.netUsd)}
+            secondary={`gross ${formatUsdEconomy(kpi.revenue30d.grossUsd)}`}
+            footer={`RU ${formatRub(kpi.revenue30d.ru)} · EU ${formatEur(kpi.revenue30d.eu)}`}
+          />
+          <FinanceCard
+            label="Прибыль net"
+            primary={formatUsdEconomy(kpi.profit30d.netUsd)}
+            secondary={kpi.profit30d.netUsd >= 0 ? 'Положительная' : 'Отрицательная'}
+            primaryClassName={kpi.profit30d.netUsd >= 0 ? 'text-emerald-600' : 'text-red-600'}
+          />
+          <FinanceCard
+            label="Маржа"
+            primary={formatPercent(kpi.profit30d.marginPercent)}
+            secondary="от выручки net"
+            primaryClassName={kpi.profit30d.netUsd >= 0 ? 'text-emerald-600' : 'text-red-600'}
+          />
+          <FinanceCard
+            label="Конверсия в платящего"
+            primary={formatPercent(kpi.payingConversion, 2)}
+            secondary="от всех профилей"
+          />
+          <FinanceCard
+            label="MRR"
+            primary={formatUsdEconomy(kpi.mrr)}
+            secondary="≈ выручка net 30д"
+          />
+        </div>
+      </section>
 
       <section>
         <h2 className="mb-3 font-mono text-[10px] uppercase tracking-widest text-muted">
