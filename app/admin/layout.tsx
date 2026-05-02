@@ -12,6 +12,7 @@ const NAV_ITEMS: ReadonlyArray<{ href: string; label: string; icon: AdminIconNam
   { href: '/admin/learning-resources', label: 'Учебные ресурсы', icon: 'learning-resources' },
   { href: '/admin/promo', label: 'Промо', icon: 'promo' },
   { href: '/admin/economy', label: 'Экономика', icon: 'economy' },
+  { href: '/admin/fixed-costs', label: 'Постоянные расходы', icon: 'fixed-costs' },
   { href: '/admin/feedback', label: 'Фидбэк', icon: 'feedback' },
 ] as const
 
